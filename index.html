@@ -1,0 +1,535 @@
+<title>Coordinate Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F7F9FC; --gridbg:#E5EBF5; --card:#FFFFFF; --line:#D5DEEC;
+    --ink:#17263F; --muted:#5A6B87; --accent:#2557D6; --accent-soft:#E7EDFB;
+    --good:#147A46; --good-bg:#E4F5EA; --bad:#C43D2B; --bad-bg:#FBEAE6;
+    --gridline:#DFE7F2; --chip:#EEF3FA;
+    --slab:'Zilla Slab', 'Georgia', serif;
+    --body:'Atkinson Hyperlegible', 'Verdana', sans-serif;
+    --mono:'IBM Plex Mono', 'Courier New', monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0E1524; --gridbg:#182338; --card:#172137; --line:#2B3B5C;
+      --ink:#E9EFFA; --muted:#93A3BF; --accent:#7FA9FF; --accent-soft:#1E2C4E;
+      --good:#4BCE8A; --good-bg:#12321F; --bad:#FF8F79; --bad-bg:#3C1B14;
+      --gridline:#24314D; --chip:#1D2A45;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E1524; --gridbg:#182338; --card:#172137; --line:#2B3B5C;
+    --ink:#E9EFFA; --muted:#93A3BF; --accent:#7FA9FF; --accent-soft:#1E2C4E;
+    --good:#4BCE8A; --good-bg:#12321F; --bad:#FF8F79; --bad-bg:#3C1B14;
+    --gridline:#24314D; --chip:#1D2A45;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--ink); font-family:var(--body); line-height:1.55;
+    background:var(--paper);
+    background-image:linear-gradient(var(--gridbg) 1px, transparent 1px),
+                     linear-gradient(90deg, var(--gridbg) 1px, transparent 1px);
+    background-size:26px 26px;
+    min-height:100vh;
+  }
+  .wrap{max-width:660px; margin:0 auto; padding:20px 16px 60px}
+  .screen{display:none}
+  .screen.on{display:block}
+
+  /* ---------- welcome ---------- */
+  .eyebrow{font-family:var(--slab); font-weight:600; letter-spacing:.14em; font-size:.78rem; color:var(--accent); text-transform:uppercase}
+  h1{font-family:var(--slab); font-weight:700; font-size:2.5rem; margin:.2rem 0 .4rem; text-wrap:balance}
+  h1 .dot{display:inline-block; width:.55em; height:.55em; border-radius:50%; background:var(--accent); margin-left:.12em}
+  .lede{font-size:1.06rem; color:var(--muted); max-width:34rem; margin:0 0 18px}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 22px}
+  .chip{background:var(--chip); border:1px solid var(--line); border-radius:8px; padding:5px 11px; font-size:.85rem; font-weight:700}
+  .howto{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:22px; font-size:.95rem}
+  .howto b{font-family:var(--slab)}
+  .best{color:var(--muted); font-size:.9rem; margin-top:12px}
+
+  /* ---------- buttons ---------- */
+  button{font-family:var(--body); font-size:1rem; cursor:pointer}
+  .btn{
+    display:inline-block; border:2px solid var(--accent); border-radius:10px;
+    background:var(--accent); color:#fff; font-weight:700; padding:12px 22px;
+  }
+  :root[data-theme="dark"] .btn{color:#0E1524}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#0E1524} }
+  .btn.ghost{background:transparent; color:var(--accent)}
+  .btn:focus-visible, .opt:focus-visible, .ansin:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+
+  /* ---------- quiz header ---------- */
+  .qtop{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:8px}
+  .qcount{font-family:var(--slab); font-weight:600; font-size:.95rem}
+  .qcount b{font-size:1.15rem}
+  .scorechip{font-family:var(--mono); font-size:.85rem; color:var(--muted)}
+  .scorechip .streak{color:var(--accent); font-weight:600; margin-left:8px}
+  .track{height:8px; background:var(--gridline); border-radius:99px; overflow:hidden; margin-bottom:20px}
+  .track .fill{height:100%; width:0%; background:var(--accent); border-radius:99px; transition:width .3s ease}
+
+  /* ---------- question card ---------- */
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 20px 22px; box-shadow:0 2px 10px rgba(23,38,63,.05)}
+  .sec{font-family:var(--slab); font-weight:600; letter-spacing:.12em; font-size:.74rem; color:var(--accent); text-transform:uppercase; margin-bottom:6px}
+  .qtext{font-size:1.18rem; font-weight:700; margin:0 0 4px; text-wrap:balance}
+  .qtext .m, .expl .m{font-family:var(--mono); font-weight:600}
+  .fig{display:flex; justify-content:center; margin:14px 0 6px}
+  .fig svg{width:min(300px,100%); height:auto}
+  svg .gl{stroke:var(--gridline); stroke-width:1}
+  svg .ax{stroke:var(--muted); stroke-width:1.8}
+  svg .tick{fill:var(--muted); font:10px var(--mono)}
+  svg .pt{fill:var(--accent)}
+  svg .pt2{fill:var(--good)}
+  svg .plb{fill:var(--ink); font:600 11px var(--mono)}
+  svg .seg{fill:none; stroke:var(--accent); stroke-width:2.4; stroke-dasharray:5 4}
+  svg .poly{fill:var(--accent); opacity:.14; stroke:var(--accent); stroke-width:1.6}
+
+  .opts{display:grid; gap:10px; margin-top:16px}
+  .opt{
+    text-align:left; background:transparent; color:var(--ink);
+    border:2px solid var(--line); border-radius:10px; padding:12px 14px;
+    font-size:1.02rem; transition:border-color .12s ease;
+  }
+  .opt.mono{font-family:var(--mono); font-size:.98rem}
+  .opt:hover:not(:disabled){border-color:var(--accent)}
+  .opt:disabled{cursor:default}
+  .opt .key{display:inline-block; font-family:var(--mono); font-size:.75rem; color:var(--muted); border:1px solid var(--line); border-radius:5px; padding:0 5px; margin-right:9px; vertical-align:1px}
+  .opt.right{border-color:var(--good); background:var(--good-bg)}
+  .opt.wrong{border-color:var(--bad); background:var(--bad-bg)}
+  .opt.dim{opacity:.55}
+
+  .inrow{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .ansin{
+    flex:1 1 150px; min-width:0; font-family:var(--mono); font-size:1.15rem;
+    padding:11px 13px; border:2px solid var(--line); border-radius:10px;
+    background:var(--paper); color:var(--ink);
+  }
+  .hint{color:var(--muted); font-size:.85rem; margin-top:8px}
+
+  /* ---------- feedback ---------- */
+  .fb{margin-top:18px; border-left:4px solid var(--good); background:var(--good-bg); border-radius:0 10px 10px 0; padding:13px 15px}
+  .fb.bad{border-left-color:var(--bad); background:var(--bad-bg)}
+  .fb h3{font-family:var(--slab); font-size:1.05rem; margin:0 0 4px}
+  .fb.bad h3{color:var(--bad)} .fb h3{color:var(--good)}
+  .expl{font-size:.97rem; margin:0}
+  .nextrow{display:flex; justify-content:flex-end; margin-top:16px}
+  .kbd{color:var(--muted); font-size:.8rem; align-self:center; margin-right:auto}
+
+  /* ---------- results ---------- */
+  .bigscore{font-family:var(--slab); font-weight:700; font-size:3.4rem; line-height:1; margin:6px 0 2px; font-variant-numeric:tabular-nums}
+  .bigscore small{font-size:1.6rem; color:var(--muted); font-weight:600}
+  .verdict{font-size:1.1rem; margin:4px 0 20px}
+  .secrow{margin-bottom:13px}
+  .secrow .lbl{display:flex; justify-content:space-between; font-size:.92rem; margin-bottom:4px}
+  .secrow .lbl b{font-family:var(--slab)}
+  .secrow .lbl span{font-family:var(--mono); font-size:.85rem; color:var(--muted)}
+  .bar{height:10px; background:var(--gridline); border-radius:99px; overflow:hidden}
+  .bar i{display:block; height:100%; border-radius:99px}
+  .tag{display:inline-block; font-size:.72rem; font-weight:700; color:var(--bad); border:1px solid var(--bad); border-radius:6px; padding:0 6px; margin-left:8px; vertical-align:1px}
+  .endbtns{display:flex; gap:12px; flex-wrap:wrap; margin-top:24px}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+
+<div class="wrap">
+
+  <!-- WELCOME -->
+  <section id="welcome" class="screen on">
+    <div class="eyebrow">6th Grade &middot; Number System Unit</div>
+    <h1>Coordinate Quest<span class="dot"></span></h1>
+    <p class="lede">A 40-question practice run for Tuesday&rsquo;s math quiz &mdash; built from this unit&rsquo;s worksheets, same skills with fresh numbers.</p>
+    <div class="chips">
+      <span class="chip">The coordinate plane</span>
+      <span class="chip">Quadrants &amp; axes</span>
+      <span class="chip">Distance between points</span>
+      <span class="chip">Reflections</span>
+      <span class="chip">Comparing &amp; ordering</span>
+      <span class="chip">Fractions &harr; decimals</span>
+    </div>
+    <div class="howto"><b>How it works:</b> answer each question and you&rsquo;ll instantly see if you got it, plus the rule behind it. At the end you get a topic-by-topic report and can retry anything you missed.</div>
+    <button class="btn" id="startBtn">Start the quiz &rarr;</button>
+    <div class="best" id="bestLine"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="screen">
+    <div class="qtop">
+      <div class="qcount">Question <b id="qnum">1</b> / <span id="qtot">40</span></div>
+      <div class="scorechip">score <span id="scoreVal">0</span><span class="streak" id="streakVal"></span></div>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="card" id="qcard"></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="screen">
+    <div class="eyebrow" id="resEyebrow">Results</div>
+    <div class="bigscore"><span id="resScore">0</span><small> / <span id="resTot">40</span></small></div>
+    <p class="verdict" id="resMsg"></p>
+    <div class="card" id="resCard"></div>
+    <div class="endbtns">
+      <button class="btn" id="retryBtn"></button>
+      <button class="btn ghost" id="restartBtn">Start over</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+"use strict";
+/* ============ question data ============ */
+const SECS = {
+  A:"Know the Plane", B:"Points & Quadrants", C:"Distance on the Grid",
+  D:"Reflections", E:"Rectangles & Word Problems", F:"Compare & Order", G:"Fractions & Decimals"
+};
+const ABCD = [["A",2,3],["B",-3,1],["C",-2,-4],["D",3,-2]];
+const P = (l,x,y,c)=>({l,x,y,c});
+
+/* type "mc": opts + a (index of correct). type "in": ans (number) + accepted via numeric compare. */
+const Q = [
+/* A — Know the Plane */
+{sec:"A",type:"mc",q:"The horizontal number line on the coordinate plane is called the ___.",
+ opts:["x-axis","y-axis","origin","quadrant"],a:0,
+ expl:"The x-axis runs left–right (horizontal). The y-axis is the one that runs up–down."},
+{sec:"A",type:"mc",q:"The x-axis and y-axis cross at the point (0, 0). That point is called the ___.",
+ mono:false,opts:["origin","quadrant","midpoint","corner"],a:0,
+ expl:"The origin is where the two axes intersect — the ordered pair (0, 0). Every point is plotted starting from there."},
+{sec:"A",type:"mc",q:"In the ordered pair (3, 7), what does the 3 tell you to do?",
+ opts:["Move 3 units right from the origin","Move 3 units up from the origin","Move 3 units left from the origin","It names Quadrant 3"],a:0,
+ expl:"The first number is the x-coordinate: it moves you left or right along the x-axis. Positive 3 means 3 to the right. Then the 7 moves you up."},
+{sec:"A",type:"mc",q:"Which describes every point in Quadrant II?",
+ opts:["x is negative, y is positive","x is positive, y is positive","x is negative, y is negative","x is positive, y is negative"],a:0,
+ expl:"Quadrants count counter-clockwise from the top-right: I is (+, +), II is (−, +), III is (−, −), IV is (+, −). Quadrant II is the top-left."},
+{sec:"A",type:"mc",q:"The point (−8, −3) is in which quadrant?",
+ opts:["Quadrant III","Quadrant I","Quadrant II","Quadrant IV"],a:0,
+ expl:"Both coordinates are negative: move left, then down. That lands in the bottom-left region — Quadrant III."},
+
+/* B — Points & Quadrants */
+{sec:"B",type:"mc",q:"The point (5, −3) is in which quadrant?",
+ opts:["Quadrant IV","Quadrant I","Quadrant II","Quadrant III"],a:0,
+ expl:"x is positive (right) and y is negative (down) — bottom-right, which is Quadrant IV."},
+{sec:"B",type:"mc",q:"The point (0, 7) lies ___.",
+ opts:["on the y-axis","on the x-axis","in Quadrant I","at the origin"],a:0,
+ expl:"x = 0 means no left–right movement at all — the point sits straight up the y-axis. Points on an axis are not inside any quadrant."},
+{sec:"B",type:"mc",q:"The point (−4, 0) lies ___.",
+ opts:["on the x-axis","on the y-axis","in Quadrant II","in Quadrant III"],a:0,
+ expl:"y = 0 means no up–down movement, so the point sits on the x-axis, 4 units to the left of the origin."},
+{sec:"B",type:"mc",q:"Look at the grid. Which point is located at (−3, 1)?",
+ fig:{pts:ABCD.map(p=>[p[1],p[2],p[0]])},
+ opts:["Point B","Point A","Point C","Point D"],a:0,
+ expl:"From the origin: 3 left (x = −3), then 1 up (y = 1). That is point B."},
+{sec:"B",type:"pair",q:"Write the coordinates of point D as an ordered pair.",
+ fig:{pts:ABCD.map(p=>[p[1],p[2],p[0]])},ansP:[3,-2],
+ expl:"D is 3 units right and 2 units down: x = 3, y = −2, so D is (3, −2). Always write (x, y) — right/left first, up/down second."},
+{sec:"B",type:"pair",q:"Start at (−3, 2). Move 4 units right and 2 units up. Write where you land as an ordered pair.",ansP:[1,4],
+ figA:{pts:[[-3,2,"start"],[1,4,"end","pt2"]],path:[[-3,2],[1,2],[1,4]]},
+ expl:"Right means add to x: −3 + 4 = 1. Up means add to y: 2 + 2 = 4. You land on (1, 4)."},
+
+/* C — Distance */
+{sec:"C",type:"in",q:"Points (2, 3) and (2, 8) are plotted on a grid. What is the vertical distance between them, in units?",ans:5,hint:"Type just the number.",
+ figA:{pts:[[2,3,"(2, 3)"],[2,8,"(2, 8)"]],path:[[2,3],[2,8]]},
+ expl:"The x-values match, so count the space between the y-values: 8 − 3 = 5 units."},
+{sec:"C",type:"in",q:"What is the distance between (6, 7) and (6, −4), in units?",ans:11,hint:"Type just the number.",
+ figA:{pts:[[6,7,"(6, 7)"],[6,-4,"(6, −4)"]],path:[[6,7],[6,-4]]},
+ expl:"The y-values are on opposite sides of the x-axis, so add their absolute values: |7| + |−4| = 7 + 4 = 11 units."},
+{sec:"C",type:"in",q:"What is the horizontal distance between (−9, −10) and (10, −10), in units?",ans:19,hint:"Type just the number.",
+ figA:{pts:[[-9,-10,"(−9, −10)"],[10,-10,"(10, −10)"]],path:[[-9,-10],[10,-10]]},
+ expl:"Same y-value, and the x-values sit on opposite sides of the y-axis: |−9| + |10| = 9 + 10 = 19 units."},
+{sec:"C",type:"in",q:"Point J is at (9, −8) and point K is at (0, −8). What is the distance between J and K, in units?",ans:9,hint:"Type just the number.",
+ figA:{pts:[[9,-8,"J"],[0,-8,"K"]],path:[[9,-8],[0,-8]]},
+ expl:"Same y-value, so it is a horizontal trip from x = 0 to x = 9: that is 9 units."},
+{sec:"C",type:"mc",q:"Which expression gives the distance between (−2, 4) and (7, 4)?",mono:true,
+ opts:["|−2| + |7|","|4| + |4|","|7| − |−2|","|−2| + |4|"],a:0,
+ expl:"The y-values match (both 4), so distance runs along x. The x-values are on opposite sides of the y-axis, so ADD the absolute values: 2 + 7 = 9 units."},
+{sec:"C",type:"in",q:"Find the distance between (4, 5) and (4, −7), in units.",ans:12,hint:"Type just the number.",
+ figA:{pts:[[4,5,"(4, 5)"],[4,-7,"(4, −7)"]],path:[[4,5],[4,-7]]},
+ expl:"Opposite sides of the x-axis, so add absolute values: |5| + |−7| = 5 + 7 = 12 units."},
+{sec:"C",type:"in",q:"Find the distance between (0, 8) and (0, −12), in units.",ans:20,hint:"Type just the number.",
+ expl:"Both points sit on the y-axis. Add the absolute values: |8| + |−12| = 8 + 12 = 20 units."},
+
+/* D — Reflections */
+{sec:"D",type:"pair",q:"Reflect (3, 6) over the y-axis. Write where it lands.",ansP:[-3,6],
+ figA:{pts:[[3,6,"(3, 6)"],[-3,6,"(−3, 6)","pt2"]],path:[[3,6],[-3,6]]},
+ expl:"Reflecting over the y-axis flips left–right: the x-coordinate changes sign and y stays the same. (3, 6) → (−3, 6)."},
+{sec:"D",type:"pair",q:"Reflect (5, 8) over the x-axis. Write where it lands.",ansP:[5,-8],
+ figA:{pts:[[5,8,"(5, 8)"],[5,-8,"(5, −8)","pt2"]],path:[[5,8],[5,-8]]},
+ expl:"Reflecting over the x-axis flips up–down: the y-coordinate changes sign and x stays the same. (5, 8) → (5, −8)."},
+{sec:"D",type:"pair",q:"Reflect (−12, 10) over the x-axis. Write where it lands.",ansP:[-12,-10],
+ expl:"Over the x-axis, keep x and flip y: x stays −12, and 10 becomes −10. It lands at (−12, −10)."},
+{sec:"D",type:"mc",q:"When you reflect a point over the x-axis, which is true?",
+ opts:["The y-coordinate changes sign; x stays the same","The x-coordinate changes sign; y stays the same","Both coordinates change sign","Both coordinates stay the same"],a:0,
+ expl:"x-axis reflection flips a point up–down, so only y changes sign. Over the y-axis, only x flips. To the opposite quadrant, both flip."},
+{sec:"D",type:"pair",q:"Reflect (−6, 5) over the y-axis. Write where it lands.",ansP:[6,5],
+ figA:{pts:[[-6,5,"(−6, 5)"],[6,5,"(6, 5)","pt2"]],path:[[-6,5],[6,5]]},
+ expl:"Over the y-axis, flip only the x: −6 becomes 6. The point lands at (6, 5) — no plotting needed once you know the pattern!"},
+{sec:"D",type:"pair",q:"Reflect (4, −2) into the opposite quadrant (over BOTH axes). Write where it lands.",ansP:[-4,2],
+ figA:{pts:[[4,-2,"(4, −2)"],[-4,2,"(−4, 2)","pt2"]],path:[[4,-2],[-4,2]]},
+ expl:"Opposite quadrant means both coordinates change sign: (4, −2) → (−4, 2)."},
+
+/* E — Rectangles & Word Problems */
+{sec:"E",type:"mc",q:"Points (−4, 2) and (1, 2) are the TOP two corners of a rectangle that is 3 units tall (it drops down from these corners). What are the other two vertices?",mono:true,
+ opts:["(−4, −1) and (1, −1)","(−4, 5) and (1, 5)","(−4, 1) and (1, 1)","(−7, 2) and (4, 2)"],a:0,
+ figA:{poly:[[-4,2],[1,2],[1,-1],[-4,-1]],pts:[[-4,2,""],[1,2,""],[1,-1,"","pt2"],[-4,-1,"","pt2"]]},
+ expl:"The bottom corners sit straight below, so the x-values stay −4 and 1. Drop the y down 3: 2 − 3 = −1."},
+{sec:"E",type:"mc",q:"Points (−4, −4) and (0, −4) are the BOTTOM two corners of a rectangle that is 8 units tall (it rises up from these corners). What are the other two vertices?",mono:true,
+ opts:["(−4, 4) and (0, 4)","(−4, −12) and (0, −12)","(−4, 8) and (0, 8)","(4, −4) and (8, −4)"],a:0,
+ figA:{poly:[[-4,-4],[0,-4],[0,4],[-4,4]],pts:[[-4,-4,""],[0,-4,""],[0,4,"","pt2"],[-4,4,"","pt2"]]},
+ expl:"Keep the x-values and go UP 8 from y = −4: that is 4 up to the x-axis, then 4 more, so y = −4 + 8 = 4."},
+{sec:"E",type:"pair",q:"A cell phone tower is 6 blocks west and 2 blocks north of Darnell's house, which sits at the origin. Write the tower's location as an ordered pair.",ansP:[-6,2],
+ figA:{pts:[[0,0,"house"],[-6,2,"tower","pt2"]],path:[[0,0],[-6,0],[-6,2]]},
+ expl:"On a map grid: west is the negative x direction and north is the positive y direction. 6 west, 2 north → (−6, 2)."},
+{sec:"E",type:"pair",q:"A boat leaves port at (−7, −3). It sails 5 miles east, then 8 miles south. Write the boat's new location as an ordered pair.",ansP:[-2,-11],
+ figA:{pts:[[-7,-3,"port"],[-2,-11,"boat","pt2"]],path:[[-7,-3],[-2,-3],[-2,-11]]},
+ expl:"East adds to x: −7 + 5 = −2. South subtracts from y: −3 − 8 = −11. The boat is at (−2, −11)."},
+{sec:"E",type:"in",q:"You scored 96 on your first quiz and 89 on your second. Write the integer that shows the change in your score.",ans:-7,hint:"Include the sign if it dropped, like −4.",
+ expl:"Change = new − old = 89 − 96 = −7. The score dropped 7 points, so the change is negative."},
+
+/* F — Compare & Order */
+{sec:"F",type:"mc",q:"Choose the symbol that makes this true:  −5.05 ◯ −5",mono:true,
+ opts:["<","> ","="],a:0,
+ expl:"With negatives, the number farther below zero is SMALLER. −5.05 is a little more negative than −5, so −5.05 < −5."},
+{sec:"F",type:"mc",q:"Choose the symbol that makes this true:  −1.75 ◯ −0.75",mono:true,
+ opts:["<","> ","="],a:0,
+ expl:"−1.75 is farther from zero on the negative side, so it is the smaller number: −1.75 < −0.75."},
+{sec:"F",type:"mc",q:"Choose the symbol that makes this true:  −24 ◯ −24.0",mono:true,
+ opts:["=","<","> "],a:0,
+ expl:"Writing .0 on the end does not change a number's value. −24 and −24.0 are exactly equal."},
+{sec:"F",type:"mc",q:"Order from LEAST to greatest:  4,  −6,  4.6,  16,  −3.9",mono:true,
+ opts:["−6, −3.9, 4, 4.6, 16","−3.9, −6, 4, 4.6, 16","16, 4.6, 4, −3.9, −6","−6, −3.9, 4.6, 4, 16"],a:0,
+ expl:"Negatives come first, and −6 is less than −3.9 (it is farther below zero). Then 4 < 4.6 < 16."},
+{sec:"F",type:"in",q:"What is the value of |−7| ?",ans:7,hint:"Absolute value asks: how far from zero?",
+ expl:"Absolute value is a number's distance from zero, and distance is always positive: |−7| = 7."},
+{sec:"F",type:"mc",q:"Order from LEAST to greatest:  3,  −½,  |−4|,  1½",mono:true,
+ opts:["−½, 1½, 3, |−4|","−½, 1½, |−4|, 3","|−4|, 3, 1½, −½","1½, −½, 3, |−4|"],a:0,
+ expl:"First simplify: |−4| = 4. Now order −0.5, 1.5, 3, 4 → −½, 1½, 3, |−4|."},
+{sec:"F",type:"mc",q:"Order from LEAST to greatest:  1.77,  17,  1.07,  −4.5,  −7",mono:true,
+ opts:["−7, −4.5, 1.07, 1.77, 17","−4.5, −7, 1.07, 1.77, 17","17, 1.77, 1.07, −4.5, −7","−7, −4.5, 1.77, 1.07, 17"],a:0,
+ expl:"−7 is below −4.5. For 1.07 vs 1.77, compare tenths: 0 < 7, so 1.07 comes first. Then 17 is the biggest."},
+
+/* G — Fractions & Decimals */
+{sec:"G",type:"in",q:"Write 9/10 as a decimal.",ans:0.9,hint:"A fraction bar means divide: 9 ÷ 10.",
+ expl:"The fraction bar means division: 9 ÷ 10 = 0.9."},
+{sec:"G",type:"in",q:"Write 7/4 as a decimal.",ans:1.75,hint:"Divide the top by the bottom.",
+ expl:"7 ÷ 4 = 1.75. (7/4 is the same as 1¾, and ¾ = 0.75.)"},
+{sec:"G",type:"mc",q:"Order from GREATEST to least:  11/12,  2/3,  5/6,  1/4",mono:true,
+ opts:["11/12, 5/6, 2/3, 1/4","11/12, 2/3, 5/6, 1/4","1/4, 2/3, 5/6, 11/12","5/6, 11/12, 2/3, 1/4"],a:0,
+ expl:"Rename with the LCD of 12: 11/12, 8/12, 10/12, 3/12. Now compare tops: 11 > 10 > 8 > 3 → 11/12, 5/6, 2/3, 1/4."},
+{sec:"G",type:"mc",q:"On a reading app, Margo finished 21/25 of a book, Mason finished 17/20, and Marco finished 5/6. Order them from MOST completed to least.",
+ opts:["Mason, Margo, Marco","Margo, Mason, Marco","Marco, Mason, Margo","Mason, Marco, Margo"],a:0,
+ expl:"Convert each to a decimal: 21/25 = 0.84, 17/20 = 0.85, 5/6 ≈ 0.83. So Mason (0.85) > Margo (0.84) > Marco (0.83)."}
+];
+
+/* ============ grid drawing ============ */
+function gridSVG(o){
+  const pts = o.pts || [];
+  let m = 5;
+  const feed = pts.map(p=>[p[0],p[1]]).concat(o.path||[], o.poly||[]);
+  feed.forEach(p=>{ m = Math.max(m, Math.abs(p[0]), Math.abs(p[1])); });
+  m = Math.ceil(m)+1;
+  const step = m>9 ? 5 : (m>6 ? 2 : 1);
+  const W = 280, c = W/(2*m), X = x=>W/2 + x*c, Y = y=>W/2 - y*c;
+  let s = "";
+  for(let i=-m;i<=m;i++){
+    s += `<line class="gl" x1="${X(i)}" y1="0" x2="${X(i)}" y2="${W}"/>`;
+    s += `<line class="gl" x1="0" y1="${Y(i)}" x2="${W}" y2="${Y(i)}"/>`;
+  }
+  s += `<line class="ax" x1="0" y1="${W/2}" x2="${W}" y2="${W/2}"/>`;
+  s += `<line class="ax" x1="${W/2}" y1="0" x2="${W/2}" y2="${W}"/>`;
+  for(let i=step;i<=m;i+=step){
+    [i,-i].forEach(v=>{
+      s += `<text class="tick" x="${X(v)}" y="${W/2+13}" text-anchor="middle">${v}</text>`;
+      s += `<text class="tick" x="${W/2-5}" y="${Y(v)+3.5}" text-anchor="end">${v}</text>`;
+    });
+  }
+  if(o.poly){ s += `<polygon class="poly" points="${o.poly.map(p=>X(p[0])+","+Y(p[1])).join(" ")}"/>`; }
+  if(o.path){ s += `<polyline class="seg" points="${o.path.map(p=>X(p[0])+","+Y(p[1])).join(" ")}"/>`; }
+  pts.forEach(p=>{
+    const [x,y,lb,cls] = p;
+    s += `<circle class="${cls||"pt"}" cx="${X(x)}" cy="${Y(y)}" r="4.6"/>`;
+    if(lb){
+      const left = X(x) > W-64;
+      s += `<text class="plb" x="${X(x)+(left?-9:9)}" y="${Y(y)-7}" text-anchor="${left?"end":"start"}">${lb}</text>`;
+    }
+  });
+  return `<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="coordinate grid">${s}</svg>`;
+}
+
+/* ============ engine ============ */
+const $ = s=>document.querySelector(s);
+let queue=[], pos=0, score=0, streak=0, mode="full", missed=[], answered=false, fullResults=null;
+
+function show(id){ document.querySelectorAll(".screen").forEach(el=>el.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
+
+function begin(q, m){
+  queue=q.slice(); mode=m; pos=0; score=0; streak=0; missed=[]; answered=false;
+  $("#qtot").textContent = queue.length;
+  show("#quiz"); render();
+}
+
+function esc(t){ return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function render(){
+  answered=false;
+  const qi = queue[pos], q = Q[qi];
+  $("#qnum").textContent = pos+1;
+  $("#scoreVal").textContent = score;
+  $("#streakVal").textContent = streak>=3 ? "🔥"+streak : "";
+  $("#fill").style.width = (pos/queue.length*100)+"%";
+
+  let html = `<div class="sec">${SECS[q.sec]}</div><p class="qtext">${esc(q.q)}</p>`;
+  if(q.fig) html += `<div class="fig">${gridSVG(q.fig)}</div>`;
+
+  if(q.type==="mc"){
+    const order = q.opts.map((_,i)=>i);
+    for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+    html += `<div class="opts">` + order.map((oi,slot)=>
+      `<button class="opt${q.mono?" mono":""}" data-oi="${oi}"><span class="key">${slot+1}</span>${esc(q.opts[oi])}</button>`
+    ).join("") + `</div>`;
+  } else {
+    const ph = q.type==="pair" ? "(x, y)" : "Your answer";
+    html += `<div class="inrow">
+      <input class="ansin" id="ansin" autocomplete="off" placeholder="${ph}" aria-label="Your answer">
+      <button class="btn" id="checkBtn">Check</button></div>`;
+    const hint = q.hint || (q.type==="pair" ? "Type it as an ordered pair, like (3, -4)." : "");
+    if(hint) html += `<div class="hint">${esc(hint)}</div>`;
+  }
+  html += `<div id="fbSlot" aria-live="polite"></div>`;
+  $("#qcard").innerHTML = html;
+
+  if(q.type==="mc"){
+    document.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>pickMC(b)));
+  } else {
+    $("#checkBtn").addEventListener("click", checkInput);
+    $("#ansin").addEventListener("keydown", e=>{ if(e.key==="Enter") checkInput(); });
+    $("#ansin").focus();
+  }
+}
+
+function pickMC(btn){
+  if(answered) return;
+  const q = Q[queue[pos]], oi = +btn.dataset.oi, ok = oi===q.a;
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.disabled = true;
+    const i = +b.dataset.oi;
+    if(i===q.a) b.classList.add("right");
+    else if(i===oi) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  finish(ok, q.opts[q.a]);
+}
+
+function checkInput(){
+  if(answered) return;
+  const q = Q[queue[pos]];
+  const raw = $("#ansin").value;
+  if(!raw.trim()) return;
+  let ok, ansText;
+  if(q.type==="pair"){
+    const parts = raw.replace(/−/g,"-").replace(/[^0-9.,\-]/g,"").split(",").filter(s=>s!=="");
+    ok = parts.length===2
+      && Math.abs(parseFloat(parts[0]) - q.ansP[0]) < 1e-9
+      && Math.abs(parseFloat(parts[1]) - q.ansP[1]) < 1e-9;
+    ansText = "(" + q.ansP[0] + ", " + q.ansP[1] + ")";
+  } else {
+    const norm = parseFloat(raw.replace(/−/g,"-").replace(/[^0-9.\-]/g,""));
+    ok = !isNaN(norm) && Math.abs(norm - q.ans) < 1e-9;
+    ansText = String(q.ans);
+  }
+  $("#ansin").disabled = true; $("#checkBtn").disabled = true;
+  $("#ansin").style.borderColor = ok ? "var(--good)" : "var(--bad)";
+  finish(ok, ansText);
+}
+
+function finish(ok, ansText){
+  answered = true;
+  const qi = queue[pos], q = Q[qi];
+  if(ok){ score++; streak++; } else { streak=0; if(!missed.includes(qi)) missed.push(qi); }
+  if(mode==="full") fullAnswers[qi] = ok;
+  $("#scoreVal").textContent = score;
+  $("#streakVal").textContent = streak>=3 ? "🔥"+streak : "";
+  $("#fill").style.width = ((pos+1)/queue.length*100)+"%";
+
+  const last = pos===queue.length-1;
+  let fb = `<div class="fb${ok?"":" bad"}">
+    <h3>${ok ? praise() : "Not quite — the answer is "+esc(ansText)}</h3>
+    <p class="expl">${esc(q.expl)}</p>
+    ${q.figA ? `<div class="fig">${gridSVG(q.figA)}</div>` : ""}
+  </div>
+  <div class="nextrow"><span class="kbd">press Enter ↵</span>
+    <button class="btn" id="nextBtn">${last ? "See my results →" : "Next question →"}</button></div>`;
+  $("#fbSlot").innerHTML = fb;
+  $("#nextBtn").addEventListener("click", next);
+  $("#nextBtn").focus();
+}
+
+const PRAISE = ["Correct!","Nice work!","You got it!","Exactly right!","Nailed it!"];
+function praise(){ return PRAISE[Math.floor(Math.random()*PRAISE.length)]; }
+
+function next(){ pos++; if(pos < queue.length) render(); else results(); }
+
+let fullAnswers = {};
+function results(){
+  show("#results");
+  $("#resScore").textContent = score;
+  $("#resTot").textContent = queue.length;
+  const pct = score/queue.length;
+
+  if(mode==="full"){
+    $("#resEyebrow").textContent = "Full run complete";
+    $("#resMsg").textContent =
+      pct>=0.9 ? "You are READY for Tuesday. Seriously impressive. 🎉" :
+      pct>=0.7 ? "Strong work — brush up on the topics marked below and you're set." :
+                 "Good effort — the topics marked below are the ones to review tonight.";
+    try{
+      const best = +(localStorage.getItem("cq-best")||0);
+      if(score>best) localStorage.setItem("cq-best", score);
+    }catch(e){}
+    /* section breakdown */
+    let rows = "";
+    Object.keys(SECS).forEach(k=>{
+      const idxs = Q.map((q,i)=>q.sec===k?i:-1).filter(i=>i>=0);
+      const got = idxs.filter(i=>fullAnswers[i]).length, tot = idxs.length, p = got/tot;
+      const col = p>=0.8 ? "var(--good)" : p>=0.5 ? "var(--accent)" : "var(--bad)";
+      rows += `<div class="secrow">
+        <div class="lbl"><b>${SECS[k]}${p<0.7?'<span class="tag">review tonight</span>':""}</b><span>${got}/${tot}</span></div>
+        <div class="bar"><i style="width:${p*100}%;background:${col}"></i></div></div>`;
+    });
+    $("#resCard").innerHTML = rows;
+  } else {
+    $("#resEyebrow").textContent = "Retry round complete";
+    const fixed = queue.length - missed.length;
+    $("#resMsg").textContent = missed.length===0
+      ? "You fixed every single one. That's how it's done. 🎉"
+      : `You fixed ${fixed} of ${queue.length} — ${missed.length} to go.`;
+    $("#resCard").innerHTML = `<p style="margin:0">Keep cycling through the tricky ones until the list is empty — that's the fastest way to be ready.</p>`;
+  }
+
+  if(missed.length){
+    $("#retryBtn").style.display="";
+    $("#retryBtn").textContent = `Practice the ${missed.length} missed →`;
+  } else {
+    $("#retryBtn").style.display="none";
+  }
+}
+
+/* ============ wiring ============ */
+$("#startBtn").addEventListener("click", ()=>{ fullAnswers={}; begin(Q.map((_,i)=>i), "full"); });
+$("#retryBtn").addEventListener("click", ()=>begin(missed, "retry"));
+$("#restartBtn").addEventListener("click", ()=>{ fullAnswers={}; begin(Q.map((_,i)=>i), "full"); });
+
+document.addEventListener("keydown", e=>{
+  if(!$("#quiz").classList.contains("on")) return;
+  const inField = document.activeElement && document.activeElement.id==="ansin";
+  if(answered && e.key==="Enter"){ e.preventDefault(); next(); return; }
+  if(!answered && !inField && /^[1-4]$/.test(e.key)){
+    const btns = document.querySelectorAll(".opt");
+    const b = btns[+e.key-1];
+    if(b) b.click();
+  }
+});
+
+try{
+  const best = localStorage.getItem("cq-best");
+  if(best) $("#bestLine").textContent = `Best score so far: ${best}/40`;
+}catch(e){}
+</script>
