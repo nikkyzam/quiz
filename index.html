@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Coordinate Quest</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -130,6 +135,8 @@
   .endbtns{display:flex; gap:12px; flex-wrap:wrap; margin-top:24px}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
 </style>
+</head>
+<body>
 
 <div class="wrap">
 
@@ -533,3 +540,5 @@ try{
   if(best) $("#bestLine").textContent = `Best score so far: ${best}/40`;
 }catch(e){}
 </script>
+</body>
+</html>
