@@ -134,6 +134,22 @@
   .bar i{display:block; height:100%; border-radius:99px}
   .tag{display:inline-block; font-size:.72rem; font-weight:700; color:var(--bad); border:1px solid var(--bad); border-radius:6px; padding:0 6px; margin-left:8px; vertical-align:1px}
   .endbtns{display:flex; gap:12px; flex-wrap:wrap; margin-top:24px}
+
+  /* ---------- live watch ---------- */
+  .watchlink{display:none; margin-top:14px}
+  .watchlink button{background:none; border:0; color:var(--accent); font-weight:700; text-decoration:underline; padding:0; font-size:.95rem}
+  .livedot{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--good); margin-right:7px; vertical-align:0}
+  .livedot.idle{background:var(--muted)}
+  @media (prefers-reduced-motion: no-preference){
+    .livedot.on{animation:pulse 1.8s ease-in-out infinite}
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .statgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px}
+  .stat{background:var(--chip); border:1px solid var(--line); border-radius:10px; padding:11px 12px}
+  .stat b{display:block; font-family:var(--slab); font-size:1.7rem; line-height:1.1; font-variant-numeric:tabular-nums}
+  .stat span{font-size:.76rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
+  .waiting{color:var(--muted); text-align:center; padding:26px 10px}
+  .stale{color:var(--muted); font-size:.82rem; margin-top:14px}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
 </style>
 </head>
@@ -157,6 +173,25 @@
     <div class="howto"><b>How it works:</b> answer each question and you&rsquo;ll instantly see if you got it, plus the rule behind it. At the end you get a topic-by-topic report and can retry anything you missed.</div>
     <button class="btn" id="startBtn">Start the quiz &rarr;</button>
     <div class="best" id="bestLine"></div>
+    <div class="watchlink" id="watchLink">
+      <button id="watchBtn">Watching instead? Follow along live &rarr;</button>
+    </div>
+  </section>
+
+  <!-- LIVE WATCH -->
+  <section id="watch" class="screen">
+    <div class="eyebrow"><span class="livedot idle" id="liveDot"></span><span id="liveState">Waiting for the quiz to start</span></div>
+    <h1 style="font-size:1.9rem">Live progress</h1>
+    <div class="statgrid">
+      <div class="stat"><b id="wQ">&mdash;</b><span>Answered</span></div>
+      <div class="stat"><b id="wScore">&mdash;</b><span>Correct</span></div>
+      <div class="stat"><b id="wPct">&mdash;</b><span>Accuracy</span></div>
+    </div>
+    <div class="card" id="watchCard">
+      <div class="waiting">Nothing yet &mdash; this updates the moment he answers his first question.</div>
+    </div>
+    <div class="stale" id="wStale"></div>
+    <div class="endbtns"><button class="btn ghost" id="watchBack">&larr; Back</button></div>
   </section>
 
   <!-- QUIZ -->
@@ -373,9 +408,88 @@ let queue=[], pos=0, score=0, streak=0, mode="full", missed=[], answered=false, 
 function show(id){ document.querySelectorAll(".screen").forEach(el=>el.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
 
 function begin(q, m){
-  queue=q.slice(); mode=m; pos=0; score=0; streak=0; missed=[]; answered=false;
+  queue=q.slice(); mode=m; pos=0; score=0; streak=0; missed=[]; answered=false; answeredCount=0;
   $("#qtot").textContent = queue.length;
   show("#quiz"); render();
+  pushProgress("started");
+}
+
+/* ---- live progress: publishes to the shared store when available ---- */
+let DB = null, answeredCount = 0, unwatch = null;
+
+function pushProgress(state){
+  if(!DB) return;
+  const sections = {};
+  Object.keys(SECS).forEach(k=>{
+    sections[k] = {name:SECS[k], got:0, seen:0, tot:Q.filter(q=>q.sec===k).length};
+  });
+  Object.keys(fullAnswers).forEach(i=>{
+    const st = sections[Q[i].sec];
+    st.seen++; if(fullAnswers[i]) st.got++;
+  });
+  const cur = queue[pos]!=null ? Q[queue[pos]] : null;
+  try{
+    DB.doc("live/current").set({
+      state, mode,
+      answered: answeredCount,
+      total: queue.length,
+      score, streak,
+      currentNum: Math.min(pos+1, queue.length),
+      currentSec: cur ? SECS[cur.sec] : "",
+      sections,
+      updatedAt: new Date().toISOString()
+    }).catch(()=>{}); // never let a sync hiccup disturb the quiz
+  }catch(e){}
+}
+
+function startWatching(){
+  show("#watch");
+  if(!DB) return;
+  if(unwatch) unwatch();
+  unwatch = DB.doc("live/current").onSnapshot(
+    snap => renderWatch(snap.exists ? snap.data() : null),
+    ()   => { $("#liveState").textContent = "Connection lost — reopen this page to reconnect";
+              $("#liveDot").className = "livedot idle"; }
+  );
+}
+
+function renderWatch(d){
+  const dot = $("#liveDot"), st = $("#liveState");
+  if(!d){
+    dot.className = "livedot idle";
+    st.textContent = "Waiting for the quiz to start";
+    $("#wStale").textContent = "";
+    return;
+  }
+  const done = d.state === "finished";
+  dot.className = "livedot" + (done ? " idle" : " on");
+  st.textContent = done ? "Finished" :
+    (d.mode === "retry" ? "Practicing the missed questions" : "Taking the quiz now");
+
+  $("#wQ").textContent = (d.answered||0) + " / " + (d.total||0);
+  $("#wScore").textContent = (d.score||0);
+  $("#wPct").textContent = d.answered ? Math.round(d.score/d.answered*100) + "%" : "—";
+
+  const secs = d.sections || {};
+  let rows = Object.keys(secs).map(k=>{
+    const s = secs[k];
+    if(!s.seen) return `<div class="secrow">
+        <div class="lbl"><b>${esc(s.name)}</b><span>not yet</span></div>
+        <div class="bar"></div></div>`;
+    const p = s.got/s.seen;
+    const col = p>=0.8 ? "var(--good)" : p>=0.5 ? "var(--accent)" : "var(--bad)";
+    return `<div class="secrow">
+      <div class="lbl"><b>${esc(s.name)}${p<0.7?'<span class="tag">struggling</span>':""}</b>
+      <span>${s.got}/${s.seen}</span></div>
+      <div class="bar"><i style="width:${p*100}%;background:${col}"></i></div></div>`;
+  }).join("");
+  $("#watchCard").innerHTML = rows ||
+    `<div class="waiting">Nothing yet — this updates the moment he answers his first question.</div>`;
+  if(d.updatedAt){
+    const secsAgo = Math.round((Date.now() - new Date(d.updatedAt).getTime())/1000);
+    $("#wStale").textContent = secsAgo > 90
+      ? `Last answer ${Math.round(secsAgo/60)} min ago — he may have stepped away.` : "";
+  }
 }
 
 function esc(t){ return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
@@ -457,6 +571,8 @@ function finish(ok, ansText){
   const qi = queue[pos], q = Q[qi];
   if(ok){ score++; streak++; } else { streak=0; if(!missed.includes(qi)) missed.push(qi); }
   if(mode==="full") fullAnswers[qi] = ok;
+  answeredCount++;
+  pushProgress(pos===queue.length-1 ? "finished" : "answering");
   $("#scoreVal").textContent = score;
   $("#streakVal").textContent = streak>=3 ? "🔥"+streak : "";
   $("#fill").style.width = ((pos+1)/queue.length*100)+"%";
@@ -540,10 +656,23 @@ document.addEventListener("keydown", e=>{
   }
 });
 
+$("#watchBtn").addEventListener("click", startWatching);
+$("#watchBack").addEventListener("click", ()=>{ if(unwatch){ unwatch(); unwatch=null; } show("#welcome"); });
+
 try{
   const best = localStorage.getItem("cq-best");
   if(best) $("#bestLine").textContent = `Best score so far: ${best}/40`;
 }catch(e){}
+
+/* The live view only exists where the shared store is available; on a plain
+   static host there is no window.claude at all and the quiz runs unchanged. */
+if(window.claude && typeof window.claude.use === "function"){
+  window.claude.use("db").then(d=>{
+    if(!d) return;
+    DB = d;
+    $("#watchLink").style.display = "block";
+  }).catch(()=>{});
+}
 </script>
 </body>
 </html>
