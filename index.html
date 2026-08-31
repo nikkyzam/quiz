@@ -83,7 +83,8 @@
   .fig svg{width:min(300px,100%); height:auto}
   svg .gl{stroke:var(--gridline); stroke-width:1}
   svg .ax{stroke:var(--muted); stroke-width:1.8}
-  svg .tick{fill:var(--muted); font:10px var(--mono)}
+  svg .tick{fill:var(--muted); font:10px var(--mono);
+    paint-order:stroke fill; stroke:var(--figbg,var(--card)); stroke-width:3px; stroke-linejoin:round}
   svg .pt{fill:var(--accent)}
   svg .pt2{fill:var(--good)}
   svg .plb{fill:var(--ink); font:600 11px var(--mono)}
@@ -113,8 +114,8 @@
   .hint{color:var(--muted); font-size:.85rem; margin-top:8px}
 
   /* ---------- feedback ---------- */
-  .fb{margin-top:18px; border-left:4px solid var(--good); background:var(--good-bg); border-radius:0 10px 10px 0; padding:13px 15px}
-  .fb.bad{border-left-color:var(--bad); background:var(--bad-bg)}
+  .fb{--figbg:var(--good-bg); margin-top:18px; border-left:4px solid var(--good); background:var(--good-bg); border-radius:0 10px 10px 0; padding:13px 15px}
+  .fb.bad{--figbg:var(--bad-bg); border-left-color:var(--bad); background:var(--bad-bg)}
   .fb h3{font-family:var(--slab); font-size:1.05rem; margin:0 0 4px}
   .fb.bad h3{color:var(--bad)} .fb h3{color:var(--good)}
   .expl{font-size:.97rem; margin:0}
@@ -293,13 +294,13 @@ const Q = [
 
 /* F — Compare & Order */
 {sec:"F",type:"mc",q:"Choose the symbol that makes this true:  −5.05 ◯ −5",mono:true,
- opts:["<","> ","="],a:0,
+ opts:["<",">","="],a:0,
  expl:"With negatives, the number farther below zero is SMALLER. −5.05 is a little more negative than −5, so −5.05 < −5."},
 {sec:"F",type:"mc",q:"Choose the symbol that makes this true:  −1.75 ◯ −0.75",mono:true,
- opts:["<","> ","="],a:0,
+ opts:["<",">","="],a:0,
  expl:"−1.75 is farther from zero on the negative side, so it is the smaller number: −1.75 < −0.75."},
 {sec:"F",type:"mc",q:"Choose the symbol that makes this true:  −24 ◯ −24.0",mono:true,
- opts:["=","<","> "],a:0,
+ opts:["=","<",">"],a:0,
  expl:"Writing .0 on the end does not change a number's value. −24 and −24.0 are exactly equal."},
 {sec:"F",type:"mc",q:"Order from LEAST to greatest:  4,  −6,  4.6,  16,  −3.9",mono:true,
  opts:["−6, −3.9, 4, 4.6, 16","−3.9, −6, 4, 4.6, 16","16, 4.6, 4, −3.9, −6","−6, −3.9, 4.6, 4, 16"],a:0,
@@ -342,14 +343,17 @@ function gridSVG(o){
   }
   s += `<line class="ax" x1="0" y1="${W/2}" x2="${W}" y2="${W/2}"/>`;
   s += `<line class="ax" x1="${W/2}" y1="0" x2="${W/2}" y2="${W}"/>`;
+  let ticks = ""; // built here, appended last so the label halo masks any line beneath it
   for(let i=step;i<=m;i+=step){
     [i,-i].forEach(v=>{
-      s += `<text class="tick" x="${X(v)}" y="${W/2+13}" text-anchor="middle">${v}</text>`;
-      s += `<text class="tick" x="${W/2-5}" y="${Y(v)+3.5}" text-anchor="end">${v}</text>`;
+      const lb = String(v).replace("-","−"); // proper minus sign, matching the question text
+      ticks += `<text class="tick" x="${X(v)}" y="${W/2+13}" text-anchor="middle">${lb}</text>`;
+      ticks += `<text class="tick" x="${W/2-5}" y="${Y(v)+3.5}" text-anchor="end">${lb}</text>`;
     });
   }
   if(o.poly){ s += `<polygon class="poly" points="${o.poly.map(p=>X(p[0])+","+Y(p[1])).join(" ")}"/>`; }
   if(o.path){ s += `<polyline class="seg" points="${o.path.map(p=>X(p[0])+","+Y(p[1])).join(" ")}"/>`; }
+  s += ticks; // after the segments, before the points
   pts.forEach(p=>{
     const [x,y,lb,cls] = p;
     s += `<circle class="${cls||"pt"}" cx="${X(x)}" cy="${Y(y)}" r="4.6"/>`;
@@ -358,7 +362,8 @@ function gridSVG(o){
       s += `<text class="plb" x="${X(x)+(left?-9:9)}" y="${Y(y)-7}" text-anchor="${left?"end":"start"}">${lb}</text>`;
     }
   });
-  return `<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="coordinate grid">${s}</svg>`;
+  const p = 18; // padding so edge tick labels and point labels are never clipped
+  return `<svg viewBox="${-p} ${-p} ${W+2*p} ${W+2*p}" role="img" aria-label="coordinate grid">${s}</svg>`;
 }
 
 /* ============ engine ============ */
