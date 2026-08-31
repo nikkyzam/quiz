@@ -54,6 +54,25 @@
   .howto b{font-family:var(--slab)}
   .best{color:var(--muted); font-size:.9rem; margin-top:12px}
 
+  /* ---------- level picker ---------- */
+  .levels{display:grid; gap:11px}
+  .lvl{
+    display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px;
+    text-align:left; background:var(--card); color:var(--ink);
+    border:2px solid var(--line); border-radius:12px; padding:14px 16px;
+    transition:border-color .12s ease;
+  }
+  .lvl:hover{border-color:var(--accent)}
+  .lvl .num{
+    font-family:var(--slab); font-weight:700; font-size:1.15rem; line-height:1;
+    width:34px; height:34px; display:grid; place-items:center;
+    border-radius:9px; background:var(--accent-soft); color:var(--accent);
+  }
+  .lvl .nm{font-family:var(--slab); font-weight:700; font-size:1.12rem; display:block}
+  .lvl .bl{color:var(--muted); font-size:.88rem; display:block; margin-top:1px}
+  .lvl .ct{font-family:var(--mono); font-size:.78rem; color:var(--muted); white-space:nowrap}
+  .lvl .done{color:var(--good); font-weight:700}
+
   /* ---------- buttons ---------- */
   button{font-family:var(--body); font-size:1rem; cursor:pointer}
   .btn{
@@ -161,7 +180,7 @@
   <section id="welcome" class="screen on">
     <div class="eyebrow">6th Grade &middot; Number System Unit</div>
     <h1>Coordinate Quest<span class="dot"></span></h1>
-    <p class="lede">A 40-question practice run for Tuesday&rsquo;s math quiz &mdash; built from this unit&rsquo;s worksheets, same skills with fresh numbers.</p>
+    <p class="lede">Practice for tomorrow&rsquo;s math quiz &mdash; built from this unit&rsquo;s worksheets, same skills with fresh numbers. Pick a level to begin.</p>
     <div class="chips">
       <span class="chip">The coordinate plane</span>
       <span class="chip">Quadrants &amp; axes</span>
@@ -171,7 +190,7 @@
       <span class="chip">Fractions &harr; decimals</span>
     </div>
     <div class="howto"><b>How it works:</b> answer each question and you&rsquo;ll instantly see if you got it, plus the rule behind it. At the end you get a topic-by-topic report and can retry anything you missed.</div>
-    <button class="btn" id="startBtn">Start the quiz &rarr;</button>
+    <div class="levels" id="levelPick"></div>
     <div class="best" id="bestLine"></div>
     <div class="watchlink" id="watchLink">
       <button id="watchBtn">Watching instead? Follow along live &rarr;</button>
@@ -212,7 +231,7 @@
     <div class="card" id="resCard"></div>
     <div class="endbtns">
       <button class="btn" id="retryBtn"></button>
-      <button class="btn ghost" id="restartBtn">Start over</button>
+      <button class="btn ghost" id="restartBtn">Choose another level</button>
     </div>
   </section>
 
@@ -221,6 +240,11 @@
 <script>
 "use strict";
 /* ============ question data ============ */
+const LEVELS = {
+  1:{name:"Practice Run",  blurb:"Every skill from the unit, in the same style as your worksheets."},
+  2:{name:"Challenge",     blurb:"Multi-step problems: perimeter, area, combined moves, trickier ordering."},
+  3:{name:"Boss Level",    blurb:"Work backwards and reason it out. Genuinely hard — take your time."}
+};
 const SECS = {
   A:"Know the Plane", B:"Points & Quadrants", C:"Distance on the Grid",
   D:"Reflections", E:"Rectangles & Word Problems", F:"Compare & Order", G:"Fractions & Decimals"
@@ -359,7 +383,73 @@ const Q = [
  expl:"Rename with the LCD of 12: 11/12, 8/12, 10/12, 3/12. Now compare tops: 11 > 10 > 8 > 3 → 11/12, 5/6, 2/3, 1/4."},
 {sec:"G",type:"mc",q:"On a reading app, Margo finished 21/25 of a book, Mason finished 17/20, and Marco finished 5/6. Order them from MOST completed to least.",
  opts:["Mason, Margo, Marco","Margo, Mason, Marco","Marco, Mason, Margo","Mason, Marco, Margo"],a:0,
- expl:"Convert each to a decimal: 21/25 = 0.84, 17/20 = 0.85, 5/6 ≈ 0.83. So Mason (0.85) > Margo (0.84) > Marco (0.83)."}
+ expl:"Convert each to a decimal: 21/25 = 0.84, 17/20 = 0.85, 5/6 ≈ 0.83. So Mason (0.85) > Margo (0.84) > Marco (0.83)."},
+
+/* ===== LEVEL 2 — CHALLENGE ===== */
+{lvl:2,sec:"E",type:"in",q:"A rectangle has vertices (−3, 4), (5, 4), (5, −1) and (−3, −1). What is its perimeter, in units?",hint:"Find the width and height first.",ans:26,
+ figA:{poly:[[-3,4],[5,4],[5,-1],[-3,-1]],pts:[[-3,4,""],[5,4,""],[5,-1,""],[-3,-1,""]]},
+ expl:"Width = |−3| + |5| = 8. Height = |4| + |−1| = 5. Perimeter = 2 × (8 + 5) = 26 units."},
+{lvl:2,sec:"E",type:"in",q:"What is the AREA of that same rectangle — vertices (−3, 4), (5, 4), (5, −1), (−3, −1) — in square units?",hint:"Area = width × height.",ans:40,
+ expl:"Width 8 and height 5, so area = 8 × 5 = 40 square units. (Perimeter adds the sides; area multiplies them.)"},
+{lvl:2,sec:"E",type:"pair",q:"Three vertices of a rectangle are (−6, 2), (1, 2) and (1, −4). Write the fourth vertex.",ansP:[-6,-4],
+ figA:{poly:[[-6,2],[1,2],[1,-4],[-6,-4]],pts:[[-6,2,""],[1,2,""],[1,-4,""],[-6,-4,"?","pt2"]]},
+ expl:"The missing corner shares its x with (−6, 2) and its y with (1, −4), so it is (−6, −4)."},
+{lvl:2,sec:"D",type:"pair",q:"Start at (5, −3). Reflect it over the x-axis, THEN move 4 units left. Where does it end up?",ansP:[1,3],
+ expl:"Reflect over the x-axis: (5, −3) → (5, 3). Then 4 left subtracts from x: 5 − 4 = 1. Final answer (1, 3)."},
+{lvl:2,sec:"D",type:"pair",q:"Reflect (−4, 7) over the x-axis, then reflect that result over the y-axis. Where does it land?",ansP:[4,-7],
+ expl:"Over the x-axis: (−4, 7) → (−4, −7). Then over the y-axis: (−4, −7) → (4, −7). Doing both is the same as one jump to the opposite quadrant."},
+{lvl:2,sec:"D",type:"pair",q:"A point was reflected over the y-axis and landed at (−9, 4). What were its ORIGINAL coordinates?",ansP:[9,4],
+ expl:"Work backwards: a y-axis reflection only flips x, and flipping is its own undo. So the start was (9, 4)."},
+{lvl:2,sec:"C",type:"mc",q:"Which point is FARTHER from the origin: A at (0, −8) or B at (6, 0)?",
+ opts:["A, because it is 8 units away","B, because it is 6 units away","They are the same distance","You cannot tell without a grid"],a:0,
+ expl:"A sits on the y-axis, |−8| = 8 units from the origin. B sits on the x-axis, 6 units away. 8 > 6, so A is farther."},
+{lvl:2,sec:"F",type:"mc",q:"Order from LEAST to greatest:  −3.5,  |−4|,  −2¾,  2.5,  |−1.5|",mono:true,
+ opts:["−3.5, −2¾, |−1.5|, 2.5, |−4|","−3.5, −2¾, 2.5, |−1.5|, |−4|","|−4|, −3.5, −2¾, |−1.5|, 2.5","−2¾, −3.5, |−1.5|, 2.5, |−4|"],a:0,
+ expl:"Simplify the absolute values first: |−4| = 4 and |−1.5| = 1.5. Now order −3.5, −2.75, 1.5, 2.5, 4."},
+{lvl:2,sec:"B",type:"pair",q:"Point P lies on the x-axis, 7 units to the LEFT of the origin. Write its coordinates.",ansP:[-7,0],
+ expl:"On the x-axis the y-coordinate is 0, and 7 to the left makes x = −7. So P is (−7, 0)."},
+{lvl:2,sec:"C",type:"pair",q:"Two points share the x-value 3. One is at (3, 6). The other is 10 units BELOW it. Write the other point.",ansP:[3,-4],
+ figA:{pts:[[3,6,"(3, 6)"],[3,-4,"?","pt2"]],path:[[3,6],[3,-4]]},
+ expl:"Going down subtracts from y: 6 − 10 = −4. The other point is (3, −4)."},
+{lvl:2,sec:"E",type:"pair",q:"A boat is at (−4, 6). It sails 9 units south, then 5 units east. Write its new position.",ansP:[1,-3],
+ figA:{pts:[[-4,6,"start"],[1,-3,"end","pt2"]],path:[[-4,6],[-4,-3],[1,-3]]},
+ expl:"South subtracts from y: 6 − 9 = −3. East adds to x: −4 + 5 = 1. The boat ends at (1, −3)."},
+{lvl:2,sec:"B",type:"mc",q:"Which point lies in the SAME quadrant as (−7, −2)?",mono:true,
+ opts:["(−1, −9)","(−1, 9)","(1, −9)","(1, 9)"],a:0,
+ expl:"(−7, −2) has both coordinates negative, so it is in Quadrant III. Only (−1, −9) is also (−, −)."},
+{lvl:2,sec:"C",type:"in",q:"Find the distance between (−12, 5) and (8, 5), in units.",hint:"Type just the number.",ans:20,
+ expl:"Same y-value, and the x-values straddle the y-axis: |−12| + |8| = 12 + 8 = 20 units."},
+{lvl:2,sec:"F",type:"mc",q:"Which statement is TRUE?",mono:true,
+ opts:["|−8| > |5|","|−8| < |5|","|−8| = −8","−8 > 5"],a:0,
+ expl:"Absolute value strips the sign: |−8| = 8 and |5| = 5, and 8 > 5. Note −8 itself is LESS than 5 — the absolute values compare differently than the numbers do."},
+
+/* ===== LEVEL 3 — BOSS LEVEL ===== */
+{lvl:3,sec:"E",type:"in",q:"A rectangle's top side runs from (−5, 3) to (4, 3), and its area is 45 square units. What is the y-coordinate of its bottom side? (The rectangle sits below the top side.)",hint:"Find the width, then the height.",ans:-2,
+ expl:"Width = |−5| + |4| = 9. Area = width × height, so 45 ÷ 9 = 5 for the height. Going down 5 from y = 3 gives y = 3 − 5 = −2."},
+{lvl:3,sec:"C",type:"mc",q:"Point Q is exactly 6 units from (2, −1), measured HORIZONTALLY. What are the two possible x-coordinates for Q?",mono:true,
+ opts:["−4 and 8","−4 and 6","8 and 12","−6 and 6"],a:0,
+ expl:"Horizontal means y stays −1 and x moves 6 either way: 2 − 6 = −4, or 2 + 6 = 8. Distance problems often have two answers!"},
+{lvl:3,sec:"D",type:"mc",q:"A point is reflected over the x-axis and its image lands in Quadrant II. Which quadrant was the ORIGINAL point in?",
+ opts:["Quadrant III","Quadrant I","Quadrant II","Quadrant IV"],a:0,
+ expl:"An x-axis reflection keeps x and flips y. The image is in QII, so x < 0 and its y > 0 — meaning the original y was negative. Negative x with negative y is Quadrant III."},
+{lvl:3,sec:"D",type:"pair",q:"A point was reflected over the y-axis, then over the x-axis, and ended at (−6, 9). Where did it START?",ansP:[6,-9],
+ expl:"Both reflections flip a sign, so together they flip both. Undo them by flipping both again: (−6, 9) → (6, −9)."},
+{lvl:3,sec:"F",type:"mc",q:"Order from GREATEST to least:  |−2.5|,  −¼,  2⅕,  −|3|,  0.75",mono:true,
+ opts:["|−2.5|, 2⅕, 0.75, −¼, −|3|","2⅕, |−2.5|, 0.75, −¼, −|3|","|−2.5|, 2⅕, 0.75, −|3|, −¼","−|3|, −¼, 0.75, 2⅕, |−2.5|"],a:0,
+ expl:"Simplify first: |−2.5| = 2.5, 2⅕ = 2.2, −|3| = −3. Watch that last one — the minus sits OUTSIDE, so it stays negative. Greatest to least: 2.5, 2.2, 0.75, −0.25, −3."},
+{lvl:3,sec:"E",type:"in",q:"A hiker starts at (−8, −5), walks 12 units east, then 9 units north. How many units is she from the y-axis now?",hint:"Find where she ends up first.",ans:4,
+ expl:"East: −8 + 12 = 4. North: −5 + 9 = 4, so she is at (4, 4). Distance from the y-axis is the absolute value of x: |4| = 4 units."},
+{lvl:3,sec:"E",type:"in",q:"Find the perimeter of the rectangle with vertices (−6, −2), (3, −2), (3, 6) and (−6, 6), in units.",hint:"Width and height first.",ans:34,
+ figA:{poly:[[-6,-2],[3,-2],[3,6],[-6,6]],pts:[[-6,-2,""],[3,-2,""],[3,6,""],[-6,6,""]]},
+ expl:"Width = |−6| + |3| = 9. Height = |−2| + |6| = 8. Perimeter = 2 × (9 + 8) = 34 units."},
+{lvl:3,sec:"F",type:"mc",q:"Three students' score changes were −12, +5 and −3. Order the changes from LEAST to greatest.",mono:true,
+ opts:["−12, −3, +5","−3, −12, +5","+5, −3, −12","−12, +5, −3"],a:0,
+ expl:"On a number line −12 sits farthest left, then −3, then +5. A bigger drop is a SMALLER number, even though it feels 'larger'."},
+{lvl:3,sec:"F",type:"mc",q:"Which is greater:  |−9|  or  −(−8) ?",mono:true,
+ opts:["|−9|, because it equals 9","−(−8), because it equals −8","They are equal","−(−8), because it equals 8"],a:0,
+ expl:"|−9| = 9. And −(−8) means the opposite of −8, which is +8. Since 9 > 8, |−9| is greater."},
+{lvl:3,sec:"C",type:"in",q:"What is the distance between (a, 4) and (a, −7), in units — for ANY value of a?",hint:"The x-values are identical, whatever a is.",ans:11,
+ expl:"Both points share the same x, so the trip is purely vertical and a never matters: |4| + |−7| = 4 + 7 = 11 units."}
 ];
 
 /* ============ grid drawing ============ */
@@ -403,7 +493,9 @@ function gridSVG(o){
 
 /* ============ engine ============ */
 const $ = s=>document.querySelector(s);
-let queue=[], pos=0, score=0, streak=0, mode="full", missed=[], answered=false, fullResults=null;
+let queue=[], pos=0, score=0, streak=0, mode="full", missed=[], answered=false, activeLevel=1;
+const lvlOf = q => q.lvl || 1;
+const idxsFor = lv => Q.map((q,i)=>lvlOf(q)===lv ? i : -1).filter(i=>i>=0);
 
 function show(id){ document.querySelectorAll(".screen").forEach(el=>el.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
 
@@ -421,10 +513,12 @@ function pushProgress(state){
   if(!DB) return;
   const sections = {};
   Object.keys(SECS).forEach(k=>{
-    sections[k] = {name:SECS[k], got:0, seen:0, tot:Q.filter(q=>q.sec===k).length};
+    const tot = Q.filter(q=>q.sec===k && lvlOf(q)===activeLevel).length;
+    if(tot) sections[k] = {name:SECS[k], got:0, seen:0, tot};
   });
   Object.keys(fullAnswers).forEach(i=>{
     const st = sections[Q[i].sec];
+    if(!st) return;
     st.seen++; if(fullAnswers[i]) st.got++;
   });
   const cur = queue[pos]!=null ? Q[queue[pos]] : null;
@@ -603,19 +697,24 @@ function results(){
   const pct = score/queue.length;
 
   if(mode==="full"){
-    $("#resEyebrow").textContent = "Full run complete";
-    $("#resMsg").textContent =
-      pct>=0.9 ? "You are READY for Tuesday. Seriously impressive. 🎉" :
-      pct>=0.7 ? "Strong work — brush up on the topics marked below and you're set." :
-                 "Good effort — the topics marked below are the ones to review tonight.";
+    $("#resEyebrow").textContent = LEVELS[activeLevel].name + " complete";
+    $("#resMsg").textContent = activeLevel===1
+      ? (pct>=0.9 ? "You are READY for tomorrow. Seriously impressive. 🎉" :
+         pct>=0.7 ? "Strong work — brush up on the topics marked below and you're set." :
+                    "Good effort — the topics marked below are the ones to review tonight.")
+      : (pct>=0.9 ? "You beat " + LEVELS[activeLevel].name + ". That is well above what the quiz will ask. 🎉" :
+         pct>=0.6 ? "Solid — this level is meant to be hard, and you're holding your own." :
+                    "This level is deliberately tough. Check the explanations and run it again.");
     try{
-      const best = +(localStorage.getItem("cq-best")||0);
-      if(score>best) localStorage.setItem("cq-best", score);
+      const key = "cq-best-" + activeLevel;
+      const best = +(localStorage.getItem(key)||0);
+      if(score>best) localStorage.setItem(key, score);
     }catch(e){}
     /* section breakdown */
     let rows = "";
     Object.keys(SECS).forEach(k=>{
-      const idxs = Q.map((q,i)=>q.sec===k?i:-1).filter(i=>i>=0);
+      const idxs = Q.map((q,i)=>(q.sec===k && lvlOf(q)===activeLevel)?i:-1).filter(i=>i>=0);
+      if(!idxs.length) return; // this level doesn't cover that topic
       const got = idxs.filter(i=>fullAnswers[i]).length, tot = idxs.length, p = got/tot;
       const col = p>=0.8 ? "var(--good)" : p>=0.5 ? "var(--accent)" : "var(--bad)";
       rows += `<div class="secrow">
@@ -641,9 +740,29 @@ function results(){
 }
 
 /* ============ wiring ============ */
-$("#startBtn").addEventListener("click", ()=>{ fullAnswers={}; begin(Q.map((_,i)=>i), "full"); });
+function startLevel(lv){
+  activeLevel = lv; fullAnswers = {};
+  begin(idxsFor(lv), "full");
+}
+
+function renderLevels(){
+  $("#levelPick").innerHTML = Object.keys(LEVELS).map(k=>{
+    const n = idxsFor(+k).length;
+    let best = null;
+    try{ best = localStorage.getItem("cq-best-"+k); }catch(e){}
+    const badge = best ? `<span class="${+best===n?"done":""}">best ${best}/${n}</span>` : `${n} questions`;
+    return `<button class="lvl" data-lv="${k}">
+      <span class="num">${k}</span>
+      <span><span class="nm">${LEVELS[k].name}</span><span class="bl">${LEVELS[k].blurb}</span></span>
+      <span class="ct">${badge}</span></button>`;
+  }).join("");
+  document.querySelectorAll(".lvl").forEach(b=>
+    b.addEventListener("click", ()=>startLevel(+b.dataset.lv)));
+}
+renderLevels();
+
 $("#retryBtn").addEventListener("click", ()=>begin(missed, "retry"));
-$("#restartBtn").addEventListener("click", ()=>{ fullAnswers={}; begin(Q.map((_,i)=>i), "full"); });
+$("#restartBtn").addEventListener("click", ()=>{ renderLevels(); show("#welcome"); });
 
 document.addEventListener("keydown", e=>{
   if(!$("#quiz").classList.contains("on")) return;
@@ -659,10 +778,7 @@ document.addEventListener("keydown", e=>{
 $("#watchBtn").addEventListener("click", startWatching);
 $("#watchBack").addEventListener("click", ()=>{ if(unwatch){ unwatch(); unwatch=null; } show("#welcome"); });
 
-try{
-  const best = localStorage.getItem("cq-best");
-  if(best) $("#bestLine").textContent = `Best score so far: ${best}/40`;
-}catch(e){}
+$("#bestLine").textContent = "Level 1 covers exactly what tomorrow's quiz asks. Levels 2 and 3 go beyond it.";
 
 /* The live view only exists where the shared store is available; on a plain
    static host there is no window.claude at all and the quiz runs unchanged. */
