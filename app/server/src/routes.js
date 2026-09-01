@@ -15,6 +15,7 @@ import * as rewards from "./rewards.js";
 import { generate, generatedTopics } from "../../shared/generators.mjs";
 import * as bkt from "./bkt.js";
 import { PROOFS, publicProof, checkProof, proofsForTopic, allProofs, PROOF_KINDS } from "../../shared/proofs.mjs";
+import { PUZZLES, publicPuzzle, checkPuzzle, puzzleById } from "../../shared/puzzles.mjs";
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
@@ -1050,6 +1051,61 @@ api.get("/learners/:id/progress", requireAuth, (req, res) => {
   res.json({ progress, recent });
 });
 
+
+/* ---------------- puzzles (spec 3.2.4, 4.1.5) ----------------
+   Untimed and outside the adaptive path. Hints are available one at a time;
+   the solution is never given, so a puzzle stays worth coming back to. */
+api.get("/puzzles", (req, res) => {
+  res.json({ puzzles: PUZZLES.map(publicPuzzle) });
+});
+
+api.post("/puzzles/:id/hint", requireAuth, (req, res) => {
+  const p = puzzleById(req.params.id);
+  if (!p) return res.status(404).json({ error: "unknown_puzzle" });
+  const level = Math.max(1, Math.min(p.hints.length, Number(req.body?.level) || 1));
+  res.json({ level, hint: p.hints[level - 1], last: level >= p.hints.length });
+});
+
+api.post("/puzzles/:id/answer", requireAuth, (req, res) => {
+  const p = puzzleById(req.params.id);
+  if (!p) return res.status(404).json({ error: "unknown_puzzle" });
+  const { learnerId, answer, hintsUsed } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+
+  const correct = checkPuzzle(p, answer);
+  if (!correct) {
+    /* No solution on a wrong answer — that is what keeps a puzzle a puzzle. */
+    return res.json({ correct: false, encouragement: "Not that one. Try a different approach, or take a hint." });
+  }
+
+  const hints = Math.max(0, Math.min(p.hints.length, Number(hintsUsed) || 0));
+  const prior = db.prepare("SELECT * FROM puzzle_solves WHERE learner_id=? AND puzzle_id=?")
+    .get(learnerId, p.id);
+  if (!prior) {
+    db.prepare("INSERT INTO puzzle_solves (learner_id, puzzle_id, hints_used, attempts, solved_at) VALUES (?,?,?,?,?)")
+      .run(learnerId, p.id, hints, 1, now());
+    rewards.award(learnerId, "points", `puzzle:${p.id}`, 25 + p.difficulty * 10);
+    if (hints === 0) rewards.award(learnerId, "badge", "elegant_solution");
+  }
+  /* A trophy reflects how it was solved, not merely that it was. */
+  const trophy = hints === 0 ? "gold" : hints === 1 ? "silver" : "bronze";
+  res.json({ correct: true, trophy, firstSolve: !prior,
+             message: hints === 0 ? "Solved with no hints at all." : "Solved." });
+});
+
+api.get("/learners/:id/puzzles", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare("SELECT * FROM puzzle_solves WHERE learner_id=? ORDER BY solved_at DESC")
+    .all(req.params.id);
+  res.json({
+    solved: rows.map(r => ({
+      puzzleId: r.puzzle_id, hintsUsed: r.hints_used, solvedAt: r.solved_at,
+      trophy: r.hints_used === 0 ? "gold" : r.hints_used === 1 ? "silver" : "bronze",
+      title: (puzzleById(r.puzzle_id) || {}).title
+    })),
+    available: PUZZLES.length
+  });
+});
 
 /* ---------------- proof trainer (spec 4.1.10) ----------------
    Checking is structural: an ordering proof is right when the steps are in a

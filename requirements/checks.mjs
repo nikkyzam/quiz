@@ -1798,6 +1798,92 @@ export const CHECKS = {
     return "partial credit on ordering and select-all, guessing everything scores worse, single answers stay all-or-nothing";
   },
 
+
+  /* 3.2.4 + 4.1.5 — puzzle area with hints but no solutions */
+  "puzzles": async () => {
+    const { PUZZLES, checkPuzzle, publicPuzzle } = await import("../app/shared/puzzles.mjs");
+    assert(PUZZLES.length >= 6, `only ${PUZZLES.length} puzzles authored`);
+    assert(new Set(PUZZLES.map(p => p.difficulty)).size >= 3, "puzzles span too few difficulties");
+
+    /* Each puzzle accepts its own answer and rejects a near miss. */
+    for (const p of PUZZLES) {
+      assert(checkPuzzle(p, p.accepts[0]), `${p.id} rejects its own answer`);
+      assert(!checkPuzzle(p, p.accepts[0] + 1), `${p.id} accepts a wrong answer`);
+      assert(p.hints.length >= 2, `${p.id} has too few hints`);
+      /* The real leak test is structural: the served object must carry
+         neither the accepted answers nor the hint texts. Numeric fields like
+         difficulty may legitimately coincide with an answer value. */
+      const served = publicPuzzle(p);
+      assert(!("accepts" in served), `${p.id} served its accepted answers`);
+      assert(!("hints" in served), `${p.id} served all its hints at once`);
+      assert(typeof served.hintCount === "number", `${p.id} does not say how many hints exist`);
+      const values = Object.entries(served)
+        .filter(([k]) => k !== "difficulty" && k !== "hintCount")
+        .map(([, v]) => String(v)).join(" ");
+      assert(!new RegExp(`\\b${p.accepts[0]}\\b`).test(values) || p.prompt.includes(String(p.accepts[0])),
+        `${p.id} leaked its answer in the served text`);
+    }
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "puz@b.com", password: "a-long-enough-pass", name: "Z" });
+    const kid = (await post(c, "/learners", { name: "Puzzle Kid" })).body.learner;
+
+    const list = (await c("/puzzles")).body.puzzles;
+    assert(list.length === PUZZLES.length, "puzzle list incomplete");
+    assert(list.every(p => p.hintCount > 0 && !("accepts" in p)), "puzzle list exposes answers");
+
+    const target = PUZZLES[1];
+
+    /* A wrong answer must NOT reveal the solution — that is the whole point. */
+    const wrong = await post(c, `/puzzles/${target.id}/answer`,
+      { learnerId: kid.id, answer: "999999", hintsUsed: 0 });
+    assert(wrong.body.correct === false, "a wrong puzzle answer was accepted");
+    assert(!("correctAnswer" in wrong.body), "a wrong answer revealed the solution");
+    assert(!JSON.stringify(wrong.body).includes(String(target.accepts[0])),
+      "a wrong answer leaked the solution in its message");
+
+    /* Hints come one at a time. */
+    const h1 = await post(c, `/puzzles/${target.id}/hint`, { level: 1 });
+    assert(h1.body.hint === target.hints[0], "wrong hint served");
+    assert(h1.body.last === false, "the first of several hints was marked final");
+
+    /* Solving with no hints earns a gold trophy and the elegant badge. */
+    const solved = await post(c, `/puzzles/${target.id}/answer`,
+      { learnerId: kid.id, answer: String(target.accepts[0]), hintsUsed: 0 });
+    assert(solved.body.correct === true, "the correct puzzle answer was rejected");
+    assert(solved.body.trophy === "gold", `unaided solve gave a ${solved.body.trophy} trophy`);
+    assert(solved.body.firstSolve === true, "first solve not flagged");
+
+    const rw = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(rw.badges.some(b => b.code === "elegant_solution"), "no badge for an unaided solve");
+
+    /* A hinted solve on another puzzle earns a lesser trophy. */
+    const other = PUZZLES[2];
+    const hinted = await post(c, `/puzzles/${other.id}/answer`,
+      { learnerId: kid.id, answer: String(other.accepts[0]), hintsUsed: 2 });
+    assert(hinted.body.trophy === "bronze", `a two-hint solve gave a ${hinted.body.trophy} trophy`);
+
+    /* Re-solving does not award points twice. */
+    const again = await post(c, `/puzzles/${target.id}/answer`,
+      { learnerId: kid.id, answer: String(target.accepts[0]), hintsUsed: 0 });
+    assert(again.body.firstSolve === false, "a repeat solve was counted as the first");
+
+    const solvedList = (await c(`/learners/${kid.id}/puzzles`)).body;
+    assert(solvedList.solved.length === 2, `expected 2 solved, got ${solvedList.solved.length}`);
+    assert(solvedList.solved.every(s => s.title), "solved puzzles are not named");
+
+    /* Another account cannot answer for this learner. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "puzbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await post(bob, `/puzzles/${target.id}/answer`,
+      { learnerId: kid.id, answer: String(target.accepts[0]) })).status === 403,
+      "another account solved a puzzle for this learner");
+
+    return `${PUZZLES.length} puzzles, hints one at a time, wrong answers never reveal the solution, trophies reflect hint use`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

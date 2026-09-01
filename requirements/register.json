@@ -74,8 +74,10 @@
       "id": "3.2.4",
       "section": "Content types",
       "title": "Open-ended puzzles with multiple solution paths",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:puzzles",
+      "notes": "8 open-ended puzzles across four difficulties, sitting outside the adaptive path. Hints come one at a time and a wrong answer never reveals the solution, which is what keeps a puzzle worth returning to. Multiple valid solution PATHS are encouraged by the prompts, but the checker accepts a final value rather than reasoning."
     },
     {
       "id": "3.2.5",
@@ -285,8 +287,10 @@
       "id": "4.1.5",
       "section": "Student app",
       "title": "Puzzle area with trophies and elegant-solution badges",
-      "status": "todo",
-      "priority": 3
+      "status": "done",
+      "priority": 3,
+      "evidence": "check:puzzles",
+      "notes": "Puzzle area with untimed play, per-puzzle hints, gold/silver/bronze trophies reflecting how many hints were taken, and an Elegant Solution badge for solving unaided. Points scale with difficulty and are awarded once."
     },
     {
       "id": "4.1.6",
@@ -479,7 +483,7 @@
       "status": "partial",
       "priority": 3,
       "evidence": "check:gamification",
-      "notes": "11 badges including subject-specific (Number Theory Novice, Combinatorics Champion) and meta (Persistent Problem Solver, No Hints Needed). Awarded once and never revoked, enforced by a unique index. The spec asks for 100+; this is a working subset."
+      "notes": "12 badges including subject-specific, meta and the Elegant Solution award for an unaided puzzle solve. Awarded once and never revoked. The spec asks for 100+; this is a working subset."
     },
     {
       "id": "5.3",

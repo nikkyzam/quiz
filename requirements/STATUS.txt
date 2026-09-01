@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 121
-  done       30  (25%)
-  partial    44  (36%)
-  todo       35  (29%)
+  done       31  (26%)
+  partial    45  (37%)
+  todo       33  (27%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -41,6 +41,8 @@ Automated checks
   PASS  knowledge-tracing  P(known) updated per answer, slip and guess handled, mastery needs evidence not just confidence
   PASS  proof-trainer      5 proofs across grades 1-8, 3 kinds, structurally checked
   PASS  admin-portal       aggregate analytics, retention policy, audited access, RBAC enforced and admin not self-assignable
+  PASS  partial-credit     partial credit on ordering and select-all, guessing everything scores worse, single answers stay all-or-nothing
+  PASS  puzzles            8 puzzles, hints one at a time, wrong answers never reveal the solution, trophies reflect hint use
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

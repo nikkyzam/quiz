@@ -174,6 +174,16 @@ CREATE TABLE IF NOT EXISTS assignments (
 );
 CREATE INDEX IF NOT EXISTS idx_assign_class ON assignments(class_id);
 
+-- Solved puzzles, with how many hints were taken so a trophy can reflect it.
+CREATE TABLE IF NOT EXISTS puzzle_solves (
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  puzzle_id  TEXT NOT NULL,
+  hints_used INTEGER NOT NULL DEFAULT 0,
+  attempts   INTEGER NOT NULL DEFAULT 1,
+  solved_at  TEXT NOT NULL,
+  PRIMARY KEY (learner_id, puzzle_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_awards_learner ON awards(learner_id, at DESC);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_badge_once ON awards(learner_id, code) WHERE kind = 'badge';
 
