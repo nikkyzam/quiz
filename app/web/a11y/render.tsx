@@ -38,6 +38,6 @@ export const SCREENS: Record<string, string> = {
     <div className="wrap"><main>
       <TierPicker topicId="g6-nscoord" topicName="Coordinate Plane" advanced={false}
                   tiers={tiers} counts={cur.counts} threshold={90} learner={learner as any}
-                  onBack={noop} onStart={noop} />
+                  onBack={noop} onStart={noop} onDiagnostic={noop} onMastery={noop} />
     </main></div>)
 };

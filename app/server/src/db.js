@@ -95,3 +95,31 @@ CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_
 `);
 
 export const now = () => new Date().toISOString();
+
+/* ---------- migrations ----------
+   CREATE TABLE IF NOT EXISTS does nothing to a table that already exists, so
+   columns added after a database is in use must be applied explicitly. Each
+   migration is idempotent and safe to run on every boot. Without this, an
+   existing deployment breaks the moment a column is added. */
+function columns(table) {
+  return new Set(db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name));
+}
+function addColumn(table, name, ddl) {
+  if (!columns(table).has(name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${ddl}`);
+    return true;
+  }
+  return false;
+}
+
+export function migrate() {
+  const applied = [];
+  // 10.3: roles and recorded COPPA consent
+  if (addColumn("users", "role", "TEXT NOT NULL DEFAULT 'parent'")) applied.push("users.role");
+  if (addColumn("users", "coppa_consent_at", "TEXT")) applied.push("users.coppa_consent_at");
+  return applied;
+}
+
+const appliedMigrations = migrate();
+if (appliedMigrations.length && process.env.NODE_ENV !== "test")
+  console.log("migrations applied:", appliedMigrations.join(", "));

@@ -544,6 +544,70 @@ export const CHECKS = {
     return "diagnostic -> practice -> review -> mastery check -> progress, all server-side";
   },
 
+
+  /* X.5 — an EXISTING database must survive an upgrade.
+     The rest of the suite always starts from an empty file, which is exactly
+     why a missing migration went unnoticed until the dev database broke. This
+     builds a database at the OLD schema, boots against it, and asserts the
+     app still works and the old row is intact. */
+  "schema-migration": async () => {
+    const { DatabaseSync } = await import("node:sqlite");
+    const { rmSync, mkdirSync } = await import("node:fs");
+    const { spawn } = await import("node:child_process");
+
+    const file = "app/server/data/legacy.db";
+    mkdirSync("app/server/data", { recursive: true });
+    rmSync(file, { force: true });
+    rmSync(file + "-wal", { force: true });
+    rmSync(file + "-shm", { force: true });
+
+    /* The users table as it existed BEFORE role/coppa_consent_at were added. */
+    const old = new DatabaseSync(file);
+    old.exec(`CREATE TABLE users (
+      id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, pass_hash TEXT NOT NULL,
+      pass_salt TEXT NOT NULL, name TEXT NOT NULL, created_at TEXT NOT NULL)`);
+    old.prepare("INSERT INTO users VALUES (?,?,?,?,?,?)")
+       .run("legacy-1", "legacy@b.com", "deadbeef", "cafe", "Legacy User", new Date().toISOString());
+    old.close();
+
+    /* Boot a server against that old file on its own port. */
+    const port = 4199;
+    const srv = spawn("node", ["src/index.js"], {
+      cwd: "app/server",
+      env: { ...process.env, PORT: String(port), DB_FILE: "./data/legacy.db" },
+      stdio: "ignore"
+    });
+    try {
+      let up = false;
+      for (let i = 0; i < 40 && !up; i++) {
+        try { up = (await fetch(`http://localhost:${port}/health`)).ok; } catch {}
+        if (!up) await new Promise(r => setTimeout(r, 150));
+      }
+      assert(up, "server failed to boot against a pre-existing database");
+
+      /* The columns must now exist, and the old row must be preserved. */
+      const db = new DatabaseSync(file);
+      const cols = new Set(db.prepare("PRAGMA table_info(users)").all().map(c => c.name));
+      assert(cols.has("role"), "migration did not add users.role");
+      assert(cols.has("coppa_consent_at"), "migration did not add users.coppa_consent_at");
+      const row = db.prepare("SELECT * FROM users WHERE id = ?").get("legacy-1");
+      assert(row && row.name === "Legacy User", "existing user row was lost during migration");
+      assert(row.role === "parent", `existing user got role "${row.role}", expected the default`);
+
+      /* And the app must actually serve requests against the upgraded file. */
+      const me = await fetch(`http://localhost:${port}/api/auth/me`);
+      assert(me.ok, `auth/me failed after migration (status ${me.status})`);
+      const reg = await fetch(`http://localhost:${port}/api/auth/register`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "after@b.com", password: "a-long-enough-pass", name: "After", coppaConsent: true })
+      });
+      assert(reg.ok, `registration failed on a migrated database (status ${reg.status})`);
+      return "old database booted, columns added, existing row preserved, requests served";
+    } finally {
+      srv.kill();
+    }
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

@@ -244,7 +244,7 @@
       "section": "Student app",
       "title": "Dashboard: dual-track map, avatar, daily goals, streaks, challenge of the day",
       "status": "partial",
-      "notes": "Grade/topic/tier navigation exists. No avatar customisation, goals, streaks or daily challenge.",
+      "notes": "Grade/topic/tier navigation plus placement and mastery entry points. No avatar customisation, daily goals, streaks or challenge of the day.",
       "priority": 2
     },
     {
@@ -826,7 +826,7 @@
       "section": "Acceptance",
       "title": "Parent, teacher, admin dashboards showing accurate real-time data",
       "status": "partial",
-      "notes": "Parent dashboard done and verified; teacher and admin not built.",
+      "notes": "Parent-facing views are built and verified: learner progress dashboard, placement skill map, mastery-check results. Teacher and admin dashboards do not exist.",
       "priority": 1
     },
     {
@@ -913,6 +913,15 @@
       "status": "done",
       "evidence": "check:persistence",
       "priority": 1
+    },
+    {
+      "id": "X.5",
+      "section": "Foundation",
+      "title": "Schema migrations apply to existing databases",
+      "status": "done",
+      "evidence": "check:schema-migration",
+      "priority": 1,
+      "notes": "Found the hard way: CREATE TABLE IF NOT EXISTS skips existing tables, so new columns never reached the dev database and every request 500'd. Migrations are now idempotent and a check boots against an old-schema file."
     }
   ]
 }

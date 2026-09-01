@@ -6,6 +6,8 @@ import { LearnerPicker } from "./screens/Learners";
 import { GradeList, GradeMap, TierPicker } from "./screens/Curriculum";
 import { Quiz } from "./screens/Quiz";
 import { Dashboard } from "./screens/Dashboard";
+import { Diagnostic } from "./screens/Diagnostic";
+import { MasteryCheck } from "./screens/MasteryCheck";
 
 const GRADE_ORDER = ["K", "1", "2", "3", "4", "5", "6", "7", "8"];
 
@@ -13,6 +15,8 @@ type View =
   | { s: "grades" } | { s: "grade"; g: string }
   | { s: "tiers"; topicId: string; topicName: string; advanced: boolean }
   | { s: "quiz"; topicId: string; topicName: string; tier: string; advanced: boolean }
+  | { s: "diagnostic"; topicId: string; topicName: string }
+  | { s: "mastery"; topicId: string; topicName: string }
   | { s: "dash" };
 
 
@@ -107,6 +111,23 @@ export default function App() {
           tiers={cur.tiers} counts={cur.counts} threshold={cur.thresholds?.[view.topicId] ?? 90} learner={active}
           onBack={() => setView({ s: "grades" })}
           onStart={tier => setView({ s: "quiz", topicId: view.topicId, topicName: view.topicName, tier, advanced: view.advanced })}
+          onDiagnostic={() => setView({ s: "diagnostic", topicId: view.topicId, topicName: view.topicName })}
+          onMastery={() => setView({ s: "mastery", topicId: view.topicId, topicName: view.topicName })}
+        />
+      )}
+
+      {view.s === "diagnostic" && (
+        <Diagnostic
+          learner={active} topicId={view.topicId} topicName={view.topicName}
+          onDone={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: false })}
+          onExit={back}
+        />
+      )}
+
+      {view.s === "mastery" && (
+        <MasteryCheck
+          learner={active} topicId={view.topicId} topicName={view.topicName}
+          onExit={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: false })}
         />
       )}
 

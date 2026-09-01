@@ -71,5 +71,38 @@ export const api = {
     post<{ pct: number; threshold: number; track: string; star: boolean }>("/runs", { learnerId, topicId, tier, score, total }),
 
   progress: (learnerId: string) =>
-    call<{ progress: ProgressRow[]; recent: any[] }>(`/learners/${learnerId}/progress`)
+    call<{ progress: ProgressRow[]; recent: any[] }>(`/learners/${learnerId}/progress`),
+
+  /* diagnostic (4.1.1) */
+  startDiagnostic: (learnerId: string, topicId: string) =>
+    post<{ diagnosticId: string; question: Question; asked: number }>("/diagnostic/start", { learnerId, topicId }),
+  answerDiagnostic: (diagnosticId: string, answer: unknown) =>
+    post<{ correct: boolean; correctAnswer: string; explanation: string; done: boolean;
+           asked?: number; question?: Question; summary?: DiagnosticSummary }>(
+      "/diagnostic/answer", { diagnosticId, answer }),
+  lastDiagnostic: (learnerId: string) =>
+    call<{ diagnostic: (DiagnosticSummary & { finishedAt: string }) | null }>(`/learners/${learnerId}/diagnostic`),
+
+  /* review queue (4.1.7) */
+  review: (learnerId: string) =>
+    call<{ review: ReviewItem[] }>(`/learners/${learnerId}/review`),
+
+  /* mastery check (4.1.6) */
+  startMastery: (learnerId: string, topicId: string) =>
+    post<{ checkId: string; threshold: number; questions: Question[] }>("/mastery/start", { learnerId, topicId }),
+  submitMastery: (checkId: string, answers: Record<string, unknown>) =>
+    post<{ score: number; total: number; pct: number; threshold: number; passed: boolean;
+           detail: { id: string; correct: boolean; correctAnswer: string; explanation: string }[] }>(
+      "/mastery/submit", { checkId, answers })
+};
+
+export type SkillRow = { sec: string; name: string; asked: number; correct: number; pct: number; level: string };
+export type DiagnosticSummary = {
+  asked: number; correct: number; overall: number; reliable: boolean;
+  skillMap: SkillRow[];
+  recommendation: { topicId: string; tier: string; focus: string | null; message: string };
+};
+export type ReviewItem = {
+  topicId: string; tier: string; bestPct: number; threshold: number;
+  track: string; gap: number; lastAt: string;
 };
