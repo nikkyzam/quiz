@@ -659,8 +659,9 @@
       "id": "8.1",
       "section": "CMS",
       "title": "Web authoring tools for all content types",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "Content is authored as reviewed source modules with a validating linter and CI enforcement rather than a web editor. A browser-based authoring tool with templates and versioning is not built."
     },
     {
       "id": "8.2",
@@ -687,8 +688,10 @@
       "id": "8.5",
       "section": "CMS",
       "title": "QA workflow with preview and automated checks",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:content-lint",
+      "notes": "Content linter over every question, puzzle, proof and generator template: structural integrity, duplicates, explanations that merely restate the question, hints identical to the solution, options that give the answer away by length, and reading level against the grade. Each of the 13 rules is proven to fire on deliberately broken content, so a clean run means something. Preview-as-student and an approval workflow are not built."
     },
     {
       "id": "9.1",

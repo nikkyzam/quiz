@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "verify": "node requirements/verify.mjs --report",
-    "status": "node requirements/verify.mjs"
+    "status": "node requirements/verify.mjs",
+    "lint:content": "node tools/lint-content.mjs"
   }
 }

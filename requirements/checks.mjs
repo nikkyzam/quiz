@@ -2229,6 +2229,65 @@ export const CHECKS = {
     return `${cases.length} notations rendered as MathML with spoken labels, prose left alone`;
   },
 
+
+  /* 8.5 — content quality tooling that demonstrably catches problems */
+  "content-lint": async () => {
+    const { execSync } = await import("node:child_process");
+    const { lintQuestion } = await import("../tools/lint-content.mjs");
+
+    /* Every rule must fire on content that breaks it. A linter nobody has
+       seen catch anything is not evidence that the content is sound. */
+    const fires = (q, where, grade, needle) => {
+      const r = lintQuestion(q, where || "t#1", grade || null, new Map());
+      const all = [...r.errors, ...r.warnings].join(" | ");
+      assert(all.includes(needle), `rule for "${needle}" did not fire; got: ${all || "(nothing)"}`);
+    };
+
+    fires({ type: "in", q: "What is 2 + 2?", ans: 4 }, "t#1", null, "no explanation");
+    fires({ type: "in", q: "hi", ans: 1, expl: "x", sec: "N" }, "t#1", null, "too short");
+    fires({ type: "mc", q: "Pick the right one here", opts: ["a", "a"], a: 0, expl: "x", sec: "N" },
+      "t#1", null, "duplicate options");
+    fires({ type: "mc", q: "Pick the right one here", opts: ["a"], a: 0, expl: "x", sec: "N" },
+      "t#1", null, "fewer than two options");
+    fires({ type: "mc", q: "Pick the right one here", opts: ["a", "b"], a: 9, expl: "x", sec: "N" },
+      "t#1", null, "answer index");
+    fires({ type: "multi", q: "Select every correct one", opts: ["a", "b"], aMulti: [0, 1], expl: "x", sec: "N" },
+      "t#1", null, "every option marked correct");
+    fires({ type: "order", q: "Put these in order please", items: ["a", "b", "c"], ansOrder: ["a", "b", "z"], expl: "x", sec: "N" },
+      "t#1", null, "permutation");
+    fires({ type: "order", q: "Put these in order please", items: ["a", "b"], ansOrder: ["a", "b"], expl: "x", sec: "N" },
+      "t#1", null, "too few items");
+    fires({ type: "in", q: "What is 2 + 2?", ans: 4, expl: "What is 2 + 2?", sec: "N" },
+      "t#1", null, "repeats the question");
+    fires({ type: "in", q: "What is 2 + 2?", ans: 4, sec: "N", expl: "Add them", hint: "Add them" },
+      "t#1", null, "hint is identical");
+    fires({ type: "in", q: "What is 2 + 2?", ans: 4, expl: "x", sec: "ZZZ" }, "t#1", null, "unknown section");
+    fires({ type: "in", ans: 4, expl: "x", sec: "N",
+            q: "Considering the aforementioned circumstances and notwithstanding any subsequent " +
+               "developments, determine conclusively the aggregate quantity resulting therefrom" },
+      "t#1", "K", "grade K");
+
+    /* Duplicate detection across a bank. */
+    const seen = new Map();
+    lintQuestion({ type: "in", q: "What is 2 + 2?", ans: 4, expl: "x", sec: "N" }, "t#1", null, seen);
+    const dup = lintQuestion({ type: "in", q: "What is 2 + 2?", ans: 4, expl: "x", sec: "N" }, "t#2", null, seen);
+    assert(dup.errors.some(e => e.includes("duplicates")), "duplicate questions were not detected");
+
+    /* Clean content passes. */
+    const good = lintQuestion(
+      { type: "in", q: "What is 7 times 8?", ans: 56, expl: "7 times 8 is 56.", sec: "N", hint: "Count in eights." },
+      "t#1", "3", new Map());
+    assert(good.errors.length === 0, `clean question rejected: ${good.errors.join(", ")}`);
+
+    /* And the real content passes the whole tool. */
+    const out = execSync("node tools/lint-content.mjs --json").toString();
+    const report = JSON.parse(out);
+    assert(report.errors.length === 0, `authored content has errors: ${report.errors.slice(0, 3).join("; ")}`);
+    assert(report.questions > 150, "linter did not see the full content set");
+
+    return `13 rules each proven to fire, ${report.questions} questions and ${report.puzzles} puzzles clean`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
