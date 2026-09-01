@@ -17,8 +17,22 @@ CREATE TABLE IF NOT EXISTS users (
   pass_hash   TEXT NOT NULL,
   pass_salt   TEXT NOT NULL,
   name        TEXT NOT NULL,
+  role        TEXT NOT NULL DEFAULT 'parent',
+  -- COPPA: children never hold accounts here; a responsible adult creates the
+  -- account and affirms they may consent for the children they add.
+  coppa_consent_at TEXT,
   created_at  TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS audit_log (
+  id       TEXT PRIMARY KEY,
+  user_id  TEXT,
+  action   TEXT NOT NULL,
+  detail   TEXT,
+  ip       TEXT,
+  at       TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id, at DESC);
 
 CREATE TABLE IF NOT EXISTS sessions (
   id          TEXT PRIMARY KEY,

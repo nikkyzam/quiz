@@ -226,3 +226,8 @@
 .opt .mark{float:right;font-weight:700}
 .opt.right .mark{color:var(--good)}
 .opt.wrong .mark{color:var(--bad)}
+
+.field label.checkline, .checkline{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;
+  color:var(--ink);text-transform:none;letter-spacing:0;font-weight:400}
+.field label.checkline input, .checkline input{width:18px;height:18px;margin-top:2px;flex:0 0 auto;accent-color:var(--accent)}
+.consent{margin-top:4px}

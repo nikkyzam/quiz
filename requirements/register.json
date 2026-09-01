@@ -415,8 +415,9 @@
       "id": "4.4.3",
       "section": "Admin portal",
       "title": "Compliance: retention policies and audit logs",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "Audit log table and per-account audit trail endpoint exist and are verified. Retention policy automation and admin-facing access reporting not built."
     },
     {
       "id": "5.1",
@@ -631,8 +632,10 @@
       "id": "9.3",
       "section": "Integration",
       "title": "Data export CSV/PDF and FERPA-compliant student export",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": null,
+      "notes": "JSON export of all account data via /api/me/export, verified. CSV and PDF export not built."
     },
     {
       "id": "9.4",
@@ -669,8 +672,9 @@
       "section": "Non-functional",
       "title": "Security and privacy: COPPA, FERPA, GDPR, encryption, RBAC, audit logs",
       "status": "partial",
-      "notes": "Password hashing, session auth and per-account authorisation done. No COPPA consent flow, RBAC roles, encryption at rest or audit log.",
-      "priority": 1
+      "notes": "Done and verified: security headers incl. CSP, brute-force limiting on login, COPPA consent required at registration (children never hold accounts), audit log of auth/learner/progress-access events, FERPA/GDPR data export and erasure, secure cookie in production, role column on users. NOT done: encryption at rest (needs a deployment/KMS decision), RBAC enforcement beyond the parent role (teacher/admin portals do not exist yet), retention policy automation, and a third-party penetration test.",
+      "priority": 1,
+      "evidence": "check:security-privacy"
     },
     {
       "id": "10.4",

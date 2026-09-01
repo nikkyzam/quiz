@@ -53,16 +53,16 @@ export const CHECKS = {
   /* X.2 — passwords hashed, session cookie is httpOnly, bad input refused */
   "auth-security": async () => {
     const c = client();
-    const weak = await post(c, "/auth/register", { email: "a@b.com", password: "short", name: "A" });
+    const weak = await post(c, "/auth/register", { email: "a@b.com", password: "short", name: "A", coppaConsent: true });
     assert(weak.status === 400, "weak password was accepted");
 
-    const reg = await post(c, "/auth/register", { email: "a@b.com", password: "a-long-enough-pass", name: "A" });
+    const reg = await post(c, "/auth/register", { email: "a@b.com", password: "a-long-enough-pass", name: "A", coppaConsent: true });
     assert(reg.status === 200, "registration failed");
     const cookie = reg.setCookie.join(";");
     assert(/httponly/i.test(cookie), "session cookie is not HttpOnly");
     assert(!/a-long-enough-pass/.test(JSON.stringify(reg.body)), "password echoed back");
 
-    const dup = await post(c, "/auth/register", { email: "a@b.com", password: "a-long-enough-pass", name: "A" });
+    const dup = await post(c, "/auth/register", { email: "a@b.com", password: "a-long-enough-pass", name: "A", coppaConsent: true });
     assert(dup.status === 409, "duplicate email accepted");
 
     const bad = await post(client(), "/auth/login", { email: "a@b.com", password: "wrong-password-here" });
@@ -127,7 +127,7 @@ export const CHECKS = {
   /* 4.2.1 — parent manages multiple children */
   "learners-crud": async () => {
     const c = client();
-    await post(c, "/auth/register", { email: "crud@b.com", password: "a-long-enough-pass", name: "P" });
+    await post(c, "/auth/register", { coppaConsent: true, email: "crud@b.com", password: "a-long-enough-pass", name: "P" });
     const a = await post(c, "/learners", { name: "Kid A", beast: "pip" });
     const b = await post(c, "/learners", { name: "Kid B", beast: "nim" });
     assert(a.status === 200 && b.status === 200, "could not create learners");
@@ -144,9 +144,9 @@ export const CHECKS = {
   /* X.3 — one account cannot read or write another account's learner */
   "tenant-isolation": async () => {
     const alice = client(), bob = client();
-    await post(alice, "/auth/register", { email: "alice@b.com", password: "a-long-enough-pass", name: "Alice" });
+    await post(alice, "/auth/register", { coppaConsent: true, email: "alice@b.com", password: "a-long-enough-pass", name: "Alice" });
     const kid = (await post(alice, "/learners", { name: "Alice Kid" })).body.learner;
-    await post(bob, "/auth/register", { email: "bob@b.com", password: "a-long-enough-pass", name: "Bob" });
+    await post(bob, "/auth/register", { coppaConsent: true, email: "bob@b.com", password: "a-long-enough-pass", name: "Bob" });
 
     const read = await bob(`/learners/${kid.id}/progress`);
     assert(read.status === 403, `Bob read Alice's progress (status ${read.status})`);
@@ -217,7 +217,7 @@ export const CHECKS = {
   /* 3.3.2 + 7.6 — mastery is 90% core / 80% advanced, decided server-side */
   "mastery-thresholds": async () => {
     const c = client();
-    await post(c, "/auth/register", { email: "mastery@b.com", password: "a-long-enough-pass", name: "M" });
+    await post(c, "/auth/register", { coppaConsent: true, email: "mastery@b.com", password: "a-long-enough-pass", name: "M" });
     const kid = (await post(c, "/learners", { name: "Threshold Kid" })).body.learner;
 
     // The server must publish the split rather than the client assuming it.
@@ -298,10 +298,71 @@ export const CHECKS = {
     return `${screens} screens axe-clean (WCAG 2.1 A/AA), ${pairs.length * 2} contrast pairs >= 4.5:1`;
   },
 
+
+  /* 10.3 — security headers, brute-force limits, audit trail, data rights */
+  "security-privacy": async () => {
+    const { resetRateLimits } = await import("../app/server/src/security.js").catch(() => ({}));
+    const c = client();
+
+    /* Security headers on every response */
+    const res = await fetch(BASE + "/health");
+    const want = {
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "DENY",
+      "referrer-policy": "no-referrer"
+    };
+    for (const [h, v] of Object.entries(want))
+      assert(res.headers.get(h) === v, `header ${h} is "${res.headers.get(h)}", expected "${v}"`);
+    assert(/frame-ancestors 'none'/.test(res.headers.get("content-security-policy") || ""),
+      "CSP missing frame-ancestors 'none'");
+    assert(!res.headers.get("x-powered-by"), "X-Powered-By still advertises the stack");
+
+    /* COPPA: an account cannot be created without an adult affirming consent */
+    const noConsent = await post(c, "/auth/register",
+      { email: "noconsent@b.com", password: "a-long-enough-pass", name: "N" });
+    assert(noConsent.status === 400 && noConsent.body.error === "coppa_consent_required",
+      "account created without COPPA consent");
+
+    await post(c, "/auth/register",
+      { email: "sec@b.com", password: "a-long-enough-pass", name: "Sec", coppaConsent: true });
+
+    /* Audit trail records the actions taken */
+    const kid = (await post(c, "/learners", { name: "Audited Kid" })).body.learner;
+    await c(`/learners/${kid.id}/progress`);
+    const trail = (await c("/me/audit")).body.entries.map(e => e.action);
+    for (const a of ["account.created", "learner.created", "progress.read"])
+      assert(trail.includes(a), `audit trail missing ${a} (has: ${trail.join(", ")})`);
+
+    /* Data export (FERPA/GDPR access right) */
+    const exp = (await c("/me/export")).body;
+    assert(exp.user && exp.user.email === "sec@b.com", "export missing the user");
+    assert(!("pass_hash" in exp.user), "export leaks the password hash");
+    assert(Array.isArray(exp.learners) && exp.learners.length === 1, "export missing learners");
+    assert(exp.user.coppa_consent_at, "consent timestamp not recorded");
+
+    /* Brute force: repeated bad logins are throttled */
+    let limited = false;
+    for (let i = 0; i < 14; i++) {
+      const r = await post(client(), "/auth/login", { email: "sec@b.com", password: "definitely-wrong" });
+      if (r.status === 429) { limited = true; break; }
+    }
+    assert(limited, "login accepts unlimited password attempts");
+
+    /* Erasure right: deleting the account removes the learner data with it */
+    const del = await c("/me", { method: "DELETE" });
+    assert(del.body.deleted === true, "account deletion failed");
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync("app/server/data/verify.db");
+    const left = db.prepare("SELECT COUNT(*) c FROM learners WHERE id = ?").get(kid.id);
+    assert(left.c === 0, "learner data survived account deletion");
+
+    return "headers set, COPPA consent required, audit trail written, export/erase work, login throttled";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
-    await post(c, "/auth/register", { email: "persist@b.com", password: "a-long-enough-pass", name: "P" });
+    await post(c, "/auth/register", { coppaConsent: true, email: "persist@b.com", password: "a-long-enough-pass", name: "P" });
     const kid = (await post(c, "/learners", { name: "Persist Kid" })).body.learner;
     await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 7, total: 8 });
 

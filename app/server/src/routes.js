@@ -5,6 +5,7 @@ import {
   createUser, findUserByEmail, verifyPassword,
   createSession, destroySession, requireAuth
 } from "./auth.js";
+import { rateLimit, audit, auditTrail } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -60,22 +61,45 @@ function gradeAnswer(q, raw) {
 }
 
 /* ---------------- auth ---------------- */
-const COOKIE = { httpOnly: true, sameSite: "lax", path: "/" };
+const COOKIE = {
+  httpOnly: true, sameSite: "lax", path: "/",
+  secure: process.env.NODE_ENV === "production"   // HTTPS-only once deployed
+};
 
-api.post("/auth/register", (req, res) => {
+/* Brute-force protection. Login is limited per IP+email so one attacker
+   cannot cycle a password list against a known address. */
+const loginLimit = rateLimit({
+  windowMs: 15 * 60_000, max: 10,
+  key: req => `login:${req.ip}:${String(req.body?.email || "").toLowerCase()}`,
+  message: "too_many_attempts"
+});
+/* Registration is limited to slow mass automated signup, NOT to gate real
+   users: a school or family shares one NAT address, so this must stay well
+   above plausible legitimate use. Login is where the strict limit belongs. */
+const registerLimit = rateLimit({
+  windowMs: 60 * 60_000,
+  max: Number(process.env.REGISTER_LIMIT_PER_HOUR || 30),
+  key: req => `reg:${req.ip}`
+});
+
+api.post("/auth/register", registerLimit, (req, res) => {
   const { email, password, name } = req.body || {};
   if (!email || !String(email).includes("@")) return res.status(400).json({ error: "bad_email" });
   if (!password || String(password).length < 8) return res.status(400).json({ error: "weak_password" });
   if (!name || !String(name).trim()) return res.status(400).json({ error: "missing_name" });
   if (findUserByEmail(email)) return res.status(409).json({ error: "email_taken" });
 
-  const user = createUser({ email, password: String(password), name: String(name).trim().slice(0, 60) });
+  const { coppaConsent } = req.body || {};
+  if (coppaConsent !== true) return res.status(400).json({ error: "coppa_consent_required" });
+  const user = createUser({ email, password: String(password),
+                            name: String(name).trim().slice(0, 60), coppaConsent: true });
+  audit(user.id, "account.created", null, req);
   const s = createSession(user.id);
   res.cookie("sid", s.id, { ...COOKIE, expires: new Date(s.expires) });
   res.json({ user });
 });
 
-api.post("/auth/login", (req, res) => {
+api.post("/auth/login", loginLimit, (req, res) => {
   const { email, password } = req.body || {};
   const row = findUserByEmail(email || "");
   // Same response either way so the endpoint can't be used to discover emails.
@@ -83,11 +107,13 @@ api.post("/auth/login", (req, res) => {
     return res.status(401).json({ error: "bad_credentials" });
   }
   const s = createSession(row.id);
+  audit(row.id, "auth.login", null, req);
   res.cookie("sid", s.id, { ...COOKIE, expires: new Date(s.expires) });
-  res.json({ user: { id: row.id, email: row.email, name: row.name } });
+  res.json({ user: { id: row.id, email: row.email, name: row.name, role: row.role || "parent" } });
 });
 
 api.post("/auth/logout", (req, res) => {
+  if (req.user) audit(req.user.id, "auth.logout", null, req);
   destroySession(req.cookies?.sid);
   res.clearCookie("sid", COOKIE);
   res.json({ ok: true });
@@ -113,12 +139,14 @@ api.post("/learners", requireAuth, (req, res) => {
   const id = randomUUID();
   db.prepare("INSERT INTO learners (id, user_id, name, beast, created_at) VALUES (?,?,?,?,?)")
     .run(id, req.user.id, String(name).trim().slice(0, 40), beast || "vex", now());
+  audit(req.user.id, "learner.created", id, req);
   res.json({ learner: { id, name: String(name).trim(), beast: beast || "vex" } });
 });
 
 api.delete("/learners/:id", requireAuth, (req, res) => {
   const r = db.prepare("DELETE FROM learners WHERE id = ? AND user_id = ?")
     .run(req.params.id, req.user.id);
+  if (r.changes) audit(req.user.id, "learner.deleted", req.params.id, req);
   res.json({ deleted: r.changes });
 });
 
@@ -216,8 +244,40 @@ api.post("/runs", requireAuth, (req, res) => {
 
 api.get("/learners/:id/progress", requireAuth, (req, res) => {
   if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  audit(req.user.id, "progress.read", req.params.id, req);
   const progress = db.prepare("SELECT * FROM progress WHERE learner_id = ?").all(req.params.id);
   const recent = db.prepare("SELECT topic_id, tier, score, total, pct, finished_at FROM runs WHERE learner_id = ? ORDER BY finished_at DESC LIMIT 20")
     .all(req.params.id);
   res.json({ progress, recent });
+});
+
+
+/* ---------------- data rights (spec 9.3, 10.3) ----------------
+   FERPA/GDPR give the account holder the right to obtain their data and to
+   erase it. Both are self-service rather than a support request. */
+api.get("/me/export", requireAuth, (req, res) => {
+  const uid = req.user.id;
+  const user = db.prepare("SELECT id, email, name, role, coppa_consent_at, created_at FROM users WHERE id = ?").get(uid);
+  const learners = db.prepare("SELECT id, name, beast, created_at FROM learners WHERE user_id = ?").all(uid);
+  const ids = learners.map(l => l.id);
+  const inList = ids.map(() => "?").join(",") || "''";
+  const progress = ids.length ? db.prepare(`SELECT * FROM progress WHERE learner_id IN (${inList})`).all(...ids) : [];
+  const runs = ids.length ? db.prepare(`SELECT * FROM runs WHERE learner_id IN (${inList})`).all(...ids) : [];
+  audit(uid, "data.exported", null, req);
+  res.setHeader("Content-Disposition", 'attachment; filename="mathquest-export.json"');
+  res.json({ exportedAt: now(), user, learners, progress, runs, auditTrail: auditTrail(uid) });
+});
+
+api.get("/me/audit", requireAuth, (req, res) => {
+  res.json({ entries: auditTrail(req.user.id) });
+});
+
+/* Erasure. Learners, progress, runs and sessions cascade from the user row;
+   the audit entry is written before deletion so the action itself is recorded. */
+api.delete("/me", requireAuth, (req, res) => {
+  const uid = req.user.id;
+  audit(uid, "account.deleted", null, req);
+  db.prepare("DELETE FROM users WHERE id = ?").run(uid);
+  res.clearCookie("sid", COOKIE);
+  res.json({ deleted: true });
 });

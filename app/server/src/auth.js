@@ -33,7 +33,7 @@ export function createSession(userId) {
 export function userForSession(sid) {
   if (!sid) return null;
   const row = db.prepare(`
-    SELECT u.id, u.email, u.name, s.expires_at
+    SELECT u.id, u.email, u.name, u.role, s.expires_at
     FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.id = ?`).get(sid);
   if (!row) return null;
@@ -41,20 +41,20 @@ export function userForSession(sid) {
     db.prepare("DELETE FROM sessions WHERE id = ?").run(sid);
     return null;
   }
-  return { id: row.id, email: row.email, name: row.name };
+  return { id: row.id, email: row.email, name: row.name, role: row.role || 'parent' };
 }
 
 export function destroySession(sid) {
   if (sid) db.prepare("DELETE FROM sessions WHERE id = ?").run(sid);
 }
 
-export function createUser({ email, password, name }) {
+export function createUser({ email, password, name, role = "parent", coppaConsent = false }) {
   const { hash, salt } = hashPassword(password);
   const id = randomUUID();
-  db.prepare(`INSERT INTO users (id, email, pass_hash, pass_salt, name, created_at)
-              VALUES (?,?,?,?,?,?)`)
-    .run(id, email.toLowerCase(), hash, salt, name, now());
-  return { id, email: email.toLowerCase(), name };
+  db.prepare(`INSERT INTO users (id, email, pass_hash, pass_salt, name, role, coppa_consent_at, created_at)
+              VALUES (?,?,?,?,?,?,?,?)`)
+    .run(id, email.toLowerCase(), hash, salt, name, role, coppaConsent ? now() : null, now());
+  return { id, email: email.toLowerCase(), name, role };
 }
 
 export function findUserByEmail(email) {

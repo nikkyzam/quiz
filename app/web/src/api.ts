@@ -37,8 +37,12 @@ export type ProgressRow = {
 export const api = {
   me:       () => call<{ user: User | null }>("/auth/me"),
   login:    (email: string, password: string) => post<{ user: User }>("/auth/login", { email, password }),
-  register: (email: string, password: string, name: string) =>
-              post<{ user: User }>("/auth/register", { email, password, name }),
+  register: (email: string, password: string, name: string, coppaConsent: boolean) =>
+              post<{ user: User }>("/auth/register", { email, password, name, coppaConsent }),
+
+  exportData: () => call<any>("/me/export"),
+  auditTrail: () => call<{ entries: any[] }>("/me/audit"),
+  deleteAccount: () => call<{ deleted: boolean }>("/me", { method: "DELETE" }),
   logout:   () => post<{ ok: true }>("/auth/logout"),
 
   learners:     () => call<{ learners: Learner[] }>("/learners"),

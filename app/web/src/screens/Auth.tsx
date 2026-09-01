@@ -3,6 +3,9 @@ import { api, ApiError, type User } from "../api";
 import { Beast } from "../beasts";
 
 const MESSAGES: Record<string, string> = {
+  coppa_consent_required: "Please confirm you are the parent or guardian.",
+  too_many_attempts: "Too many attempts. Please wait a few minutes and try again.",
+  too_many_requests: "Too many attempts. Please wait a few minutes and try again.",
   bad_credentials: "That email and password don't match an account.",
   email_taken: "There's already an account with that email — try signing in.",
   weak_password: "Use at least 8 characters.",
@@ -14,6 +17,7 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
   const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState(""), [password, setPassword] = useState(""), [name, setName] = useState("");
   const [err, setErr] = useState(""), [busy, setBusy] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -21,7 +25,7 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
     try {
       const r = mode === "in"
         ? await api.login(email, password)
-        : await api.register(email, password, name);
+        : await api.register(email, password, name, consent);
       onDone(r.user);
     } catch (e) {
       const code = e instanceof ApiError ? e.message : "request_failed";
@@ -63,6 +67,16 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
                    autoComplete={mode === "in" ? "current-password" : "new-password"} />
             {mode === "up" && <p className="muted" style={{ fontSize: ".82rem", margin: "6px 0 0" }}>At least 8 characters.</p>}
           </div>
+          {mode === "up" && (
+            <div className="field consent">
+              <label htmlFor="consent" className="checkline">
+                <input id="consent" type="checkbox" checked={consent}
+                       onChange={e => setConsent(e.target.checked)} />
+                <span>I am the parent or legal guardian of the children I will add,
+                  and I consent to their progress being stored in this account.</span>
+              </label>
+            </div>
+          )}
           {err && <p className="err" id="authErr" role="alert">{err}</p>}
           <button className="btn" type="submit" disabled={busy} style={{ marginTop: 8 }}>
             {busy ? "Working…" : mode === "in" ? "Sign in" : "Create account"}
