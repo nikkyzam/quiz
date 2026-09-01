@@ -147,6 +147,14 @@ CREATE TABLE IF NOT EXISTS classes (
   join_code  TEXT NOT NULL UNIQUE,
   created_at TEXT NOT NULL
 );
+-- Weekly goals a parent sets per learner (spec 4.2.6).
+CREATE TABLE IF NOT EXISTS goals (
+  learner_id     TEXT PRIMARY KEY REFERENCES learners(id) ON DELETE CASCADE,
+  rounds_per_week INTEGER NOT NULL DEFAULT 0,
+  minutes_per_week INTEGER NOT NULL DEFAULT 0,
+  set_at         TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_classes_teacher ON classes(teacher_id);
 
 CREATE TABLE IF NOT EXISTS class_members (

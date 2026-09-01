@@ -1466,6 +1466,58 @@ export const CHECKS = {
     }
   },
 
+
+  /* 4.2.6 — weekly goals with progress against them */
+  "goals": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "goal@b.com", password: "a-long-enough-pass", name: "G" });
+    const kid = (await post(c, "/learners", { name: "Goal Kid" })).body.learner;
+
+    /* No goal set yet. */
+    let g = (await c(`/learners/${kid.id}/goal`)).body;
+    assert(g.goal === null, "a learner started with a goal already set");
+
+    /* An empty goal is refused rather than silently stored. */
+    assert((await c(`/learners/${kid.id}/goal`,
+      { method: "PUT", body: JSON.stringify({ roundsPerWeek: 0, minutesPerWeek: 0 }) })).status === 400,
+      "an empty goal was accepted");
+
+    await c(`/learners/${kid.id}/goal`,
+      { method: "PUT", body: JSON.stringify({ roundsPerWeek: 3 }) });
+    g = (await c(`/learners/${kid.id}/goal`)).body;
+    assert(g.goal.roundsPerWeek === 3, "goal not stored");
+    assert(g.roundsThisWeek === 0, "a fresh learner already has rounds this week");
+    assert(g.met === false, "an untouched goal is reported as met");
+
+    /* Doing the work moves the goal towards met. */
+    for (let i = 0; i < 3; i++)
+      await post(c, "/runs",
+        { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 5, total: 8 });
+    g = (await c(`/learners/${kid.id}/goal`)).body;
+    assert(g.roundsThisWeek === 3, `expected 3 rounds counted, got ${g.roundsThisWeek}`);
+    assert(g.met === true, "a completed goal is not reported as met");
+    assert(g.percentOfGoal === 100, `percent of goal is ${g.percentOfGoal}`);
+
+    /* Updating replaces rather than duplicating. */
+    await c(`/learners/${kid.id}/goal`,
+      { method: "PUT", body: JSON.stringify({ roundsPerWeek: 10 }) });
+    g = (await c(`/learners/${kid.id}/goal`)).body;
+    assert(g.goal.roundsPerWeek === 10, "goal was not updated");
+    assert(g.met === false, "a raised goal is still reported as met");
+
+    /* Another account cannot read or set this learner's goal. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "goalbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await bob(`/learners/${kid.id}/goal`)).status === 403, "another account read the goal");
+    assert((await bob(`/learners/${kid.id}/goal`,
+      { method: "PUT", body: JSON.stringify({ roundsPerWeek: 1 }) })).status === 403,
+      "another account set the goal");
+
+    return "goals set, updated, measured against real rounds, and access-controlled";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

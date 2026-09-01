@@ -940,6 +940,44 @@ api.get("/learners/:id/progress", requireAuth, (req, res) => {
 });
 
 
+/* ---------------- goals (spec 4.2.6) ----------------
+   A parent sets a weekly target; progress against it is computed from the
+   runs actually recorded in the last seven days. */
+api.put("/learners/:id/goal", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rounds = Math.max(0, Math.min(100, Number(req.body?.roundsPerWeek) || 0));
+  const minutes = Math.max(0, Math.min(2000, Number(req.body?.minutesPerWeek) || 0));
+  if (!rounds && !minutes) return res.status(400).json({ error: "empty_goal" });
+  db.prepare(`INSERT INTO goals (learner_id, rounds_per_week, minutes_per_week, set_at)
+              VALUES (?,?,?,?)
+              ON CONFLICT(learner_id) DO UPDATE SET
+                rounds_per_week=excluded.rounds_per_week,
+                minutes_per_week=excluded.minutes_per_week, set_at=excluded.set_at`)
+    .run(req.params.id, rounds, minutes, now());
+  res.json({ goal: { roundsPerWeek: rounds, minutesPerWeek: minutes } });
+});
+
+api.get("/learners/:id/goal", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const g = db.prepare("SELECT * FROM goals WHERE learner_id=?").get(req.params.id);
+  const since = new Date(Date.now() - 7 * 86400000).toISOString();
+  const done = db.prepare("SELECT COUNT(*) c FROM runs WHERE learner_id=? AND finished_at >= ?")
+    .get(req.params.id, since).c;
+  if (!g) return res.json({ goal: null, roundsThisWeek: done });
+  const pct = g.rounds_per_week ? Math.min(100, Math.round((done / g.rounds_per_week) * 100)) : null;
+  res.json({
+    goal: { roundsPerWeek: g.rounds_per_week, minutesPerWeek: g.minutes_per_week, setAt: g.set_at },
+    roundsThisWeek: done,
+    percentOfGoal: pct,
+    met: g.rounds_per_week ? done >= g.rounds_per_week : null,
+    atRisk: g.rounds_per_week ? (done < g.rounds_per_week && daysLeftThisWeek() <= 2) : null
+  });
+});
+function daysLeftThisWeek() {
+  const d = new Date().getUTCDay();          // 0 = Sunday
+  return (7 - d) % 7;
+}
+
 /* ---------------- reporting exports (spec 4.3.4, 9.3) ----------------
    CSV for spreadsheets, and a printable HTML report a browser can turn into
    a PDF — no binary PDF library, and no dependency to keep patched. */

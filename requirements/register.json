@@ -373,8 +373,10 @@
       "id": "4.2.6",
       "section": "Parent portal",
       "title": "Goal setting with notifications",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:goals",
+      "notes": "Parents set a weekly rounds target per learner; progress is computed from runs actually recorded in the last seven days, with met and at-risk flags. Notifications when a goal is met or at risk need the blocked email/push provider (9.4)."
     },
     {
       "id": "4.2.7",
