@@ -1,0 +1,111 @@
+import { useEffect, useState, useCallback } from "react";
+import { api, ApiError, type User, type Learner, type Grade, type Tier } from "./api";
+import { Beast } from "./beasts";
+import { AuthScreen } from "./screens/Auth";
+import { LearnerPicker } from "./screens/Learners";
+import { GradeList, GradeMap, TierPicker } from "./screens/Curriculum";
+import { Quiz } from "./screens/Quiz";
+import { Dashboard } from "./screens/Dashboard";
+
+const GRADE_ORDER = ["K", "1", "2", "3", "4", "5", "6", "7", "8"];
+
+type View =
+  | { s: "grades" } | { s: "grade"; g: string }
+  | { s: "tiers"; topicId: string; topicName: string; advanced: boolean }
+  | { s: "quiz"; topicId: string; topicName: string; tier: string; advanced: boolean }
+  | { s: "dash" };
+
+export default function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [booted, setBooted] = useState(false);
+  const [learners, setLearners] = useState<Learner[]>([]);
+  const [active, setActive] = useState<Learner | null>(null);
+  const [cur, setCur] = useState<{ curriculum: Record<string, Grade>; tiers: Tier[]; counts: any } | null>(null);
+  const [view, setView] = useState<View>({ s: "grades" });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [{ user }, c] = await Promise.all([api.me(), api.curriculum()]);
+        setUser(user); setCur(c);
+      } catch { /* offline or API down — handled by the guards below */ }
+      setBooted(true);
+    })();
+  }, []);
+
+  const refreshLearners = useCallback(async () => {
+    const { learners } = await api.learners();
+    setLearners(learners);
+    setActive(a => (a ? learners.find(l => l.id === a.id) || null : null));
+    return learners;
+  }, []);
+
+  useEffect(() => { if (user) refreshLearners().catch(() => {}); }, [user, refreshLearners]);
+
+  if (!booted) return <div className="wrap"><div className="loading">Loading…</div></div>;
+  if (!user) return <AuthScreen onDone={u => setUser(u)} />;
+
+  if (!active) {
+    return (
+      <LearnerPicker
+        userName={user.name}
+        learners={learners}
+        onPick={l => { setActive(l); setView({ s: "grades" }); }}
+        onChanged={refreshLearners}
+        onSignOut={async () => { await api.logout(); setUser(null); setLearners([]); setActive(null); }}
+      />
+    );
+  }
+
+  const back = () => setView({ s: "grades" });
+
+  return (
+    <div className="wrap">
+      <div className="appbar">
+        <span className="who"><Beast kind={active.beast} size={26} /><b>{active.name}</b></span>
+        <span className="spread">
+          <button className="linkbtn" onClick={() => setView({ s: "dash" })}>Progress</button>
+          <button className="linkbtn" onClick={() => setActive(null)}>Switch</button>
+        </span>
+      </div>
+
+      {view.s === "dash" && <Dashboard learner={active} cur={cur!} onBack={back} onDeleted={async () => {
+        await refreshLearners(); setActive(null);
+      }} />}
+
+      {view.s === "grades" && cur && (
+        <GradeList
+          order={GRADE_ORDER} cur={cur}
+          onOpen={g => setView({ s: "grade", g })}
+        />
+      )}
+
+      {view.s === "grade" && cur && (
+        <GradeMap
+          gradeKey={view.g} cur={cur}
+          onBack={back}
+          onOpen={(topicId, topicName, advanced) => setView({ s: "tiers", topicId, topicName, advanced })}
+        />
+      )}
+
+      {view.s === "tiers" && cur && (
+        <TierPicker
+          topicId={view.topicId} topicName={view.topicName} advanced={view.advanced}
+          tiers={cur.tiers} counts={cur.counts} learner={active}
+          onBack={() => setView({ s: "grades" })}
+          onStart={tier => setView({ s: "quiz", topicId: view.topicId, topicName: view.topicName, tier, advanced: view.advanced })}
+        />
+      )}
+
+      {view.s === "quiz" && (
+        <Quiz
+          topicId={view.topicId} topicName={view.topicName} tier={view.tier}
+          advanced={view.advanced} learner={active}
+          onExit={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: view.advanced })}
+        />
+      )}
+    </div>
+  );
+}
+
+export { GRADE_ORDER, ApiError };
