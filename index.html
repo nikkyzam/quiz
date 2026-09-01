@@ -155,7 +155,7 @@
   .endbtns{display:flex; gap:12px; flex-wrap:wrap; margin-top:24px}
 
   /* ---------- live watch ---------- */
-  .watchlink{display:none; margin-top:14px}
+  .watchlink{margin-top:14px}
   .watchlink button{background:none; border:0; color:var(--accent); font-weight:700; text-decoration:underline; padding:0; font-size:.95rem}
   .livedot{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--good); margin-right:7px; vertical-align:0}
   .livedot.idle{background:var(--muted)}
@@ -422,6 +422,14 @@ const Q = [
 {lvl:2,sec:"F",type:"mc",q:"Which statement is TRUE?",mono:true,
  opts:["|−8| > |5|","|−8| < |5|","|−8| = −8","−8 > 5"],a:0,
  expl:"Absolute value strips the sign: |−8| = 8 and |5| = 5, and 8 > 5. Note −8 itself is LESS than 5 — the absolute values compare differently than the numbers do."},
+{lvl:2,sec:"A",type:"mc",q:"A point moves from Quadrant I to Quadrant III. What happens to its coordinates?",
+ opts:["Both x and y change sign","Only x changes sign","Only y changes sign","Neither changes sign"],a:0,
+ expl:"Quadrant I is (+, +) and Quadrant III is (−, −), so both coordinates flip sign. Quadrant I → II flips only x; I → IV flips only y."},
+{lvl:2,sec:"G",type:"in",q:"Write 7/8 as a decimal.",hint:"Divide the top by the bottom.",ans:0.875,
+ expl:"7 ÷ 8 = 0.875. Since 1/8 = 0.125, seven of them make 0.875."},
+{lvl:2,sec:"G",type:"mc",q:"Order from LEAST to greatest:  5/8,  0.6,  2/3",mono:true,
+ opts:["0.6, 5/8, 2/3","5/8, 0.6, 2/3","2/3, 5/8, 0.6","0.6, 2/3, 5/8"],a:0,
+ expl:"Turn them all into decimals: 5/8 = 0.625 and 2/3 ≈ 0.667. Now compare 0.6 < 0.625 < 0.667."},
 
 /* ===== LEVEL 3 — BOSS LEVEL ===== */
 {lvl:3,sec:"E",type:"in",q:"A rectangle's top side runs from (−5, 3) to (4, 3), and its area is 45 square units. What is the y-coordinate of its bottom side? (The rectangle sits below the top side.)",hint:"Find the width, then the height.",ans:-2,
@@ -449,7 +457,16 @@ const Q = [
  opts:["|−9|, because it equals 9","−(−8), because it equals −8","They are equal","−(−8), because it equals 8"],a:0,
  expl:"|−9| = 9. And −(−8) means the opposite of −8, which is +8. Since 9 > 8, |−9| is greater."},
 {lvl:3,sec:"C",type:"in",q:"What is the distance between (a, 4) and (a, −7), in units — for ANY value of a?",hint:"The x-values are identical, whatever a is.",ans:11,
- expl:"Both points share the same x, so the trip is purely vertical and a never matters: |4| + |−7| = 4 + 7 = 11 units."}
+ expl:"Both points share the same x, so the trip is purely vertical and a never matters: |4| + |−7| = 4 + 7 = 11 units."},
+{lvl:3,sec:"A",type:"mc",q:"Which of these points does NOT lie in any quadrant?",mono:true,
+ opts:["(0, −4)","(−1, −4)","(3, −4)","(−3, 4)"],a:0,
+ expl:"A point with a 0 in either coordinate sits ON an axis, and the axes are not part of any quadrant. (0, −4) is on the y-axis."},
+{lvl:3,sec:"B",type:"mc",q:"Point (a, b) has a < 0 and b > 0. In which quadrant is the point (b, a)?",
+ opts:["Quadrant IV","Quadrant I","Quadrant II","Quadrant III"],a:0,
+ expl:"(a, b) is (−, +), so it sits in Quadrant II. Swapping them gives (b, a) = (+, −) — positive x, negative y — which is Quadrant IV."},
+{lvl:3,sec:"G",type:"mc",q:"Order from GREATEST to least:  11/8,  1.3,  1¼",mono:true,
+ opts:["11/8, 1.3, 1¼","1.3, 11/8, 1¼","1¼, 1.3, 11/8","11/8, 1¼, 1.3"],a:0,
+ expl:"Convert to decimals: 11/8 = 1.375 and 1¼ = 1.25. Now compare 1.375 > 1.3 > 1.25."}
 ];
 
 /* ============ grid drawing ============ */
@@ -507,7 +524,7 @@ function begin(q, m){
 }
 
 /* ---- live progress: publishes to the shared store when available ---- */
-let DB = null, answeredCount = 0, unwatch = null;
+let DB = null, answeredCount = 0, unwatch = null, dbState = "pending";
 
 function pushProgress(state){
   if(!DB) return;
@@ -538,7 +555,24 @@ function pushProgress(state){
 
 function startWatching(){
   show("#watch");
-  if(!DB) return;
+  if(dbState === "pending"){            // capability still resolving — wait for it
+    $("#liveState").textContent = "Connecting…";
+    setTimeout(()=>{ if($("#watch").classList.contains("on")) startWatching(); }, 700);
+    return;
+  }
+  if(!DB){                              // no shared store in this view — say why
+    $("#liveDot").className = "livedot idle";
+    $("#liveState").textContent = "Live view unavailable here";
+    $("#wQ").textContent = $("#wScore").textContent = $("#wPct").textContent = "—";
+    $("#watchCard").innerHTML = `<div class="waiting">
+      <p style="margin:0 0 10px"><b>This copy of the quiz can&rsquo;t show live progress.</b></p>
+      <p style="margin:0 0 10px">Live progress only works on the Claude artifact version of this page,
+      opened while signed in. The public web copy has no shared connection, so it runs as a normal quiz.</p>
+      <p style="margin:0">Both people &mdash; whoever is answering and whoever is watching &mdash;
+      need to open the artifact link signed in to the same account.</p></div>`;
+    $("#wStale").textContent = "";
+    return;
+  }
   if(unwatch) unwatch();
   unwatch = DB.doc("live/current").onSnapshot(
     snap => renderWatch(snap.exists ? snap.data() : null),
@@ -783,11 +817,11 @@ $("#bestLine").textContent = "Level 1 covers exactly what tomorrow's quiz asks. 
 /* The live view only exists where the shared store is available; on a plain
    static host there is no window.claude at all and the quiz runs unchanged. */
 if(window.claude && typeof window.claude.use === "function"){
-  window.claude.use("db").then(d=>{
-    if(!d) return;
-    DB = d;
-    $("#watchLink").style.display = "block";
-  }).catch(()=>{});
+  window.claude.use("db")
+    .then(d=>{ DB = d; dbState = d ? "ready" : "none"; })
+    .catch(()=>{ dbState = "none"; });
+} else {
+  dbState = "none";  // plain static host: the quiz runs exactly as before
 }
 </script>
 </body>
