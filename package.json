@@ -1,0 +1,9 @@
+{
+  "name": "beastforge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node requirements/verify.mjs --report",
+    "status": "node requirements/verify.mjs"
+  }
+}

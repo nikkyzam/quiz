@@ -1,0 +1,19 @@
+name: Verify requirements
+
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '24' }
+      - name: Install API dependencies
+        working-directory: app/server
+        run: npm ci --omit=dev || npm install --no-audit --no-fund
+      # Fails the build if any requirement claims `done` without a passing check.
+      - name: Verify requirements
+        run: node requirements/verify.mjs

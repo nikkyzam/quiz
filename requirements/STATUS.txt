@@ -1,0 +1,54 @@
+BeastForge — requirements status
+====================================================
+Total requirements: 120
+  done        8  (7%)
+  partial    15  (13%)
+  todo       85  (71%)
+  blocked    11  (9%)
+  deferred    1  (1%)
+
+Automated checks
+----------------------------------------------------
+  PASS  auth-security      hashed+salted, httpOnly cookie, weak/dup/wrong all refused
+  PASS  no-answer-leak     8 questions, no answer fields present
+  PASS  grading            correct/incorrect/junk/unknown all handled server-side
+  PASS  hint-ladder        3 distinct levels, level 1 is not the solution, level 3 is final
+  PASS  learners-crud      create, list, validate and delete all behave
+  PASS  tenant-isolation   cross-account read, write and delete all refused
+  PASS  persistence        progress and run history are on disk, readable by a separate process
+
+Next up (priority 1 first, blocked excluded)
+----------------------------------------------------
+  [partial] 10.3    Security and privacy: COPPA, FERPA, GDPR, encryption, RBAC, audit logs
+  [todo   ] 10.5    Accessibility WCAG 2.1 AA incl. keyboard and screen reader
+  [partial] 11.7    CI/CD with automated tests and IaC
+  [todo   ] 13.1    All K-8 core and advanced curriculum loaded and standards-aligned
+  [todo   ] 13.3    End-to-end flow: diagnostic to lesson to practice to mastery check to review
+  [partial] 13.6    Parent, teacher, admin dashboards showing accurate real-time data
+  [todo   ] 13.8    WCAG 2.1 AA audit passes
+  [partial] 3.1.1   K-8 curriculum split into Core and Advanced/Extended topics
+
+Blocked — needs something only you can provide
+----------------------------------------------------
+  3.5.1   Content authored/reviewed by educators with competition experience
+           ↳ Process requirement about people, not code. Needs the user to define a review workflow and reviewers.
+  4.1.11  AI tutor: chat hints, misconception detection, safety filters
+           ↳ Needs an LLM provider account, API key and a billing decision from the user.
+  4.2.4   Weekly email summary
+           ↳ Needs an SMTP provider and credentials from the user.
+  9.1     Clever/ClassLink/Google Classroom rostering and SSO
+           ↳ Each requires a vendor developer account and approval the user must obtain.
+  9.4     Email and push notifications
+           ↳ Needs SMTP/push provider credentials.
+  10.9    Legal compliance incl. content licensing
+           ↳ Legal review and contest-problem licensing are the user's decisions.
+  11.5    Analytics pipeline and AI services
+           ↳ Depends on the AI provider decision.
+  13.2    Adaptive engine validated with 1,000 beta students per grade
+           ↳ Requires real users; cannot be satisfied by code alone.
+  13.5    AI tutor under 3s response with safety filters
+           ↳ 
+  13.7    Rostering and LTI integrations tested
+           ↳ 
+  13.11   Mobile apps approved on both stores with offline mode
+           ↳ Requires paid developer accounts the user must hold.
