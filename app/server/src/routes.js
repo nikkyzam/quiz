@@ -14,6 +14,7 @@ import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
 import * as rewards from "./rewards.js";
 import { generate, generatedTopics } from "../../shared/generators.mjs";
 import * as bkt from "./bkt.js";
+import { PROOFS, publicProof, checkProof, proofsForTopic, allProofs, PROOF_KINDS } from "../../shared/proofs.mjs";
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
@@ -960,6 +961,60 @@ api.get("/learners/:id/progress", requireAuth, (req, res) => {
   res.json({ progress, recent });
 });
 
+
+/* ---------------- proof trainer (spec 4.1.10) ----------------
+   Checking is structural: an ordering proof is right when the steps are in a
+   valid order, a reasons proof when every step is paired with a justification
+   that supports it. Feedback names which steps are wrong, never the answer. */
+const proofSessions = new Map();
+
+api.get("/proofs", (_req, res) => {
+  res.json({
+    kinds: PROOF_KINDS,
+    proofs: allProofs().map(p => ({ id: p.id, grade: p.grade, kind: p.kind, claim: p.claim }))
+  });
+});
+
+api.get("/topics/:id/proofs", (req, res) => {
+  res.json({ proofs: proofsForTopic(req.params.id).map(p => ({ id: p.id, grade: p.grade, kind: p.kind, claim: p.claim })) });
+});
+
+api.post("/proofs/:id/start", requireAuth, (req, res) => {
+  const proof = allProofs().find(p => p.id === req.params.id);
+  if (!proof) return res.status(404).json({ error: "unknown_proof" });
+  const { learnerId } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const sessionId = randomUUID();
+  proofSessions.set(sessionId, { learnerId, proofId: proof.id, attempts: 0 });
+  res.json({ sessionId, proof: publicProof(proof) });
+});
+
+api.post("/proofs/submit", requireAuth, (req, res) => {
+  const { sessionId, submission } = req.body || {};
+  const sess = proofSessions.get(sessionId);
+  if (!sess) return res.status(404).json({ error: "unknown_session" });
+  if (!ownLearner(req, sess.learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const proof = allProofs().find(p => p.id === sess.proofId);
+
+  sess.attempts++;
+  const result = checkProof(proof, submission || {});
+  if (result.correct) {
+    db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
+      .run(randomUUID(), sess.learnerId, `proof:${proof.id}`, "proof", 1, 1, 100, now());
+    rewards.award(sess.learnerId, "points", `proof:${proof.id}`, 20);
+    proofSessions.delete(sessionId);
+  }
+  audit(req.user.id, "proof.submitted", `${proof.id}:${result.correct ? "correct" : "retry"}`, req);
+  res.json({ ...result, attempts: sess.attempts, kind: proof.kind });
+});
+
+api.get("/learners/:id/proofs", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare(
+    "SELECT topic_id, finished_at FROM runs WHERE learner_id=? AND tier='proof' ORDER BY finished_at DESC")
+    .all(req.params.id);
+  res.json({ completed: rows.map(r => ({ proofId: r.topic_id.replace(/^proof:/, ""), at: r.finished_at })) });
+});
 
 /* ---------------- goals (spec 4.2.6) ----------------
    A parent sets a weekly target; progress against it is computed from the

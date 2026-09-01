@@ -1593,6 +1593,89 @@ export const CHECKS = {
     return "P(known) updated per answer, slip and guess handled, mastery needs evidence not just confidence";
   },
 
+
+  /* 4.1.10 + 3.2.5 + 3.3.4 — proof trainer */
+  "proof-trainer": async () => {
+    const { allProofs, publicProof, checkProof } = await import("../app/shared/proofs.mjs");
+    const proofs = allProofs();
+    assert(proofs.length >= 4, `only ${proofs.length} proofs authored`);
+
+    /* Progression across grades, as the spec requires (3.3.4). */
+    const grades = proofs.map(p => p.grade).sort((a, b) => a - b);
+    assert(grades[0] <= 2, "no proof exercise for the early grades");
+    assert(grades[grades.length - 1] >= 8, "no proof exercise at grade 8");
+    const kinds = new Set(proofs.map(p => p.kind));
+    assert(kinds.size >= 3, `only ${kinds.size} kinds of proof exercise`);
+
+    /* The served form must not contain the answer. */
+    for (const p of proofs) {
+      const raw = JSON.stringify(publicProof(p));
+      assert(!raw.includes('"reason":'), `${p.id} leaked its reasons`);
+      assert(!raw.includes('"answer":'), `${p.id} leaked its answer`);
+    }
+
+    /* Marking: correct accepted, wrong rejected, with useful feedback. */
+    for (const p of proofs) {
+      let good, bad;
+      if (p.kind === "order") {
+        good = { order: p.steps.map((_, i) => String(i)) };
+        bad = { order: p.steps.map((_, i) => String(i)).reverse() };
+      } else if (p.kind === "reasons") {
+        good = { reasons: Object.fromEntries(p.steps.map((s, i) => [String(i), s.reason])) };
+        bad = { reasons: Object.fromEntries(p.steps.map((_, i) => [String(i), "Because it looks true"])) };
+      } else {
+        good = { blanks: Object.fromEntries(p.steps.map((s, i) => s.blank ? [String(i), s.answer] : null).filter(Boolean)) };
+        bad = { blanks: Object.fromEntries(p.steps.map((s, i) => s.blank ? [String(i), s.answer === 0 ? 1 : 0] : null).filter(Boolean)) };
+      }
+      assert(checkProof(p, good).correct === true, `${p.id}: the correct proof was rejected`);
+      assert(checkProof(p, bad).correct === false, `${p.id}: a wrong proof was accepted`);
+      assert(checkProof(p, {}).correct === false, `${p.id}: an empty submission was accepted`);
+      const fb = checkProof(p, bad);
+      assert(fb.wrongSteps || fb.firstWrongPosition !== null,
+        `${p.id}: rejection gave no indication of what was wrong`);
+    }
+
+    /* End to end through the API. */
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "proof@b.com", password: "a-long-enough-pass", name: "P" });
+    const kid = (await post(c, "/learners", { name: "Proof Kid" })).body.learner;
+
+    const list = (await c("/proofs")).body;
+    assert(list.proofs.length === proofs.length, "proof catalogue incomplete");
+
+    const target = proofs.find(p => p.kind === "order");
+    const started = await post(c, `/proofs/${target.id}/start`, { learnerId: kid.id });
+    assert(started.status === 200, "proof session did not start");
+    assert(started.body.proof.steps.length === target.steps.length, "served proof has the wrong step count");
+    assert(started.body.proof.instruction, "no instruction given to the learner");
+
+    /* A wrong order is refused and the session stays open for another go. */
+    const wrongTry = await post(c, "/proofs/submit",
+      { sessionId: started.body.sessionId, submission: { order: target.steps.map((_, i) => String(i)).reverse() } });
+    assert(wrongTry.body.correct === false, "a reversed proof was accepted");
+    assert(wrongTry.body.attempts === 1, "attempts not counted");
+
+    const rightTry = await post(c, "/proofs/submit",
+      { sessionId: started.body.sessionId, submission: { order: target.steps.map((_, i) => String(i)) } });
+    assert(rightTry.body.correct === true, "the correct proof was rejected through the API");
+    assert(rightTry.body.attempts === 2, "attempts not accumulated across tries");
+
+    const completed = (await c(`/learners/${kid.id}/proofs`)).body.completed;
+    assert(completed.some(x => x.proofId === target.id), "a completed proof was not recorded");
+
+    /* Another account cannot drive or read this learner's proofs. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "proofbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await post(bob, `/proofs/${target.id}/start`, { learnerId: kid.id })).status === 403,
+      "another account started a proof for this learner");
+    assert((await bob(`/learners/${kid.id}/proofs`)).status === 403,
+      "another account read this learner's proof history");
+
+    return `${proofs.length} proofs across grades ${grades[0]}-${grades[grades.length - 1]}, ${kinds.size} kinds, structurally checked`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

@@ -2,8 +2,8 @@ BeastForge — requirements status
 ====================================================
 Total requirements: 121
   done       27  (22%)
-  partial    37  (31%)
-  todo       45  (37%)
+  partial    45  (37%)
+  todo       37  (31%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -37,6 +37,9 @@ Automated checks
   PASS  reporting-exports  learner CSV, class CSV and printable report, with correct escaping and access control
   PASS  generated-problems 5 templates, reproducible from seed, served without answers, gradeable and hintable
   PASS  read-aloud         10 maths phrases spoken as words
+  PASS  goals              goals set, updated, measured against real rounds, and access-controlled
+  PASS  knowledge-tracing  P(known) updated per answer, slip and guess handled, mastery needs evidence not just confidence
+  PASS  proof-trainer      5 proofs across grades 1-8, 3 kinds, structurally checked
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

@@ -81,8 +81,10 @@
       "id": "3.2.5",
       "section": "Content types",
       "title": "Proof exercises (drag-drop blocks, fill-in, free-form)",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:proof-trainer",
+      "notes": "Ordering, fill-in-the-reason and missing-step exercises implemented. Free-form proof entry is not built - it would need real symbolic or AI validation, and I will not claim structural checking is the same thing."
     },
     {
       "id": "3.2.6",
@@ -147,8 +149,10 @@
       "id": "3.3.4",
       "section": "Pedagogy",
       "title": "Proof and justification progression K-8",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:proof-trainer",
+      "notes": "Progression exists: choosing a supporting reason at grade 1, ordering an argument at grade 3, two-column style with reasons at grade 5, contradiction at grade 6, induction at grade 8. Only five proofs authored so far."
     },
     {
       "id": "3.3.5",
@@ -202,8 +206,10 @@
       "id": "3.4.6",
       "section": "Advanced tracks",
       "title": "Proof techniques track",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:proof-trainer",
+      "notes": "Direct proof, proof by contradiction (infinitude of primes) and induction (sum formula) are represented. Pigeonhole and extremal principle are not."
     },
     {
       "id": "3.5.1",
@@ -319,8 +325,10 @@
       "id": "4.1.10",
       "section": "Student app",
       "title": "Proof trainer with validation and template library",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:proof-trainer",
+      "notes": "Proof trainer with three exercise kinds (order the steps, match each step to its reason, supply the missing step) across grades 1 to 8. Checking is structural and honest about it: an ordering proof is right when the steps are in a valid order, a reasons proof when each step is paired with a justification that supports it. Feedback names which steps are wrong without revealing the answer. NOT done: free-form proof entry with validation, and the template library."
     },
     {
       "id": "4.1.11",
@@ -858,8 +866,9 @@
       "id": "13.4",
       "section": "Acceptance",
       "title": "Competition mode and proof trainer operational",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "Competition mode and proof trainer are both operational with sample content and verified end to end. Neither has the breadth of content the spec envisages."
     },
     {
       "id": "13.5",
@@ -927,8 +936,10 @@
       "id": "13.13",
       "section": "Acceptance",
       "title": "Proof checker accurate for sample proofs at each grade",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:proof-trainer",
+      "notes": "Structural checking is accurate for every authored proof at each grade level, verified for both acceptance and rejection. This is not a general proof checker."
     },
     {
       "id": "X.1",
