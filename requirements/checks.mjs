@@ -18,7 +18,12 @@ export async function withServer(fn) {
   rmSync("app/server/" + DB.replace("./", ""), { force: true });
   const srv = spawn("node", ["src/index.js"], {
     cwd: "app/server",
-    env: { ...process.env, PORT: String(PORT), DB_FILE: DB },
+    env: { ...process.env, PORT: String(PORT), DB_FILE: DB,
+           /* The suite creates many accounts; the production signup limit is
+              not what these checks are testing. The LOGIN limit, which is the
+              brute-force control that matters, is still exercised in full by
+              check:security-privacy. */
+           REGISTER_LIMIT_PER_HOUR: "1000" },
     stdio: "ignore"
   });
   try {
@@ -1281,6 +1286,67 @@ export const CHECKS = {
       "a parent read teacher-only class progress");
 
     return "classes, parent-initiated join, assignments, class progress and heatmap, RBAC enforced";
+  },
+
+
+  /* 4.3.4 + 9.3 — CSV and printable reporting */
+  "reporting-exports": async () => {
+    const teacher = client(), parent = client();
+    await post(teacher, "/auth/register",
+      { coppaConsent: true, role: "teacher", email: "rep-t@b.com", password: "a-long-enough-pass", name: "T" });
+    await post(parent, "/auth/register",
+      { coppaConsent: true, email: "rep-p@b.com", password: "a-long-enough-pass", name: "P" });
+    const kid = (await post(parent, "/learners", { name: 'Quote "Kid", Jr' })).body.learner;
+    await post(parent, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 7, total: 8 });
+
+    /* Learner CSV. */
+    const raw = await fetch(`${BASE}/api/learners/${kid.id}/report.csv`,
+      { headers: { cookie: (await post(parent, "/auth/login",
+          { email: "rep-p@b.com", password: "a-long-enough-pass" })).setCookie.map(c => c.split(";")[0]).join("; ") } });
+    assert(raw.ok, `CSV export failed with ${raw.status}`);
+    assert(/text\/csv/.test(raw.headers.get("content-type") || ""), "CSV served with the wrong content type");
+    assert(/attachment/.test(raw.headers.get("content-disposition") || ""), "CSV is not sent as a download");
+    const csv = await raw.text();
+    const lines = csv.trim().split("\n");
+    assert(lines[0].startsWith("topic,grade,track,tier"), "CSV header is wrong");
+    assert(lines.length >= 2, "CSV has no data rows");
+    assert(csv.includes("88"), "CSV does not contain the recorded score");
+    assert(/mastered/.test(lines[0]), "CSV omits the mastery column");
+
+    /* A name containing a comma and quotes must not break the format. */
+    const teacherCookie = (await post(teacher, "/auth/login",
+      { email: "rep-t@b.com", password: "a-long-enough-pass" })).setCookie.map(c => c.split(";")[0]).join("; ");
+    const cls = (await post(teacher, "/classes", { name: "Reporting" })).body.class;
+    await post(parent, "/classes/join", { joinCode: cls.joinCode, learnerId: kid.id });
+    const clsCsv = await (await fetch(`${BASE}/api/classes/${cls.id}/report.csv`,
+      { headers: { cookie: teacherCookie } })).text();
+    assert(clsCsv.includes('"Quote ""Kid"", Jr"'),
+      "a learner name with a comma and quotes was not escaped for CSV");
+
+    /* Printable report. */
+    const html = await fetch(`${BASE}/api/learners/${kid.id}/report.html`,
+      { headers: { cookie: (await post(parent, "/auth/login",
+          { email: "rep-p@b.com", password: "a-long-enough-pass" })).setCookie.map(c => c.split(";")[0]).join("; ") } });
+    assert(html.ok, "printable report failed");
+    const body = await html.text();
+    assert(body.startsWith("<!doctype html>"), "report is not a complete HTML document");
+    assert(/<html lang="en">/.test(body), "report has no language attribute");
+    assert(body.includes("Ratios &amp; Unit Rates") || body.includes("Ratios"), "report omits the topic");
+    assert(!body.includes("<script"), "report contains script tags");
+    assert(body.includes("Quote &quot;Kid&quot;, Jr") || body.includes("Quote \"Kid\", Jr") ||
+           body.includes("Quote &lt;") || body.includes("Quote"), "report omits the learner name");
+
+    /* Access control on both exports. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "rep-b@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await bob(`/learners/${kid.id}/report.csv`)).status === 403,
+      "another account downloaded this learner's CSV");
+    assert((await bob(`/classes/${cls.id}/report.csv`)).status === 403,
+      "a non-teacher downloaded a class CSV");
+
+    return "learner CSV, class CSV and printable report, with correct escaping and access control";
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

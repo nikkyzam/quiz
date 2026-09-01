@@ -900,6 +900,105 @@ api.get("/learners/:id/progress", requireAuth, (req, res) => {
 });
 
 
+/* ---------------- reporting exports (spec 4.3.4, 9.3) ----------------
+   CSV for spreadsheets, and a printable HTML report a browser can turn into
+   a PDF — no binary PDF library, and no dependency to keep patched. */
+function toCsv(rows, columns) {
+  const esc = v => {
+    const s = v === null || v === undefined ? "" : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  return [columns.join(","), ...rows.map(r => columns.map(c => esc(r[c])).join(","))].join("\n");
+}
+
+api.get("/learners/:id/report.csv", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare(`SELECT topic_id, tier, best_score, best_total, best_pct, runs, last_at
+                           FROM progress WHERE learner_id = ? ORDER BY topic_id, tier`).all(req.params.id);
+  const enriched = rows.map(r => ({
+    topic: (TOPIC_NAME.get(r.topic_id) || {}).name || r.topic_id,
+    grade: (TOPIC_NAME.get(r.topic_id) || {}).grade || "",
+    track: trackOf(r.topic_id) || "",
+    tier: r.tier, best_score: r.best_score, best_total: r.best_total,
+    best_pct: r.best_pct, mastery_threshold: thresholdOf(r.topic_id),
+    mastered: r.best_pct >= thresholdOf(r.topic_id) ? "yes" : "no",
+    attempts: r.runs, last_worked: r.last_at
+  }));
+  audit(req.user.id, "report.csv", req.params.id, req);
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", 'attachment; filename="progress.csv"');
+  res.send(toCsv(enriched, ["topic", "grade", "track", "tier", "best_score", "best_total",
+                            "best_pct", "mastery_threshold", "mastered", "attempts", "last_worked"]));
+});
+
+api.get("/classes/:id/report.csv", requireAuth, requireTeacher, (req, res) => {
+  const cls = ownClass(req, req.params.id);
+  if (!cls) return res.status(403).json({ error: "not_your_class" });
+  const members = db.prepare(`SELECT l.id, l.name FROM class_members m
+    JOIN learners l ON l.id = m.learner_id WHERE m.class_id=? ORDER BY l.name`).all(cls.id);
+  const out = [];
+  for (const m of members) {
+    const prog = db.prepare("SELECT topic_id, tier, best_pct, runs FROM progress WHERE learner_id=?").all(m.id);
+    if (!prog.length) out.push({ learner: m.name, topic: "", tier: "", best_pct: "", mastered: "", attempts: 0 });
+    for (const p of prog) out.push({
+      learner: m.name,
+      topic: (TOPIC_NAME.get(p.topic_id) || {}).name || p.topic_id,
+      tier: p.tier, best_pct: p.best_pct,
+      mastered: p.best_pct >= thresholdOf(p.topic_id) ? "yes" : "no",
+      attempts: p.runs
+    });
+  }
+  audit(req.user.id, "class.report.csv", cls.id, req);
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", 'attachment; filename="class-progress.csv"');
+  res.send(toCsv(out, ["learner", "topic", "tier", "best_pct", "mastered", "attempts"]));
+});
+
+/* Printable report. Served as HTML so the browser's own print-to-PDF makes
+   the file; that keeps a PDF engine out of the dependency tree. */
+api.get("/learners/:id/report.html", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const learner = db.prepare("SELECT name FROM learners WHERE id=?").get(req.params.id);
+  const rows = db.prepare("SELECT * FROM progress WHERE learner_id=? ORDER BY topic_id, tier").all(req.params.id);
+  const contests = db.prepare("SELECT format, pct, finished_at FROM contests WHERE learner_id=? ORDER BY finished_at DESC LIMIT 10")
+    .all(req.params.id);
+  const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const mastered = rows.filter(r => r.best_pct >= thresholdOf(r.topic_id)).length;
+  const advanced = rows.filter(r => trackOf(r.topic_id) === "adv" && r.best_pct >= thresholdOf(r.topic_id));
+
+  audit(req.user.id, "report.html", req.params.id, req);
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`<!doctype html><html lang="en"><head><meta charset="utf-8">
+<title>Progress report — ${esc(learner?.name || "learner")}</title>
+<style>
+ body{font-family:Georgia,serif;max-width:46rem;margin:2rem auto;padding:0 1rem;color:#17263F}
+ h1{margin-bottom:.2rem} .sub{color:#5A6B87;margin-top:0}
+ table{border-collapse:collapse;width:100%;margin:1rem 0}
+ th,td{border-bottom:1px solid #D5DEEC;padding:.45rem .3rem;text-align:left;font-size:.92rem}
+ th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:#5A6B87}
+ .yes{color:#147A46;font-weight:bold} .no{color:#5A6B87}
+ @media print{body{margin:0}}
+</style></head><body>
+<h1>${esc(learner?.name || "Learner")}</h1>
+<p class="sub">Progress report · ${new Date().toLocaleDateString()}</p>
+<p><strong>${mastered}</strong> of ${rows.length} tier results mastered${advanced.length ? `, including ${advanced.length} on advanced topics` : ""}.</p>
+<table><thead><tr><th>Topic</th><th>Grade</th><th>Track</th><th>Tier</th><th>Best</th><th>Mastered</th><th>Attempts</th></tr></thead><tbody>
+${rows.map(r => {
+  const meta = TOPIC_NAME.get(r.topic_id) || {};
+  const ok = r.best_pct >= thresholdOf(r.topic_id);
+  return `<tr><td>${esc(meta.name || r.topic_id)}</td><td>${esc(meta.grade || "")}</td>
+  <td>${trackOf(r.topic_id) === "adv" ? "advanced" : "core"}</td><td>${esc(r.tier)}</td>
+  <td>${r.best_score}/${r.best_total} (${r.best_pct}%)</td>
+  <td class="${ok ? "yes" : "no"}">${ok ? "yes" : "not yet"}</td><td>${r.runs}</td></tr>`;
+}).join("")}
+</tbody></table>
+${contests.length ? `<h2>Timed papers</h2><table><thead><tr><th>Format</th><th>Score</th><th>Date</th></tr></thead><tbody>
+${contests.map(c => `<tr><td>${esc(c.format)}</td><td>${c.pct}%</td><td>${new Date(c.finished_at).toLocaleDateString()}</td></tr>`).join("")}
+</tbody></table>` : ""}
+<p class="sub">Print this page to save it as a PDF.</p>
+</body></html>`);
+});
+
 /* ---------------- data rights (spec 9.3, 10.3) ----------------
    FERPA/GDPR give the account holder the right to obtain their data and to
    erase it. Both are self-service rather than a support request. */
