@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 121
-  done       26  (21%)
-  partial    36  (30%)
-  todo       47  (39%)
+  done       27  (22%)
+  partial    37  (31%)
+  todo       45  (37%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -35,6 +35,8 @@ Automated checks
   PASS  gamification       advanced worth 150 vs core 100, badges awarded once, levels and streaks tracked
   PASS  teacher-portal     classes, parent-initiated join, assignments, class progress and heatmap, RBAC enforced
   PASS  reporting-exports  learner CSV, class CSV and printable report, with correct escaping and access control
+  PASS  generated-problems 5 templates, reproducible from seed, served without answers, gradeable and hintable
+  PASS  read-aloud         10 maths phrases spoken as words
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

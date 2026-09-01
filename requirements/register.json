@@ -112,8 +112,10 @@
       "id": "3.2.9",
       "section": "Content types",
       "title": "Text-to-speech read-aloud with text highlighting",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:read-aloud",
+      "notes": "Read-aloud on every question using the browser's own speech synthesis, with maths spoken as words rather than symbols (times, divided by, half, quarter, the point 3 comma -2, the absolute value of -7). The control hides itself where speech is unsupported. Word-by-word text highlighting while reading is not implemented."
     },
     {
       "id": "3.3.1",
@@ -224,7 +226,7 @@
       "title": "WCAG 2.1 AA accessible content incl. alt text and captions",
       "status": "partial",
       "priority": 1,
-      "notes": "UI meets AA and images/SVGs carry text alternatives. Content-level requirements (video captions, alt text on authored lesson art) not applicable yet \u2014 no such content exists."
+      "notes": "UI meets WCAG 2.1 AA (check:accessibility-wcag-aa), images and SVGs carry text alternatives, and questions can be read aloud. Video captions and alt text for authored lesson art are not applicable yet - no such content exists."
     },
     {
       "id": "3.5.4",

@@ -1423,6 +1423,49 @@ export const CHECKS = {
     return `${generatedTopics().length} templates, reproducible from seed, served without answers, gradeable and hintable`;
   },
 
+
+  /* 3.2.9 — read-aloud speaks maths as words, not symbols */
+  "read-aloud": async () => {
+    /* The text transform is pure, so test it directly rather than driving
+       a speech engine. */
+    const { execSync } = await import("node:child_process");
+    const { writeFileSync, rmSync } = await import("node:fs");
+    const entry = "app/web/a11y/speak-probe.mjs";
+    writeFileSync(entry, `import { speakableText } from "../src/components/ReadAloud";
+      const cases = ${JSON.stringify([
+        ["4 × 6 = ?", "times"],
+        ["12 ÷ 3 = ?", "divided by"],
+        ["8 + 5 = ?", "plus"],
+        ["9 - 4 = ?", "minus"],
+        ["What is 25% of 80?", "percent"],
+        ["The ratio 4 : 6", "4 to 6"],
+        ["What is 1/2 of 10?", "half"],
+        ["Order 3/4 and 1/4", "quarter"],
+        ["Plot (3, -2) on the grid", "the point 3 comma -2"],
+        ["What is |-7|?", "the absolute value of -7"]
+      ])};
+      const out = cases.map(([input, want]) => {
+        const got = speakableText(input);
+        return { input, want, got, ok: got.toLowerCase().includes(want.toLowerCase()) };
+      });
+      console.log(JSON.stringify(out));`);
+    try {
+      execSync(`./node_modules/.bin/esbuild ${entry.replace("app/web/", "")} --bundle --platform=node --format=esm --outfile=a11y/speak-probe.built.mjs`,
+        { cwd: "app/web", stdio: "pipe" });
+      const raw = execSync("node a11y/speak-probe.built.mjs", { cwd: "app/web" }).toString();
+      const results = JSON.parse(raw);
+      for (const r of results)
+        assert(r.ok, `read-aloud: "${r.input}" became "${r.got}", expected it to contain "${r.want}"`);
+      /* And it must not simply echo the symbol form. */
+      const times = results.find(r => r.want === "times");
+      assert(!times.got.includes("×"), "the multiplication sign was left in the spoken text");
+      return `${results.length} maths phrases spoken as words`;
+    } finally {
+      rmSync(entry, { force: true });
+      rmSync("app/web/a11y/speak-probe.built.mjs", { force: true });
+    }
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner } from "../api";
 import { Grid } from "../beasts";
+import { ReadAloud } from "../components/ReadAloud";
 import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
 
 type Summary = {
@@ -117,6 +118,7 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
       <div className="card">
         <div className="sec">{q.secName}</div>
         <p className="qtext">{q.q}</p>
+        <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
 
         {q.type === "order" ? (

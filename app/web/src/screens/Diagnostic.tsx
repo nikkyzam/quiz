@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner, type DiagnosticSummary } from "../api";
 import { Grid } from "../beasts";
+import { ReadAloud } from "../components/ReadAloud";
 import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
 
 /* Placement diagnostic. The server decides which question comes next and
@@ -86,6 +87,7 @@ export function Diagnostic({ learner, topicId, topicName, onDone, onExit }: {
       <div className="card">
         <div className="sec">{q.secName}</div>
         <p className="qtext">{q.q}</p>
+        <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
         {q.type === "order" ? (
           <OrderAnswer items={q.items!} disabled={busy} onSubmit={o => send(o)} />
