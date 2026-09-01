@@ -758,8 +758,10 @@
       "id": "10.4",
       "section": "Non-functional",
       "title": "Reliability: 99.95% uptime, backups, offline degradation",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:reliability",
+      "notes": "Consistent backups via SQLite VACUUM INTO while the server runs, verified restorable: the check opens the snapshot, counts the same users and runs an integrity check on it. Retention pruning is bounded so scheduled backups cannot fill the disk. Liveness (/health) and readiness (/ready) are separated so a load balancer can tell a live process from a readable database. NOT done: an uptime SLA, point-in-time recovery, multi-region failover, or a backup schedule - the endpoint exists but nothing calls it on a timer."
     },
     {
       "id": "10.5",

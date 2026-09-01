@@ -13,6 +13,13 @@ app.use(express.json({ limit: "64kb" }));
 app.use(cookieParser());
 app.use(attachUser);
 app.use("/api", api);
+/* Liveness vs readiness: /health says the process is up, /ready says the
+   database is actually readable. A load balancer needs the difference. */
 app.get("/health", (_q, s) => s.json({ ok: true }));
+app.get("/ready", async (_q, s) => {
+  const { healthy } = await import("./backup.js");
+  const h = healthy();
+  s.status(h.ok ? 200 : 503).json(h);
+});
 
 app.listen(PORT, () => console.log(`API listening on http://localhost:${PORT}`));

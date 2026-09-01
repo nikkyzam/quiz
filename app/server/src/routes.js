@@ -966,6 +966,19 @@ api.get("/admin/overview", requireAuth, requireAdmin, (req, res) => {
   });
 });
 
+/* Backups (spec 10.4). Admin-triggered here; a scheduler would call the same
+   code on a timer in a real deployment. */
+api.post("/admin/backup", requireAuth, requireAdmin, async (req, res) => {
+  const { backup } = await import("./backup.js");
+  try {
+    const r = backup();
+    audit(req.user.id, "admin.backup", r.file, req);
+    res.json({ ok: true, ...r });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e.message || e) });
+  }
+});
+
 /* Retention: what the platform holds and for how long (spec 4.4.3, 10.3). */
 api.get("/admin/retention", requireAuth, requireAdmin, (req, res) => {
   const oldest = db.prepare("SELECT MIN(finished_at) m FROM runs").get().m;

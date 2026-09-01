@@ -1,5 +1,5 @@
 .idea/
-node_modules/
 app/server/data/
-dist/
 app/web/a11y/render.mjs
+dist/
+node_modules/

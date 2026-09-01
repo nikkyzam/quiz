@@ -2106,6 +2106,71 @@ export const CHECKS = {
     return "off by default, teacher-controlled, anonymised by default, class-scoped with no global board";
   },
 
+
+  /* 10.4 — backups, restore, and a readiness probe that means something */
+  "reliability": async () => {
+    const { existsSync, rmSync, mkdirSync, writeFileSync, utimesSync } = await import("node:fs");
+    const { DatabaseSync } = await import("node:sqlite");
+
+    /* /health is liveness; /ready must actually consult the database. */
+    const health = await (await fetch(`${BASE}/health`)).json();
+    assert(health.ok === true, "health endpoint is not ok");
+    const ready = await fetch(`${BASE}/ready`);
+    assert(ready.status === 200, `readiness probe returned ${ready.status}`);
+    const rBody = await ready.json();
+    assert(rBody.ok === true && typeof rBody.users === "number",
+      "readiness probe does not report on the database");
+
+    /* Take a backup through the admin endpoint. */
+    /* The admin account may already exist from another check, so register
+       then fall back to signing in rather than assuming a clean slate. */
+    const admin = client();
+    const reg = await post(admin, "/auth/register",
+      { coppaConsent: true, email: "boss@b.com", password: "a-long-enough-pass", name: "Boss" });
+    if (reg.status !== 200)
+      await post(admin, "/auth/login", { email: "boss@b.com", password: "a-long-enough-pass" });
+    const overview = await admin("/admin/overview");
+    assert(overview.status === 200, `admin sign-in failed: ${JSON.stringify(overview.body)}`);
+    const before = overview.body.users;
+
+    const b = await post(admin, "/admin/backup", {});
+    assert(b.status === 200 && b.body.ok, `backup failed: ${JSON.stringify(b.body)}`);
+    assert(existsSync(b.body.file), "backup file was not written");
+
+    /* The snapshot must be a usable database with the same data, not an
+       empty file — a backup nobody can restore is not a backup. */
+    const snap = new DatabaseSync(b.body.file);
+    const restored = snap.prepare("SELECT COUNT(*) c FROM users").get().c;
+    assert(restored === before, `backup holds ${restored} users, live database has ${before}`);
+    const integrity = snap.prepare("PRAGMA integrity_check").get();
+    assert(String(Object.values(integrity)[0]).toLowerCase() === "ok",
+      "the backup fails its own integrity check");
+    snap.close();
+
+    /* Pruning keeps the disk from filling. */
+    const { prune } = await import("../app/server/src/backup.js");
+    const dir = "app/server/data/prune-test";
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true });
+    for (let i = 0; i < 10; i++) {
+      const f = `${dir}/old-${i}.db`;
+      writeFileSync(f, "x");
+      const t = new Date(2020, 0, i + 1);
+      utimesSync(f, t, t);
+    }
+    const removed = prune(dir, 3);
+    assert(removed.length === 7, `pruning to 3 removed ${removed.length} of 10`);
+    const { readdirSync } = await import("node:fs");
+    assert(readdirSync(dir).length === 3, "pruning left the wrong number of backups");
+    rmSync(dir, { recursive: true, force: true });
+
+    /* Graceful degradation: an unknown route returns JSON-ish failure, not a crash. */
+    const missing = await fetch(`${BASE}/api/definitely-not-a-route`);
+    assert(missing.status === 404, `unknown route returned ${missing.status}`);
+
+    return "liveness and readiness separated, backup restorable and integrity-checked, pruning bounded";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
