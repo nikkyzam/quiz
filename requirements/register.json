@@ -313,8 +313,10 @@
       "id": "4.1.8",
       "section": "Student app",
       "title": "Social: moderated leaderboards, clans, no direct messaging",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:leaderboards",
+      "notes": "Leaderboards are OFF by default and only a teacher can enable them, per class. Anonymised unless the teacher allows names, though a parent always sees their own child labelled. No global board and no messaging of any kind. Clans and team challenges are not built."
     },
     {
       "id": "4.1.9",
@@ -528,8 +530,10 @@
       "id": "5.8",
       "section": "Gamification",
       "title": "Leaderboards, tournaments, clans",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:leaderboards",
+      "notes": "Class leaderboards with teacher control and anonymisation. School-wide and global boards are deliberately not built - they would rank a child against strangers. Weekly tournaments and clan challenges are not implemented."
     },
     {
       "id": "5.9",

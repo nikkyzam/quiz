@@ -2040,6 +2040,72 @@ export const CHECKS = {
     return `${rewards.TITLES.length} titles, requirements validated against real badges, strongest shown first`;
   },
 
+
+  /* 4.1.8 + 5.8 — leaderboards: off by default, teacher-controlled, no global board */
+  "leaderboards": async () => {
+    const teacher = client(), alice = client(), bob = client(), outsider = client();
+    await post(teacher, "/auth/register",
+      { coppaConsent: true, role: "teacher", email: "lb-t@b.com", password: "a-long-enough-pass", name: "T" });
+    await post(alice, "/auth/register",
+      { coppaConsent: true, email: "lb-a@b.com", password: "a-long-enough-pass", name: "A" });
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "lb-b@b.com", password: "a-long-enough-pass", name: "B" });
+    await post(outsider, "/auth/register",
+      { coppaConsent: true, email: "lb-o@b.com", password: "a-long-enough-pass", name: "O" });
+
+    const cls = (await post(teacher, "/classes", { name: "Leaderboard Class" })).body.class;
+    const aKid = (await post(alice, "/learners", { name: "Ada" })).body.learner;
+    const bKid = (await post(bob, "/learners", { name: "Ben" })).body.learner;
+    await post(alice, "/classes/join", { joinCode: cls.joinCode, learnerId: aKid.id });
+    await post(bob, "/classes/join", { joinCode: cls.joinCode, learnerId: bKid.id });
+
+    /* Ada does more work than Ben. */
+    for (let i = 0; i < 3; i++)
+      await post(alice, "/runs", { learnerId: aKid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    await post(bob, "/runs", { learnerId: bKid.id, topicId: "g6-ratios", tier: "practice", score: 4, total: 8 });
+
+    /* OFF by default — a child is never ranked without an adult deciding. */
+    let lb = await alice(`/classes/${cls.id}/leaderboard`);
+    assert(lb.status === 200 && lb.body.enabled === false,
+      "the leaderboard was on before any teacher enabled it");
+    assert(lb.body.reason, "no explanation given when the leaderboard is off");
+
+    /* A parent cannot switch it on. */
+    assert((await alice(`/classes/${cls.id}/settings`,
+      { method: "PUT", body: JSON.stringify({ leaderboardOn: true }) })).status === 403,
+      "a parent enabled the class leaderboard");
+
+    /* The teacher enables it, anonymised. */
+    await teacher(`/classes/${cls.id}/settings`,
+      { method: "PUT", body: JSON.stringify({ leaderboardOn: true, displayNames: false }) });
+
+    lb = (await alice(`/classes/${cls.id}/leaderboard`)).body;
+    assert(lb.enabled === true, "the leaderboard did not turn on");
+    assert(lb.board.length === 2, `expected 2 learners, got ${lb.board.length}`);
+    assert(lb.board[0].points > lb.board[1].points, "the board is not ordered by points");
+    assert(lb.board[0].name === "Ada", "a parent cannot see their own child on the board");
+    /* The other family's child must NOT be named while anonymised. */
+    const otherRow = lb.board.find(r => !r.you);
+    assert(otherRow.name !== "Ben", "another family's child was named on an anonymised board");
+    assert(/^Learner \d+$/.test(otherRow.name), `anonymised label was "${otherRow.name}"`);
+
+    /* With names allowed, classmates are named. */
+    await teacher(`/classes/${cls.id}/settings`,
+      { method: "PUT", body: JSON.stringify({ leaderboardOn: true, displayNames: true }) });
+    lb = (await alice(`/classes/${cls.id}/leaderboard`)).body;
+    assert(lb.board.some(r => r.name === "Ben"), "names were allowed but classmates stayed anonymous");
+
+    /* Someone with no child in the class sees nothing at all. */
+    assert((await outsider(`/classes/${cls.id}/leaderboard`)).status === 403,
+      "an unrelated account read a class leaderboard");
+
+    /* There is no global leaderboard endpoint to leak across classes. */
+    const global = await alice("/leaderboard");
+    assert(global.status === 404, "a global leaderboard endpoint exists");
+
+    return "off by default, teacher-controlled, anonymised by default, class-scoped with no global board";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

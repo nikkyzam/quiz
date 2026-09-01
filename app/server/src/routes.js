@@ -1052,6 +1052,66 @@ api.get("/learners/:id/progress", requireAuth, (req, res) => {
 });
 
 
+/* ---------------- leaderboards (spec 4.1.8, 5.8) ----------------
+   Off by default. A teacher turns them on per class and chooses whether
+   learners appear by name or anonymously. There is no global leaderboard and
+   no messaging of any kind: children are only ever ranked against classmates
+   an adult has deliberately grouped, and a parent can withdraw their child by
+   leaving the class. */
+function classSettings(classId) {
+  const row = db.prepare("SELECT * FROM class_settings WHERE class_id=?").get(classId);
+  return { leaderboardOn: !!(row && row.leaderboard_on), displayNames: !!(row && row.display_names) };
+}
+
+api.put("/classes/:id/settings", requireAuth, requireTeacher, (req, res) => {
+  if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
+  const on = req.body?.leaderboardOn === true;
+  const names = req.body?.displayNames === true;
+  db.prepare(`INSERT INTO class_settings (class_id, leaderboard_on, display_names, updated_at)
+              VALUES (?,?,?,?)
+              ON CONFLICT(class_id) DO UPDATE SET
+                leaderboard_on=excluded.leaderboard_on,
+                display_names=excluded.display_names, updated_at=excluded.updated_at`)
+    .run(req.params.id, on ? 1 : 0, names ? 1 : 0, now());
+  audit(req.user.id, "class.settings.updated", `${req.params.id}:leaderboard=${on}`, req);
+  res.json({ settings: { leaderboardOn: on, displayNames: names } });
+});
+
+api.get("/classes/:id/leaderboard", requireAuth, (req, res) => {
+  const cls = db.prepare("SELECT * FROM classes WHERE id=?").get(req.params.id);
+  if (!cls) return res.status(404).json({ error: "unknown_class" });
+
+  /* Viewer must be the class's teacher, or a parent of a learner in it. */
+  const isTeacher = cls.teacher_id === req.user.id;
+  const mine = db.prepare(`SELECT l.id FROM class_members m JOIN learners l ON l.id=m.learner_id
+                           WHERE m.class_id=? AND l.user_id=?`).all(cls.id, req.user.id);
+  if (!isTeacher && mine.length === 0) return res.status(403).json({ error: "not_in_this_class" });
+
+  const settings = classSettings(cls.id);
+  if (!settings.leaderboardOn)
+    return res.json({ enabled: false, reason: "The teacher has not turned on the leaderboard for this class." });
+
+  const members = db.prepare(`SELECT l.id, l.name FROM class_members m
+    JOIN learners l ON l.id = m.learner_id WHERE m.class_id=?`).all(cls.id);
+  const mineIds = new Set(mine.map(m => m.id));
+
+  const rows = members.map(m => {
+    const pts = db.prepare("SELECT COALESCE(SUM(amount),0) p FROM awards WHERE learner_id=? AND kind='points'")
+      .get(m.id).p;
+    return { learnerId: m.id, name: m.name, points: pts };
+  }).sort((a, b) => b.points - a.points);
+
+  /* Names are shown only if the teacher allowed it. A parent always sees
+     their own child labelled, so the board is meaningful to them. */
+  const board = rows.map((r, i) => ({
+    rank: i + 1,
+    points: r.points,
+    you: mineIds.has(r.learnerId),
+    name: settings.displayNames || mineIds.has(r.learnerId) || isTeacher ? r.name : `Learner ${i + 1}`
+  }));
+  res.json({ enabled: true, displayNames: settings.displayNames, board });
+});
+
 /* ---------------- puzzles (spec 3.2.4, 4.1.5) ----------------
    Untimed and outside the adaptive path. Hints are available one at a time;
    the solution is never given, so a puzzle stays worth coming back to. */

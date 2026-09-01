@@ -157,6 +157,15 @@ CREATE TABLE IF NOT EXISTS goals (
 
 CREATE INDEX IF NOT EXISTS idx_classes_teacher ON classes(teacher_id);
 
+-- Leaderboards are OFF by default and controlled by the teacher, per class.
+-- display_names decides whether learners appear by name or anonymously.
+CREATE TABLE IF NOT EXISTS class_settings (
+  class_id       TEXT PRIMARY KEY REFERENCES classes(id) ON DELETE CASCADE,
+  leaderboard_on INTEGER NOT NULL DEFAULT 0,
+  display_names  INTEGER NOT NULL DEFAULT 0,
+  updated_at     TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS class_members (
   class_id   TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
   learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
