@@ -765,8 +765,8 @@
       "title": "Reliability: 99.95% uptime, backups, offline degradation",
       "status": "partial",
       "priority": 3,
-      "evidence": "check:reliability",
-      "notes": "Consistent backups via SQLite VACUUM INTO while the server runs, verified restorable: the check opens the snapshot, counts the same users and runs an integrity check on it. Retention pruning is bounded so scheduled backups cannot fill the disk. Liveness (/health) and readiness (/ready) are separated so a load balancer can tell a live process from a readable database. NOT done: an uptime SLA, point-in-time recovery, multi-region failover, or a backup schedule - the endpoint exists but nothing calls it on a timer."
+      "evidence": "check:scheduled-backup",
+      "notes": "Consistent backups via VACUUM INTO, verified restorable and integrity-checked, now running on a schedule with bounded retention. Graceful shutdown drains in-flight requests. NOT done: uptime SLA, point-in-time recovery, multi-region failover, and a restore drill that rebuilds a running service from a snapshot."
     },
     {
       "id": "10.5",
@@ -1014,6 +1014,33 @@
       "evidence": "check:schema-migration",
       "priority": 1,
       "notes": "Found the hard way: CREATE TABLE IF NOT EXISTS skips existing tables, so new columns never reached the dev database and every request 500'd. Migrations are now idempotent and a check boots against an old-schema file."
+    },
+    {
+      "id": "X.6",
+      "section": "Foundation",
+      "title": "Account recoverable: password reset without data loss",
+      "status": "done",
+      "evidence": "check:password-reset",
+      "priority": 1,
+      "notes": "Reset tokens are stored only as a SHA-256 hash, single use, 30 minute expiry, and requesting one gives an identical response whether or not the account exists. Completing a reset revokes every existing session, so it locks out whoever prompted it. Learner and progress data survive intact. NOTE: with no email provider (9.4 blocked) the token is returned directly to the caller, which is rate limited but means anyone who can reach the endpoint for a known address can reset it. Set DELIVER_RESET_TOKEN=false once SMTP exists."
+    },
+    {
+      "id": "X.7",
+      "section": "Foundation",
+      "title": "Graceful shutdown and error handling",
+      "status": "done",
+      "evidence": "check:resilience",
+      "priority": 1,
+      "notes": "Express error handler returns JSON and never a stack trace; malformed and oversized bodies handled. SIGTERM drains in-flight requests and exits 0 within a 10s timeout, so a redeploy does not lose writes. uncaughtException logs and shuts down rather than serving from an unknown state."
+    },
+    {
+      "id": "X.8",
+      "section": "Foundation",
+      "title": "Backups run on a schedule",
+      "status": "done",
+      "evidence": "check:scheduled-backup",
+      "priority": 1,
+      "notes": "BACKUP_INTERVAL_HOURS runs backups on a timer with bounded retention, verified by running a server on a one-second interval and confirming snapshots appear, pruning holds, and the result passes an integrity check. Off by default so development does not litter the disk."
     }
   ]
 }

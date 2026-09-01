@@ -3,6 +3,8 @@ import { api, ApiError, type User } from "../api";
 import { Beast } from "../beasts";
 
 const MESSAGES: Record<string, string> = {
+  invalid_or_expired_token: "That reset code has expired or been used. Request another.",
+  too_many_reset_requests: "Too many reset attempts. Please wait and try again.",
   coppa_consent_required: "Please confirm you are the parent or guardian.",
   too_many_attempts: "Too many attempts. Please wait a few minutes and try again.",
   too_many_requests: "Too many attempts. Please wait a few minutes and try again.",
@@ -14,7 +16,9 @@ const MESSAGES: Record<string, string> = {
 };
 
 export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
-  const [mode, setMode] = useState<"in" | "up">("in");
+  const [mode, setMode] = useState<"in" | "up" | "forgot" | "reset">("in");
+  const [resetToken, setResetToken] = useState("");
+  const [notice, setNotice] = useState("");
   const [email, setEmail] = useState(""), [password, setPassword] = useState(""), [name, setName] = useState("");
   const [err, setErr] = useState(""), [busy, setBusy] = useState(false);
   const [consent, setConsent] = useState(false);
@@ -23,6 +27,18 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
     e.preventDefault();
     setErr(""); setBusy(true);
     try {
+      if (mode === "forgot") {
+        const r = await api.forgot(email);
+        setNotice(r.message);
+        if (r.token) { setResetToken(r.token); setMode("reset"); }
+        return;
+      }
+      if (mode === "reset") {
+        const r = await api.resetPassword(resetToken, password);
+        setNotice(r.message);
+        setMode("in"); setPassword("");
+        return;
+      }
       const r = mode === "in"
         ? await api.login(email, password)
         : await api.register(email, password, name, consent);
@@ -57,16 +73,18 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
               <input id="nm" value={name} onChange={e => setName(e.target.value)} autoComplete="name" />
             </div>
           )}
+          {mode !== "reset" && (
           <div className="field">
             <label htmlFor="em">Email</label>
             <input id="em" type="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
-          </div>
+          </div>)}
+          {mode !== "forgot" && (
           <div className="field">
-            <label htmlFor="pw">Password</label>
+            <label htmlFor="pw">{mode === "reset" ? "New password" : "Password"}</label>
             <input id="pw" type="password" value={password} onChange={e => setPassword(e.target.value)}
                    autoComplete={mode === "in" ? "current-password" : "new-password"} />
-            {mode === "up" && <p className="muted" style={{ fontSize: ".82rem", margin: "6px 0 0" }}>At least 8 characters.</p>}
-          </div>
+            {(mode === "up" || mode === "reset") && <p className="muted" style={{ fontSize: ".82rem", margin: "6px 0 0" }}>At least 8 characters.</p>}
+          </div>)}
           {mode === "up" && (
             <div className="field consent">
               <label htmlFor="consent" className="checkline">
@@ -77,10 +95,27 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
               </label>
             </div>
           )}
+          {notice && <p className="notice" role="status">{notice}</p>}
           {err && <p className="err" id="authErr" role="alert">{err}</p>}
           <button className="btn" type="submit" disabled={busy} style={{ marginTop: 8 }}>
-            {busy ? "Working…" : mode === "in" ? "Sign in" : "Create account"}
+            {busy ? "Working…"
+              : mode === "in" ? "Sign in"
+              : mode === "up" ? "Create account"
+              : mode === "forgot" ? "Send me a reset code"
+              : "Set new password"}
           </button>
+          {mode === "in" && (
+            <button type="button" className="linkbtn" style={{ marginTop: 12 }}
+                    onClick={() => { setMode("forgot"); setErr(""); setNotice(""); }}>
+              Forgotten your password?
+            </button>
+          )}
+          {(mode === "forgot" || mode === "reset") && (
+            <button type="button" className="linkbtn" style={{ marginTop: 12 }}
+                    onClick={() => { setMode("in"); setErr(""); setNotice(""); }}>
+              Back to sign in
+            </button>
+          )}
         </form>
     </div>
   );

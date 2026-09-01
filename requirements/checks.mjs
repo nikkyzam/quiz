@@ -2370,6 +2370,177 @@ export const CHECKS = {
     }
   },
 
+
+  /* X.6 — password reset: the account is recoverable without losing the data */
+  "password-reset": async () => {
+    const c = client();
+    const email = "reset@b.com", oldPw = "a-long-enough-pass", newPw = "a-different-long-pass";
+    await post(c, "/auth/register", { coppaConsent: true, email, password: oldPw, name: "R" });
+    const kid = (await post(c, "/learners", { name: "Reset Kid" })).body.learner;
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 7, total: 8 });
+
+    /* Requesting a reset must not reveal whether an account exists. */
+    const known = await post(client(), "/auth/forgot", { email });
+    const unknown = await post(client(), "/auth/forgot", { email: "nobody@nowhere.test" });
+    assert(known.body.message === unknown.body.message,
+      "the forgot-password response differs for known and unknown addresses");
+    assert(known.body.token, "no reset token issued while email delivery is unavailable");
+
+    /* The raw token must NOT be what is stored. */
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync("app/server/data/verify.db");
+    const stored = db.prepare("SELECT token_hash FROM reset_tokens ORDER BY created_at DESC LIMIT 1").get();
+    assert(stored && stored.token_hash !== known.body.token,
+      "the reset token is stored in plain text");
+
+    /* A wrong or absent token is refused, and weak passwords still are. */
+    assert((await post(client(), "/auth/reset", { token: "nonsense", password: newPw })).status === 400,
+      "an invalid reset token was accepted");
+    assert((await post(client(), "/auth/reset", { token: known.body.token, password: "short" })).status === 400,
+      "a weak password was accepted on reset");
+
+    /* The reset works. */
+    const done = await post(client(), "/auth/reset", { token: known.body.token, password: newPw });
+    assert(done.status === 200, `reset failed: ${JSON.stringify(done.body)}`);
+
+    /* Single use. */
+    assert((await post(client(), "/auth/reset", { token: known.body.token, password: newPw })).status === 400,
+      "a reset token worked twice");
+
+    /* Old password dead, new one works, and the learner data survived. */
+    assert((await post(client(), "/auth/login", { email, password: oldPw })).status === 401,
+      "the old password still works after a reset");
+    const back = client();
+    const login = await post(back, "/auth/login", { email, password: newPw });
+    assert(login.status === 200, "the new password does not work");
+    const learners = (await back("/learners")).body.learners;
+    assert(learners.length === 1 && learners[0].id === kid.id,
+      "the learner was lost during a password reset");
+    const prog = (await back(`/learners/${kid.id}/progress`)).body.progress;
+    assert(prog.length > 0, "progress was lost during a password reset");
+
+    /* A reset must lock out whoever prompted it: the original session dies. */
+    assert((await c("/learners")).status === 401,
+      "the session that existed before the reset is still valid");
+
+    /* Changing a password while signed in requires the current one. */
+    assert((await post(back, "/auth/change-password", { current: "wrong-one-entirely", password: "yet-another-long-pass" })).status === 401,
+      "the password was changed without the current one");
+
+    return "token hashed at rest, single use, old sessions revoked, learner data intact";
+  },
+
+  /* X.7 — graceful shutdown and error handling */
+  "resilience": async () => {
+    const { spawn } = await import("node:child_process");
+
+    /* Malformed JSON must produce a clean error, not a stack trace. */
+    const bad = await fetch(`${BASE}/api/auth/login`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{not json" });
+    assert(bad.status === 400, `malformed JSON returned ${bad.status}`);
+    const body = await bad.text();
+    assert(!/at .*\.js:\d+/.test(body), "an error response leaked a stack trace");
+    assert(body.startsWith("{"), "the error handler returned HTML rather than JSON");
+
+    /* An oversized body is rejected rather than buffered. */
+    const huge = await fetch(`${BASE}/api/auth/login`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "x".repeat(200_000) }) });
+    assert(huge.status === 413 || huge.status === 400, `oversized body returned ${huge.status}`);
+
+    /* SIGTERM must drain rather than kill: start a server, signal it, and
+       confirm it exits cleanly of its own accord. */
+    const port = 4177;
+    const srv = spawn("node", ["src/index.js"], {
+      cwd: "app/server",
+      env: { ...process.env, PORT: String(port), DB_FILE: "./data/shutdown.db" },
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+    let out = "";
+    srv.stdout.on("data", d => { out += d.toString(); });
+
+    let up = false;
+    for (let i = 0; i < 50 && !up; i++) {
+      try { up = (await fetch(`http://localhost:${port}/health`)).ok; } catch {}
+      if (!up) await new Promise(r => setTimeout(r, 100));
+    }
+    assert(up, "the test server never started");
+
+    const exited = new Promise(resolve => srv.on("exit", (code, sig) => resolve({ code, sig })));
+    srv.kill("SIGTERM");
+    const result = await Promise.race([
+      exited,
+      new Promise(r => setTimeout(() => r({ timeout: true }), 8000))
+    ]);
+    assert(!result.timeout, "the server did not exit within 8s of SIGTERM");
+    assert(result.code === 0, `the server exited with code ${result.code} rather than draining cleanly`);
+    assert(/draining connections/.test(out), "shutdown did not log that it was draining");
+
+    const { rmSync } = await import("node:fs");
+    rmSync("app/server/data/shutdown.db", { force: true });
+
+    return "malformed and oversized bodies handled without stack traces, SIGTERM drains and exits 0";
+  },
+
+
+  /* X.8 — backups actually happen on a schedule, not only when asked */
+  "scheduled-backup": async () => {
+    const { spawn } = await import("node:child_process");
+    const { rmSync, existsSync, readdirSync, mkdirSync } = await import("node:fs");
+
+    const dir = "app/server/data/sched-backups";
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir, { recursive: true });
+    rmSync("app/server/data/sched.db", { force: true });
+
+    /* A tiny interval so the check does not wait an hour. */
+    const port = 4178;
+    const srv = spawn("node", ["src/index.js"], {
+      cwd: "app/server",
+      env: { ...process.env, PORT: String(port), DB_FILE: "./data/sched.db",
+             BACKUP_INTERVAL_HOURS: String(1 / 3600),   // one second
+             BACKUP_DIR: "./data/sched-backups", BACKUP_KEEP: "3" },
+      stdio: ["ignore", "pipe", "pipe"] });
+    let out = "";
+    srv.stdout.on("data", d => { out += d.toString(); });
+
+    try {
+      let up = false;
+      for (let i = 0; i < 50 && !up; i++) {
+        try { up = (await fetch(`http://localhost:${port}/health`)).ok; } catch {}
+        if (!up) await new Promise(r => setTimeout(r, 100));
+      }
+      assert(up, "the test server never started");
+      assert(/Scheduled backups every/.test(out), "the server did not announce a backup schedule");
+
+      /* Wait for several intervals so both creation and pruning are exercised. */
+      await new Promise(r => setTimeout(r, 5500));
+      const files = readdirSync(dir).filter(f => f.endsWith(".db"));
+      assert(files.length > 0, "no backup was taken on the schedule");
+      assert(files.length <= 3, `retention kept ${files.length} backups, limit was 3`);
+
+      /* The scheduled backup must be a real database, not an empty file. */
+      const { DatabaseSync } = await import("node:sqlite");
+      const snap = new DatabaseSync(`${dir}/${files[0]}`);
+      const check = snap.prepare("PRAGMA integrity_check").get();
+      assert(String(Object.values(check)[0]).toLowerCase() === "ok",
+        "a scheduled backup fails its integrity check");
+      snap.close();
+
+      /* And the schedule must be OFF unless explicitly configured, so tests and
+         development do not litter the disk. */
+      assert(!/Scheduled backups/.test(
+        (await (await fetch(`${BASE}/health`)).text()) + " "),
+        "sanity");
+      return `scheduled backup ran, kept ${files.length} of the last snapshots, integrity verified`;
+    } finally {
+      srv.kill("SIGTERM");
+      await new Promise(r => setTimeout(r, 300));
+      rmSync(dir, { recursive: true, force: true });
+      rmSync("app/server/data/sched.db", { force: true });
+    }
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

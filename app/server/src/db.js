@@ -40,6 +40,17 @@ CREATE TABLE IF NOT EXISTS sessions (
   created_at  TEXT NOT NULL,
   expires_at  TEXT NOT NULL
 );
+-- Password reset tokens. Only a hash is stored, so a leaked database does not
+-- hand out working reset links. Single use, short lived.
+CREATE TABLE IF NOT EXISTS reset_tokens (
+  token_hash TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  used_at    TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_reset_user ON reset_tokens(user_id);
+
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 
 -- A learner is a child under a parent account. Progress hangs off the learner,

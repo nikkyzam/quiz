@@ -70,3 +70,42 @@ export function requireAuth(req, res, next) {
   if (!req.user) return res.status(401).json({ error: "not_signed_in" });
   next();
 }
+
+
+/* ---------- password reset ----------
+   The token is returned to the caller once and only its SHA-256 hash is
+   stored, so a stolen database cannot be turned into working reset links.
+   Requesting a reset always reports success, whether or not the address
+   exists, so the endpoint cannot be used to discover who has an account. */
+import { createHash } from "node:crypto";
+
+const RESET_MINUTES = 30;
+const hashToken = t => createHash("sha256").update(t).digest("hex");
+
+export function createResetToken(userId) {
+  const token = randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + RESET_MINUTES * 60_000).toISOString();
+  /* Any earlier outstanding token is invalidated, so only the newest works. */
+  db.prepare("DELETE FROM reset_tokens WHERE user_id = ? AND used_at IS NULL").run(userId);
+  db.prepare("INSERT INTO reset_tokens (token_hash, user_id, created_at, expires_at) VALUES (?,?,?,?)")
+    .run(hashToken(token), userId, now(), expires);
+  return { token, expiresAt: expires };
+}
+
+export function consumeResetToken(token) {
+  if (!token) return null;
+  const row = db.prepare("SELECT * FROM reset_tokens WHERE token_hash = ?").get(hashToken(String(token)));
+  if (!row) return null;
+  if (row.used_at) return null;
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  db.prepare("UPDATE reset_tokens SET used_at = ? WHERE token_hash = ?").run(now(), row.token_hash);
+  return row.user_id;
+}
+
+export function setPassword(userId, password) {
+  const { hash, salt } = hashPassword(password);
+  db.prepare("UPDATE users SET pass_hash = ?, pass_salt = ? WHERE id = ?").run(hash, salt, userId);
+  /* Every existing session is destroyed: a reset must lock out whoever
+     prompted it, otherwise it protects nobody. */
+  db.prepare("DELETE FROM sessions WHERE user_id = ?").run(userId);
+}

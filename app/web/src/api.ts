@@ -46,6 +46,10 @@ export const api = {
   auditTrail: () => call<{ entries: any[] }>("/me/audit"),
   deleteAccount: () => call<{ deleted: boolean }>("/me", { method: "DELETE" }),
   logout:   () => post<{ ok: true }>("/auth/logout"),
+  forgot:   (email: string) =>
+              post<{ ok: true; message: string; token?: string; expiresAt?: string }>("/auth/forgot", { email }),
+  resetPassword: (token: string, password: string) =>
+              post<{ ok: true; message: string }>("/auth/reset", { token, password }),
 
   learners:     () => call<{ learners: Learner[] }>("/learners"),
   addLearner:   (name: string, beast: string) => post<{ learner: Learner }>("/learners", { name, beast }),

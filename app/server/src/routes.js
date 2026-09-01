@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
 import {
   createUser, findUserByEmail, verifyPassword,
-  createSession, destroySession, requireAuth
+  createSession, destroySession, requireAuth,
+  createResetToken, consumeResetToken, setPassword
 } from "./auth.js";
 import { rateLimit, audit, auditTrail } from "./security.js";
 import * as diag from "./diagnostic.js";
@@ -206,6 +207,59 @@ api.post("/auth/logout", (req, res) => {
 });
 
 api.get("/auth/me", (req, res) => res.json({ user: req.user || null }));
+
+/* ---------------- password reset ----------------
+   No email provider is configured (blocked, 9.4), so the token is returned
+   directly to the caller. That is safe ONLY because requesting a reset is
+   rate limited and the response is identical whether or not the account
+   exists — but it means anyone who can reach this endpoint for a known
+   address can reset it. When SMTP is available the token must be emailed
+   instead of returned, and DELIVER_RESET_TOKEN should be turned off. */
+const resetLimit = rateLimit({
+  windowMs: 60 * 60_000, max: 5,
+  key: req => `reset:${req.ip}:${String(req.body?.email || "").toLowerCase()}`,
+  message: "too_many_reset_requests"
+});
+
+api.post("/auth/forgot", resetLimit, (req, res) => {
+  const { email } = req.body || {};
+  const row = findUserByEmail(email || "");
+  const generic = { ok: true, message: "If that address has an account, a reset has been issued." };
+  if (!row) return res.json(generic);
+
+  const { token, expiresAt } = createResetToken(row.id);
+  audit(row.id, "auth.reset.requested", null, req);
+
+  /* Until email exists, hand the token back so a reset is actually possible.
+     Set DELIVER_RESET_TOKEN=false once SMTP is wired up. */
+  if (process.env.DELIVER_RESET_TOKEN === "false") return res.json(generic);
+  res.json({ ...generic, token, expiresAt,
+             warning: "Returned directly because no email provider is configured." });
+});
+
+api.post("/auth/reset", (req, res) => {
+  const { token, password } = req.body || {};
+  if (!password || String(password).length < 8) return res.status(400).json({ error: "weak_password" });
+  const userId = consumeResetToken(token);
+  if (!userId) return res.status(400).json({ error: "invalid_or_expired_token" });
+  setPassword(userId, String(password));
+  audit(userId, "auth.reset.completed", null, req);
+  res.clearCookie("sid", COOKIE);
+  res.json({ ok: true, message: "Password changed. Please sign in again." });
+});
+
+/* Changing a password while signed in requires the current one. */
+api.post("/auth/change-password", requireAuth, (req, res) => {
+  const { current, password } = req.body || {};
+  if (!password || String(password).length < 8) return res.status(400).json({ error: "weak_password" });
+  const row = findUserByEmail(req.user.email);
+  if (!row || !verifyPassword(String(current || ""), row.pass_hash, row.pass_salt))
+    return res.status(401).json({ error: "bad_credentials" });
+  setPassword(row.id, String(password));
+  audit(row.id, "auth.password.changed", null, req);
+  res.clearCookie("sid", COOKIE);
+  res.json({ ok: true, message: "Password changed. Please sign in again." });
+});
 
 /* ---------------- learners ---------------- */
 api.get("/learners", requireAuth, (req, res) => {
