@@ -1,0 +1,12 @@
+{
+  "name": "Math Quest",
+  "short_name": "Math Quest",
+  "description": "K-8 maths practice with adaptive tiers, puzzles and proofs.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E1524",
+  "theme_color": "#2557D6",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

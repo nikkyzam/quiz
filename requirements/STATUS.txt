@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 121
-  done       31  (26%)
-  partial    45  (37%)
-  todo       33  (27%)
+  done       32  (26%)
+  partial    47  (39%)
+  todo       30  (25%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -43,6 +43,8 @@ Automated checks
   PASS  admin-portal       aggregate analytics, retention policy, audited access, RBAC enforced and admin not self-assignable
   PASS  partial-credit     partial credit on ordering and select-all, guessing everything scores worse, single answers stay all-or-nothing
   PASS  puzzles            8 puzzles, hints one at a time, wrong answers never reveal the solution, trophies reflect hint use
+  PASS  performance        slowest endpoint next at 2ms, curriculum 28KB, 40 concurrent reads in 16ms, 10 concurrent writes all recorded
+  PASS  pwa-offline        installable manifest, offline shell, API excluded from cache, production build emits all shell files
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

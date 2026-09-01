@@ -1884,6 +1884,112 @@ export const CHECKS = {
     return `${PUZZLES.length} puzzles, hints one at a time, wrong answers never reveal the solution, trophies reflect hint use`;
   },
 
+
+  /* 10.1 — response times and payload sizes under concurrency.
+     This measures the SERVER only. Real page-load time depends on the
+     network and device, which cannot be established from here, so 10.1
+     stays partial and says so. */
+  "performance": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "perf@b.com", password: "a-long-enough-pass", name: "P" });
+    const kid = (await post(c, "/learners", { name: "Perf Kid" })).body.learner;
+    await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 6, total: 8 });
+
+    const time = async (label, fn) => {
+      const t0 = performance.now();
+      const r = await fn();
+      return { label, ms: performance.now() - t0, r };
+    };
+
+    /* Cold single-request latency on the endpoints a screen actually needs. */
+    const singles = [];
+    singles.push(await time("curriculum", () => c("/curriculum")));
+    singles.push(await time("questions", () => c("/topics/g6-nscoord/practice/questions")));
+    singles.push(await time("progress", () => c(`/learners/${kid.id}/progress`)));
+    singles.push(await time("next", () => c(`/learners/${kid.id}/next`)));
+    singles.push(await time("answer", () => post(c, "/answer", { questionId: "g6-ratios:0", answer: 0 })));
+
+    for (const s of singles)
+      assert(s.ms < 1000, `${s.label} took ${Math.round(s.ms)}ms, over the 1000ms budget`);
+
+    /* The curriculum payload is the largest thing served; it must stay sane. */
+    const curBytes = JSON.stringify((await c("/curriculum")).body).length;
+    assert(curBytes < 600_000, `curriculum payload is ${Math.round(curBytes / 1024)}KB`);
+
+    /* Concurrency: 40 simultaneous reads must all succeed and stay responsive.
+       This is nowhere near the spec's 50,000 concurrent users — that needs a
+       load-testing rig and horizontal scaling, and 13.10 stays open. */
+    const t0 = performance.now();
+    const results = await Promise.all(
+      Array.from({ length: 40 }, () => c("/topics/g6-nscoord/practice/questions")));
+    const wall = performance.now() - t0;
+    assert(results.every(r => r.status === 200), "a request failed under concurrent load");
+    assert(wall < 5000, `40 concurrent reads took ${Math.round(wall)}ms`);
+
+    /* Writes under concurrency must not corrupt the progress row. */
+    await Promise.all(Array.from({ length: 10 }, () =>
+      post(c, "/runs", { learnerId: kid.id, topicId: "g6-percent", tier: "practice", score: 5, total: 6 })));
+    const prog = (await c(`/learners/${kid.id}/progress`)).body.progress
+      .find(p => p.topic_id === "g6-percent" && p.tier === "practice");
+    assert(prog, "concurrent writes lost the progress row");
+    assert(prog.runs === 10, `expected 10 runs recorded, got ${prog.runs}`);
+    assert(prog.best_pct === 83, `best percentage corrupted to ${prog.best_pct}`);
+
+    const slowest = singles.sort((a, b) => b.ms - a.ms)[0];
+    return `slowest endpoint ${slowest.label} at ${Math.round(slowest.ms)}ms, ` +
+           `curriculum ${Math.round(curBytes / 1024)}KB, 40 concurrent reads in ${Math.round(wall)}ms, ` +
+           `10 concurrent writes all recorded`;
+  },
+
+
+  /* 11.1 + 10.6 — installable PWA with an offline shell */
+  "pwa-offline": async () => {
+    const { readFileSync, existsSync } = await import("node:fs");
+    const { execSync } = await import("node:child_process");
+
+    /* Manifest. */
+    assert(existsSync("app/web/public/manifest.webmanifest"), "no web app manifest");
+    const man = JSON.parse(readFileSync("app/web/public/manifest.webmanifest", "utf8"));
+    for (const k of ["name", "short_name", "start_url", "display", "icons"])
+      assert(man[k], `manifest is missing ${k}`);
+    assert(man.display === "standalone", "manifest does not request standalone display");
+    assert(man.icons.length && man.icons[0].src, "manifest has no icon");
+    assert(existsSync("app/web/public" + man.icons[0].src), "manifest icon file does not exist");
+
+    /* The document must reference the manifest and a theme colour. */
+    const html = readFileSync("app/web/index.html", "utf8");
+    assert(/rel="manifest"/.test(html), "index.html does not link the manifest");
+    assert(/name="theme-color"/.test(html), "no theme colour declared");
+    assert(/<html lang="en">/.test(html), "document has no language");
+
+    /* Service worker: shell cached, API never cached. That second rule is the
+       important one — a cached answer could be replayed against the grader,
+       and stale progress would be worse than an honest offline message. */
+    const sw = readFileSync("app/web/public/sw.js", "utf8");
+    assert(/addEventListener\("install"/.test(sw), "service worker has no install handler");
+    assert(/addEventListener\("fetch"/.test(sw), "service worker has no fetch handler");
+    assert(/pathname\.startsWith\("\/api\/"\)/.test(sw), "service worker does not exclude the API");
+    assert(/method !== "GET"/.test(sw), "service worker does not exclude writes");
+    assert(/caches\.delete/.test(sw), "service worker never cleans up old caches");
+
+    /* It must be registered, and only in production builds. */
+    const main = readFileSync("app/web/src/main.tsx", "utf8");
+    assert(/serviceWorker.*register/s.test(main), "service worker is never registered");
+    assert(/import\.meta\.env\.PROD/.test(main), "service worker would register during development");
+
+    /* And the app must actually build, with the shell files emitted. */
+    execSync("./node_modules/.bin/vite build", { cwd: "app/web", stdio: "pipe" });
+    for (const f of ["dist/index.html", "dist/manifest.webmanifest", "dist/sw.js", "dist/icon.svg"])
+      assert(existsSync("app/web/" + f), `production build did not emit ${f}`);
+
+    const built = readFileSync("app/web/dist/index.html", "utf8");
+    assert(/rel="manifest"/.test(built), "built page lost the manifest link");
+
+    return "installable manifest, offline shell, API excluded from cache, production build emits all shell files";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
