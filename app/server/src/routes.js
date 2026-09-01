@@ -9,6 +9,7 @@ import { rateLimit, audit, auditTrail } from "./security.js";
 import * as diag from "./diagnostic.js";
 import * as spacing from "./spacing.js";
 import { PREREQS, prereqsOf, allPrereqs, unlockedBy } from "../../shared/prereqs.mjs";
+import { classify, summarise as summariseErrors, CATEGORIES } from "./errors.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -367,7 +368,14 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
     const q = QUESTIONS[topicId][Number(idx)];
     const { ok, correctAnswer } = gradeAnswer(q, answers[qid]);
     if (ok) score++;
-    return { id: qid, correct: ok, correctAnswer, explanation: q.expl };
+    let category = null;
+    if (!ok) {
+      category = classify(q, answers[qid]);
+      db.prepare("INSERT INTO mistakes (id, learner_id, topic_id, question_id, category, at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), sess.learnerId, sess.topicId, qid, category, now());
+    }
+    return { id: qid, correct: ok, correctAnswer, explanation: q.expl,
+             category, categoryLabel: category ? CATEGORIES[category] : null };
   });
 
   const total = sess.ids.length;
@@ -518,7 +526,11 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     sess.score++; sess.streakRight++; sess.streakWrong = 0;
     if (sess.streakRight >= 2 && sess.tierIdx < diag.TIER_ORDER.length - 1) { sess.tierIdx++; sess.streakRight = 0; }
   } else {
-    sess.missed.push({ id: `${sess.topicId}:${idx}`, q: q.q, correctAnswer, explanation: q.expl });
+    const category = classify(q, answer);
+    sess.missed.push({ id: `${sess.topicId}:${idx}`, q: q.q, correctAnswer,
+                       explanation: q.expl, category, categoryLabel: CATEGORIES[category] });
+    db.prepare("INSERT INTO mistakes (id, learner_id, topic_id, question_id, category, at) VALUES (?,?,?,?,?,?)")
+      .run(randomUUID(), sess.learnerId, sess.topicId, `${sess.topicId}:${idx}`, category, now());
     sess.streakWrong++; sess.streakRight = 0;
     if (sess.streakWrong >= 2 && sess.tierIdx > 0) { sess.tierIdx--; sess.streakWrong = 0; }
   }
@@ -561,6 +573,24 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: false,
     asked: sess.asked, score: sess.score,
     question: publicQuestion(sess.topicId, next.idx)
+  });
+});
+
+/* ---------------- error analysis (spec 7.5) ---------------- */
+api.get("/learners/:id/errors", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare(
+    "SELECT topic_id, category, at FROM mistakes WHERE learner_id = ? ORDER BY at DESC LIMIT 500")
+    .all(req.params.id);
+  const byTopic = {};
+  for (const r of rows) (byTopic[r.topic_id] ||= []).push(r);
+  res.json({
+    total: rows.length,
+    byCategory: summariseErrors(rows),
+    byTopic: Object.entries(byTopic).map(([topicId, ms]) => ({
+      topicId, count: ms.length, categories: summariseErrors(ms)
+    })).sort((a, b) => b.count - a.count),
+    categories: CATEGORIES
   });
 });
 

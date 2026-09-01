@@ -105,6 +105,18 @@ CREATE TABLE IF NOT EXISTS review_schedule (
   last_at      TEXT NOT NULL,
   PRIMARY KEY (learner_id, topic_id)
 );
+-- One row per wrong answer, with the misconception it looked like, so
+-- reporting can target the mistake rather than just the topic.
+CREATE TABLE IF NOT EXISTS mistakes (
+  id         TEXT PRIMARY KEY,
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  topic_id   TEXT NOT NULL,
+  question_id TEXT NOT NULL,
+  category   TEXT NOT NULL,
+  at         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_mistakes_learner ON mistakes(learner_id, at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);
 
 CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_at DESC);

@@ -901,6 +901,71 @@ export const CHECKS = {
     return `${Object.keys(PREREQS).length} topics, ${Object.values(PREREQS).reduce((a, b) => a + b.length, 0)} edges, acyclic, ${crossGrade} cross-grade`;
   },
 
+
+  /* 7.5 — error analysis: wrong answers are classified by misconception */
+  "error-analysis": async () => {
+    const { classify, CATEGORIES } = await import("../app/server/src/errors.js");
+
+    /* The classifier, exercised directly against each mistake shape. */
+    const cases = [
+      [{ type: "in", ans: 50 }, "-50", "sign_error"],
+      [{ type: "in", ans: 50 }, "500", "place_value"],
+      [{ type: "in", ans: 50 }, "5", "place_value"],
+      [{ type: "in", ans: 50 }, "51", "off_by_one"],
+      [{ type: "in", ans: 50 }, "", "blank"],
+      [{ type: "in", ans: 50 }, "37", "unclassified"],
+      [{ type: "pair", ansP: [3, -2] }, "(-2, 3)", "reversed_pair"],
+      [{ type: "pair", ansP: [3, -2] }, "(-3, 2)", "sign_error"],
+      [{ type: "multi", aMulti: [0, 1, 2] }, [0, 1], "partial_selection"],
+      [{ type: "multi", aMulti: [0, 1] }, [0, 1, 3], "over_selection"],
+      [{ type: "order", ansOrder: ["a", "b", "c"] }, ["c", "b", "a"], "order_reversed"],
+      [{ type: "order", ansOrder: ["a", "b", "c", "d"] }, ["b", "a", "c", "d"], "order_adjacent"],
+      [{ type: "mc", opts: ["4 : 6", "6 : 4"], a: 0 }, 1, "operation_swap"]
+    ];
+    for (const [q, ans, want] of cases) {
+      const got = classify(q, ans);
+      assert(got === want, `classify(${q.type}, ${JSON.stringify(ans)}) = "${got}", expected "${want}"`);
+    }
+    /* A correct-looking but unrecognised mistake must NOT be forced into a bucket. */
+    assert(classify({ type: "in", ans: 100 }, "73") === "unclassified",
+      "an unrecognised mistake was given a category anyway");
+    for (const [, , want] of cases) assert(CATEGORIES[want], `category "${want}" has no label`);
+
+    /* End to end: mistakes made in a real session are recorded and reported. */
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "errs@b.com", password: "a-long-enough-pass", name: "E" });
+    const kid = (await post(c, "/learners", { name: "Error Kid" })).body.learner;
+
+    const start = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-ratios" });
+    let done = false, guard = 0, lastMissed = null;
+    while (!done && guard++ < 20) {
+      const step = await post(c, "/practice/answer",
+        { sessionId: start.body.sessionId, answer: "", hintsUsed: 0 });   // blank every time
+      if (step.body.done) { done = true; lastMissed = step.body.summary.missed; }
+    }
+    assert(lastMissed && lastMissed.length, "no mistakes recorded from an all-blank session");
+    assert(lastMissed.every(m => m.category), "a recorded mistake has no category");
+    assert(lastMissed.some(m => m.category === "blank"), "blank answers were not classified as blank");
+    assert(lastMissed.every(m => m.categoryLabel), "mistake categories have no human-readable label");
+
+    const report = (await c(`/learners/${kid.id}/errors`)).body;
+    assert(report.total > 0, "error report is empty after a failed session");
+    assert(report.byCategory.length > 0, "no category breakdown produced");
+    assert(report.byCategory[0].count >= report.byCategory[report.byCategory.length - 1].count,
+      "category breakdown is not ordered by frequency");
+    assert(report.byTopic.some(t => t.topicId === "g6-ratios"), "topic breakdown missing the practised topic");
+
+    /* Another account cannot read this learner's mistakes. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "errbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await bob(`/learners/${kid.id}/errors`)).status === 403,
+      "another account read this learner's error report");
+
+    return `${cases.length} classifier cases, mistakes recorded and reported by category and topic`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

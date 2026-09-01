@@ -356,8 +356,9 @@
       "id": "4.2.5",
       "section": "Parent portal",
       "title": "Alerts when struggling, inactive, or ready to advance",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "Error categories and the review queue give the raw signal for struggling. No alerting or notification yet (needs the blocked email/push provider)."
     },
     {
       "id": "4.2.6",
@@ -585,8 +586,10 @@
       "id": "7.5",
       "section": "Assessment",
       "title": "Error analysis categorising common mistakes",
-      "status": "todo",
-      "priority": 2
+      "status": "done",
+      "priority": 2,
+      "evidence": "check:error-analysis",
+      "notes": "Wrong answers are classified into named misconceptions (sign error, reversed coordinates, place value, off by one, partial/over selection, reversed ordering, blank). Recorded per learner and reported by category and topic. Unrecognised mistakes are reported as unclassified rather than forced into a bucket."
     },
     {
       "id": "7.6",
