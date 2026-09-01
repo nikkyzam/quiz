@@ -1160,6 +1160,70 @@ export const CHECKS = {
     return `${Object.keys(QUESTIONS).length} banks, ${total} questions, ${gradesWith.size} grades, all valid`;
   },
 
+
+  /* 5.1 + 5.2 + 5.4 + 5.5 — points, badges, levels and streaks */
+  "gamification": async () => {
+    const rewards = await import("../app/server/src/rewards.js");
+
+    /* Advanced work must be worth more than core work (spec 5.1). */
+    const core = rewards.pointsFor({ pct: 100, total: 10, track: "core" });
+    const adv  = rewards.pointsFor({ pct: 100, total: 10, track: "adv" });
+    assert(adv > core, `advanced work (${adv}) is not worth more than core (${core})`);
+    /* Hints cost points, but can never take a score below zero. */
+    const hinted = rewards.pointsFor({ pct: 100, total: 10, track: "core", hintsUsed: 5 });
+    assert(hinted < core, "hints did not reduce the points awarded");
+    assert(rewards.pointsFor({ pct: 10, total: 1, track: "core", hintsUsed: 99 }) >= 0,
+      "heavy hint use produced negative points");
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "game@b.com", password: "a-long-enough-pass", name: "G" });
+    const kid = (await post(c, "/learners", { name: "Game Kid" })).body.learner;
+
+    /* Nothing earned yet. */
+    let r = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(r.points === 0 && r.badges.length === 0, "a new learner already has rewards");
+    assert(r.level === 1, `a new learner starts at level ${r.level}`);
+    assert(r.catalogue && Object.keys(r.catalogue).length > 5, "badge catalogue not published");
+
+    /* A perfect round earns points and the expected badges. */
+    const run = await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    assert(run.body.reward, "a finished round returned no reward");
+    assert(run.body.reward.points > 0, "a perfect round earned no points");
+    const codes = run.body.reward.badges.map(b => b.code);
+    assert(codes.includes("first_steps"), "no first-round badge");
+    assert(codes.includes("perfect_round"), "no badge for a perfect round");
+
+    /* Badges are awarded once, not repeatedly. */
+    const again = await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    assert(!again.body.reward.badges.some(b => b.code === "perfect_round"),
+      "the same badge was awarded twice");
+
+    r = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(r.points > 0, "points did not accumulate");
+    assert(r.badges.length >= 2, "badges not listed on the rewards endpoint");
+    assert(r.badges.every(b => b.name), "a badge has no display name");
+    assert(r.nextLevelAt > r.points || r.level > 1, "level progress is not reported");
+
+    /* Streak counts consecutive days and breaks when a day is skipped. */
+    const s0 = rewards.streak(kid.id);
+    assert(s0 >= 1, `today's activity gave a streak of ${s0}`);
+    const future = new Date(Date.now() + 5 * 86400000).toISOString();
+    assert(rewards.streak(kid.id, future) === 0,
+      "a streak survived a five-day gap");
+
+    /* Another account cannot read this learner's rewards. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "gamebob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await bob(`/learners/${kid.id}/rewards`)).status === 403,
+      "another account read this learner's rewards");
+
+    return `advanced worth ${adv} vs core ${core}, badges awarded once, levels and streaks tracked`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

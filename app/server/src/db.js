@@ -130,6 +130,18 @@ CREATE TABLE IF NOT EXISTS contests (
   detail      TEXT NOT NULL,
   finished_at TEXT NOT NULL
 );
+-- Gamification: points, badges and daily streaks (spec 5.1, 5.2, 5.5).
+CREATE TABLE IF NOT EXISTS awards (
+  id         TEXT PRIMARY KEY,
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  kind       TEXT NOT NULL,          -- points | badge
+  code       TEXT NOT NULL,          -- badge id, or the reason points were given
+  amount     INTEGER NOT NULL DEFAULT 0,
+  at         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_awards_learner ON awards(learner_id, at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_badge_once ON awards(learner_id, code) WHERE kind = 'badge';
+
 CREATE INDEX IF NOT EXISTS idx_contests_learner ON contests(learner_id, finished_at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_mistakes_learner ON mistakes(learner_id, at DESC);

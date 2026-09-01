@@ -11,6 +11,7 @@ import * as spacing from "./spacing.js";
 import { PREREQS, prereqsOf, allPrereqs, unlockedBy } from "../../shared/prereqs.mjs";
 import { classify, summarise as summariseErrors, CATEGORIES } from "./errors.js";
 import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
+import * as rewards from "./rewards.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -402,9 +403,10 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
   }
 
   spacing.schedule(sess.learnerId, sess.topicId, score / total);
+  const reward = rewardRound(sess.learnerId, sess.topicId, { score, total, pct });
   checkSessions.delete(checkId);
   audit(req.user.id, "mastery.submitted", `${sess.topicId}:${pct}%`, req);
-  res.json({ score, total, pct, threshold, passed, detail });
+  res.json({ score, total, pct, threshold, passed, detail, reward });
 });
 
 /* Grading happens here, never in the browser. */
@@ -578,10 +580,12 @@ api.post("/practice/answer", requireAuth, (req, res) => {
         .run(ts, sess.learnerId, sess.topicId, "adaptive");
     }
     spacing.schedule(sess.learnerId, sess.topicId, sess.score / total);
+    const reward = rewardRound(sess.learnerId, sess.topicId,
+      { score: sess.score, total, pct, hintsUsed: sess.hintsUsed });
     practiceSessions.delete(sessionId);
     return res.json({
       correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: true,
-      summary: { score: sess.score, total, pct, stars, hintsUsed: sess.hintsUsed,
+      summary: { score: sess.score, total, pct, stars, hintsUsed: sess.hintsUsed, reward,
                  threshold: thresholdOf(sess.topicId), missed: sess.missed,
                  seconds: Math.round((Date.now() - sess.startedAt) / 1000) }
     });
@@ -591,6 +595,54 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: false,
     asked: sess.asked, score: sess.score, intervention,
     question: publicQuestion(sess.topicId, next.idx)
+  });
+});
+
+/* Grant points and badges for a finished round (spec 5.1, 5.2). */
+function rewardRound(learnerId, topicId, { score, total, pct, hintsUsed = 0, contest = false }) {
+  const track = trackOf(topicId) || "core";
+  const pts = rewards.pointsFor({ pct, total, track, hintsUsed });
+  if (pts > 0) rewards.award(learnerId, "points", `round:${topicId}`, pts);
+
+  const earned = [];
+  const give = code => { if (rewards.award(learnerId, "badge", code)) earned.push(code); };
+
+  const priorRounds = db.prepare("SELECT COUNT(*) c FROM runs WHERE learner_id=?").get(learnerId).c;
+  if (priorRounds <= 1) give("first_steps");
+  if (pct === 100) give("perfect_round");
+  if (pct === 100 && hintsUsed === 0) give("unaided");
+  if (track === "adv") give("advanced_starter");
+  if (contest && pct >= 80) give("contest_ready");
+
+  /* Mastering every tier of a topic, and the strand-specific badges. */
+  const rows = db.prepare("SELECT tier, best_pct FROM progress WHERE learner_id=? AND topic_id=?")
+    .all(learnerId, topicId);
+  const bar = thresholdOf(topicId);
+  const tiersMastered = rows.filter(r => ["practice", "challenge", "boss"].includes(r.tier) && r.best_pct >= bar).length;
+  if (tiersMastered >= 3) {
+    give("topic_mastered");
+    const unit = (TOPIC_NAME.get(topicId) || {}).unit || "";
+    if (/number theory/i.test(unit)) give("number_theory");
+    if (/combinatorics/i.test(unit)) give("combinatorics");
+  }
+  /* Retrying a topic after falling short. */
+  const attempts = db.prepare("SELECT COUNT(*) c FROM runs WHERE learner_id=? AND topic_id=?")
+    .get(learnerId, topicId).c;
+  if (attempts >= 2 && pct >= bar) give("persistent");
+
+  const st = rewards.streak(learnerId);
+  if (st >= 3) give("streak_3");
+  if (st >= 7) give("streak_7");
+
+  return { points: pts, badges: earned.map(c => ({ code: c, ...rewards.BADGES[c] })), streak: st };
+}
+
+api.get("/learners/:id/rewards", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  res.json({
+    ...rewards.totals(req.params.id),
+    streak: rewards.streak(req.params.id),
+    catalogue: rewards.BADGES
   });
 });
 
@@ -667,6 +719,7 @@ api.post("/contest/submit", requireAuth, (req, res) => {
               VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
     .run(randomUUID(), sess.learnerId, sess.format, score, total, pct, seconds,
          sess.limitSecs, expired ? 1 : 0, JSON.stringify(detail.map(d => ({ id: d.id, correct: d.correct }))), now());
+  const reward = rewardRound(sess.learnerId, detail[0]?.topicId || "", { score, total, pct, contest: true });
   contestSessions.delete(contestId);
   audit(req.user.id, "contest.submitted", `${sess.format}:${pct}%`, req);
 
@@ -677,7 +730,7 @@ api.post("/contest/submit", requireAuth, (req, res) => {
     t.asked++; if (d.correct) t.correct++;
   }
   res.json({
-    score, total, pct, correctBeforePenalty, seconds, limitSeconds: sess.limitSecs, expired,
+    score, total, pct, correctBeforePenalty, seconds, limitSeconds: sess.limitSecs, expired, reward,
     detail,
     byTopic: Object.values(byTopic).map(t => ({ ...t, pct: Math.round((t.correct / t.asked) * 100) }))
               .sort((a, b) => a.pct - b.pct)
@@ -744,7 +797,8 @@ api.post("/runs", requireAuth, (req, res) => {
   }
   const track = trackOf(topicId), threshold = thresholdOf(topicId);
   const next = spacing.schedule(learnerId, topicId, s / t);
-  res.json({ pct, threshold, track, star: pct >= threshold, nextReview: next });
+  const reward = rewardRound(learnerId, topicId, { score: s, total: t, pct });
+  res.json({ pct, threshold, track, star: pct >= threshold, nextReview: next, reward });
 });
 
 api.get("/learners/:id/progress", requireAuth, (req, res) => {

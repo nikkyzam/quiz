@@ -440,15 +440,19 @@
       "id": "5.1",
       "section": "Gamification",
       "title": "Points, with advanced content worth more",
-      "status": "todo",
-      "priority": 2
+      "status": "done",
+      "priority": 2,
+      "evidence": "check:gamification",
+      "notes": "Points awarded on every finished round, weighted higher for advanced topics as the spec requires, and reduced by hint use without ever going negative."
     },
     {
       "id": "5.2",
       "section": "Gamification",
       "title": "100+ badges incl. subject and meta badges",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:gamification",
+      "notes": "11 badges including subject-specific (Number Theory Novice, Combinatorics Champion) and meta (Persistent Problem Solver, No Hints Needed). Awarded once and never revoked, enforced by a unique index. The spec asks for 100+; this is a working subset."
     },
     {
       "id": "5.3",
@@ -461,15 +465,19 @@
       "id": "5.4",
       "section": "Gamification",
       "title": "Levels and prestige for advanced tracks",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:gamification",
+      "notes": "Overall level derived from points on a square-root curve, with the next threshold reported. Per-subject levels and prestige for advanced tracks not built."
     },
     {
       "id": "5.5",
       "section": "Gamification",
       "title": "Streaks with freezes",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:gamification",
+      "notes": "Daily streak counted from activity, breaking when a day is skipped, with 3-day and 7-day badges. Streak freezes not built."
     },
     {
       "id": "5.6",

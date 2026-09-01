@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 121
-  done       23  (19%)
-  partial    31  (26%)
-  todo       55  (45%)
+  done       24  (20%)
+  partial    34  (28%)
+  todo       51  (42%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -32,6 +32,7 @@ Automated checks
   PASS  intervention-triggers struggling fires on the third consecutive miss, not before, and a correct answer clears it
   PASS  competition-prep   5 formats, papers scored server-side, timing enforced, history tracked
   PASS  content-integrity  16 banks, 198 questions, 5 grades, all valid
+  PASS  gamification       advanced worth 150 vs core 100, badges awarded once, levels and streaks tracked
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)
