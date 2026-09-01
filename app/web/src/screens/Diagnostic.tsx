@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner, type DiagnosticSummary } from "../api";
 import { Grid } from "../beasts";
+import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
 
 /* Placement diagnostic. The server decides which question comes next and
    when to stop, so this screen only renders and submits. */
@@ -86,7 +87,11 @@ export function Diagnostic({ learner, topicId, topicName, onDone, onExit }: {
         <div className="sec">{q.secName}</div>
         <p className="qtext">{q.q}</p>
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
-        {q.type === "mc" ? (
+        {q.type === "order" ? (
+          <OrderAnswer items={q.items!} disabled={busy} onSubmit={o => send(o)} />
+        ) : q.type === "multi" ? (
+          <MultiAnswer opts={q.opts!} disabled={busy} onSubmit={p => send(p)} />
+        ) : q.type === "mc" ? (
           <div className="opts">
             {q.opts!.map((o, i) => (
               <button key={i} className={"opt" + (q.mono ? " mono" : "")} disabled={busy}

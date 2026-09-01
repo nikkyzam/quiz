@@ -308,3 +308,57 @@ QUESTIONS["g6-ratios"] = [
 
 
 export { SECS, QUESTIONS };
+
+/* ---- Grade 6 · Percents (g6-percent) ----
+   Exercises the ordering and select-all question types alongside the
+   existing ones, so every type is represented in a real bank. */
+QUESTIONS["g6-percent"] = [
+/* practice */
+{sec:"R",type:"in",q:"What is 25% of 80?",hint:"25% is one quarter.",ans:20,
+ expl:"25% means 25 out of 100, or one quarter. A quarter of 80 is 80 ÷ 4 = 20."},
+{sec:"R",type:"in",q:"What is 10% of 350?",hint:"To find 10%, divide by 10.",ans:35,
+ expl:"10% is one tenth, so 350 ÷ 10 = 35."},
+{sec:"R",type:"mc",q:"Which is the same as 40%?",mono:true,
+ opts:["0.4","4.0","0.04","40.0"],a:0,
+ expl:"Percent means 'per hundred', so 40% = 40/100 = 0.4."},
+{sec:"R",type:"order",q:"Put these in order from SMALLEST to largest.",
+ items:["25%","0.4","1/2","70%"],ansOrder:["25%","0.4","1/2","70%"],
+ hint:"Turn them all into decimals first.",
+ expl:"As decimals: 25% = 0.25, then 0.4, then 1/2 = 0.5, then 70% = 0.7."},
+{sec:"R",type:"multi",q:"Select EVERY value that equals one half.",
+ opts:["50%","0.5","5/10","0.05","5%"],aMulti:[0,1,2],
+ hint:"There is more than one.",
+ expl:"50% = 0.5 and 5/10 = 0.5, so those three match. 0.05 is a twentieth and 5% is even smaller."},
+{sec:"R",type:"in",q:"A jacket costs $60. It is reduced by 20%. What is the new price, in dollars?",
+ hint:"Find 20% first, then subtract.",ans:48,
+ expl:"20% of 60 = 12, and 60 − 12 = $48."},
+
+/* challenge */
+{lvl:2,sec:"R",type:"in",q:"15% of a number is 45. What is the number?",
+ hint:"If 15% is 45, what is 1%?",ans:300,
+ expl:"1% is 45 ÷ 15 = 3, so 100% is 3 × 100 = 300."},
+{lvl:2,sec:"R",type:"order",q:"Order these from LARGEST to smallest.",
+ items:["3/5","55%","0.58","2/3"],ansOrder:["2/3","3/5","0.58","55%"],
+ hint:"Convert everything to decimals.",
+ expl:"2/3 ≈ 0.667, 3/5 = 0.6, then 0.58, then 55% = 0.55."},
+{lvl:2,sec:"R",type:"in",q:"A price rises from $40 to $50. What is the percentage increase?",
+ hint:"Compare the change to the ORIGINAL price.",ans:25,
+ expl:"The change is $10 on an original $40. 10/40 = 0.25 = 25%."},
+{lvl:2,sec:"R",type:"multi",q:"A shirt is $20 after a 50% discount. Select EVERY true statement.",
+ opts:["The original price was $40","The discount was $20","The original price was $30","The discount was $10"],
+ aMulti:[0,1],
+ expl:"If $20 is half the original, the original was $40 and the discount was the other $20."},
+
+/* boss */
+{lvl:3,sec:"R",type:"in",q:"A jacket is reduced by 20%, then by a further 10% off the new price. What is the total percentage off the ORIGINAL price?",
+ hint:"Try it with $100. The two discounts do not simply add.",ans:28,
+ expl:"Take $100: after 20% off it is $80. Then 10% off $80 is $8, leaving $72. That is $28 off the original, so 28% — not 30%."},
+{lvl:3,sec:"R",type:"in",q:"After a 25% increase, a price is $75. What was the original price, in dollars?",
+ hint:"The new price is 125% of the original.",ans:60,
+ expl:"$75 is 125% of the original, so 1% is 75 ÷ 125 = 0.6, and 100% is $60."},
+{lvl:3,sec:"R",type:"order",q:"Order these price changes from BIGGEST drop to smallest.",
+ items:["$80 → $60","$50 → $40","$30 → $27","$20 → $19"],
+ ansOrder:["$80 → $60","$50 → $40","$30 → $27","$20 → $19"],
+ hint:"Work out each change as a percentage of its starting price.",
+ expl:"As percentages: 20/80 = 25%, 10/50 = 20%, 3/30 = 10%, 1/20 = 5%."}
+];

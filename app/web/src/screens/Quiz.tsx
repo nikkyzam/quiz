@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner } from "../api";
 import { Grid } from "../beasts";
+import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
 
 type Feedback = { correct: boolean; correctAnswer: string; explanation: string; figA: any };
 
@@ -105,7 +106,11 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
         <p className="qtext">{q.q}</p>
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
 
-        {q.type === "mc" ? (
+        {q.type === "order" ? (
+          <OrderAnswer items={q.items!} disabled={!!fb} onSubmit={o => submit(o)} />
+        ) : q.type === "multi" ? (
+          <MultiAnswer opts={q.opts!} disabled={!!fb} onSubmit={p => submit(p)} />
+        ) : q.type === "mc" ? (
           <div className="opts">
             {q.opts!.map((o, i) => (
               <button key={i}

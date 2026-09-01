@@ -37,14 +37,39 @@ function publicQuestion(topicId, idx) {
     id: `${topicId}:${idx}`,
     sec: q.sec, secName: SECS[q.sec] || "Problem",
     type: q.type, q: q.q,
-    opts: q.type === "mc" ? q.opts : undefined,
+    opts: (q.type === "mc" || q.type === "multi") ? q.opts : undefined,
+    // Ordering items are sent shuffled; the correct sequence stays server-side.
+    items: q.type === "order" ? shuffled(q.items) : undefined,
     mono: q.mono || false,
     hint: q.hint || null,
     fig: q.fig || null
   };
 }
 
+/* Fisher-Yates on a copy; the caller's array is never mutated. */
+function shuffled(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function gradeAnswer(q, raw) {
+  /* Ordering: the submitted sequence must match exactly. */
+  if (q.type === "order") {
+    const got = Array.isArray(raw) ? raw.map(String) : [];
+    const ok = got.length === q.ansOrder.length && got.every((v, i) => v === q.ansOrder[i]);
+    return { ok, correctAnswer: q.ansOrder.join("  →  ") };
+  }
+  /* Select-all: set equality, so neither a missing nor an extra pick passes. */
+  if (q.type === "multi") {
+    const got = Array.isArray(raw) ? [...new Set(raw.map(Number))].sort((a, b) => a - b) : [];
+    const want = [...q.aMulti].sort((a, b) => a - b);
+    const ok = got.length === want.length && got.every((v, i) => v === want[i]);
+    return { ok, correctAnswer: want.map(i => q.opts[i]).join(", ") };
+  }
   if (q.type === "mc") {
     const ok = Number(raw) === q.a;
     return { ok, correctAnswer: q.opts[q.a] };

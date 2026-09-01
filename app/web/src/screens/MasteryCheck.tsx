@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner } from "../api";
 import { Grid } from "../beasts";
+import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
 
 /* Mastery check: no hints, one pass through, marked by the server. */
 export function MasteryCheck({ learner, topicId, topicName, onExit }: {
@@ -82,7 +83,11 @@ export function MasteryCheck({ learner, topicId, topicName, onExit }: {
         <p className="qtext">{q.q}</p>
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
         <p className="muted" style={{ fontSize: ".85rem" }}>No hints during a mastery check.</p>
-        {q.type === "mc" ? (
+        {q.type === "order" ? (
+          <OrderAnswer items={q.items!} disabled={busy} onSubmit={o => record(o)} />
+        ) : q.type === "multi" ? (
+          <MultiAnswer opts={q.opts!} disabled={busy} onSubmit={p => record(p)} />
+        ) : q.type === "mc" ? (
           <div className="opts">
             {q.opts!.map((o, i) => (
               <button key={i} className={"opt" + (q.mono ? " mono" : "")} disabled={busy}

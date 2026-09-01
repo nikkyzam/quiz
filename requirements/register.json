@@ -55,8 +55,9 @@
       "section": "Content types",
       "title": "Practice problems: varied types, immediate feedback, hints, full solutions",
       "status": "partial",
-      "notes": "MCQ/numeric/ordered-pair done with feedback+hints+solutions. Drag-drop, graph input and dynamic geometry not built.",
-      "priority": 1
+      "notes": "Five question types now graded server-side: multiple choice, numeric, ordered pair, ordering and select-all. Ordering is keyboard-operable rather than drag-only. Still missing from the spec's list: graph/plot input and dynamic geometry.",
+      "priority": 1,
+      "evidence": null
     },
     {
       "id": "3.2.3",
@@ -98,8 +99,10 @@
       "id": "3.2.8",
       "section": "Content types",
       "title": "Assessments: diagnostic, formative, summative",
-      "status": "todo",
-      "priority": 1
+      "status": "done",
+      "priority": 1,
+      "evidence": "check:assessment-kinds",
+      "notes": "All three kinds reachable: adaptive diagnostic, formative practice with immediate feedback and explanation, and summative mastery check with a pass mark."
     },
     {
       "id": "3.2.9",

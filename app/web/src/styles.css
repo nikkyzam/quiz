@@ -231,3 +231,24 @@
   color:var(--ink);text-transform:none;letter-spacing:0;font-weight:400}
 .field label.checkline input, .checkline input{width:18px;height:18px;margin-top:2px;flex:0 0 auto;accent-color:var(--accent)}
 .consent{margin-top:4px}
+
+/* --- ordering & multi-select --- */
+.orderlist{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.orderrow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;
+  background:var(--card);border:2px solid var(--line);border-radius:10px;padding:9px 12px}
+.orderpos{font-family:var(--mono);font-size:.8rem;color:var(--muted);
+  width:22px;height:22px;display:grid;place-items:center;
+  border:1px solid var(--line);border-radius:6px}
+.orderlabel{font-family:var(--mono);font-weight:600}
+.orderbtns{display:flex;gap:6px}
+.movebtn{background:var(--chip);border:2px solid var(--line);border-radius:8px;
+  width:34px;height:34px;color:var(--ink);font-size:1rem;line-height:1}
+.movebtn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.movebtn:disabled{opacity:.4;cursor:default}
+.multibox{border:0;padding:0;margin:16px 0 0;display:grid;gap:8px}
+.multilegend{font-size:.82rem;color:var(--muted);font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;padding:0;margin-bottom:2px}
+.multirow{display:flex;align-items:center;gap:11px;background:var(--card);
+  border:2px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer}
+.multirow.on{border-color:var(--accent);background:var(--accent-soft)}
+.multirow input{width:18px;height:18px;accent-color:var(--accent);flex:0 0 auto}

@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 121
-  done       16  (13%)
+  done       17  (14%)
   partial    26  (21%)
-  todo       67  (55%)
+  todo       66  (55%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -23,6 +23,8 @@ Automated checks
   PASS  diagnostic-placement adaptive over 12 questions, skill map + placement stored, replay blocked, weak/strong placed differently
   PASS  end-to-end-flow    diagnostic -> practice -> review -> mastery check -> progress, all server-side
   PASS  schema-migration   old database booted, columns added, existing row preserved, requests served
+  PASS  question-types     4 question types served (in, mc, order, multi), partial/over/empty answers all refused
+  PASS  assessment-kinds   diagnostic, formative and summative assessments all reachable
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

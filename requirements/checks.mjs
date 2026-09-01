@@ -608,6 +608,89 @@ export const CHECKS = {
     }
   },
 
+
+  /* 3.2.2 — varied question types, all graded server-side */
+  "question-types": async () => {
+    const c = client();
+    const qs = (await c("/topics/g6-percent/practice/questions")).body.questions;
+    assert(qs.length, "percent bank did not load");
+
+    const kinds = new Set(qs.map(q => q.type));
+    for (const t of ["order", "multi"]) assert(kinds.has(t), `no ${t} question served`);
+
+    /* Neither new type may leak its answer. */
+    const raw = JSON.stringify(qs);
+    for (const k of ['"ansOrder"', '"aMulti"', '"expl"', '"a":'])
+      assert(!raw.includes(k), `question payload leaked ${k}`);
+
+    /* Ordering: items are sent, and a wrong sequence is refused. */
+    const ord = qs.find(q => q.type === "order");
+    assert(Array.isArray(ord.items) && ord.items.length > 2, "ordering question has no items");
+    const backwards = [...ord.items].reverse();
+    const wrongOrder = await post(c, "/answer", { questionId: ord.id, answer: backwards });
+    const rightOrder = await post(c, "/answer",
+      { questionId: ord.id, answer: wrongOrder.body.correctAnswer.split("  →  ") });
+    assert(rightOrder.body.correct === true, "the stated correct order was marked wrong");
+    /* A reversed list can only coincidentally be right if the list is symmetric. */
+    if (backwards.join() !== wrongOrder.body.correctAnswer.split("  →  ").join())
+      assert(wrongOrder.body.correct === false, "a wrong order was accepted");
+
+    /* Select-all: partial and over-selection must both fail. */
+    const mul = qs.find(q => q.type === "multi");
+    assert(Array.isArray(mul.opts) && mul.opts.length > 2, "multi question has no options");
+    const all = mul.opts.map((_, i) => i);
+    const everything = await post(c, "/answer", { questionId: mul.id, answer: all });
+    assert(everything.body.correct === false, "selecting every option was accepted");
+    const correctIdx = everything.body.correctAnswer.split(", ").map(t => mul.opts.indexOf(t));
+    assert(correctIdx.every(i => i >= 0), "could not map the correct answer back to options");
+    const exact = await post(c, "/answer", { questionId: mul.id, answer: correctIdx });
+    assert(exact.body.correct === true, "the exact correct selection was marked wrong");
+    if (correctIdx.length > 1) {
+      const partial = await post(c, "/answer", { questionId: mul.id, answer: correctIdx.slice(0, -1) });
+      assert(partial.body.correct === false, "a partial selection was accepted as correct");
+    }
+    /* Empty and malformed answers must not pass. */
+    assert((await post(c, "/answer", { questionId: mul.id, answer: [] })).body.correct === false,
+      "an empty selection was accepted");
+    assert((await post(c, "/answer", { questionId: ord.id, answer: "nonsense" })).body.correct === false,
+      "a malformed ordering answer was accepted");
+
+    /* Ordering content invariant: the answer must be a permutation of the items. */
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+    for (const [topic, bank] of Object.entries(QUESTIONS))
+      bank.filter(q => q.type === "order").forEach((q, i) => {
+        const a = [...q.items].sort().join("|"), b = [...q.ansOrder].sort().join("|");
+        assert(a === b, `${topic} ordering question ${i + 1}: ansOrder is not a permutation of items`);
+      });
+
+    return `${kinds.size} question types served (${[...kinds].join(", ")}), partial/over/empty answers all refused`;
+  },
+
+  /* 3.2.8 — the three assessment kinds the spec names */
+  "assessment-kinds": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "assess@b.com", password: "a-long-enough-pass", name: "A" });
+    const kid = (await post(c, "/learners", { name: "Assess Kid" })).body.learner;
+
+    /* diagnostic */
+    const d = await post(c, "/diagnostic/start", { learnerId: kid.id, topicId: "g6-percent" });
+    assert(d.status === 200 && d.body.question, "diagnostic assessment unavailable");
+
+    /* formative — practice with immediate feedback and an explanation */
+    const qs = (await c("/topics/g6-percent/practice/questions")).body.questions;
+    const fb = await post(c, "/answer", { questionId: qs[0].id, answer: "definitely wrong" });
+    assert(typeof fb.body.correct === "boolean" && fb.body.explanation,
+      "formative feedback missing correctness or explanation");
+
+    /* summative — mastery check */
+    const m = await post(c, "/mastery/start", { learnerId: kid.id, topicId: "g6-percent" });
+    assert(m.status === 200 && m.body.questions.length, "summative assessment unavailable");
+    assert(typeof m.body.threshold === "number", "summative check has no pass mark");
+
+    return "diagnostic, formative and summative assessments all reachable";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

@@ -26,8 +26,10 @@ export type Unit = { name: string; track?: string; topics: Topic[] };
 export type Grade = { label: string; beast: string; units: Unit[] };
 export type Tier = { id: string; name: string; blurb: string };
 export type Question = {
-  id: string; sec: string; secName: string; type: "mc" | "in" | "pair";
-  q: string; opts?: string[]; mono: boolean; hint: string | null; fig: any;
+  id: string; sec: string; secName: string;
+  type: "mc" | "in" | "pair" | "order" | "multi";
+  q: string; opts?: string[]; items?: string[];
+  mono: boolean; hint: string | null; fig: any;
 };
 export type ProgressRow = {
   topic_id: string; tier: string; best_score: number; best_total: number;
