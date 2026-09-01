@@ -12,6 +12,7 @@ import { PREREQS, prereqsOf, allPrereqs, unlockedBy } from "../../shared/prereqs
 import { classify, summarise as summariseErrors, CATEGORIES } from "./errors.js";
 import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
 import * as rewards from "./rewards.js";
+import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -122,8 +123,9 @@ api.post("/auth/register", registerLimit, (req, res) => {
 
   const { coppaConsent } = req.body || {};
   if (coppaConsent !== true) return res.status(400).json({ error: "coppa_consent_required" });
+  const role = ["parent", "teacher"].includes(req.body?.role) ? req.body.role : "parent";
   const user = createUser({ email, password: String(password),
-                            name: String(name).trim().slice(0, 60), coppaConsent: true });
+                            name: String(name).trim().slice(0, 60), role, coppaConsent: true });
   audit(user.id, "account.created", null, req);
   const s = createSession(user.id);
   res.cookie("sid", s.id, { ...COOKIE, expires: new Date(s.expires) });
@@ -750,6 +752,93 @@ api.get("/learners/:id/contests", requireAuth, (req, res) => {
     f.trend.push(r.pct);
   }
   res.json({ history: rows, byFormat: Object.values(byFormat) });
+});
+
+/* ---------------- teacher portal (spec 4.3) ----------------
+   Teachers hold a role on the user row. A class links learners (who belong to
+   parent accounts) to a teacher via an explicit join, so a teacher only ever
+   sees learners a parent has added to their class. */
+function requireTeacher(req, res, next) { return requireRole("teacher", "admin")(req, res, next); }
+const ownClass = (req, id) =>
+  db.prepare("SELECT * FROM classes WHERE id=? AND teacher_id=?").get(id, req.user.id);
+
+api.post("/classes", requireAuth, requireTeacher, (req, res) => {
+  const { name } = req.body || {};
+  if (!name || !String(name).trim()) return res.status(400).json({ error: "missing_name" });
+  const id = randomUUID();
+  const code = randomUUID().slice(0, 6).toUpperCase();
+  db.prepare("INSERT INTO classes (id, teacher_id, name, join_code, created_at) VALUES (?,?,?,?,?)")
+    .run(id, req.user.id, String(name).trim().slice(0, 60), code, now());
+  audit(req.user.id, "class.created", id, req);
+  res.json({ class: { id, name: String(name).trim(), joinCode: code } });
+});
+
+api.get("/classes", requireAuth, requireTeacher, (req, res) => {
+  const rows = db.prepare("SELECT id, name, join_code, created_at FROM classes WHERE teacher_id=? ORDER BY created_at")
+    .all(req.user.id);
+  res.json({ classes: rows.map(c => ({
+    id: c.id, name: c.name, joinCode: c.join_code,
+    members: db.prepare("SELECT COUNT(*) n FROM class_members WHERE class_id=?").get(c.id).n
+  })) });
+});
+
+/* A PARENT adds their own learner to a class using the code. A teacher cannot
+   pull a learner in unilaterally. */
+api.post("/classes/join", requireAuth, (req, res) => {
+  const { joinCode, learnerId } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const cls = db.prepare("SELECT * FROM classes WHERE join_code=?").get(String(joinCode || "").toUpperCase());
+  if (!cls) return res.status(404).json({ error: "unknown_class" });
+  db.prepare("INSERT OR IGNORE INTO class_members (class_id, learner_id, joined_at) VALUES (?,?,?)")
+    .run(cls.id, learnerId, now());
+  audit(req.user.id, "class.joined", cls.id, req);
+  res.json({ joined: { classId: cls.id, name: cls.name } });
+});
+
+api.post("/classes/:id/assignments", requireAuth, requireTeacher, (req, res) => {
+  if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
+  const { topicId, tier, dueAt } = req.body || {};
+  if (!QUESTIONS[topicId]) return res.status(400).json({ error: "unknown_topic" });
+  const id = randomUUID();
+  db.prepare("INSERT INTO assignments (id, class_id, topic_id, tier, due_at, created_at) VALUES (?,?,?,?,?,?)")
+    .run(id, req.params.id, topicId, tier || null, dueAt || null, now());
+  res.json({ assignment: { id, topicId, tier: tier || null, dueAt: dueAt || null } });
+});
+
+/* Class progress: one row per learner per assignment, plus a topic heatmap. */
+api.get("/classes/:id/progress", requireAuth, requireTeacher, (req, res) => {
+  const cls = ownClass(req, req.params.id);
+  if (!cls) return res.status(403).json({ error: "not_your_class" });
+
+  const members = db.prepare(`SELECT l.id, l.name FROM class_members m
+    JOIN learners l ON l.id = m.learner_id WHERE m.class_id=? ORDER BY l.name`).all(cls.id);
+  const assignments = db.prepare("SELECT * FROM assignments WHERE class_id=?").all(cls.id);
+
+  const rows = members.map(m => {
+    const prog = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id=?").all(m.id);
+    const done = assignments.map(a => {
+      const match = prog.filter(p => p.topic_id === a.topic_id && (!a.tier || p.tier === a.tier));
+      const best = match.reduce((x, p) => Math.max(x, p.best_pct), 0);
+      return { assignmentId: a.id, topicId: a.topic_id, bestPct: best,
+               mastered: best >= thresholdOf(a.topic_id), attempted: match.length > 0 };
+    });
+    const mastered = prog.filter(p => p.best_pct >= thresholdOf(p.topic_id)).length;
+    return { learnerId: m.id, name: m.name, assignments: done, topicsMastered: mastered };
+  });
+
+  /* Heatmap: for each assigned topic, how the class as a whole is doing. */
+  const heatmap = assignments.map(a => {
+    const scores = rows.map(r => (r.assignments.find(x => x.assignmentId === a.id) || {}).bestPct || 0);
+    const attempted = scores.filter(s => s > 0).length;
+    return {
+      topicId: a.topic_id, assigned: rows.length, attempted,
+      averagePct: scores.length ? Math.round(scores.reduce((x, y) => x + y, 0) / scores.length) : 0,
+      mastered: rows.filter(r => (r.assignments.find(x => x.assignmentId === a.id) || {}).mastered).length
+    };
+  });
+
+  audit(req.user.id, "class.progress.read", cls.id, req);
+  res.json({ class: { id: cls.id, name: cls.name }, assignments, learners: rows, heatmap });
 });
 
 /* ---------------- error analysis (spec 7.5) ---------------- */

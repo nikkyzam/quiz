@@ -139,6 +139,33 @@ CREATE TABLE IF NOT EXISTS awards (
   amount     INTEGER NOT NULL DEFAULT 0,
   at         TEXT NOT NULL
 );
+-- Teacher portal: classes, membership and assignments (spec 4.3).
+CREATE TABLE IF NOT EXISTS classes (
+  id         TEXT PRIMARY KEY,
+  teacher_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name       TEXT NOT NULL,
+  join_code  TEXT NOT NULL UNIQUE,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_classes_teacher ON classes(teacher_id);
+
+CREATE TABLE IF NOT EXISTS class_members (
+  class_id   TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  joined_at  TEXT NOT NULL,
+  PRIMARY KEY (class_id, learner_id)
+);
+
+CREATE TABLE IF NOT EXISTS assignments (
+  id         TEXT PRIMARY KEY,
+  class_id   TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  topic_id   TEXT NOT NULL,
+  tier       TEXT,
+  due_at     TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_assign_class ON assignments(class_id);
+
 CREATE INDEX IF NOT EXISTS idx_awards_learner ON awards(learner_id, at DESC);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_badge_once ON awards(learner_id, code) WHERE kind = 'badge';
 

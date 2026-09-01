@@ -1224,6 +1224,65 @@ export const CHECKS = {
     return `advanced worth ${adv} vs core ${core}, badges awarded once, levels and streaks tracked`;
   },
 
+
+  /* 4.3.1 + 4.3.2 + 4.3.3 — teacher portal with RBAC */
+  "teacher-portal": async () => {
+    const teacher = client(), parent = client(), other = client();
+    await post(teacher, "/auth/register",
+      { coppaConsent: true, role: "teacher", email: "teach@b.com", password: "a-long-enough-pass", name: "T" });
+    await post(parent, "/auth/register",
+      { coppaConsent: true, email: "tparent@b.com", password: "a-long-enough-pass", name: "P" });
+    await post(other, "/auth/register",
+      { coppaConsent: true, role: "teacher", email: "teach2@b.com", password: "a-long-enough-pass", name: "T2" });
+
+    /* RBAC: a parent cannot create a class. */
+    const denied = await post(parent, "/classes", { name: "Sneaky" });
+    assert(denied.status === 403, `a parent created a class (status ${denied.status})`);
+
+    const cls = (await post(teacher, "/classes", { name: "Period 2" })).body.class;
+    assert(cls.joinCode && cls.joinCode.length >= 4, "class has no join code");
+
+    /* A teacher cannot pull in a learner; the parent joins with the code. */
+    const kid = (await post(parent, "/learners", { name: "Class Kid" })).body.learner;
+    const joined = await post(parent, "/classes/join", { joinCode: cls.joinCode, learnerId: kid.id });
+    assert(joined.status === 200, "parent could not join the class with a valid code");
+    assert((await post(parent, "/classes/join", { joinCode: "NOPE00", learnerId: kid.id })).status === 404,
+      "an invalid join code was accepted");
+
+    /* Assignments. */
+    const a = await post(teacher, `/classes/${cls.id}/assignments`,
+      { topicId: "g6-ratios", tier: "practice", dueAt: "2026-12-01" });
+    assert(a.status === 200, "assignment not created");
+    assert((await post(teacher, `/classes/${cls.id}/assignments`, { topicId: "not-a-topic" })).status === 400,
+      "an assignment against an unknown topic was accepted");
+
+    /* Class progress reflects real learner work. */
+    let prog = (await teacher(`/classes/${cls.id}/progress`)).body;
+    assert(prog.learners.length === 1, "class roster is wrong");
+    assert(prog.learners[0].assignments[0].attempted === false, "an untouched assignment shows as attempted");
+    assert(prog.heatmap[0].attempted === 0, "heatmap counts work that has not happened");
+
+    await post(parent, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    prog = (await teacher(`/classes/${cls.id}/progress`)).body;
+    const row = prog.learners[0].assignments[0];
+    assert(row.attempted === true && row.bestPct === 100, "class progress did not pick up the learner's work");
+    assert(row.mastered === true, "a perfect score is not shown as mastered");
+    assert(prog.heatmap[0].mastered === 1, "heatmap did not count the mastery");
+    assert(prog.heatmap[0].averagePct === 100, "heatmap average is wrong");
+
+    /* Another teacher cannot read this class. */
+    assert((await other(`/classes/${cls.id}/progress`)).status === 403,
+      "another teacher read this class's progress");
+    assert((await post(other, `/classes/${cls.id}/assignments`, { topicId: "g6-ratios" })).status === 403,
+      "another teacher set work for this class");
+    /* And a parent cannot read class progress at all. */
+    assert((await parent(`/classes/${cls.id}/progress`)).status === 403,
+      "a parent read teacher-only class progress");
+
+    return "classes, parent-initiated join, assignments, class progress and heatmap, RBAC enforced";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

@@ -383,22 +383,28 @@
       "id": "4.3.1",
       "section": "Teacher portal",
       "title": "Class management and rostering import",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:teacher-portal",
+      "notes": "Teachers hold a role; classes have join codes and the PARENT adds their own learner, so a teacher can never pull in a child unilaterally. LMS/rostering import (Clever, ClassLink, Google Classroom) is blocked on vendor accounts (9.1)."
     },
     {
       "id": "4.3.2",
       "section": "Teacher portal",
       "title": "Assignment tools with due dates and per-group tracks",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:teacher-portal",
+      "notes": "Assignments per class with optional tier and due date, validated against real topics. Per-group differentiation and individual accommodations not built."
     },
     {
       "id": "4.3.3",
       "section": "Teacher portal",
       "title": "Class progress dashboard and standards heatmap",
-      "status": "todo",
-      "priority": 2
+      "status": "done",
+      "priority": 2,
+      "evidence": "check:teacher-portal",
+      "notes": "Class dashboard shows every learner against every assignment with best score and mastery, plus a per-topic heatmap of attempts, average and mastery counts. Cross-teacher and parent access both refused."
     },
     {
       "id": "4.3.4",
@@ -708,7 +714,7 @@
       "section": "Non-functional",
       "title": "Security and privacy: COPPA, FERPA, GDPR, encryption, RBAC, audit logs",
       "status": "partial",
-      "notes": "Done and verified: security headers incl. CSP, brute-force limiting on login, COPPA consent required at registration (children never hold accounts), audit log of auth/learner/progress-access events, FERPA/GDPR data export and erasure, secure cookie in production, role column on users. NOT done: encryption at rest (needs a deployment/KMS decision), RBAC enforcement beyond the parent role (teacher/admin portals do not exist yet), retention policy automation, and a third-party penetration test.",
+      "notes": "Done and verified: security headers incl. CSP, brute-force limiting on login, COPPA consent required at registration (children never hold accounts), audit log of auth/learner/progress-access events, FERPA/GDPR data export and erasure, secure cookie in production, role column on users. NOT done: encryption at rest (needs a deployment/KMS decision), RBAC now enforced for the teacher role (verified in check:teacher-portal); admin role has no portal yet, retention policy automation, and a third-party penetration test.",
       "priority": 1,
       "evidence": "check:security-privacy"
     },
@@ -857,7 +863,7 @@
       "section": "Acceptance",
       "title": "Parent, teacher, admin dashboards showing accurate real-time data",
       "status": "partial",
-      "notes": "Parent-facing views are built and verified: learner progress dashboard, placement skill map, mastery-check results. Teacher and admin dashboards do not exist.",
+      "notes": "Parent dashboard and teacher class dashboard both built and verified. Admin dashboard not built.",
       "priority": 1
     },
     {
