@@ -20,7 +20,7 @@ export default function App() {
   const [booted, setBooted] = useState(false);
   const [learners, setLearners] = useState<Learner[]>([]);
   const [active, setActive] = useState<Learner | null>(null);
-  const [cur, setCur] = useState<{ curriculum: Record<string, Grade>; tiers: Tier[]; counts: any } | null>(null);
+  const [cur, setCur] = useState<any | null>(null);
   const [view, setView] = useState<View>({ s: "grades" });
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function App() {
       {view.s === "tiers" && cur && (
         <TierPicker
           topicId={view.topicId} topicName={view.topicName} advanced={view.advanced}
-          tiers={cur.tiers} counts={cur.counts} learner={active}
+          tiers={cur.tiers} counts={cur.counts} threshold={cur.thresholds?.[view.topicId] ?? 90} learner={active}
           onBack={() => setView({ s: "grades" })}
           onStart={tier => setView({ s: "quiz", topicId: view.topicId, topicName: view.topicName, tier, advanced: view.advanced })}
         />
@@ -100,7 +100,7 @@ export default function App() {
       {view.s === "quiz" && (
         <Quiz
           topicId={view.topicId} topicName={view.topicName} tier={view.tier}
-          advanced={view.advanced} learner={active}
+          advanced={view.advanced} threshold={cur?.thresholds?.[view.topicId] ?? 90} learner={active}
           onExit={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: view.advanced })}
         />
       )}

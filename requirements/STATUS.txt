@@ -1,8 +1,8 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 120
-  done        9  (8%)
-  partial    21  (18%)
+  done       10  (8%)
+  partial    20  (17%)
   todo       78  (65%)
   blocked    11  (9%)
   deferred    1  (1%)
@@ -16,6 +16,7 @@ Automated checks
   PASS  learners-crud      create, list, validate and delete all behave
   PASS  tenant-isolation   cross-account read, write and delete all refused
   PASS  curriculum-appendix-a 9 grades, 328 topics (178 advanced), all banks joined, spot-checks pass
+  PASS  mastery-thresholds 90 core / 80 advanced enforced server-side, boundaries inclusive, bad input refused
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

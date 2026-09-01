@@ -214,6 +214,45 @@ export const CHECKS = {
     return `9 grades, ${topicCount} topics (${advCount} advanced), all banks joined, spot-checks pass`;
   },
 
+  /* 3.3.2 + 7.6 — mastery is 90% core / 80% advanced, decided server-side */
+  "mastery-thresholds": async () => {
+    const c = client();
+    await post(c, "/auth/register", { email: "mastery@b.com", password: "a-long-enough-pass", name: "M" });
+    const kid = (await post(c, "/learners", { name: "Threshold Kid" })).body.learner;
+
+    // The server must publish the split rather than the client assuming it.
+    const cur = (await c("/curriculum")).body;
+    assert(cur.mastery.core === 90 && cur.mastery.adv === 80, "mastery defaults are not 90/80");
+    assert(cur.thresholds["g6-nscoord"] === 90, "core topic threshold is not 90");
+    assert(cur.thresholds["g6-crt"] === 80, "advanced topic threshold is not 80");
+
+    const run = (topic, score, total) =>
+      post(c, "/runs", { learnerId: kid.id, topicId: topic, tier: "practice", score, total });
+
+    // 85% is below the core bar but above the advanced bar.
+    const core85 = await run("g6-nscoord", 85, 100);
+    assert(core85.body.pct === 85, "pct miscomputed");
+    assert(core85.body.track === "core", "core topic not identified as core");
+    assert(core85.body.star === false, "85% wrongly earned a star on a CORE topic (bar is 90)");
+
+    const adv85 = await run("g6-crt", 85, 100);
+    assert(adv85.body.track === "adv", "advanced topic not identified as advanced");
+    assert(adv85.body.star === true, "85% failed to earn a star on an ADVANCED topic (bar is 80)");
+
+    // Boundaries are inclusive.
+    assert((await run("g6-nscoord", 90, 100)).body.star === true, "exactly 90% missed core mastery");
+    assert((await run("g6-crt", 80, 100)).body.star === true, "exactly 80% missed advanced mastery");
+    assert((await run("g6-crt", 79, 100)).body.star === false, "79% wrongly mastered an advanced topic");
+
+    // Unknown topics and tiers are refused rather than silently recorded.
+    assert((await run("not-a-topic", 5, 5)).status === 400, "unknown topic accepted");
+    const badTier = await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "nonsense", score: 1, total: 1 });
+    assert(badTier.status === 400, "unknown tier accepted");
+
+    return "90 core / 80 advanced enforced server-side, boundaries inclusive, bad input refused";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

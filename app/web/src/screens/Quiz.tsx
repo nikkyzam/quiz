@@ -4,9 +4,9 @@ import { Grid } from "../beasts";
 
 type Feedback = { correct: boolean; correctAnswer: string; explanation: string; figA: any };
 
-export function Quiz({ topicId, topicName, tier, advanced, learner, onExit }: {
+export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, onExit }: {
   topicId: string; topicName: string; tier: string; advanced: boolean;
-  learner: Learner; onExit: () => void;
+  threshold: number; learner: Learner; onExit: () => void;
 }) {
   const [qs, setQs] = useState<Question[] | null>(null);
   const [pos, setPos] = useState(0);
@@ -16,7 +16,7 @@ export function Quiz({ topicId, topicName, tier, advanced, learner, onExit }: {
   const [picked, setPicked] = useState<number | null>(null);
   const [hints, setHints] = useState<string[]>([]);
   const [hintUsed, setHintUsed] = useState(0);
-  const [done, setDone] = useState<{ pct: number; star: boolean } | null>(null);
+  const [done, setDone] = useState<{ pct: number; star: boolean; threshold?: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,7 +30,6 @@ export function Quiz({ topicId, topicName, tier, advanced, learner, onExit }: {
   if (!qs) return <div className="loading">Loading questions…</div>;
 
   const q = qs[pos];
-  const threshold = advanced ? 80 : 90;
 
   async function submit(answer: unknown) {
     if (fb || busy) return;
@@ -66,14 +65,15 @@ export function Quiz({ topicId, topicName, tier, advanced, learner, onExit }: {
   }
 
   if (done) {
-    const passed = done.pct >= threshold;
+    const bar = done.threshold ?? threshold;
+    const passed = done.star;
     return (
       <>
         <div className="eyebrow">{topicName} · {tier}</div>
         <div className="bigscore">{score}<small> / {qs.length}</small></div>
         <p className="verdict">
           {passed ? `Mastered at ${done.pct}% — that's a star. ★`
-                  : `${done.pct}%. Mastery here is ${threshold}% — another run should do it.`}
+                  : `${done.pct}%. Mastery here is ${bar}% — another run should do it.`}
         </p>
         <div className="rowbtns">
           <button className="btn" onClick={() => {

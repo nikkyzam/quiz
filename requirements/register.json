@@ -120,9 +120,10 @@
       "id": "3.3.2",
       "section": "Pedagogy",
       "title": "Mastery-based progression: 90% core, 80% advanced",
-      "status": "partial",
-      "notes": "Thresholds 90/80 applied in UI and results; unit track flags now exist so the split is data-driven, but the server does not yet enforce per-track thresholds.",
-      "priority": 1
+      "status": "done",
+      "notes": "Server decides the threshold from the topic's track (core 90, adv 80) and returns it with each run; client no longer guesses.",
+      "priority": 1,
+      "evidence": "check:mastery-thresholds"
     },
     {
       "id": "3.3.3",
@@ -571,7 +572,7 @@
       "section": "Assessment",
       "title": "Mastery thresholds configurable, default 90/80",
       "status": "partial",
-      "notes": "Defaults applied; not yet configurable by teacher/admin.",
+      "notes": "Defaults 90/80 enforced server-side and verified. Not yet configurable per teacher/admin, and mastery does not decay.",
       "priority": 2
     },
     {

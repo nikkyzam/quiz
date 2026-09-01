@@ -13,6 +13,20 @@ export const api = Router();
 const TIER_BY_LVL = { 1: "practice", 2: "challenge", 3: "boss" };
 const tierOf = q => TIER_BY_LVL[q.lvl || 1];
 
+/* Topic -> track index, built once from the curriculum. Spec 7.6: mastery is
+   90% for core skills and 80% for advanced, so the threshold is a property of
+   the topic, decided server-side rather than trusted from the client. */
+export const MASTERY = { core: 90, adv: 80 };
+const TOPIC_TRACK = (() => {
+  const map = new Map();
+  for (const g of Object.values(CURRICULUM))
+    for (const u of g.units)
+      for (const t of u.topics) map.set(t.id, u.track === "adv" ? "adv" : "core");
+  return map;
+})();
+export const trackOf = topicId => TOPIC_TRACK.get(topicId) || null;
+export const thresholdOf = topicId => MASTERY[trackOf(topicId) || "core"];
+
 /* Strip everything that would give the answer away. The client never sees
    `a`, `ans`, `ansP` or `expl` until it has submitted. */
 function publicQuestion(topicId, idx) {
@@ -114,6 +128,8 @@ function ownLearner(req, id) {
 
 /* ---------------- curriculum ---------------- */
 api.get("/curriculum", (_req, res) => {
+  const thresholds = {};
+  for (const id of TOPIC_TRACK.keys()) thresholds[id] = thresholdOf(id);
   const counts = {};
   Object.keys(QUESTIONS).forEach(t => {
     counts[t] = {};
@@ -121,7 +137,7 @@ api.get("/curriculum", (_req, res) => {
       counts[t][tr.id] = QUESTIONS[t].filter(q => tierOf(q) === tr.id).length;
     });
   });
-  res.json({ curriculum: CURRICULUM, tiers: TIERS, counts });
+  res.json({ curriculum: CURRICULUM, tiers: TIERS, counts, thresholds, mastery: MASTERY });
 });
 
 api.get("/topics/:topicId/:tier/questions", (req, res) => {
@@ -173,7 +189,8 @@ api.post("/answer", (req, res) => {
 api.post("/runs", requireAuth, (req, res) => {
   const { learnerId, topicId, tier, score, total } = req.body || {};
   if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
-  if (!QUESTIONS[topicId]) return res.status(400).json({ error: "unknown_topic" });
+  if (!trackOf(topicId)) return res.status(400).json({ error: "unknown_topic" });
+  if (!TIERS.some(t => t.id === tier)) return res.status(400).json({ error: "unknown_tier" });
   const s = Math.max(0, Number(score) | 0), t = Math.max(1, Number(total) | 0);
   const pct = Math.round((s / t) * 100);
   const ts = now();
@@ -193,7 +210,8 @@ api.post("/runs", requireAuth, (req, res) => {
       .run(better ? s : prev.best_score, better ? t : prev.best_total,
            better ? pct : prev.best_pct, ts, learnerId, topicId, tier);
   }
-  res.json({ pct, star: pct >= 80 });
+  const track = trackOf(topicId), threshold = thresholdOf(topicId);
+  res.json({ pct, threshold, track, star: pct >= threshold });
 });
 
 api.get("/learners/:id/progress", requireAuth, (req, res) => {

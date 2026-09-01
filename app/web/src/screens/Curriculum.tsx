@@ -69,14 +69,13 @@ export function GradeMap({ gradeKey, cur, onBack, onOpen }: {
   );
 }
 
-export function TierPicker({ topicId, topicName, advanced, tiers, counts, learner, onBack, onStart }: {
+export function TierPicker({ topicId, topicName, advanced, tiers, counts, threshold, learner, onBack, onStart }: {
   topicId: string; topicName: string; advanced: boolean;
-  tiers: Tier[]; counts: any; learner: Learner;
+  tiers: Tier[]; counts: any; threshold: number; learner: Learner;
   onBack: () => void; onStart: (tier: string) => void;
 }) {
   const [rows, setRows] = useState<ProgressRow[]>([]);
   useEffect(() => { api.progress(learner.id).then(r => setRows(r.progress)).catch(() => {}); }, [learner.id]);
-  const threshold = advanced ? 80 : 90;
 
   return (
     <>

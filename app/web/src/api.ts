@@ -49,6 +49,8 @@ export const api = {
     curriculum: Record<string, Grade>;
     tiers: Tier[];
     counts: Record<string, Record<string, number>>;
+    thresholds: Record<string, number>;
+    mastery: { core: number; adv: number };
   }>("/curriculum"),
 
   questions: (topicId: string, tier: string) =>
@@ -62,7 +64,7 @@ export const api = {
     post<{ level: number; hint: string; last: boolean }>("/hint", { questionId, level }),
 
   saveRun: (learnerId: string, topicId: string, tier: string, score: number, total: number) =>
-    post<{ pct: number; star: boolean }>("/runs", { learnerId, topicId, tier, score, total }),
+    post<{ pct: number; threshold: number; track: string; star: boolean }>("/runs", { learnerId, topicId, tier, score, total }),
 
   progress: (learnerId: string) =>
     call<{ progress: ProgressRow[]; recent: any[] }>(`/learners/${learnerId}/progress`)
