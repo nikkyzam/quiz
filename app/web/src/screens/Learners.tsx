@@ -19,7 +19,7 @@ export function LearnerPicker({ userName, learners, onPick, onChanged, onSignOut
   }
 
   return (
-    <div className="wrap">
+    <>
       <div className="appbar">
         <span className="who">Signed in as <b>{userName}</b></span>
         <button className="linkbtn" onClick={onSignOut}>Sign out</button>
@@ -46,20 +46,20 @@ export function LearnerPicker({ userName, learners, onPick, onChanged, onSignOut
         <h3 style={{ fontFamily: "var(--slab)", margin: "0 0 10px", fontSize: "1.05rem" }}>Add a learner</h3>
         <div className="field">
           <label htmlFor="ln">Name</label>
-          <input id="ln" value={name} maxLength={40} onChange={e => setName(e.target.value)} placeholder="e.g. Josiah" />
+          <input id="ln" value={name} maxLength={40} aria-describedby={err ? "learnErr" : undefined} onChange={e => setName(e.target.value)} placeholder="e.g. Josiah" />
         </div>
-        {err && <p className="err">{err}</p>}
+        {err && <p className="err" id="learnErr" role="alert">{err}</p>}
         <label className="flabel" style={{ marginTop: 4 }}>Pick a monster</label>
         <div className="beastPick">
           {Object.keys(BEASTS).map(k => (
             <button type="button" key={k} className={"bpick" + (k === beast ? " sel" : "")}
-                    onClick={() => setBeast(k)} aria-label={BEASTS[k].name}>
+                    onClick={() => setBeast(k)} aria-label={BEASTS[k].name} aria-pressed={k === beast}>
               <Beast kind={k} size={40} />
             </button>
           ))}
         </div>
         <button className="btn" style={{ marginTop: 14 }} disabled={busy}>{busy ? "Adding…" : "Add learner"}</button>
       </form>
-    </div>
+    </>
   );
 }

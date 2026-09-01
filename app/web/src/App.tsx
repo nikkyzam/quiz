@@ -15,6 +15,17 @@ type View =
   | { s: "quiz"; topicId: string; topicName: string; tier: string; advanced: boolean }
   | { s: "dash" };
 
+
+function Shell({ children, nav }: { children: React.ReactNode; nav?: React.ReactNode }) {
+  return (
+    <div className="wrap">
+      <a className="skip" href="#main">Skip to main content</a>
+      {nav}
+      <main id="main">{children}</main>
+    </div>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [booted, setBooted] = useState(false);
@@ -42,33 +53,35 @@ export default function App() {
 
   useEffect(() => { if (user) refreshLearners().catch(() => {}); }, [user, refreshLearners]);
 
-  if (!booted) return <div className="wrap"><div className="loading">Loading…</div></div>;
-  if (!user) return <AuthScreen onDone={u => setUser(u)} />;
+  if (!booted) return <Shell><div className="loading" role="status">Loading…</div></Shell>;
+  if (!user) return <Shell><AuthScreen onDone={u => setUser(u)} /></Shell>;
 
   if (!active) {
     return (
-      <LearnerPicker
+      <Shell><LearnerPicker
         userName={user.name}
         learners={learners}
         onPick={l => { setActive(l); setView({ s: "grades" }); }}
         onChanged={refreshLearners}
         onSignOut={async () => { await api.logout(); setUser(null); setLearners([]); setActive(null); }}
-      />
+      /></Shell>
     );
   }
 
   const back = () => setView({ s: "grades" });
 
-  return (
-    <div className="wrap">
-      <div className="appbar">
+  const nav = (
+    <nav className="appbar" aria-label="Learner">
         <span className="who"><Beast kind={active.beast} size={26} /><b>{active.name}</b></span>
         <span className="spread">
           <button className="linkbtn" onClick={() => setView({ s: "dash" })}>Progress</button>
           <button className="linkbtn" onClick={() => setActive(null)}>Switch</button>
-        </span>
-      </div>
+      </span>
+    </nav>
+  );
 
+  return (
+    <Shell nav={nav}>
       {view.s === "dash" && <Dashboard learner={active} cur={cur!} onBack={back} onDeleted={async () => {
         await refreshLearners(); setActive(null);
       }} />}
@@ -104,7 +117,7 @@ export default function App() {
           onExit={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: view.advanced })}
         />
       )}
-    </div>
+    </Shell>
   );
 }
 

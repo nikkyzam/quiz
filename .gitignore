@@ -2,3 +2,4 @@
 node_modules/
 app/server/data/
 dist/
+app/web/a11y/render.mjs

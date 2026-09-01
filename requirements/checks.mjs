@@ -253,6 +253,51 @@ export const CHECKS = {
     return "90 core / 80 advanced enforced server-side, boundaries inclusive, bad input refused";
   },
 
+  /* 10.5 + 13.8 — WCAG 2.1 AA.
+     Two halves: axe-core over the real rendered markup, plus a contrast
+     audit of the token palette (jsdom cannot compute layout, so axe's
+     colour-contrast rule is disabled there and checked here instead). */
+  "accessibility-wcag-aa": async () => {
+    const { auditAll } = await import("../app/web/a11y/audit.mjs");
+    const results = await auditAll();
+    const failures = [];
+    for (const [screen, violations] of Object.entries(results))
+      for (const v of violations) failures.push(`${screen}: [${v.impact}] ${v.id} — ${v.help}`);
+    assert(failures.length === 0, "axe violations:\n    " + failures.join("\n    "));
+    const screens = Object.keys(results).length;
+    assert(screens >= 5, `only ${screens} screens audited`);
+
+    /* Contrast: every foreground/background pair the UI actually uses must
+       reach 4.5:1 in BOTH themes (WCAG 1.4.3). */
+    const hex = h => { h = h.replace("#", ""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+    const lum = c => { const [r, g, b] = hex(c).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+
+    const { readFileSync } = await import("node:fs");
+    const cssText = readFileSync("app/web/src/styles.css", "utf8");
+    const tokensIn = block => Object.fromEntries(
+      [...block.matchAll(/--([\w-]+)\s*:\s*(#[0-9A-Fa-f]{6})/g)].map(m => [m[1], m[2]]));
+    const lightBlock = cssText.slice(cssText.indexOf(":root{"), cssText.indexOf("@media"));
+    const darkBlock  = cssText.slice(cssText.indexOf('@media (prefers-color-scheme: dark)'),
+                                     cssText.indexOf(':root[data-theme="dark"]'));
+    const light = tokensIn(lightBlock), dark = tokensIn(darkBlock);
+    assert(Object.keys(light).length > 5 && Object.keys(dark).length > 5, "could not parse theme tokens");
+
+    const pairs = [["ink","card"],["ink","paper"],["muted","card"],["muted","paper"],
+                   ["accent","card"],["accent","paper"],["good","card"],["bad","card"],
+                   ["star","card"],["accent","chip"],["muted","chip"],["onaccent","accent"]];
+    const bad = [];
+    for (const [themeName, T] of [["light", light], ["dark", dark]])
+      for (const [fg, bg] of pairs) {
+        if (!T[fg] || !T[bg]) continue;
+        const r = ratio(T[fg], T[bg]);
+        if (r < 4.5) bad.push(`${themeName}: ${fg} on ${bg} = ${r.toFixed(2)} (needs 4.5)`);
+      }
+    assert(bad.length === 0, "contrast failures:\n    " + bad.join("\n    "));
+
+    return `${screens} screens axe-clean (WCAG 2.1 A/AA), ${pairs.length * 2} contrast pairs >= 4.5:1`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

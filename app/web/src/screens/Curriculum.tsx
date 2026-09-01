@@ -25,7 +25,7 @@ export function GradeList({ order, cur, onOpen }: { order: string[]; cur: Cur; o
               </span>
               <span className="gstat">{ready
                 ? <span className="gready">{ready} ready</span>
-                : <span className="soon">coming soon</span>}</span>
+                : <span className="soon">no questions yet</span>}</span>
             </button>
           );
         })}

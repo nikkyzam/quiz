@@ -26,7 +26,7 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
       .catch(() => setError("Couldn't load this tier. Check the server is running."));
   }, [topicId, tier]);
 
-  if (error) return <><button className="back" onClick={onExit}>← Leave</button><p className="err">{error}</p></>;
+  if (error) return <><button className="back" onClick={onExit}>← Leave</button><p className="err" role="alert">{error}</p></>;
   if (!qs) return <div className="loading">Loading questions…</div>;
 
   const q = qs[pos];
@@ -69,8 +69,8 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
     const passed = done.star;
     return (
       <>
-        <div className="eyebrow">{topicName} · {tier}</div>
-        <div className="bigscore">{score}<small> / {qs.length}</small></div>
+        <h1 className="eyebrow" style={{ fontSize: "1rem" }}>{topicName} · {tier}</h1>
+        <div className="bigscore" aria-live="polite">{score}<small> / {qs.length}</small></div>
         <p className="verdict">
           {passed ? `Mastered at ${done.pct}% — that's a star. ★`
                   : `${done.pct}%. Mastery here is ${bar}% — another run should do it.`}
@@ -95,7 +95,10 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
         <div className="qcount">Question <b>{pos + 1}</b> / {qs.length}</div>
         <div className="scorechip">score {score}</div>
       </div>
-      <div className="track"><div className="fill" style={{ width: `${(pos / qs.length) * 100}%` }} /></div>
+      <div className="track" role="progressbar" aria-valuemin={0} aria-valuemax={qs.length}
+           aria-valuenow={pos} aria-label={`Question ${pos + 1} of ${qs.length}`}>
+        <div className="fill" style={{ width: `${(pos / qs.length) * 100}%` }} />
+      </div>
 
       <div className="card">
         <div className="sec">{q.secName}</div>
@@ -111,13 +114,17 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
                        : i === picked ? " wrong" : " dim") : "")}
                 disabled={!!fb}
                 onClick={() => { setPicked(i); submit(i); }}>
-                <span className="key">{i + 1}</span>{o}
+                <span className="key" aria-hidden="true">{i + 1}</span>{o}
+                {fb && i === q.opts!.indexOf(fb.correctAnswer) &&
+                  <span className="mark">✓<span className="visually-hidden"> correct answer</span></span>}
+                {fb && i === picked && i !== q.opts!.indexOf(fb.correctAnswer) &&
+                  <span className="mark">✗<span className="visually-hidden"> your answer, incorrect</span></span>}
               </button>
             ))}
           </div>
         ) : (
           <div className="inrow">
-            <input className="ansin" value={typed} disabled={!!fb}
+            <input className="ansin" value={typed} disabled={!!fb} aria-label="Your answer"
               placeholder={q.type === "pair" ? "(x, y)" : "Your answer"}
               onChange={e => setTyped(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && typed.trim()) submit(typed); }} />
@@ -137,12 +144,12 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
           </div>
         )}
         {hints.map((h, i) => (
-          <div className="hintbox" key={i}><b>Hint {i + 1}.</b> {h}</div>
+          <div className="hintbox" key={i} role="status" aria-live="polite"><b>Hint {i + 1}.</b> {h}</div>
         ))}
 
         {fb && (
           <>
-            <div className={"fb" + (fb.correct ? "" : " bad")}>
+            <div className={"fb" + (fb.correct ? "" : " bad")} role="status" aria-live="polite">
               <h3>{fb.correct ? "Correct!" : `Not quite — the answer is ${fb.correctAnswer}`}</h3>
               <p className="expl">{fb.explanation}</p>
               {fb.figA && <div className="fig"><Grid spec={fb.figA} /></div>}

@@ -14,7 +14,7 @@ export function Beast({ kind, size = 48 }: { kind: string; size?: number }) {
   });
   const ex = b.eyes === 1 ? [50] : b.eyes === 2 ? [38, 62] : [32, 50, 68];
   return (
-    <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={b.name}>
+    <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={`${b.name} the monster`}>
       {horns}
       <rect x="18" y="26" width="64" height="58" rx="24" fill={b.hue} />
       {ex.map(x => (
@@ -66,5 +66,7 @@ export function Grid({ spec }: { spec: any }) {
     }
   });
   const p = 18;
-  return <svg viewBox={`${-p} ${-p} ${W + 2 * p} ${W + 2 * p}`} role="img" aria-label="coordinate grid">{els}</svg>;
+  const desc = pts.filter(q => q[2]).map(q => `${q[2]} at (${q[0]}, ${q[1]})`).join("; ");
+  return <svg viewBox={`${-p} ${-p} ${W + 2 * p} ${W + 2 * p}`} role="img"
+              aria-label={desc ? `Coordinate grid showing ${desc}` : "Coordinate grid"}>{els}</svg>;
 }

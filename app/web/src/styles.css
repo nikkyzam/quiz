@@ -3,7 +3,7 @@
     --paper:#F7F9FC; --gridbg:#E5EBF5; --card:#FFFFFF; --line:#D5DEEC;
     --ink:#17263F; --muted:#5A6B87; --accent:#2557D6; --accent-soft:#E7EDFB;
     --good:#147A46; --good-bg:#E4F5EA; --bad:#C43D2B; --bad-bg:#FBEAE6;
-    --gridline:#DFE7F2; --chip:#EEF3FA; --star:#E8A317; --onaccent:#FFFFFF;
+    --gridline:#DFE7F2; --chip:#EEF3FA; --star:#9A6300; --onaccent:#FFFFFF;
     --slab:'Zilla Slab','Georgia',serif;
     --body:'Atkinson Hyperlegible','Verdana',sans-serif;
     --mono:'IBM Plex Mono','Courier New',monospace;
@@ -214,3 +214,15 @@
 .center{max-width:420px;margin:8vh auto 0}
 .rowbtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .loading{color:var(--muted);padding:40px 0;text-align:center}
+
+/* --- accessibility --- */
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:var(--accent);
+  color:var(--onaccent);padding:10px 16px;border-radius:0 0 8px 0;font-weight:700}
+.skip:focus{left:0}
+.visually-hidden{position:absolute!important;width:1px;height:1px;margin:-1px;
+  padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+/* Correctness is never colour alone: .opt.right/.opt.wrong also carry a text marker */
+.opt .mark{float:right;font-weight:700}
+.opt.right .mark{color:var(--good)}
+.opt.wrong .mark{color:var(--bad)}

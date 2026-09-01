@@ -30,8 +30,7 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
   }
 
   return (
-    <div className="wrap">
-      <div className="center">
+    <div className="center">
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
           <Beast kind="vex" size={52} />
           <div>
@@ -43,11 +42,11 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
           {mode === "in" ? "Sign in to pick up where your learners left off."
                          : "Create a parent account. You'll add each child next."}
         </p>
-        <div className="tabs">
-          <button className={"tab" + (mode === "in" ? " on" : "")} onClick={() => { setMode("in"); setErr(""); }}>Sign in</button>
-          <button className={"tab" + (mode === "up" ? " on" : "")} onClick={() => { setMode("up"); setErr(""); }}>Create account</button>
+        <div className="tabs" role="tablist">
+          <button type="button" role="tab" aria-selected={mode === "in"} className={"tab" + (mode === "in" ? " on" : "")} onClick={() => { setMode("in"); setErr(""); }}>Sign in</button>
+          <button type="button" role="tab" aria-selected={mode === "up"} className={"tab" + (mode === "up" ? " on" : "")} onClick={() => { setMode("up"); setErr(""); }}>Create account</button>
         </div>
-        <form className="card" onSubmit={submit}>
+        <form className="card" onSubmit={submit} aria-describedby={err ? "authErr" : undefined}>
           {mode === "up" && (
             <div className="field">
               <label htmlFor="nm">Your name</label>
@@ -64,12 +63,11 @@ export function AuthScreen({ onDone }: { onDone: (u: User) => void }) {
                    autoComplete={mode === "in" ? "current-password" : "new-password"} />
             {mode === "up" && <p className="muted" style={{ fontSize: ".82rem", margin: "6px 0 0" }}>At least 8 characters.</p>}
           </div>
-          {err && <p className="err">{err}</p>}
+          {err && <p className="err" id="authErr" role="alert">{err}</p>}
           <button className="btn" type="submit" disabled={busy} style={{ marginTop: 8 }}>
             {busy ? "Working…" : mode === "in" ? "Sign in" : "Create account"}
           </button>
         </form>
-      </div>
     </div>
   );
 }
