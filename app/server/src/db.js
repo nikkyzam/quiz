@@ -78,6 +78,20 @@ CREATE TABLE IF NOT EXISTS runs (
   finished_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_runs_learner ON runs(learner_id, finished_at DESC);
+
+-- Placement/diagnostic results. skill_map is the per-section estimate the
+-- adaptive engine produced; recommendation is where the learner should start.
+CREATE TABLE IF NOT EXISTS diagnostics (
+  id             TEXT PRIMARY KEY,
+  learner_id     TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  topic_id       TEXT NOT NULL,
+  asked          INTEGER NOT NULL,
+  correct        INTEGER NOT NULL,
+  skill_map      TEXT NOT NULL,
+  recommendation TEXT NOT NULL,
+  finished_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_at DESC);
 `);
 
 export const now = () => new Date().toISOString();

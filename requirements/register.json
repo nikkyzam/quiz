@@ -234,8 +234,10 @@
       "id": "4.1.1",
       "section": "Student app",
       "title": "Onboarding: grade selection or diagnostic assessment with skill map",
-      "status": "todo",
-      "priority": 1
+      "status": "done",
+      "priority": 1,
+      "evidence": "check:diagnostic-placement",
+      "notes": "Adaptive diagnostic held server-side: difficulty steps up after two correct, down after two wrong. Produces a per-section skill map and a placement recommendation, stored against the learner and retrievable. Verified that strong and weak learners place differently."
     },
     {
       "id": "4.1.2",
@@ -280,8 +282,9 @@
       "id": "4.1.7",
       "section": "Student app",
       "title": "Review and remediation driven by spaced repetition",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "Review queue endpoint returns unmastered topics weakest-first and is exercised by the end-to-end check. Spaced repetition scheduling (6.4) not built, and there is no UI for it yet."
     },
     {
       "id": "4.1.8",
@@ -495,8 +498,9 @@
       "id": "6.1",
       "section": "Adaptive engine",
       "title": "Adaptive diagnostic using IRT/BKT producing a skill map",
-      "status": "todo",
-      "priority": 1
+      "status": "partial",
+      "priority": 1,
+      "notes": "Adaptive diagnostic with a skill map is implemented and verified. It uses a simple streak rule, NOT Item Response Theory or Bayesian Knowledge Tracing as the spec requires; 6.3 remains the real modelling work."
     },
     {
       "id": "6.2",
@@ -798,8 +802,10 @@
       "id": "13.3",
       "section": "Acceptance",
       "title": "End-to-end flow: diagnostic to lesson to practice to mastery check to review",
-      "status": "todo",
-      "priority": 1
+      "status": "done",
+      "priority": 1,
+      "evidence": "check:end-to-end-flow",
+      "notes": "Diagnostic -> practice -> review queue -> mastery check -> progress verified as one journey. The 'lesson' step of the spec's flow is not included: comic lessons (3.2.1) do not exist yet."
     },
     {
       "id": "13.4",

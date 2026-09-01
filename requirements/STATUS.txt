@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 120
-  done       13  (11%)
-  partial    24  (20%)
-  todo       71  (59%)
+  done       15  (13%)
+  partial    26  (22%)
+  todo       67  (56%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -20,6 +20,8 @@ Automated checks
   PASS  accessibility-wcag-aa 5 screens axe-clean (WCAG 2.1 A/AA), 24 contrast pairs >= 4.5:1
   PASS  security-privacy   headers set, COPPA consent required, audit trail written, export/erase work, login throttled
   PASS  mastery-check      server-marked, hints refused (409), no answer leak, replay blocked, result recorded
+  PASS  diagnostic-placement adaptive over 12 questions, skill map + placement stored, replay blocked, weak/strong placed differently
+  PASS  end-to-end-flow    diagnostic -> practice -> review -> mastery check -> progress, all server-side
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)
@@ -27,11 +29,11 @@ Next up (priority 1 first, blocked excluded)
   [partial] 10.3    Security and privacy: COPPA, FERPA, GDPR, encryption, RBAC, audit logs
   [partial] 11.7    CI/CD with automated tests and IaC
   [todo   ] 13.1    All K-8 core and advanced curriculum loaded and standards-aligned
-  [todo   ] 13.3    End-to-end flow: diagnostic to lesson to practice to mastery check to review
   [partial] 13.6    Parent, teacher, admin dashboards showing accurate real-time data
   [partial] 3.1.2   Grades K-2 cover number sense, patterns, early logic, intro combinatorics
   [partial] 3.1.3   Grades 3-5 cover fluency, fractions, decimals, geometry + prime factorisation, modular arithmetic, probability
   [partial] 3.1.4   Grades 6-8 cover ratios, algebra, geometry, statistics + full modular arithmetic, quadratics, graph theory, proof
+  [partial] 3.2.2   Practice problems: varied types, immediate feedback, hints, full solutions
 
 Blocked — needs something only you can provide
 ----------------------------------------------------

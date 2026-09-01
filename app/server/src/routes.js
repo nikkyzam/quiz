@@ -6,6 +6,7 @@ import {
   createSession, destroySession, requireAuth
 } from "./auth.js";
 import { rateLimit, audit, auditTrail } from "./security.js";
+import * as diag from "./diagnostic.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -202,6 +203,80 @@ api.post("/hint", (req, res) => {
   const lvl = Math.min(3, Math.max(1, Number(level) || 1));
   const ladder = hintLadder(bank[idx]);
   res.json({ level: lvl, hint: ladder[lvl - 1], last: lvl >= 3 });
+});
+
+/* ---------------- diagnostic / placement (spec 4.1.1, 6.1) ----------------
+   Adaptive: the next question's difficulty follows the learner's answers.
+   The session is held server-side, so the client cannot pick its own
+   questions or report its own placement. */
+api.post("/diagnostic/start", requireAuth, (req, res) => {
+  const { learnerId, topicId } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const bank = QUESTIONS[topicId];
+  if (!bank) return res.status(404).json({ error: "unknown_topic" });
+
+  const questionsByTier = {};
+  for (const t of diag.TIER_ORDER)
+    questionsByTier[t] = bank.map((q, i) => ({ q, i })).filter(o => tierOf(o.q) === t).map(o => o.i);
+
+  const id = diag.makeDiagnostic({ questionsByTier, topicId, learnerId });
+  const sess = diag.getSession(id);
+  const first = diag.nextQuestion(sess);
+  if (!first) { diag.endSession(id); return res.status(404).json({ error: "empty_topic" }); }
+  sess.pending = first;
+  audit(req.user.id, "diagnostic.started", topicId, req);
+  res.json({ diagnosticId: id, question: publicQuestion(topicId, first.idx), asked: 0 });
+});
+
+api.post("/diagnostic/answer", requireAuth, (req, res) => {
+  const { diagnosticId, answer } = req.body || {};
+  const sess = diag.getSession(diagnosticId);
+  if (!sess) return res.status(404).json({ error: "unknown_diagnostic" });
+  if (!ownLearner(req, sess.learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  if (!sess.pending) return res.status(409).json({ error: "no_question_pending" });
+
+  const { idx, tier } = sess.pending;
+  const q = QUESTIONS[sess.topicId][idx];
+  const { ok, correctAnswer } = gradeAnswer(q, answer);
+  diag.record(sess, { idx, tier, sec: q.sec, correct: ok });
+
+  const next = diag.nextQuestion(sess);
+  const stop = diag.shouldStop(sess, !next);
+  if (stop) {
+    const summary = diag.summarise(sess, SECS);
+    diag.persist(sess, summary);
+    diag.endSession(diagnosticId);
+    audit(req.user.id, "diagnostic.completed", `${sess.topicId}:${summary.overall}%`, req);
+    return res.json({ correct: ok, correctAnswer, explanation: q.expl, done: true, summary });
+  }
+  sess.pending = next;
+  res.json({
+    correct: ok, correctAnswer, explanation: q.expl, done: false,
+    asked: sess.asked.length,
+    question: publicQuestion(sess.topicId, next.idx)
+  });
+});
+
+api.get("/learners/:id/diagnostic", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  res.json({ diagnostic: diag.latestFor(req.params.id) });
+});
+
+/* ---------------- review queue (spec 4.1.7) ----------------
+   What to practise next: anything attempted but not yet mastered, weakest
+   first. Spaced repetition (6.4) is not part of this yet. */
+api.get("/learners/:id/review", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare("SELECT * FROM progress WHERE learner_id = ?").all(req.params.id);
+  const items = rows
+    .filter(r => r.best_pct < thresholdOf(r.topic_id))
+    .map(r => ({
+      topicId: r.topic_id, tier: r.tier, bestPct: r.best_pct,
+      threshold: thresholdOf(r.topic_id), track: trackOf(r.topic_id),
+      gap: thresholdOf(r.topic_id) - r.best_pct, lastAt: r.last_at
+    }))
+    .sort((a, b) => b.gap - a.gap);
+  res.json({ review: items });
 });
 
 /* ---------------- mastery check (spec 4.1.6) ----------------

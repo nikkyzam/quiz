@@ -419,6 +419,131 @@ export const CHECKS = {
     return "server-marked, hints refused (409), no answer leak, replay blocked, result recorded";
   },
 
+
+  /* 4.1.1 + 6.1 — adaptive diagnostic producing a skill map and placement */
+  "diagnostic-placement": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "diag@b.com", password: "a-long-enough-pass", name: "D" });
+    const kid = (await post(c, "/learners", { name: "Diag Kid" })).body.learner;
+
+    /* Answer everything correctly: difficulty should climb through the tiers. */
+    let r = await post(c, "/diagnostic/start", { learnerId: kid.id, topicId: "g6-nscoord" });
+    assert(r.status === 200, "diagnostic did not start");
+    const diagId = r.body.diagnosticId;
+    const raw = JSON.stringify(r.body.question);
+    for (const k of ['"ans"', '"ansP"', '"expl"', '"a":'])
+      assert(!raw.includes(k), `diagnostic leaked ${k}`);
+
+    const solve = async q => {
+      if (q.type === "mc") {
+        for (let i = 0; i < q.opts.length; i++)
+          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) return i;
+        return 0;
+      }
+      return (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
+    };
+
+    let q = r.body.question, guard = 0, summary = null;
+    while (guard++ < 30) {
+      const ans = await solve(q);
+      const step = await post(c, "/diagnostic/answer", { diagnosticId: diagId, answer: ans });
+      assert(step.status === 200, "diagnostic answer rejected");
+      assert(step.body.correct === true, "a known-correct answer was marked wrong");
+      if (step.body.done) { summary = step.body.summary; break; }
+      q = step.body.question;
+    }
+    assert(summary, "diagnostic never completed");
+    assert(summary.overall === 100, `all-correct run scored ${summary.overall}%`);
+    assert(summary.skillMap.length > 0, "no skill map produced");
+    assert(summary.skillMap.every(s => s.level && s.name), "skill map entries are malformed");
+    assert(summary.recommendation.tier, "no placement tier recommended");
+    assert(summary.reliable === true, `only ${summary.asked} questions asked; too few to place`);
+
+    /* A spent diagnostic cannot be reused. */
+    const replay = await post(c, "/diagnostic/answer", { diagnosticId: diagId, answer: 0 });
+    assert(replay.status === 404, "a finished diagnostic accepted more answers");
+
+    /* The result is retrievable afterwards. */
+    const saved = (await c(`/learners/${kid.id}/diagnostic`)).body.diagnostic;
+    assert(saved && saved.recommendation, "diagnostic result was not stored");
+    assert(saved.skillMap.length === summary.skillMap.length, "stored skill map differs");
+
+    /* A weak learner must be placed lower than a strong one. */
+    const c2 = client();
+    await post(c2, "/auth/register",
+      { coppaConsent: true, email: "diag2@b.com", password: "a-long-enough-pass", name: "D2" });
+    const kid2 = (await post(c2, "/learners", { name: "Weak Kid" })).body.learner;
+    let r2 = await post(c2, "/diagnostic/start", { learnerId: kid2.id, topicId: "g6-nscoord" });
+    let s2 = null, g2 = 0;
+    while (g2++ < 30) {
+      const step = await post(c2, "/diagnostic/answer",
+        { diagnosticId: r2.body.diagnosticId, answer: "-999999" });
+      if (step.body.done) { s2 = step.body.summary; break; }
+    }
+    assert(s2, "weak diagnostic never completed");
+    assert(s2.overall === 0, `all-wrong run scored ${s2.overall}%`);
+    assert(s2.recommendation.tier === "practice", `weak learner placed at ${s2.recommendation.tier}`);
+    assert(s2.skillMap.every(x => x.level === "needs work"), "weak learner shows a secure section");
+
+    return `adaptive over ${summary.asked} questions, skill map + placement stored, replay blocked, weak/strong placed differently`;
+  },
+
+  /* 13.3 — the whole journey: diagnostic -> practice -> mastery check -> review */
+  "end-to-end-flow": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "e2e@b.com", password: "a-long-enough-pass", name: "E" });
+    const kid = (await post(c, "/learners", { name: "E2E Kid" })).body.learner;
+
+    /* 1. diagnostic places the learner */
+    const start = await post(c, "/diagnostic/start", { learnerId: kid.id, topicId: "g6-ratios" });
+    let q = start.body.question, placed = null, guard = 0;
+    while (guard++ < 30) {
+      const step = await post(c, "/diagnostic/answer",
+        { diagnosticId: start.body.diagnosticId, answer: "-999999" });
+      if (step.body.done) { placed = step.body.summary.recommendation; break; }
+      q = step.body.question;
+    }
+    assert(placed && placed.tier, "step 1: diagnostic produced no placement");
+
+    /* 2. practice at the recommended tier, scoring badly on purpose */
+    const qs = (await c(`/topics/g6-ratios/${placed.tier}/questions`)).body.questions;
+    assert(qs.length, "step 2: no questions at the recommended tier");
+    const run = await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: placed.tier, score: 1, total: qs.length });
+    assert(run.status === 200, "step 2: run not recorded");
+    assert(run.body.star === false, "step 2: a poor run earned mastery");
+
+    /* 3. review must now surface that topic as needing work */
+    const review = (await c(`/learners/${kid.id}/review`)).body.review;
+    assert(review.some(r => r.topicId === "g6-ratios"), "step 3: weak topic missing from review queue");
+    assert(review[0].gap > 0, "step 3: review item has no gap to close");
+
+    /* 4. mastery check, answered correctly, clears it */
+    const chk = (await post(c, "/mastery/start", { learnerId: kid.id, topicId: "g6-ratios" })).body;
+    const answers = {};
+    for (const cq of chk.questions) {
+      if (cq.type === "mc") {
+        for (let i = 0; i < cq.opts.length; i++)
+          if ((await post(c, "/answer", { questionId: cq.id, answer: i })).body.correct) { answers[cq.id] = i; break; }
+      } else {
+        answers[cq.id] = (await post(c, "/answer", { questionId: cq.id, answer: "__" })).body.correctAnswer;
+      }
+    }
+    const done = await post(c, "/mastery/submit", { checkId: chk.checkId, answers });
+    assert(done.body.passed === true, "step 4: perfect mastery check did not pass");
+
+    /* 5. progress reflects the whole journey */
+    const prog = (await c(`/learners/${kid.id}/progress`)).body;
+    assert(prog.progress.some(p => p.tier === "mastery" && p.best_pct === 100), "step 5: mastery not recorded");
+    assert(prog.recent.length >= 2, "step 5: run history incomplete");
+    const diagStored = (await c(`/learners/${kid.id}/diagnostic`)).body.diagnostic;
+    assert(diagStored, "step 5: diagnostic missing from the learner record");
+
+    return "diagnostic -> practice -> review -> mastery check -> progress, all server-side";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
