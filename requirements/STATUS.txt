@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 121
-  done       20  (17%)
-  partial    25  (21%)
-  todo       64  (53%)
+  done       21  (17%)
+  partial    27  (22%)
+  todo       61  (50%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -27,6 +27,7 @@ Automated checks
   PASS  assessment-kinds   diagnostic, formative and summative assessments all reachable
   PASS  adaptive-practice  adaptive over 10 questions, stars reflect hint use, all mistakes returned, best score kept
   PASS  spaced-repetition  intervals grow on success, collapse on failure, ease floored at 1.3, schedule exposed via API
+  PASS  knowledge-graph    315 topics, 459 edges, acyclic, 239 cross-grade
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

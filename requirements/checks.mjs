@@ -831,6 +831,76 @@ export const CHECKS = {
     return "intervals grow on success, collapse on failure, ease floored at 1.3, schedule exposed via API";
   },
 
+
+  /* 6.2 — prerequisite knowledge graph */
+  "knowledge-graph": async () => {
+    const { PREREQS, findCycle, prereqsOf, allPrereqs, unlockedBy } =
+      await import("../app/shared/prereqs.mjs");
+    const { CURRICULUM } = await import("../app/shared/curriculum.mjs");
+
+    /* Every id on both sides of every edge must be a real topic. */
+    const ids = new Set();
+    for (const g of Object.values(CURRICULUM))
+      for (const u of g.units) for (const t of u.topics) ids.add(t.id);
+    for (const [k, vs] of Object.entries(PREREQS)) {
+      assert(ids.has(k), `prereq graph references unknown topic "${k}"`);
+      for (const v of vs) assert(ids.has(v), `"${k}" depends on unknown topic "${v}"`);
+    }
+
+    /* Acyclic, or the "what can I learn next" logic would never terminate. */
+    const cycle = findCycle();
+    assert(!cycle, `prerequisite cycle: ${cycle && cycle.join(" -> ")}`);
+
+    /* No topic may depend on itself, directly or transitively. */
+    for (const id of Object.keys(PREREQS))
+      assert(!allPrereqs(id).has(id), `${id} transitively requires itself`);
+
+    /* The dependencies the spec names explicitly must be present. */
+    assert(allPrereqs("g4-clockmod").has("g4-divide"),
+      "spec 6.2: modular arithmetic must require division with remainders");
+    assert(allPrereqs("g4-combin").has("g3-multprin"),
+      "spec 6.2: combinatorics must require the multiplication principle");
+
+    /* Edges must cross grades, not merely restate grade order. */
+    const gradeOf = id => { for (const [g, v] of Object.entries(CURRICULUM))
+      for (const u of v.units) for (const t of u.topics) if (t.id === id) return g; };
+    let crossGrade = 0;
+    for (const [k, vs] of Object.entries(PREREQS))
+      for (const v of vs) if (gradeOf(k) !== gradeOf(v)) crossGrade++;
+    assert(crossGrade > 100, `only ${crossGrade} cross-grade edges; the graph is too shallow`);
+
+    /* Coverage: advanced topics in particular must not be orphans. */
+    const advanced = [];
+    for (const g of Object.values(CURRICULUM))
+      for (const u of g.units) if (u.track === "adv") for (const t of u.topics) advanced.push(t.id);
+    const orphanAdv = advanced.filter(id => !PREREQS[id] && !unlockedBy(id).length);
+    assert(orphanAdv.length === 0, `advanced topics with no graph edges: ${orphanAdv.slice(0, 5).join(", ")}`);
+
+    /* Deep chains actually exist: RSA should sit on a long dependency chain. */
+    assert(allPrereqs("g8-rsa").size > 20,
+      `g8-rsa depends on only ${allPrereqs("g8-rsa").size} topics; chain is too shallow`);
+
+    /* API: the graph is queryable, and recommendations respect it. */
+    const c = client();
+    const g = await c("/topics/g6-crt/prereqs");
+    assert(g.status === 200 && g.body.direct.length, "prereq endpoint returned nothing");
+    assert(g.body.direct.every(d => d.name), "prereq entries are not named");
+    assert((await c("/topics/not-real/prereqs")).status === 404, "unknown topic accepted");
+
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "graph@b.com", password: "a-long-enough-pass", name: "G" });
+    const kid = (await post(c, "/learners", { name: "Graph Kid" })).body.learner;
+    const next = (await c(`/learners/${kid.id}/next`)).body;
+    assert(Array.isArray(next.ready) && Array.isArray(next.blocked), "next endpoint malformed");
+    /* A fresh learner has mastered nothing, so anything with prerequisites is blocked. */
+    assert(next.blocked.length > 0, "a learner with no progress has nothing blocked");
+    assert(next.blocked.every(b => b.missing.length), "a blocked topic lists no missing prerequisite");
+    assert(next.ready.every(r => prereqsOf(r.topicId).length === 0),
+      "a topic with unmet prerequisites was recommended as ready");
+
+    return `${Object.keys(PREREQS).length} topics, ${Object.values(PREREQS).reduce((a, b) => a + b.length, 0)} edges, acyclic, ${crossGrade} cross-grade`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

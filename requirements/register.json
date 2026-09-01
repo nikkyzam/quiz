@@ -512,15 +512,18 @@
       "id": "6.2",
       "section": "Adaptive engine",
       "title": "Knowledge graph of prerequisite skills incl. advanced nodes",
-      "status": "todo",
-      "priority": 1
+      "status": "done",
+      "priority": 1,
+      "evidence": "check:knowledge-graph",
+      "notes": "459 authored edges across 315 topics, acyclic, 239 of them crossing grades. Includes the dependencies the spec names (modular arithmetic requires division with remainders; combinatorics requires the multiplication principle). Exposed via /api/topics/:id/prereqs and a /next endpoint that separates what a learner is ready for from what is blocked, naming the missing prerequisites."
     },
     {
       "id": "6.3",
       "section": "Adaptive engine",
       "title": "BKT/DKT mastery updates and bandit difficulty selection",
-      "status": "todo",
-      "priority": 1
+      "status": "partial",
+      "priority": 1,
+      "notes": "Difficulty adapts within diagnostic and practice sessions via a streak rule, and the knowledge graph gates what is recommended. Bayesian Knowledge Tracing / Deep Knowledge Tracing and multi-armed bandit selection are NOT implemented."
     },
     {
       "id": "6.4",
@@ -535,8 +538,9 @@
       "id": "6.5",
       "section": "Adaptive engine",
       "title": "Intervention triggers for struggle and rapid mastery",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "The /next endpoint surfaces blocked topics with their missing prerequisites, and spacing reacts to lapses. No in-session intervention triggers (3 wrong in a row, or >10 minutes without progress)."
     },
     {
       "id": "6.6",

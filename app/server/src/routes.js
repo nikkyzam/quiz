@@ -8,6 +8,7 @@ import {
 import { rateLimit, audit, auditTrail } from "./security.js";
 import * as diag from "./diagnostic.js";
 import * as spacing from "./spacing.js";
+import { PREREQS, prereqsOf, allPrereqs, unlockedBy } from "../../shared/prereqs.mjs";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -407,6 +408,51 @@ api.post("/answer", (req, res) => {
   const q = bank[idx];
   const { ok, correctAnswer } = gradeAnswer(q, answer);
   res.json({ correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null });
+});
+
+/* ---------------- knowledge graph (spec 6.2) ---------------- */
+const TOPIC_NAME = (() => {
+  const m = new Map();
+  for (const g of Object.values(CURRICULUM))
+    for (const u of g.units)
+      for (const t of u.topics) m.set(t.id, { name: t.name, grade: g.label, unit: u.name, track: u.track });
+  return m;
+})();
+const describe = id => ({ topicId: id, ...(TOPIC_NAME.get(id) || { name: id }) });
+
+api.get("/topics/:id/prereqs", (req, res) => {
+  const id = req.params.id;
+  if (!TOPIC_NAME.has(id)) return res.status(404).json({ error: "unknown_topic" });
+  res.json({
+    topic: describe(id),
+    direct: prereqsOf(id).map(describe),
+    all: [...allPrereqs(id)].map(describe),
+    unlocks: unlockedBy(id).map(describe)
+  });
+});
+
+/* What this learner is ready for: every prerequisite mastered, but the topic
+   itself not yet. Topics with unmet prerequisites are reported separately with
+   the specific gaps, rather than silently omitted. */
+api.get("/learners/:id/next", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id = ?")
+    .all(req.params.id);
+
+  const best = new Map();
+  for (const r of rows) best.set(r.topic_id, Math.max(best.get(r.topic_id) || 0, r.best_pct));
+  const mastered = id => (best.get(id) || 0) >= thresholdOf(id);
+
+  const ready = [], blocked = [];
+  for (const id of TOPIC_NAME.keys()) {
+    if (!QUESTIONS[id]) continue;              // nothing to practise yet
+    if (mastered(id)) continue;
+    const missing = prereqsOf(id).filter(p => !mastered(p));
+    const entry = { ...describe(id), bestPct: best.get(id) || 0 };
+    if (missing.length === 0) ready.push(entry);
+    else blocked.push({ ...entry, missing: missing.map(describe) });
+  }
+  res.json({ ready, blocked });
 });
 
 /* ---------------- adaptive practice session (spec 4.1.4) ----------------
