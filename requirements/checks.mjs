@@ -1734,6 +1734,70 @@ export const CHECKS = {
     return "aggregate analytics, retention policy, audited access, RBAC enforced and admin not self-assignable";
   },
 
+
+  /* 7.3 — partial credit on multi-step answers */
+  "partial-credit": async () => {
+    const c = client();
+    const qs = (await c("/topics/g6-percent/practice/questions")).body.questions;
+
+    /* Select-all: right picks earn credit, wrong picks cost it. */
+    const mul = qs.find(q => q.type === "multi");
+    assert(mul, "no multi-select question available");
+    const probe = await post(c, "/answer", { questionId: mul.id, answer: [] });
+    const correctIdx = probe.body.correctAnswer.split(", ").map(t => mul.opts.indexOf(t));
+    assert(correctIdx.length >= 2, "need a multi question with at least two correct options");
+
+    const full = await post(c, "/answer", { questionId: mul.id, answer: correctIdx });
+    assert(full.body.correct === true && full.body.credit === 1, "a fully correct selection did not earn full credit");
+
+    const partial = await post(c, "/answer", { questionId: mul.id, answer: correctIdx.slice(0, -1) });
+    assert(partial.body.correct === false, "a partial selection was marked fully correct");
+    assert(partial.body.credit > 0 && partial.body.credit < 1,
+      `a partial selection earned credit ${partial.body.credit}, expected between 0 and 1`);
+    assert(partial.body.creditDetail, "no explanation of the partial credit given");
+
+    /* Guessing everything must NOT pay: wrong picks cancel right ones. */
+    const all = mul.opts.map((_, i) => i);
+    const shotgun = await post(c, "/answer", { questionId: mul.id, answer: all });
+    assert(shotgun.body.credit < partial.body.credit,
+      `selecting every option scored ${shotgun.body.credit}, no worse than a careful partial answer`);
+
+    /* Ordering: credit for positions that are right. */
+    const ord = qs.find(q => q.type === "order");
+    assert(ord, "no ordering question available");
+    const right = (await post(c, "/answer", { questionId: ord.id, answer: [] }))
+      .body.correctAnswer.split("  →  ");
+    const nearly = [...right];
+    [nearly[0], nearly[1]] = [nearly[1], nearly[0]];        // one adjacent swap
+    const near = await post(c, "/answer", { questionId: ord.id, answer: nearly });
+    assert(near.body.correct === false, "a swapped order was marked correct");
+    assert(near.body.credit > 0.4 && near.body.credit < 1,
+      `one swap in an ordering scored ${near.body.credit}`);
+    const reversed = await post(c, "/answer", { questionId: ord.id, answer: [...right].reverse() });
+    assert(reversed.body.credit < near.body.credit,
+      "a fully reversed order scored as well as a nearly-right one");
+
+    /* Single-answer types stay all-or-nothing. */
+    const num = qs.find(q => q.type === "in");
+    const wrongNum = await post(c, "/answer", { questionId: num.id, answer: "-99999" });
+    assert(wrongNum.body.credit === 0, "a wrong numeric answer earned partial credit");
+
+    /* A session reports credit alongside the whole-question score. */
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "credit@b.com", password: "a-long-enough-pass", name: "C" });
+    const kid = (await post(c, "/learners", { name: "Credit Kid" })).body.learner;
+    const st = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-percent" });
+    let sum = null, guard = 0;
+    while (guard++ < 20) {
+      const step = await post(c, "/practice/answer",
+        { sessionId: st.body.sessionId, answer: "-99999", hintsUsed: 0 });
+      if (step.body.done) { sum = step.body.summary; break; }
+    }
+    assert(sum && typeof sum.creditPct === "number", "session summary omits partial credit");
+
+    return "partial credit on ordering and select-all, guessing everything scores worse, single answers stay all-or-nothing";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

@@ -95,22 +95,37 @@ function publicGenerated(topicId, seed) {
 }
 
 function gradeAnswer(q, raw) {
-  /* Ordering: the submitted sequence must match exactly. */
+  /* Ordering: exact match to be correct, but partial credit for the
+     positions that were right (spec 7.3). */
   if (q.type === "order") {
     const got = Array.isArray(raw) ? raw.map(String) : [];
-    const ok = got.length === q.ansOrder.length && got.every((v, i) => v === q.ansOrder[i]);
-    return { ok, correctAnswer: q.ansOrder.join("  →  ") };
+    const want = q.ansOrder;
+    const inPlace = got.filter((v, i) => v === want[i]).length;
+    const ok = got.length === want.length && inPlace === want.length;
+    return {
+      ok, correctAnswer: want.join("  →  "),
+      credit: want.length ? inPlace / want.length : 0,
+      creditDetail: `${inPlace} of ${want.length} in the right place`
+    };
   }
-  /* Select-all: set equality, so neither a missing nor an extra pick passes. */
+  /* Select-all: set equality to be correct. Partial credit rewards the right
+     picks and penalises wrong ones, so guessing everything scores nothing. */
   if (q.type === "multi") {
-    const got = Array.isArray(raw) ? [...new Set(raw.map(Number))].sort((a, b) => a - b) : [];
-    const want = [...q.aMulti].sort((a, b) => a - b);
-    const ok = got.length === want.length && got.every((v, i) => v === want[i]);
-    return { ok, correctAnswer: want.map(i => q.opts[i]).join(", ") };
+    const got = Array.isArray(raw) ? [...new Set(raw.map(Number))] : [];
+    const want = [...q.aMulti];
+    const hits = got.filter(i => want.includes(i)).length;
+    const falseHits = got.filter(i => !want.includes(i)).length;
+    const ok = hits === want.length && falseHits === 0;
+    const credit = want.length ? Math.max(0, (hits - falseHits) / want.length) : 0;
+    return {
+      ok, correctAnswer: want.map(i => q.opts[i]).join(", "),
+      credit: Math.min(1, credit),
+      creditDetail: `${hits} correct, ${falseHits} incorrect selected`
+    };
   }
   if (q.type === "mc") {
     const ok = Number(raw) === q.a;
-    return { ok, correctAnswer: q.opts[q.a] };
+    return { ok, correctAnswer: q.opts[q.a], credit: ok ? 1 : 0 };
   }
   if (q.type === "pair") {
     const p = String(raw).replace(/−/g, "-").replace(/[^0-9.,\-]/g, "")
@@ -118,10 +133,11 @@ function gradeAnswer(q, raw) {
     const ok = p.length === 2 &&
       Math.abs(parseFloat(p[0]) - q.ansP[0]) < 1e-9 &&
       Math.abs(parseFloat(p[1]) - q.ansP[1]) < 1e-9;
-    return { ok, correctAnswer: `(${q.ansP[0]}, ${q.ansP[1]})` };
+    return { ok, correctAnswer: `(${q.ansP[0]}, ${q.ansP[1]})`, credit: ok ? 1 : 0 };
   }
   const n = parseFloat(String(raw).replace(/−/g, "-").replace(/[^0-9.\-]/g, ""));
-  return { ok: !isNaN(n) && Math.abs(n - q.ans) < 1e-9, correctAnswer: String(q.ans) };
+  const numOk = !isNaN(n) && Math.abs(n - q.ans) < 1e-9;
+  return { ok: numOk, correctAnswer: String(q.ans), credit: numOk ? 1 : 0 };
 }
 
 /* ---------------- auth ---------------- */
@@ -453,8 +469,9 @@ api.post("/answer", (req, res) => {
   const resolved = resolveQuestion(questionId);
   if (!resolved) return res.status(400).json({ error: "unknown_question" });
   const q = resolved.q;
-  const { ok, correctAnswer } = gradeAnswer(q, answer);
-  res.json({ correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null });
+  const { ok, correctAnswer, credit, creditDetail } = gradeAnswer(q, answer);
+  res.json({ correct: ok, correctAnswer, credit: credit ?? (ok ? 1 : 0), creditDetail: creditDetail || null,
+             explanation: q.expl, figA: q.figA || null });
 });
 
 /* ---------------- generated practice (spec 3.2.3) ----------------
@@ -586,9 +603,11 @@ api.post("/practice/answer", requireAuth, (req, res) => {
 
   const { idx } = sess.pending;
   const q = QUESTIONS[sess.topicId][idx];
-  const { ok, correctAnswer } = gradeAnswer(q, answer);
+  const { ok, correctAnswer, credit, creditDetail } = gradeAnswer(q, answer);
+  const earned = credit ?? (ok ? 1 : 0);
 
   sess.asked++;
+  sess.credit = (sess.credit || 0) + earned;
   sess.hintsUsed += Math.max(0, Math.min(3, Number(hintsUsed) || 0));
   /* Feed the knowledge model. A hinted answer is weaker evidence, so it is
      recorded with a higher guess rate rather than counted as clean success. */
@@ -652,15 +671,19 @@ api.post("/practice/answer", requireAuth, (req, res) => {
       { score: sess.score, total, pct, hintsUsed: sess.hintsUsed });
     practiceSessions.delete(sessionId);
     return res.json({
-      correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: true,
+      correct: ok, correctAnswer, credit: earned, creditDetail: creditDetail || null,
+      explanation: q.expl, figA: q.figA || null, done: true,
       summary: { score: sess.score, total, pct, stars, hintsUsed: sess.hintsUsed, reward,
+                 creditScore: Math.round((sess.credit || 0) * 10) / 10,
+                 creditPct: Math.round(((sess.credit || 0) / total) * 100),
                  threshold: thresholdOf(sess.topicId), missed: sess.missed,
                  seconds: Math.round((Date.now() - sess.startedAt) / 1000) }
     });
   }
   sess.pending = next;
   res.json({
-    correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: false,
+    correct: ok, correctAnswer, credit: earned, creditDetail: creditDetail || null,
+    explanation: q.expl, figA: q.figA || null, done: false,
     asked: sess.asked, score: sess.score, intervention,
     question: publicQuestion(sess.topicId, next.idx)
   });

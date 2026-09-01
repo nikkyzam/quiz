@@ -614,8 +614,9 @@
       "section": "Assessment",
       "title": "Feedback types incl. partial credit and elegance bonus",
       "status": "partial",
-      "notes": "Correct/incorrect feedback with explanation, plus end-of-session mistake review. No partial credit on multi-step items and no elegance bonus.",
-      "priority": 2
+      "notes": "Partial credit on multi-step answers: ordering earns credit for positions in the right place, select-all rewards correct picks and penalises wrong ones so guessing everything scores worse than a careful partial answer. Single-answer types stay all-or-nothing. An elegance bonus for creative solutions is not built - it would need judgement this cannot make honestly.",
+      "priority": 2,
+      "evidence": "check:partial-credit"
     },
     {
       "id": "7.4",
