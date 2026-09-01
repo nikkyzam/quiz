@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F7F9FC; --gridbg:#E5EBF5; --card:#FFFFFF; --line:#D5DEEC;
+    --ink:#17263F; --muted:#5A6B87; --accent:#2557D6; --accent-soft:#E7EDFB;
+    --good:#147A46; --good-bg:#E4F5EA; --bad:#C43D2B; --bad-bg:#FBEAE6;
+    --gridline:#DFE7F2; --chip:#EEF3FA; --star:#E8A317;
+    --slab:'Zilla Slab','Georgia',serif;
+    --body:'Atkinson Hyperlegible','Verdana',sans-serif;
+    --mono:'IBM Plex Mono','Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0E1524; --gridbg:#182338; --card:#172137; --line:#2B3B5C;
+      --ink:#E9EFFA; --muted:#93A3BF; --accent:#7FA9FF; --accent-soft:#1E2C4E;
+      --good:#4BCE8A; --good-bg:#12321F; --bad:#FF8F79; --bad-bg:#3C1B14;
+      --gridline:#24314D; --chip:#1D2A45; --star:#F5C451;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E1524; --gridbg:#182338; --card:#172137; --line:#2B3B5C;
+    --ink:#E9EFFA; --muted:#93A3BF; --accent:#7FA9FF; --accent-soft:#1E2C4E;
+    --good:#4BCE8A; --good-bg:#12321F; --bad:#FF8F79; --bad-bg:#3C1B14;
+    --gridline:#24314D; --chip:#1D2A45; --star:#F5C451;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--ink); font-family:var(--body); line-height:1.55;
+    background:var(--paper);
+    background-image:linear-gradient(var(--gridbg) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--gridbg) 1px,transparent 1px);
+    background-size:26px 26px; min-height:100vh;
+  }
+  .wrap{max-width:680px; margin:0 auto; padding:20px 16px 60px}
+  .screen{display:none} .screen.on{display:block}
+  button{font-family:var(--body); font-size:1rem; cursor:pointer}
+  .eyebrow{font-family:var(--slab); font-weight:600; letter-spacing:.14em; font-size:.78rem; color:var(--accent); text-transform:uppercase}
+  h1{font-family:var(--slab); font-weight:700; font-size:2.3rem; margin:.2rem 0 .4rem; text-wrap:balance}
+  .lede{font-size:1.04rem; color:var(--muted); max-width:36rem; margin:0 0 22px}
+  .btn{display:inline-block; border:2px solid var(--accent); border-radius:10px;
+       background:var(--accent); color:#fff; font-weight:700; padding:11px 20px}
+  :root[data-theme="dark"] .btn{color:#0E1524}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#0E1524} }
+  .btn.ghost{background:transparent; color:var(--accent)}
+  .btn:focus-visible,.opt:focus-visible,.ansin:focus-visible,.gcard:focus-visible,.topic:focus-visible,.tier:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+  .back{background:none; border:0; color:var(--accent); font-weight:700; padding:0; margin-bottom:12px}
+
+  /* home */
+  .hero{display:flex; align-items:center; gap:14px; margin-bottom:4px}
+  .gradeGrid{display:grid; gap:10px}
+  .gcard{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px;
+    text-align:left; background:var(--card); color:var(--ink);
+    border:2px solid var(--line); border-radius:12px; padding:12px 15px; transition:border-color .12s}
+  .gcard:hover:not(.empty){border-color:var(--accent)}
+  .gcard.empty{opacity:.72}
+  .gname{font-family:var(--slab); font-weight:700; font-size:1.1rem; display:block}
+  .gsub{color:var(--muted); font-size:.85rem; display:block}
+  .gstat{text-align:right}
+  .stars{color:var(--star); letter-spacing:2px; display:block; font-size:1rem}
+  .stars.sm{font-size:.85rem}
+  .gready{color:var(--muted); font-family:var(--mono); font-size:.72rem}
+  .soon{color:var(--muted); font-size:.78rem; font-style:italic}
+  .soon.sm{font-size:.74rem}
+
+  /* map */
+  .maphead{display:flex; align-items:center; gap:12px; margin-bottom:16px}
+  .unit{margin-bottom:22px}
+  .unit h3{font-family:var(--slab); font-size:1.05rem; margin:0 0 9px; letter-spacing:.02em}
+  .tlist{display:grid; gap:8px}
+  .topic{display:flex; justify-content:space-between; align-items:center; gap:12px;
+    text-align:left; background:var(--card); color:var(--ink);
+    border:2px solid var(--line); border-radius:10px; padding:11px 14px; transition:border-color .12s}
+  .topic:hover:not(.locked){border-color:var(--accent)}
+  .topic.locked{opacity:.6; cursor:default}
+  .tname{font-weight:700}
+
+  /* tiers */
+  .tierList{display:grid; gap:10px}
+  .tier{display:block; text-align:left; background:var(--card); color:var(--ink);
+    border:2px solid var(--line); border-radius:12px; padding:13px 16px; transition:border-color .12s}
+  .tier:hover{border-color:var(--accent)}
+  .tierhead{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+  .tierhead b{font-family:var(--slab); font-size:1.1rem}
+  .tcount{font-family:var(--mono); font-size:.75rem; color:var(--muted)}
+  .tierblurb{display:block; color:var(--muted); font-size:.88rem; margin-top:2px}
+  .tierbest{display:inline-block; margin-top:7px; font-family:var(--mono); font-size:.76rem; color:var(--muted)}
+  .tierbest.good{color:var(--good)}
+
+  /* quiz */
+  .qtop{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:8px}
+  .qcount{font-family:var(--slab); font-weight:600; font-size:.95rem}
+  .qcount b{font-size:1.15rem}
+  .scorechip{font-family:var(--mono); font-size:.85rem; color:var(--muted)}
+  .scorechip .streak{color:var(--accent); font-weight:600; margin-left:8px}
+  .track{height:8px; background:var(--gridline); border-radius:99px; overflow:hidden; margin-bottom:20px}
+  .track .fill{height:100%; width:0; background:var(--accent); border-radius:99px; transition:width .3s}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; box-shadow:0 2px 10px rgba(23,38,63,.05)}
+  .sec{font-family:var(--slab); font-weight:600; letter-spacing:.12em; font-size:.74rem; color:var(--accent); text-transform:uppercase; margin-bottom:6px}
+  .qtext{font-size:1.16rem; font-weight:700; margin:0 0 4px; text-wrap:balance}
+  .fig{display:flex; justify-content:center; margin:14px 0 6px}
+  .fig svg{width:min(300px,100%); height:auto}
+  svg .gl{stroke:var(--gridline); stroke-width:1}
+  svg .ax{stroke:var(--muted); stroke-width:1.8}
+  svg .tick{fill:var(--muted); font:10px var(--mono); paint-order:stroke fill; stroke:var(--figbg,var(--card)); stroke-width:3px; stroke-linejoin:round}
+  svg .pt{fill:var(--accent)} svg .pt2{fill:var(--good)}
+  svg .plb{fill:var(--ink); font:600 11px var(--mono)}
+  svg .seg{fill:none; stroke:var(--accent); stroke-width:2.4; stroke-dasharray:5 4}
+  svg .poly{fill:var(--accent); opacity:.14; stroke:var(--accent); stroke-width:1.6}
+  .opts{display:grid; gap:10px; margin-top:16px}
+  .opt{text-align:left; background:transparent; color:var(--ink); border:2px solid var(--line);
+    border-radius:10px; padding:12px 14px; font-size:1.02rem; transition:border-color .12s}
+  .opt.mono{font-family:var(--mono); font-size:.98rem}
+  .opt:hover:not(:disabled){border-color:var(--accent)}
+  .opt:disabled{cursor:default}
+  .opt .key{display:inline-block; font-family:var(--mono); font-size:.75rem; color:var(--muted);
+    border:1px solid var(--line); border-radius:5px; padding:0 5px; margin-right:9px; vertical-align:1px}
+  .opt.right{border-color:var(--good); background:var(--good-bg)}
+  .opt.wrong{border-color:var(--bad); background:var(--bad-bg)}
+  .opt.dim{opacity:.55}
+  .inrow{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .ansin{flex:1 1 150px; min-width:0; font-family:var(--mono); font-size:1.15rem; padding:11px 13px;
+    border:2px solid var(--line); border-radius:10px; background:var(--paper); color:var(--ink)}
+  .hint{color:var(--muted); font-size:.85rem; margin-top:8px}
+  .fb{--figbg:var(--good-bg); margin-top:18px; border-left:4px solid var(--good); background:var(--good-bg); border-radius:0 10px 10px 0; padding:13px 15px}
+  .fb.bad{--figbg:var(--bad-bg); border-left-color:var(--bad); background:var(--bad-bg)}
+  .fb h3{font-family:var(--slab); font-size:1.05rem; margin:0 0 4px; color:var(--good)}
+  .fb.bad h3{color:var(--bad)}
+  .expl{font-size:.97rem; margin:0}
+  .nextrow{display:flex; justify-content:flex-end; margin-top:16px}
+  .kbd{color:var(--muted); font-size:.8rem; align-self:center; margin-right:auto}
+
+  /* results */
+  .bigscore{font-family:var(--slab); font-weight:700; font-size:3.2rem; line-height:1; margin:6px 0 2px; font-variant-numeric:tabular-nums}
+  .bigscore small{font-size:1.5rem; color:var(--muted); font-weight:600}
+  .verdict{font-size:1.06rem; margin:4px 0 20px}
+  .secrow{margin-bottom:13px}
+  .secrow .lbl{display:flex; justify-content:space-between; font-size:.92rem; margin-bottom:4px}
+  .secrow .lbl b{font-family:var(--slab)}
+  .secrow .lbl span{font-family:var(--mono); font-size:.85rem; color:var(--muted)}
+  .bar{height:10px; background:var(--gridline); border-radius:99px; overflow:hidden}
+  .bar i{display:block; height:100%; border-radius:99px}
+  .endbtns{display:flex; gap:11px; flex-wrap:wrap; margin-top:24px}
+  .foot{margin-top:30px; color:var(--muted); font-size:.85rem}
+  .foot a{color:var(--accent)}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HOME -->
+  <section id="home" class="screen on">
+    <div class="hero">
+      <div id="homeBeast"></div>
+      <div>
+        <div class="eyebrow">Kindergarten &rarr; Grade 8</div>
+        <h1 style="margin:0">Math Quest</h1>
+      </div>
+    </div>
+    <p class="lede">Pick a grade, pick a topic, then work up through Practice, Challenge and Boss.
+      Earn a star for each tier you finish at 80% or better.</p>
+    <div class="gradeGrid" id="gradeGrid"></div>
+    <p class="foot">Grade 6 is fully written. Other grades show their real topic map &mdash;
+      questions are being added grade by grade.<br>
+      Looking for the original coordinate-plane quiz? <a href="../">It&rsquo;s still here</a>.</p>
+  </section>
+
+  <!-- GRADE MAP -->
+  <section id="map" class="screen">
+    <button class="back" id="mapBack">&larr; All grades</button>
+    <div class="maphead">
+      <div id="mapBeast"></div>
+      <h1 id="mapTitle" style="margin:0; font-size:1.9rem"></h1>
+    </div>
+    <div id="mapUnits"></div>
+  </section>
+
+  <!-- TIERS -->
+  <section id="tiers" class="screen">
+    <button class="back" id="tierBack">&larr; Back to topics</button>
+    <h1 id="tierTitle" style="font-size:1.8rem"></h1>
+    <p class="lede">Three tiers, same topic. Start at Practice if you&rsquo;re new to it.</p>
+    <div class="tierList" id="tierList"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="screen">
+    <button class="back" id="quizBack">&larr; Leave</button>
+    <div class="qtop">
+      <div class="qcount">Question <b id="qnum">1</b> / <span id="qtot">0</span></div>
+      <div class="scorechip">score <span id="scoreVal">0</span><span class="streak" id="streakVal"></span></div>
+    </div>
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="card" id="qcard"></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="screen">
+    <div class="eyebrow" id="resEyebrow"></div>
+    <div class="bigscore"><span id="resScore">0</span><small> / <span id="resTot">0</span></small></div>
+    <p class="verdict" id="resMsg"></p>
+    <div class="card" id="resCard"></div>
+    <div class="endbtns">
+      <button class="btn" id="retryBtn"></button>
+      <button class="btn ghost" id="againBtn">Run it again</button>
+      <button class="btn ghost" id="toTopicBtn">Back to tiers</button>
+    </div>
+  </section>
+
+</div>
+
+<script src="curriculum.js"></script>
+<script src="questions-g6.js"></script>
+<script src="grid.js"></script>
+<script src="app.js"></script>
+<script>document.getElementById("homeBeast").innerHTML = beastSVG("vex", 58);</script>
+</body>
+</html>
