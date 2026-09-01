@@ -11,7 +11,7 @@
     --paper:#F7F9FC; --gridbg:#E5EBF5; --card:#FFFFFF; --line:#D5DEEC;
     --ink:#17263F; --muted:#5A6B87; --accent:#2557D6; --accent-soft:#E7EDFB;
     --good:#147A46; --good-bg:#E4F5EA; --bad:#C43D2B; --bad-bg:#FBEAE6;
-    --gridline:#DFE7F2; --chip:#EEF3FA; --star:#E8A317;
+    --gridline:#DFE7F2; --chip:#EEF3FA; --star:#E8A317; --onaccent:#FFFFFF;
     --slab:'Zilla Slab','Georgia',serif;
     --body:'Atkinson Hyperlegible','Verdana',sans-serif;
     --mono:'IBM Plex Mono','Courier New',monospace;
@@ -21,14 +21,14 @@
       --paper:#0E1524; --gridbg:#182338; --card:#172137; --line:#2B3B5C;
       --ink:#E9EFFA; --muted:#93A3BF; --accent:#7FA9FF; --accent-soft:#1E2C4E;
       --good:#4BCE8A; --good-bg:#12321F; --bad:#FF8F79; --bad-bg:#3C1B14;
-      --gridline:#24314D; --chip:#1D2A45; --star:#F5C451;
+      --gridline:#24314D; --chip:#1D2A45; --star:#F5C451; --onaccent:#0E1524;
     }
   }
   :root[data-theme="dark"]{
     --paper:#0E1524; --gridbg:#182338; --card:#172137; --line:#2B3B5C;
     --ink:#E9EFFA; --muted:#93A3BF; --accent:#7FA9FF; --accent-soft:#1E2C4E;
     --good:#4BCE8A; --good-bg:#12321F; --bad:#FF8F79; --bad-bg:#3C1B14;
-    --gridline:#24314D; --chip:#1D2A45; --star:#F5C451;
+    --gridline:#24314D; --chip:#1D2A45; --star:#F5C451; --onaccent:#0E1524;
   }
   *{box-sizing:border-box}
   body{
@@ -44,10 +44,10 @@
   .eyebrow{font-family:var(--slab); font-weight:600; letter-spacing:.14em; font-size:.78rem; color:var(--accent); text-transform:uppercase}
   h1{font-family:var(--slab); font-weight:700; font-size:2.3rem; margin:.2rem 0 .4rem; text-wrap:balance}
   .lede{font-size:1.04rem; color:var(--muted); max-width:36rem; margin:0 0 22px}
+  /* Text on the accent fill comes from a token, so the theme switch never
+     out-specifies the .ghost / .danger variants below. */
   .btn{display:inline-block; border:2px solid var(--accent); border-radius:10px;
-       background:var(--accent); color:#fff; font-weight:700; padding:11px 20px}
-  :root[data-theme="dark"] .btn{color:#0E1524}
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#0E1524} }
+       background:var(--accent); color:var(--onaccent); font-weight:700; padding:11px 20px}
   .btn.ghost{background:transparent; color:var(--accent)}
   .btn:focus-visible,.opt:focus-visible,.ansin:focus-visible,.gcard:focus-visible,.topic:focus-visible,.tier:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
   .back{background:none; border:0; color:var(--accent); font-weight:700; padding:0; margin-bottom:12px}
@@ -149,14 +149,103 @@
   .endbtns{display:flex; gap:11px; flex-wrap:wrap; margin-top:24px}
   .foot{margin-top:30px; color:var(--muted); font-size:.85rem}
   .foot a{color:var(--accent)}
+
+  /* profiles */
+  .whoList{display:grid; gap:10px; margin-bottom:18px}
+  .who{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px;
+    text-align:left; background:var(--card); color:var(--ink);
+    border:2px solid var(--line); border-radius:12px; padding:11px 15px; transition:border-color .12s}
+  .who:hover{border-color:var(--accent)}
+  .wname{font-family:var(--slab); font-weight:700; font-size:1.1rem; display:block}
+  .wsub{color:var(--muted); font-size:.84rem; display:block}
+  .wgo{color:var(--accent); font-weight:700; font-size:1.2rem}
+  .newprof{margin-top:4px}
+  .flabel{display:block; font-size:.82rem; color:var(--muted); font-weight:700;
+    text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px}
+  .newprof .ansin{width:100%; font-family:var(--body); font-size:1rem}
+  .ferr{color:var(--bad); font-size:.84rem; min-height:1.1em; margin-top:4px}
+  .beastPick{display:flex; gap:9px}
+  .bpick{background:var(--chip); border:2px solid var(--line); border-radius:12px;
+    padding:5px 8px; line-height:0; transition:border-color .12s}
+  .bpick.sel{border-color:var(--accent); background:var(--accent-soft)}
+
+  /* profile bar */
+  .whoBar{display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:var(--card); border:1px solid var(--line); border-radius:10px;
+    padding:6px 12px; margin-bottom:16px}
+  .wbwho{display:flex; align-items:center; gap:8px; font-size:.92rem}
+  .wbwho svg{display:block}
+  .wbacts{display:flex; gap:14px}
+  .linkbtn{background:none; border:0; color:var(--accent); font-weight:700; font-size:.88rem; padding:0}
+  .linkbtn:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+
+  /* dashboard */
+  .statgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px}
+  .stat{background:var(--chip); border:1px solid var(--line); border-radius:10px; padding:11px 12px}
+  .stat b{display:block; font-family:var(--slab); font-size:1.7rem; line-height:1.1; font-variant-numeric:tabular-nums}
+  .stat span{font-size:.74rem; color:var(--muted); text-transform:uppercase; letter-spacing:.07em}
+  .drow{background:var(--card); border:1px solid var(--line); border-radius:11px; padding:12px 14px; margin-bottom:9px}
+  .dhead{display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+  .dhead b{font-family:var(--slab); font-size:1.02rem}
+  .dsub{color:var(--muted); font-size:.82rem; margin-top:1px}
+  .pills{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+  .pill{font-family:var(--mono); font-size:.74rem; border:1px solid var(--line);
+    border-radius:99px; padding:2px 9px; color:var(--muted)}
+  .pill.good{color:var(--good); border-color:var(--good)}
+  .pill.dim{opacity:.6}
+  .btn.danger{border-color:var(--bad); color:var(--bad)}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
 </style>
 </head>
 <body>
 <div class="wrap">
 
+  <!-- WHO'S PRACTISING -->
+  <section id="who" class="screen on">
+    <div class="eyebrow">Math Quest</div>
+    <h1>Who&rsquo;s practising?</h1>
+    <p class="lede">Each person gets their own stars and progress. Pick yours, or make a new one.</p>
+    <div class="whoList" id="whoList"></div>
+    <div class="card newprof">
+      <h3 style="font-family:var(--slab); margin:0 0 10px; font-size:1.05rem">New profile</h3>
+      <label class="flabel" for="newName">Name</label>
+      <input class="ansin" id="newName" maxlength="24" autocomplete="off" placeholder="e.g. Josiah">
+      <div class="ferr" id="nameErr"></div>
+      <label class="flabel" style="margin-top:12px">Pick your monster</label>
+      <div class="beastPick" id="beastPick"></div>
+      <button class="btn" id="createBtn" style="margin-top:14px">Create profile</button>
+    </div>
+    <p class="foot"><b>These are profiles, not accounts.</b> There are no passwords, and everything
+      is stored only in this browser on this device &mdash; nothing is uploaded anywhere.
+      Clearing your browser data clears the progress with it.</p>
+  </section>
+
+  <!-- WHO BAR -->
+  <div class="whoBar" id="whoBar" style="display:none">
+    <span class="wbwho"><span id="whoAvatar"></span><b id="whoName"></b></span>
+    <span class="wbacts">
+      <button class="linkbtn" id="dashBtn">Progress</button>
+      <button class="linkbtn" id="switchBtn">Switch</button>
+    </span>
+  </div>
+
+  <!-- PROGRESS DASHBOARD -->
+  <section id="dash" class="screen">
+    <button class="back" id="dashBack">&larr; Back</button>
+    <div class="maphead">
+      <div id="dashAvatar"></div>
+      <div>
+        <div class="eyebrow">Progress</div>
+        <h1 id="dashName" style="margin:0; font-size:1.8rem"></h1>
+      </div>
+    </div>
+    <div class="statgrid" id="dashStats"></div>
+    <div id="dashRows"></div>
+    <div class="endbtns"><button class="btn ghost danger" id="deleteBtn">Delete this profile</button></div>
+  </section>
+
   <!-- HOME -->
-  <section id="home" class="screen on">
+  <section id="home" class="screen">
     <div class="hero">
       <div id="homeBeast"></div>
       <div>

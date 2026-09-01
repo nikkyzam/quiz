@@ -38,11 +38,53 @@ function beastSVG(key, size){
   </svg>`;
 }
 
-/* ---------- progress ---------- */
-const PKEY = "mq-progress-v1";
+/* ---------- profiles ----------
+   These are profiles, not accounts: no password, no security. They exist
+   so several kids can share a device and keep separate progress. Anything
+   stored here lives only in this browser. */
+const PROFKEY = "mq-profiles-v1", ACTIVEKEY = "mq-active-v1";
+let profiles = [], activeId = null;
+
+function loadProfiles(){
+  try { profiles = JSON.parse(localStorage.getItem(PROFKEY) || "[]"); } catch(e){ profiles = []; }
+  if(!Array.isArray(profiles)) profiles = [];
+  try { activeId = localStorage.getItem(ACTIVEKEY); } catch(e){ activeId = null; }
+  if(activeId && !profiles.some(p=>p.id===activeId)) activeId = null;
+}
+function saveProfiles(){
+  try{
+    localStorage.setItem(PROFKEY, JSON.stringify(profiles));
+    if(activeId) localStorage.setItem(ACTIVEKEY, activeId); else localStorage.removeItem(ACTIVEKEY);
+  }catch(e){}
+}
+function activeProfile(){ return profiles.find(p=>p.id===activeId) || null; }
+function newId(){ return "p" + Date.now().toString(36) + Math.floor(Math.random()*1e4).toString(36); }
+
+function addProfile(name, beast){
+  const p = {id:newId(), name:name.slice(0,24), beast, created:new Date().toISOString()};
+  profiles.push(p); activeId = p.id; saveProfiles(); loadProgress();
+  return p;
+}
+function selectProfile(id){ activeId = id; saveProfiles(); loadProgress(); }
+function deleteProfile(id){
+  profiles = profiles.filter(p=>p.id!==id);
+  try{ localStorage.removeItem(PKEY_FOR(id)); }catch(e){}
+  if(activeId===id) activeId = null;
+  saveProfiles();
+}
+
+/* ---------- progress (namespaced per profile) ---------- */
+const PKEY_FOR = id => "mq-progress-v1::" + id;
 let progress = {};
-try { progress = JSON.parse(localStorage.getItem(PKEY) || "{}"); } catch(e){ progress = {}; }
-function saveProgress(){ try{ localStorage.setItem(PKEY, JSON.stringify(progress)); }catch(e){} }
+function loadProgress(){
+  progress = {};
+  if(!activeId) return;
+  try { progress = JSON.parse(localStorage.getItem(PKEY_FOR(activeId)) || "{}"); } catch(e){ progress = {}; }
+}
+function saveProgress(){
+  if(!activeId) return;
+  try{ localStorage.setItem(PKEY_FOR(activeId), JSON.stringify(progress)); }catch(e){}
+}
 function tierRec(topicId, tier){
   return (progress[topicId] && progress[topicId][tier]) || null;
 }
@@ -58,7 +100,108 @@ function topicHasContent(topicId){ const b = bankFor(topicId); return !!(b && b.
 
 /* ---------- navigation ---------- */
 let curGrade = null, curTopic = null, curTier = null;
-function show(id){ $$(".screen").forEach(s=>s.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); }
+function show(id){
+  $$(".screen").forEach(s=>s.classList.remove("on"));
+  $(id).classList.add("on");
+  const p = activeProfile();
+  $("#whoBar").style.display = (p && id !== "#who") ? "flex" : "none";
+  if(p){
+    $("#whoName").textContent = p.name;
+    $("#whoAvatar").innerHTML = beastSVG(p.beast, 26);
+  }
+  window.scrollTo(0,0);
+}
+
+/* ---------- profile screen ---------- */
+let pickBeast = "vex";
+function renderWho(){
+  $("#whoList").innerHTML = profiles.length
+    ? profiles.map(p=>{
+        const st = totalStarsFor(p.id);
+        return `<button class="who" data-id="${p.id}">
+          <span class="wav">${beastSVG(p.beast,40)}</span>
+          <span class="wmeta"><span class="wname">${esc(p.name)}</span>
+            <span class="wsub">${st.stars} ${st.stars===1?"star":"stars"} · ${st.topics} ${st.topics===1?"topic":"topics"} started</span></span>
+          <span class="wgo">→</span></button>`;
+      }).join("")
+    : `<p class="lede" style="margin:0 0 14px">No profiles yet — make the first one below.</p>`;
+  $$(".who").forEach(b=>b.addEventListener("click", ()=>{
+    selectProfile(b.dataset.id); renderGrades(); show("#home");
+  }));
+  $("#beastPick").innerHTML = Object.keys(BEASTS).map(k=>
+    `<button class="bpick${k===pickBeast?" sel":""}" data-b="${k}" aria-label="${BEASTS[k].name}">${beastSVG(k,40)}</button>`
+  ).join("");
+  $$(".bpick").forEach(b=>b.addEventListener("click", ()=>{
+    pickBeast = b.dataset.b;
+    $$(".bpick").forEach(x=>x.classList.toggle("sel", x.dataset.b===pickBeast));
+  }));
+}
+/* stars across all topics for any profile, without disturbing the active one */
+function totalStarsFor(id){
+  let raw = {};
+  try { raw = JSON.parse(localStorage.getItem(PKEY_FOR(id)) || "{}"); } catch(e){ raw = {}; }
+  let stars = 0, topics = 0;
+  Object.keys(raw).forEach(t=>{
+    topics++;
+    TIERS.forEach(tr=>{ const r = raw[t] && raw[t][tr.id]; if(r && r.pct>=80) stars++; });
+  });
+  return {stars, topics};
+}
+
+/* ---------- progress dashboard ---------- */
+function renderDash(){
+  const p = activeProfile();
+  if(!p) return;
+  $("#dashName").textContent = p.name;
+  $("#dashAvatar").innerHTML = beastSVG(p.beast, 44);
+
+  const rows = [];
+  let stars = 0, mastered = 0, runs = 0, answered = 0;
+  GRADE_ORDER.forEach(g=>{
+    CURRICULUM[g].units.forEach(u=>u.topics.forEach(t=>{
+      const rec = progress[t.id];
+      if(!rec) return;
+      const s = starsFor(t.id);
+      stars += s; if(s === TIERS.length) mastered++;
+      runs += rec.runs || 0;
+      const tiers = TIERS.map(tr=>{
+        const r = rec[tr.id];
+        if(r) answered += r.total;
+        return r
+          ? `<span class="pill${r.pct>=80?" good":""}">${tr.name} ${r.pct}%</span>`
+          : `<span class="pill dim">${tr.name} —</span>`;
+      }).join("");
+      rows.push({last: rec.last || "", html:`
+        <div class="drow">
+          <div class="dhead">
+            <b>${esc(t.name)}</b>
+            <span class="stars sm">${"★".repeat(s)}${"☆".repeat(TIERS.length-s)}</span>
+          </div>
+          <div class="dsub">${esc(CURRICULUM[g].label)} · ${esc(u.name)}${rec.last ? " · last "+timeAgo(rec.last) : ""}</div>
+          <div class="pills">${tiers}</div>
+        </div>`});
+    }));
+  });
+  rows.sort((a,b)=> (b.last||"").localeCompare(a.last||""));
+
+  $("#dashStats").innerHTML = `
+    <div class="stat"><b>${stars}</b><span>Stars</span></div>
+    <div class="stat"><b>${mastered}</b><span>Topics mastered</span></div>
+    <div class="stat"><b>${runs}</b><span>Rounds played</span></div>`;
+  $("#dashRows").innerHTML = rows.length
+    ? rows.map(r=>r.html).join("")
+    : `<p class="lede" style="margin:0">Nothing practised yet. Pick a grade and start a topic —
+       progress shows up here as soon as a round is finished.</p>`;
+  show("#dash");
+}
+function timeAgo(iso){
+  const d = (Date.now() - new Date(iso).getTime())/1000;
+  if(isNaN(d)) return "";
+  if(d < 90) return "just now";
+  if(d < 5400) return Math.round(d/60) + " min ago";
+  if(d < 172800) return Math.round(d/3600) + " hr ago";
+  return Math.round(d/86400) + " days ago";
+}
 
 /* Object key order puts "K" after the numbers, so state the order we want. */
 const GRADE_ORDER = ["K","1","2","3","4","5","6","7","8"];
@@ -254,11 +397,13 @@ function showResults(){
 
   if(mode === "full"){
     const prev = tierRec(curTopic, curTier);
+    progress[curTopic] = progress[curTopic] || {};
+    progress[curTopic].last = new Date().toISOString();
+    progress[curTopic].runs = (progress[curTopic].runs || 0) + 1;
     if(!prev || pct > prev.pct){
-      progress[curTopic] = progress[curTopic] || {};
-      progress[curTopic][curTier] = {score, total:queue.length, pct};
-      saveProgress();
+      progress[curTopic][curTier] = {score, total:queue.length, pct, at:new Date().toISOString()};
     }
+    saveProgress();
   }
   const bySec = {};
   Object.keys(results).forEach(i=>{
@@ -279,6 +424,29 @@ function showResults(){
 }
 
 /* ---------- wiring ---------- */
+$("#createBtn").addEventListener("click", ()=>{
+  const name = $("#newName").value.trim();
+  if(!name){ $("#newName").focus(); $("#nameErr").textContent = "Type a name first."; return; }
+  $("#nameErr").textContent = "";
+  addProfile(name, pickBeast);
+  $("#newName").value = "";
+  renderGrades(); show("#home");
+});
+$("#newName").addEventListener("keydown", e=>{ if(e.key==="Enter") $("#createBtn").click(); });
+$("#switchBtn").addEventListener("click", ()=>{ renderWho(); show("#who"); });
+$("#dashBtn").addEventListener("click", renderDash);
+$("#dashBack").addEventListener("click", ()=>{ renderGrades(); show("#home"); });
+$("#deleteBtn").addEventListener("click", ()=>{
+  const p = activeProfile(); if(!p) return;
+  if($("#deleteBtn").dataset.armed !== "1"){
+    $("#deleteBtn").dataset.armed = "1";
+    $("#deleteBtn").textContent = "Really delete " + p.name + "? Tap again";
+    setTimeout(()=>{ $("#deleteBtn").dataset.armed=""; $("#deleteBtn").textContent="Delete this profile"; }, 5000);
+    return;
+  }
+  deleteProfile(p.id); renderWho(); show("#who");
+});
+
 $("#retryBtn").addEventListener("click", retryMissed);
 $("#againBtn").addEventListener("click", ()=>startTier(curTier));
 $("#toTopicBtn").addEventListener("click", ()=>openTopic(curTopic, $("#tierTitle").textContent));
@@ -295,4 +463,9 @@ document.addEventListener("keydown", e=>{
   }
 });
 
-renderGrades();
+/* ---------- boot ---------- */
+loadProfiles();
+loadProgress();
+renderWho();
+if(activeProfile()){ renderGrades(); show("#home"); }
+else { show("#who"); }
