@@ -18,7 +18,8 @@ export const BADGES = {
   persistent:       { name: "Persistent Problem Solver", hint: "Retry a topic after falling short" },
   contest_ready:    { name: "Contest Ready",          hint: "Score 80% or more on a timed paper" },
   streak_3:         { name: "Three in a Row",         hint: "Practise three days running" },
-  streak_7:         { name: "A Full Week",            hint: "Practise seven days running" }
+  streak_7:         { name: "A Full Week",            hint: "Practise seven days running" },
+  elegant_solution: { name: "Elegant Solution",       hint: "Solve a puzzle with no hints at all" }
 };
 
 /* Advanced content is worth more (spec 5.1). */
@@ -57,6 +58,24 @@ export function streak(learnerId, todayIso = new Date().toISOString()) {
   return run;
 }
 
+/* Achievement titles (spec 5.10): earned by mastering advanced strands,
+   shown beside the learner's name. Ordered so the strongest wins. */
+export const TITLES = [
+  { code: "grand_combinatorialist", name: "Grand Combinatorialist", needs: ["combinatorics", "topic_mastered"] },
+  { code: "master_of_modular",      name: "Master of Modular Arithmetic", needs: ["number_theory", "topic_mastered"] },
+  { code: "proof_wright",           name: "Proof-Wright",          needs: ["elegant_solution", "unaided"] },
+  { code: "contest_contender",      name: "Contest Contender",     needs: ["contest_ready"] },
+  { code: "steady_hand",            name: "Steady Hand",           needs: ["streak_7"] },
+  { code: "apprentice",             name: "Apprentice",            needs: ["first_steps"] }
+];
+
+export function titleFor(learnerId) {
+  const held = new Set(db.prepare("SELECT code FROM awards WHERE learner_id=? AND kind='badge'")
+    .all(learnerId).map(r => r.code));
+  const earned = TITLES.filter(t => t.needs.every(n => held.has(n)));
+  return { current: earned[0] || null, earned, locked: TITLES.filter(t => !earned.includes(t)) };
+}
+
 export function totals(learnerId) {
   const pts = db.prepare("SELECT COALESCE(SUM(amount),0) p FROM awards WHERE learner_id=? AND kind='points'")
     .get(learnerId).p;
@@ -67,5 +86,5 @@ export function totals(learnerId) {
      and later ones take real work. */
   const level = Math.max(1, Math.floor(Math.sqrt(pts / 50)) + 1);
   const nextAt = Math.round(50 * Math.pow(level, 2));
-  return { points: pts, level, nextLevelAt: nextAt, badges };
+  return { points: pts, level, nextLevelAt: nextAt, badges, title: titleFor(learnerId) };
 }

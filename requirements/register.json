@@ -483,7 +483,7 @@
       "status": "partial",
       "priority": 3,
       "evidence": "check:gamification",
-      "notes": "12 badges including subject-specific, meta and the Elegant Solution award for an unaided puzzle solve. Awarded once and never revoked. The spec asks for 100+; this is a working subset."
+      "notes": "12 badges across subject-specific, meta and puzzle achievements, awarded once and never revoked. The check now also scans the source for every badge the code can award and fails if any is missing from the catalogue - added after an uncatalogued badge shipped. The spec asks for 100+; this is a working subset."
     },
     {
       "id": "5.3",
@@ -542,8 +542,10 @@
       "id": "5.10",
       "section": "Gamification",
       "title": "Achievement titles for advanced mastery",
-      "status": "todo",
-      "priority": 3
+      "status": "done",
+      "priority": 3,
+      "evidence": "check:achievement-titles",
+      "notes": "Six titles earned by combinations of badges - Grand Combinatorialist, Master of Modular Arithmetic, Proof-Wright, Contest Contender, Steady Hand, Apprentice - ordered strongest first so the displayed title is the best held. Every title's requirements are validated against real badges."
     },
     {
       "id": "6.1",

@@ -1211,6 +1211,15 @@ export const CHECKS = {
     assert(r.points > 0, "points did not accumulate");
     assert(r.badges.length >= 2, "badges not listed on the rewards endpoint");
     assert(r.badges.every(b => b.name), "a badge has no display name");
+    /* Every badge the code can award must exist in the catalogue, or it would
+       render as a raw code. Scan the source for award(... "badge", "code"). */
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("app/server/src/routes.js", "utf8") +
+                readFileSync("app/server/src/rewards.js", "utf8");
+    const awarded = [...src.matchAll(/award\([^,]+,\s*"badge",\s*"([a-z_]+)"/g)].map(m => m[1]);
+    const gives = [...src.matchAll(/give\("([a-z_]+)"\)/g)].map(m => m[1]);
+    for (const code of new Set([...awarded, ...gives]))
+      assert(rewards.BADGES[code], `code awards badge "${code}" which is not in the catalogue`);
     assert(r.nextLevelAt > r.points || r.level > 1, "level progress is not reported");
 
     /* Streak counts consecutive days and breaks when a day is skipped. */
@@ -1988,6 +1997,47 @@ export const CHECKS = {
     assert(/rel="manifest"/.test(built), "built page lost the manifest link");
 
     return "installable manifest, offline shell, API excluded from cache, production build emits all shell files";
+  },
+
+
+  /* 5.10 — achievement titles earned by advanced mastery */
+  "achievement-titles": async () => {
+    const rewards = await import("../app/server/src/rewards.js");
+    assert(rewards.TITLES.length >= 4, "too few achievement titles");
+    for (const t of rewards.TITLES) {
+      assert(t.name && t.code, "a title is missing a name or code");
+      assert(Array.isArray(t.needs) && t.needs.length, `${t.code} has no requirements`);
+      for (const n of t.needs)
+        assert(rewards.BADGES[n], `title ${t.code} requires unknown badge "${n}"`);
+    }
+    /* Titles must be ordered strongest first, so the displayed one is the best. */
+    const idx = c => rewards.TITLES.findIndex(t => t.code === c);
+    assert(idx("grand_combinatorialist") < idx("apprentice"),
+      "titles are not ordered with the hardest first");
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "title@b.com", password: "a-long-enough-pass", name: "T" });
+    const kid = (await post(c, "/learners", { name: "Title Kid" })).body.learner;
+
+    /* Nothing earned yet. */
+    let r = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(r.title && r.title.current === null, "a learner started with a title");
+    assert(r.title.locked.length === rewards.TITLES.length, "locked titles not listed");
+
+    /* A first round earns the entry title, not a prestigious one. */
+    await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    r = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(r.title.current, "no title after earning the first badge");
+    assert(r.title.current.code === "apprentice",
+      `a single perfect round awarded "${r.title.current.code}"`);
+
+    /* A title requiring badges the learner does not hold stays locked. */
+    assert(r.title.locked.some(t => t.code === "grand_combinatorialist"),
+      "an unearned advanced title is not locked");
+
+    return `${rewards.TITLES.length} titles, requirements validated against real badges, strongest shown first`;
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */
