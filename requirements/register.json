@@ -240,8 +240,10 @@
       "id": "3.5.4",
       "section": "Content quality",
       "title": "Math notation via LaTeX with MathML accessibility",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:math-notation",
+      "notes": "Arithmetic, fractions, absolute value, coordinates, ratios and exponents render as MathML with an aria-label giving the spoken form, so assistive technology announces mathematics rather than punctuation. Negative numbers use a true minus sign. Unrecognised text is returned as escaped plain text rather than wrapped in markup that would misrepresent it. LaTeX input for authors is not supported - MathML was chosen because it needs no client library and is what assistive technology consumes."
     },
     {
       "id": "3.5.5",

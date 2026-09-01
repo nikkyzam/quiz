@@ -2171,6 +2171,64 @@ export const CHECKS = {
     return "liveness and readiness separated, backup restorable and integrity-checked, pruning bounded";
   },
 
+
+  /* 3.5.4 — maths notation as MathML with spoken equivalents */
+  "math-notation": async () => {
+    const { toMathML, renderQuestion } = await import("../app/shared/mathml.mjs");
+
+    const cases = [
+      ["7 × 8", "7 times 8", "<mo>&#xD7;</mo>"],
+      ["12 ÷ 3", "12 divided by 3", "<mo>&#xF7;</mo>"],
+      ["3/4", "3 over 4", "<mfrac>"],
+      ["|-7|", "the absolute value of -7", "<mo>|</mo>"],
+      ["(3, -2)", "the point 3 comma -2", "<mo>,</mo>"],
+      ["4 : 6", "4 to 6", "<mo>:</mo>"],
+      ["2^5", "2 to the power of 5", "<msup>"]
+    ];
+    for (const [input, spoken, tag] of cases) {
+      const r = toMathML(input);
+      assert(r, `"${input}" produced no MathML`);
+      assert(r.spoken === spoken, `"${input}" speaks as "${r.spoken}", expected "${spoken}"`);
+      assert(r.mathml.includes(tag), `"${input}" is missing ${tag}`);
+      assert(r.mathml.includes('xmlns="http://www.w3.org/1998/Math/MathML"'),
+        `"${input}" has no MathML namespace`);
+      assert(r.mathml.includes('aria-label='), `"${input}" has no accessible label`);
+      /* Negative numbers must use a minus sign, not a hyphen. */
+      if (input.includes("-")) assert(r.mathml.includes("&#x2212;"),
+        `"${input}" rendered a hyphen instead of a minus sign`);
+    }
+
+    /* Unrecognised text must NOT be wrapped in markup that lies about it. */
+    assert(toMathML("what is the capital of France") === null,
+      "prose was rendered as mathematics");
+    assert(toMathML("") === null, "empty input produced MathML");
+
+    /* Inside a sentence, only the maths is marked up and prose is escaped. */
+    const q = renderQuestion("What is 7 × 8, and where is (3, -2)?");
+    assert(q.mathCount === 2, `found ${q.mathCount} expressions, expected 2`);
+    assert(q.html.includes("What is "), "prose was lost");
+    assert((q.html.match(/<math /g) || []).length === 2, "wrong number of math elements");
+
+    /* Prose around the maths must be escaped, or a question containing an
+       angle bracket would emit raw markup. */
+    const risky = renderQuestion("Is 5 < 6 and 7 × 8 true?");
+    assert(risky.html.includes("5 &lt; 6"), "a less-than in prose was not escaped");
+    assert(risky.mathCount === 1, "the maths in a mixed sentence was not found");
+    const injected = renderQuestion("Careful <script>alert(1)</script> and 3/4");
+    assert(!injected.html.includes("<script"), "script markup survived rendering");
+    assert(injected.html.includes("<mfrac>"), "the fraction was lost while escaping");
+
+    /* Every MathML fragment must be balanced, or a reader will mis-announce it. */
+    for (const [input] of cases) {
+      const ml = toMathML(input).mathml;
+      const open = (ml.match(/<[a-z]+[ >]/g) || []).length;
+      const close = (ml.match(/<\/[a-z]+>/g) || []).length;
+      assert(open === close, `"${input}" produced unbalanced MathML`);
+    }
+
+    return `${cases.length} notations rendered as MathML with spoken labels, prose left alone`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
