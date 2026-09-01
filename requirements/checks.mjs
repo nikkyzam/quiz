@@ -1020,6 +1020,87 @@ export const CHECKS = {
     return "struggling fires on the third consecutive miss, not before, and a correct answer clears it";
   },
 
+
+  /* 4.1.9 + 13.12 — competition prep: timed papers scored accurately */
+  "competition-prep": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "contest@b.com", password: "a-long-enough-pass", name: "C" });
+    const kid = (await post(c, "/learners", { name: "Contest Kid" })).body.learner;
+
+    const formats = (await c("/contest/formats")).body.formats;
+    for (const f of ["kangaroo", "moems", "amc8", "mathcounts"])
+      assert(formats[f], `contest format ${f} missing`);
+
+    /* Start a paper: questions must arrive without answers, with a time limit. */
+    const start = await post(c, "/contest/start", { learnerId: kid.id, format: "drill" });
+    assert(start.status === 200, "contest did not start");
+    assert(start.body.limitSeconds > 0, "no time limit issued");
+    assert(start.body.questions.length > 1, "contest paper is too short");
+    const raw = JSON.stringify(start.body.questions);
+    for (const k of ['"ans"', '"ansP"', '"expl"', '"a":', '"ansOrder"', '"aMulti"'])
+      assert(!raw.includes(k), `contest paper leaked ${k}`);
+
+    /* Answer everything correctly; the server must score it accurately. */
+    const answers = {};
+    for (const q of start.body.questions) {
+      if (q.type === "mc") {
+        for (let i = 0; i < q.opts.length; i++)
+          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) { answers[q.id] = i; break; }
+      } else if (q.type === "order") {
+        answers[q.id] = (await post(c, "/answer", { questionId: q.id, answer: [] }))
+          .body.correctAnswer.split("  →  ");
+      } else if (q.type === "multi") {
+        const p = await post(c, "/answer", { questionId: q.id, answer: [] });
+        answers[q.id] = p.body.correctAnswer.split(", ").map(t => q.opts.indexOf(t));
+      } else {
+        answers[q.id] = (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
+      }
+    }
+    const done = await post(c, "/contest/submit", { contestId: start.body.contestId, answers });
+    assert(done.body.pct === 100, `perfect paper scored ${done.body.pct}%`);
+    assert(done.body.expired === false, "an in-time submission was marked expired");
+    assert(typeof done.body.seconds === "number", "no elapsed time recorded");
+    assert(done.body.byTopic.length > 0, "no topic breakdown for the paper");
+
+    /* A spent paper cannot be resubmitted. */
+    assert((await post(c, "/contest/submit", { contestId: start.body.contestId, answers })).status === 404,
+      "a submitted contest was accepted twice");
+
+    /* The clock is the server's. Test the timing rules directly rather than
+       waiting out a real deadline. */
+    const { isExpired, scorePaper } = await import("../app/server/src/contest.js");
+    assert(isExpired(1000, 1001) === true, "a submission after the deadline was not expired");
+    assert(isExpired(1000, 1000) === false, "a submission exactly on the deadline was expired");
+    const late = scorePaper({ marks: [true, true, true], expired: true });
+    assert(late.score === 0, `an expired paper scored ${late.score}, expected 0`);
+    assert(late.correctBeforePenalty === 3, "an expired paper hid what the learner got right");
+    const intime = scorePaper({ marks: [true, false, true], expired: false });
+    assert(intime.score === 2 && intime.pct === 67, `in-time scoring wrong: ${JSON.stringify(intime)}`);
+
+    const late2 = await post(c, "/contest/start", { learnerId: kid.id, format: "drill" });
+    assert(late2.body.limitSeconds === formats.drill.minutes * 60,
+      "issued time limit does not match the format");
+    await post(c, "/contest/submit", { contestId: late2.body.contestId, answers: {} });
+
+    /* History and analytics. */
+    const hist = (await c(`/learners/${kid.id}/contests`)).body;
+    assert(hist.history.length === 2, `expected 2 attempts, got ${hist.history.length}`);
+    assert(hist.byFormat.some(f => f.format === "drill" && f.best === 100),
+      "best score not tracked per format");
+
+    /* Another account cannot start or read this learner's contests. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "conbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await post(bob, "/contest/start", { learnerId: kid.id, format: "drill" })).status === 403,
+      "another account started a contest for someone else's learner");
+    assert((await bob(`/learners/${kid.id}/contests`)).status === 403,
+      "another account read this learner's contest history");
+
+    return `${Object.keys(formats).length} formats, papers scored server-side, timing enforced, history tracked`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

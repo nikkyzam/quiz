@@ -148,8 +148,9 @@
       "id": "3.3.5",
       "section": "Pedagogy",
       "title": "Competition readiness: Contest Corner with past problems and drills",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "Timed contest formats exist. No Contest Corner UI or strategy guides yet."
     },
     {
       "id": "3.4.1",
@@ -303,8 +304,10 @@
       "id": "4.1.9",
       "section": "Student app",
       "title": "Competition prep mode: timed sets, mock contests, analytics",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:competition-prep",
+      "notes": "Timed papers in five formats (Kangaroo, MOEMS, AMC 8, MATHCOUNTS, quick drill), scored server-side with the deadline owned by the server: a late submission is still marked but scores zero. Per-format history and topic breakdown recorded. NOT done: percentile ranking against other students, leaderboards, and a curated archive of real contest problems (licensing is blocked, 10.9)."
     },
     {
       "id": "4.1.10",
@@ -887,8 +890,10 @@
       "id": "13.12",
       "section": "Acceptance",
       "title": "Mock contest scored accurately with correct leaderboards",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:competition-prep",
+      "notes": "Mock contests score accurately and timing is enforced, both verified. Leaderboards are not built."
     },
     {
       "id": "13.13",

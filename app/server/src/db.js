@@ -115,6 +115,23 @@ CREATE TABLE IF NOT EXISTS mistakes (
   category   TEXT NOT NULL,
   at         TEXT NOT NULL
 );
+-- Timed contest attempts, kept apart from practice so contest analytics
+-- are not polluted by untimed work.
+CREATE TABLE IF NOT EXISTS contests (
+  id          TEXT PRIMARY KEY,
+  learner_id  TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  format      TEXT NOT NULL,
+  score       INTEGER NOT NULL,
+  total       INTEGER NOT NULL,
+  pct         INTEGER NOT NULL,
+  seconds     INTEGER NOT NULL,
+  limit_secs  INTEGER NOT NULL,
+  expired     INTEGER NOT NULL DEFAULT 0,
+  detail      TEXT NOT NULL,
+  finished_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_contests_learner ON contests(learner_id, finished_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_mistakes_learner ON mistakes(learner_id, at DESC);
 
 CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);

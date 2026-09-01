@@ -10,6 +10,7 @@ import * as diag from "./diagnostic.js";
 import * as spacing from "./spacing.js";
 import { PREREQS, prereqsOf, allPrereqs, unlockedBy } from "../../shared/prereqs.mjs";
 import { classify, summarise as summariseErrors, CATEGORIES } from "./errors.js";
+import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -591,6 +592,111 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     asked: sess.asked, score: sess.score, intervention,
     question: publicQuestion(sess.topicId, next.idx)
   });
+});
+
+/* ---------------- competition prep (spec 4.1.9, 4.7) ----------------
+   Timed drills and mock contests. The clock is authoritative on the server:
+   the deadline is set when the paper is issued, and a submission arriving
+   after it is marked but flagged as expired, so a client cannot buy time. */
+const contestSessions = new Map();
+
+api.get("/contest/formats", (_req, res) => res.json({ formats: CONTEST_FORMATS }));
+
+api.post("/contest/start", requireAuth, (req, res) => {
+  const { learnerId, format, topicIds } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const fmt = CONTEST_FORMATS[format];
+  if (!fmt) return res.status(400).json({ error: "unknown_format" });
+
+  /* Draw across whichever authored topics were requested, or all of them. */
+  const pool = [];
+  const wanted = Array.isArray(topicIds) && topicIds.length ? topicIds : Object.keys(QUESTIONS);
+  for (const t of wanted) {
+    if (!QUESTIONS[t]) continue;
+    QUESTIONS[t].forEach((_, i) => pool.push(`${t}:${i}`));
+  }
+  if (pool.length < 2) return res.status(404).json({ error: "not_enough_questions" });
+
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const ids = pool.slice(0, Math.min(fmt.questions, pool.length));
+  const id = randomUUID();
+  const limitSecs = fmt.minutes * 60;
+  contestSessions.set(id, {
+    learnerId, format, ids, startedAt: Date.now(),
+    deadline: Date.now() + limitSecs * 1000, limitSecs
+  });
+  audit(req.user.id, "contest.started", format, req);
+  res.json({
+    contestId: id, format, name: fmt.name, limitSeconds: limitSecs,
+    questions: ids.map(qid => {
+      const [t, i] = qid.split(":");
+      return publicQuestion(t, Number(i));
+    })
+  });
+});
+
+api.post("/contest/submit", requireAuth, (req, res) => {
+  const { contestId, answers } = req.body || {};
+  const sess = contestSessions.get(contestId);
+  if (!sess) return res.status(404).json({ error: "unknown_contest" });
+  if (!ownLearner(req, sess.learnerId)) return res.status(403).json({ error: "not_your_learner" });
+
+  const finishedAt = Date.now();
+  const expired = isExpired(sess.deadline, finishedAt);
+  const seconds = Math.round((finishedAt - sess.startedAt) / 1000);
+
+  const marks = [];
+  const detail = sess.ids.map(qid => {
+    const [t, i] = qid.split(":");
+    const q = QUESTIONS[t][Number(i)];
+    const { ok, correctAnswer } = gradeAnswer(q, (answers || {})[qid]);
+    marks.push(ok);
+    if (!ok) {
+      const category = classify(q, (answers || {})[qid]);
+      db.prepare("INSERT INTO mistakes (id, learner_id, topic_id, question_id, category, at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), sess.learnerId, t, qid, category, now());
+    }
+    return { id: qid, topicId: t, correct: ok, correctAnswer, explanation: q.expl };
+  });
+
+  const { score, total, pct, correctBeforePenalty } = scorePaper({ marks, expired });
+  db.prepare(`INSERT INTO contests (id, learner_id, format, score, total, pct, seconds, limit_secs, expired, detail, finished_at)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
+    .run(randomUUID(), sess.learnerId, sess.format, score, total, pct, seconds,
+         sess.limitSecs, expired ? 1 : 0, JSON.stringify(detail.map(d => ({ id: d.id, correct: d.correct }))), now());
+  contestSessions.delete(contestId);
+  audit(req.user.id, "contest.submitted", `${sess.format}:${pct}%`, req);
+
+  /* Topic-level strengths and weaknesses from this paper. */
+  const byTopic = {};
+  for (const d of detail) {
+    const t = (byTopic[d.topicId] ||= { topicId: d.topicId, asked: 0, correct: 0 });
+    t.asked++; if (d.correct) t.correct++;
+  }
+  res.json({
+    score, total, pct, correctBeforePenalty, seconds, limitSeconds: sess.limitSecs, expired,
+    detail,
+    byTopic: Object.values(byTopic).map(t => ({ ...t, pct: Math.round((t.correct / t.asked) * 100) }))
+              .sort((a, b) => a.pct - b.pct)
+  });
+});
+
+api.get("/learners/:id/contests", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare(
+    "SELECT format, score, total, pct, seconds, limit_secs, expired, finished_at FROM contests WHERE learner_id = ? ORDER BY finished_at DESC LIMIT 50")
+    .all(req.params.id);
+  const byFormat = {};
+  for (const r of rows) {
+    const f = (byFormat[r.format] ||= { format: r.format, attempts: 0, best: 0, latest: null, trend: [] });
+    f.attempts++; f.best = Math.max(f.best, r.pct);
+    if (!f.latest) f.latest = r.pct;
+    f.trend.push(r.pct);
+  }
+  res.json({ history: rows, byFormat: Object.values(byFormat) });
 });
 
 /* ---------------- error analysis (spec 7.5) ---------------- */
