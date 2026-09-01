@@ -7,6 +7,7 @@ import {
 } from "./auth.js";
 import { rateLimit, audit, auditTrail } from "./security.js";
 import * as diag from "./diagnostic.js";
+import * as spacing from "./spacing.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 
@@ -292,16 +293,32 @@ api.get("/learners/:id/diagnostic", requireAuth, (req, res) => {
    first. Spaced repetition (6.4) is not part of this yet. */
 api.get("/learners/:id/review", requireAuth, (req, res) => {
   if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
-  const rows = db.prepare("SELECT * FROM progress WHERE learner_id = ?").all(req.params.id);
-  const items = rows
+  const learnerId = req.params.id;
+  const rows = db.prepare("SELECT * FROM progress WHERE learner_id = ?").all(learnerId);
+
+  /* Two reasons to practise something: it is not mastered yet, or it is
+     mastered but the spacing schedule says it is due a refresher. */
+  const notMastered = rows
     .filter(r => r.best_pct < thresholdOf(r.topic_id))
     .map(r => ({
       topicId: r.topic_id, tier: r.tier, bestPct: r.best_pct,
       threshold: thresholdOf(r.topic_id), track: trackOf(r.topic_id),
-      gap: thresholdOf(r.topic_id) - r.best_pct, lastAt: r.last_at
+      gap: thresholdOf(r.topic_id) - r.best_pct, lastAt: r.last_at,
+      reason: "not_yet_mastered"
     }))
     .sort((a, b) => b.gap - a.gap);
-  res.json({ review: items });
+
+  const dueRows = spacing.due(learnerId);
+  const seen = new Set(notMastered.map(i => i.topicId));
+  const dueForReview = dueRows
+    .filter(d => !seen.has(d.topic_id))
+    .map(d => ({
+      topicId: d.topic_id, threshold: thresholdOf(d.topic_id), track: trackOf(d.topic_id),
+      gap: 0, lastAt: d.last_at, dueAt: d.due_at,
+      intervalDays: d.interval_days, reason: "due_for_review"
+    }));
+
+  res.json({ review: [...notMastered, ...dueForReview], schedule: spacing.scheduleFor(learnerId) });
 });
 
 /* ---------------- mastery check (spec 4.1.6) ----------------
@@ -374,6 +391,7 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
       .run(ts, sess.learnerId, sess.topicId, "mastery");
   }
 
+  spacing.schedule(sess.learnerId, sess.topicId, score / total);
   checkSessions.delete(checkId);
   audit(req.user.id, "mastery.submitted", `${sess.topicId}:${pct}%`, req);
   res.json({ score, total, pct, threshold, passed, detail });
@@ -483,6 +501,7 @@ api.post("/practice/answer", requireAuth, (req, res) => {
       db.prepare("UPDATE progress SET runs=runs+1, last_at=? WHERE learner_id=? AND topic_id=? AND tier=?")
         .run(ts, sess.learnerId, sess.topicId, "adaptive");
     }
+    spacing.schedule(sess.learnerId, sess.topicId, sess.score / total);
     practiceSessions.delete(sessionId);
     return res.json({
       correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: true,
@@ -525,7 +544,8 @@ api.post("/runs", requireAuth, (req, res) => {
            better ? pct : prev.best_pct, ts, learnerId, topicId, tier);
   }
   const track = trackOf(topicId), threshold = thresholdOf(topicId);
-  res.json({ pct, threshold, track, star: pct >= threshold });
+  const next = spacing.schedule(learnerId, topicId, s / t);
+  res.json({ pct, threshold, track, star: pct >= threshold, nextReview: next });
 });
 
 api.get("/learners/:id/progress", requireAuth, (req, res) => {

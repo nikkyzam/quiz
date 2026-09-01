@@ -9,6 +9,11 @@ const PORT = 4123;
 const BASE = `http://localhost:${PORT}`;
 const DB = "./data/verify.db";
 
+/* Some checks import server modules directly to test pure logic. db.js reads
+   DB_FILE once at import time, so it must be set here, before any of those
+   imports run, or the module would open a second database of its own. */
+process.env.DB_FILE = "app/server/data/verify.db";
+
 export async function withServer(fn) {
   rmSync("app/server/" + DB.replace("./", ""), { force: true });
   const srv = spawn("node", ["src/index.js"], {
@@ -769,6 +774,61 @@ export const CHECKS = {
     assert(hijack.status === 403, "another account started a session for someone else's learner");
 
     return "adaptive over 10 questions, stars reflect hint use, all mistakes returned, best score kept";
+  },
+
+
+  /* 3.3.3 + 6.4 — spaced repetition: intervals adapt to performance */
+  "spaced-repetition": async () => {
+    /* Create a real learner first: the schedule has a foreign key to it. */
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "space@b.com", password: "a-long-enough-pass", name: "S" });
+    const kid = (await post(c, "/learners", { name: "Spaced Kid" })).body.learner;
+    const learner = kid.id;
+
+    /* The scheduling maths is deterministic, so drive it directly rather than
+       waiting real days. DB_FILE is set at the top of this file so this shares
+       the server's database. */
+    const spacing = await import("../app/server/src/spacing.js");
+
+    const day = (n) => new Date(Date.UTC(2026, 0, 1 + n));
+    /* Three good reviews: interval must grow each time. */
+    const r1 = spacing.schedule(learner, "t-good", 1.0, day(0));
+    const r2 = spacing.schedule(learner, "t-good", 1.0, day(1));
+    const r3 = spacing.schedule(learner, "t-good", 1.0, day(4));
+    assert(r1.intervalDays === 1, `first interval ${r1.intervalDays}, expected 1`);
+    assert(r2.intervalDays > r1.intervalDays, "interval did not grow after a second success");
+    assert(r3.intervalDays > r2.intervalDays, "interval did not grow after a third success");
+    assert(r3.ease >= r1.ease, "ease fell despite perfect reviews");
+
+    /* A failure collapses the interval and reduces ease. */
+    const bad = spacing.schedule(learner, "t-good", 0.1, day(10));
+    assert(bad.intervalDays === 1, `failed review kept a ${bad.intervalDays}-day interval`);
+    assert(bad.ease < r3.ease, "ease did not drop after a lapse");
+    assert(bad.lapses === 1, "lapse not counted");
+    assert(bad.reps === 0, "repetition count not reset after a lapse");
+
+    /* Ease has a floor, so repeated failure cannot drive it to zero. */
+    let e = bad.ease;
+    for (let i = 0; i < 12; i++) e = spacing.schedule(learner, "t-bad", 0, day(20 + i)).ease;
+    assert(e >= 1.3, `ease fell below the floor: ${e}`);
+
+    /* Due-ness is date-driven: nothing due today, everything due later. */
+    const dueNow = spacing.due(learner, day(0)).map(r => r.topic_id);
+    assert(!dueNow.includes("t-good"), "a topic reviewed today is already due again");
+    const dueLater = spacing.due(learner, day(400)).map(r => r.topic_id);
+    assert(dueLater.includes("t-good"), "a long-overdue topic never became due");
+
+    /* And a real run through the API must create a schedule entry. */
+    const run = await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    assert(run.body.nextReview && run.body.nextReview.dueAt, "a run did not schedule the next review");
+    const rev = (await c(`/learners/${kid.id}/review`)).body;
+    assert(Array.isArray(rev.schedule) && rev.schedule.length >= 1, "schedule not exposed on the review endpoint");
+    assert(rev.schedule.some(r => r.topic_id === "g6-ratios"), "the run's topic is not on the schedule");
+    assert(rev.review.every(r => r.reason), "review items do not say why they are listed");
+
+    return "intervals grow on success, collapse on failure, ease floored at 1.3, schedule exposed via API";
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

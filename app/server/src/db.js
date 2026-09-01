@@ -91,6 +91,22 @@ CREATE TABLE IF NOT EXISTS diagnostics (
   recommendation TEXT NOT NULL,
   finished_at    TEXT NOT NULL
 );
+-- Spaced repetition schedule, one row per (learner, topic). Interval grows
+-- when a review goes well and collapses when it does not, so the next due
+-- date tracks the learner rather than a fixed calendar.
+CREATE TABLE IF NOT EXISTS review_schedule (
+  learner_id   TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  topic_id     TEXT NOT NULL,
+  interval_days REAL NOT NULL DEFAULT 1,
+  ease         REAL NOT NULL DEFAULT 2.5,
+  reps         INTEGER NOT NULL DEFAULT 0,
+  lapses       INTEGER NOT NULL DEFAULT 0,
+  due_at       TEXT NOT NULL,
+  last_at      TEXT NOT NULL,
+  PRIMARY KEY (learner_id, topic_id)
+);
+CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);
+
 CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_at DESC);
 `);
 
