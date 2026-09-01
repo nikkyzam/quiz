@@ -160,6 +160,60 @@ export const CHECKS = {
     return "cross-account read, write and delete all refused";
   },
 
+  /* 3.1.1 — K-8 map transcribed from Appendix A, split core vs advanced.
+     Spot-checks named topics per grade so the map can't silently regress. */
+  "curriculum-appendix-a": async () => {
+    const { CURRICULUM } = await import("../app/shared/curriculum.mjs");
+    const grades = ["K", "1", "2", "3", "4", "5", "6", "7", "8"];
+    for (const g of grades) assert(CURRICULUM[g], `grade ${g} missing`);
+
+    const ids = new Set();
+    for (const g of grades) {
+      const units = CURRICULUM[g].units;
+      const core = units.filter(u => u.track === "core");
+      const adv  = units.filter(u => u.track === "adv");
+      assert(core.length > 0, `grade ${g} has no core units`);
+      assert(adv.length > 0, `grade ${g} has no advanced units`);
+      for (const u of units) {
+        assert(u.track === "core" || u.track === "adv", `grade ${g} unit "${u.name}" has no valid track`);
+        assert(u.topics.length > 0, `grade ${g} unit "${u.name}" has no topics`);
+        for (const t of u.topics) {
+          assert(t.id && t.name, `grade ${g} unit "${u.name}" has a malformed topic`);
+          assert(!ids.has(t.id), `duplicate topic id ${t.id}`);
+          ids.add(t.id);
+        }
+      }
+    }
+
+    /* Appendix A promises specific advanced strands at specific grades. */
+    const mustHave = {
+      K:   ["k-combos", "k-symmetry", "k-evenodd"],
+      1:   ["g1-grid", "g1-machines", "g1-div25"],
+      2:   ["g2-prime20", "g2-trees", "g2-gcf"],
+      3:   ["g3-primefact", "g3-lcm", "g3-multprin"],
+      4:   ["g4-clockmod", "g4-euclid", "g4-factorial", "g4-exptheo"],
+      5:   ["g5-modarith", "g5-diophant", "g5-bases", "g5-pascal", "g5-expected"],
+      6:   ["g6-crt", "g6-binomial", "g6-catalan", "g6-bayes", "g6-transform"],
+      7:   ["g7-euler", "g7-graphtheo", "g7-markov", "g7-rsa", "g7-circthm"],
+      8:   ["g8-polya", "g8-planar", "g8-clt", "g8-complex", "g8-trig"]
+    };
+    for (const [g, want] of Object.entries(mustHave)) {
+      const have = new Set(CURRICULUM[g].units.flatMap(u => u.topics.map(t => t.id)));
+      for (const id of want) assert(have.has(id), `grade ${g} is missing required topic ${id}`);
+    }
+
+    /* Every authored question bank must join to a real topic. */
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+    for (const topicId of Object.keys(QUESTIONS)) {
+      assert(ids.has(topicId), `question bank "${topicId}" has no matching topic in the curriculum`);
+    }
+
+    const topicCount = ids.size;
+    const advCount = grades.reduce((a, g) =>
+      a + CURRICULUM[g].units.filter(u => u.track === "adv").reduce((b, u) => b + u.topics.length, 0), 0);
+    return `9 grades, ${topicCount} topics (${advCount} advanced), all banks joined, spot-checks pass`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
