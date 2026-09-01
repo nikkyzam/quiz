@@ -23,7 +23,8 @@ export async function withServer(fn) {
               not what these checks are testing. The LOGIN limit, which is the
               brute-force control that matters, is still exercised in full by
               check:security-privacy. */
-           REGISTER_LIMIT_PER_HOUR: "1000" },
+           REGISTER_LIMIT_PER_HOUR: "1000",
+           ADMIN_EMAILS: "boss@b.com" },
     stdio: "ignore"
   });
   try {
@@ -1674,6 +1675,63 @@ export const CHECKS = {
       "another account read this learner's proof history");
 
     return `${proofs.length} proofs across grades ${grades[0]}-${grades[grades.length - 1]}, ${kinds.size} kinds, structurally checked`;
+  },
+
+
+  /* 4.4.1 + 4.4.2 + 4.4.3 — admin portal, aggregate only */
+  "admin-portal": async () => {
+    const admin = client(), parent = client(), teacher = client();
+    await post(admin, "/auth/register",
+      { coppaConsent: true, email: "boss@b.com", password: "a-long-enough-pass", name: "Boss" });
+    await post(parent, "/auth/register",
+      { coppaConsent: true, email: "adm-p@b.com", password: "a-long-enough-pass", name: "P" });
+    await post(teacher, "/auth/register",
+      { coppaConsent: true, role: "teacher", email: "adm-t@b.com", password: "a-long-enough-pass", name: "T" });
+
+    /* Admin is granted out of band, never self-assigned. */
+    const sneaky = client();
+    await post(sneaky, "/auth/register",
+      { coppaConsent: true, role: "admin", email: "sneaky@b.com", password: "a-long-enough-pass", name: "S" });
+    assert((await sneaky("/admin/overview")).status === 403,
+      "an account granted itself the admin role at signup");
+
+    /* Neither parents nor teachers reach admin data. */
+    assert((await parent("/admin/overview")).status === 403, "a parent read admin data");
+    assert((await teacher("/admin/overview")).status === 403, "a teacher read admin data");
+
+    /* Give the platform something to aggregate. */
+    const kid = (await post(parent, "/learners", { name: "Admin Kid" })).body.learner;
+    await post(parent, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 4, total: 8 });
+
+    const ov = await admin("/admin/overview");
+    assert(ov.status === 200, `admin overview failed with ${ov.status}`);
+    assert(ov.body.users >= 4, "user count is wrong");
+    assert(ov.body.learners >= 1, "learner count is wrong");
+    assert(ov.body.runs >= 1, "run count is wrong");
+    assert(ov.body.attainment && typeof ov.body.attainment["50-69"] === "number",
+      "no attainment distribution");
+    assert(Array.isArray(ov.body.hardestTopics), "no hardest-topics analytics");
+    assert(ov.body.byRole.some(r => r.role === "admin"), "role breakdown missing");
+
+    /* Aggregate only: no child's name or individual answers in the payload. */
+    const raw = JSON.stringify(ov.body);
+    assert(!raw.includes("Admin Kid"), "admin overview exposed a learner's name");
+    assert(!raw.includes("adm-p@b.com"), "admin overview exposed a parent's email");
+
+    /* Retention policy is published, with real counts. */
+    const ret = await admin("/admin/retention");
+    assert(ret.status === 200 && ret.body.policy.erasure, "no retention policy published");
+    assert(typeof ret.body.counts.auditEntries === "number", "no audit counts");
+
+    /* Reading the audit log is itself audited. */
+    const before = (await admin("/admin/audit")).body.entries.length;
+    await admin("/admin/audit");
+    const after = (await admin("/admin/audit")).body.entries;
+    assert(after.length >= before, "audit log did not grow");
+    assert(after.some(e => e.action === "admin.audit.read"), "admin audit access was not itself recorded");
+
+    return "aggregate analytics, retention policy, audited access, RBAC enforced and admin not self-assignable";
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

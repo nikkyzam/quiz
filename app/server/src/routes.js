@@ -155,7 +155,11 @@ api.post("/auth/register", registerLimit, (req, res) => {
 
   const { coppaConsent } = req.body || {};
   if (coppaConsent !== true) return res.status(400).json({ error: "coppa_consent_required" });
-  const role = ["parent", "teacher"].includes(req.body?.role) ? req.body.role : "parent";
+  /* Admin cannot be self-assigned at signup. It is granted out of band with
+     ADMIN_EMAILS, so nobody can register their way into district data. */
+  const adminList = String(process.env.ADMIN_EMAILS || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+  const role = adminList.includes(String(email).toLowerCase()) ? "admin"
+             : ["parent", "teacher"].includes(req.body?.role) ? req.body.role : "parent";
   const user = createUser({ email, password: String(password),
                             name: String(name).trim().slice(0, 60), role, coppaConsent: true });
   audit(user.id, "account.created", null, req);
@@ -901,6 +905,68 @@ api.get("/classes/:id/progress", requireAuth, requireTeacher, (req, res) => {
 
   audit(req.user.id, "class.progress.read", cls.id, req);
   res.json({ class: { id: cls.id, name: cls.name }, assignments, learners: rows, heatmap });
+});
+
+/* ---------------- admin portal (spec 4.4) ----------------
+   Aggregate only. An administrator sees counts and distributions, never an
+   individual child's answers — the audit log records every access. */
+function requireAdmin(req, res, next) { return requireRole("admin")(req, res, next); }
+
+api.get("/admin/overview", requireAuth, requireAdmin, (req, res) => {
+  const one = q => db.prepare(q).get();
+  const users = one("SELECT COUNT(*) c FROM users").c;
+  const byRole = db.prepare("SELECT role, COUNT(*) c FROM users GROUP BY role").all();
+  const learners = one("SELECT COUNT(*) c FROM learners").c;
+  const classes = one("SELECT COUNT(*) c FROM classes").c;
+  const runs = one("SELECT COUNT(*) c FROM runs").c;
+  const since = new Date(Date.now() - 7 * 86400000).toISOString();
+  const activeLearners = one(`SELECT COUNT(DISTINCT learner_id) c FROM runs WHERE finished_at >= '${since}'`).c;
+
+  /* Attainment distribution, so a district can see the shape rather than
+     individual results. */
+  const buckets = { "0-49": 0, "50-69": 0, "70-89": 0, "90-100": 0 };
+  for (const r of db.prepare("SELECT best_pct FROM progress").all()) {
+    if (r.best_pct < 50) buckets["0-49"]++;
+    else if (r.best_pct < 70) buckets["50-69"]++;
+    else if (r.best_pct < 90) buckets["70-89"]++;
+    else buckets["90-100"]++;
+  }
+  const topics = db.prepare(`SELECT topic_id, COUNT(*) attempts, AVG(best_pct) avg_pct
+                             FROM progress GROUP BY topic_id ORDER BY avg_pct ASC LIMIT 10`).all()
+    .map(t => ({ ...describe(t.topic_id), attempts: t.attempts, averagePct: Math.round(t.avg_pct) }));
+
+  audit(req.user.id, "admin.overview.read", null, req);
+  res.json({
+    users, byRole, learners, classes, runs, activeLearnersLast7Days: activeLearners,
+    attainment: buckets, hardestTopics: topics
+  });
+});
+
+/* Retention: what the platform holds and for how long (spec 4.4.3, 10.3). */
+api.get("/admin/retention", requireAuth, requireAdmin, (req, res) => {
+  const oldest = db.prepare("SELECT MIN(finished_at) m FROM runs").get().m;
+  audit(req.user.id, "admin.retention.read", null, req);
+  res.json({
+    policy: {
+      auditLog: "retained while the account exists; deleted with the account",
+      learnerWork: "retained while the learner exists; deleted with the learner or the account",
+      sessions: "expire after 30 days",
+      erasure: "self-service via DELETE /api/me, cascading to learners, progress, runs and mistakes"
+    },
+    oldestRecord: oldest,
+    counts: {
+      auditEntries: db.prepare("SELECT COUNT(*) c FROM audit_log").get().c,
+      runs: db.prepare("SELECT COUNT(*) c FROM runs").get().c,
+      mistakes: db.prepare("SELECT COUNT(*) c FROM mistakes").get().c
+    }
+  });
+});
+
+/* Audit access is itself auditable. */
+api.get("/admin/audit", requireAuth, requireAdmin, (req, res) => {
+  const rows = db.prepare("SELECT user_id, action, detail, at FROM audit_log ORDER BY at DESC LIMIT 200").all();
+  audit(req.user.id, "admin.audit.read", null, req);
+  res.json({ entries: rows });
 });
 
 /* ---------------- error analysis (spec 7.5) ---------------- */
