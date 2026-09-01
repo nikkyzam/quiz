@@ -95,7 +95,8 @@ export const api = {
       "/practice/start", { learnerId, topicId }),
   answerPractice: (sessionId: string, answer: unknown, hintsUsed: number) =>
     post<{ correct: boolean; correctAnswer: string; explanation: string; figA: any; done: boolean;
-           asked?: number; score?: number; question?: Question; summary?: any }>(
+           asked?: number; score?: number; question?: Question; summary?: any;
+           intervention?: { type: string; message: string; suggest: string } | null }>(
       "/practice/answer", { sessionId, answer, hintsUsed }),
 
   /* mastery check (4.1.6) */

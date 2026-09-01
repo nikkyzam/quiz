@@ -26,6 +26,7 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [finished, setFinished] = useState(false);
   const [hints, setHints] = useState<string[]>([]);
+  const [nudge, setNudge] = useState<{ type: string; message: string; suggest: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,7 +43,8 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
       const r = await api.answerPractice(sessionId, answer, hints.length);
       setFb({ correct: r.correct, correctAnswer: r.correctAnswer, explanation: r.explanation, figA: r.figA });
       if (r.done && r.summary) setSummary(r.summary as Summary);
-      else { setPendingNext(r.question!); setAsked(r.asked ?? asked + 1); setScore(r.score ?? score); }
+      else { setPendingNext(r.question!); setAsked(r.asked ?? asked + 1); setScore(r.score ?? score);
+             setNudge(r.intervention ?? null); }
     } catch { setError("Couldn't submit that answer."); }
     finally { setBusy(false); }
   }
@@ -153,6 +155,12 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
         {hints.map((h, i) => (
           <div className="hintbox" key={i} role="status" aria-live="polite"><b>Hint {i + 1}.</b> {h}</div>
         ))}
+
+        {fb && nudge && (
+          <div className={"nudge nudge-" + nudge.type} role="status" aria-live="polite">
+            <b>{nudge.type === "ready_to_advance" ? "Nicely done." : "A suggestion."}</b> {nudge.message}
+          </div>
+        )}
 
         {fb && (
           <>

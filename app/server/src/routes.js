@@ -484,7 +484,8 @@ api.post("/practice/start", requireAuth, (req, res) => {
   const sess = {
     learnerId, topicId, byTier, used: new Set(),
     tierIdx: 0, streakRight: 0, streakWrong: 0,
-    asked: 0, score: 0, missed: [], hintsUsed: 0, startedAt: Date.now()
+    asked: 0, score: 0, missed: [], hintsUsed: 0, startedAt: Date.now(),
+    consecutiveWrong: 0, lastAnswerAt: Date.now(), fastMastery: true
   };
   practiceSessions.set(id, sess);
   const first = pickPractice(sess);
@@ -535,6 +536,22 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     if (sess.streakWrong >= 2 && sess.tierIdx > 0) { sess.tierIdx--; sess.streakWrong = 0; }
   }
 
+  /* Intervention triggers (spec 6.5), decided server-side from the session
+     so the client cannot suppress them. */
+  if (ok) { sess.consecutiveWrong = 0; }
+  else { sess.consecutiveWrong++; sess.fastMastery = false; }
+  const sinceLast = Date.now() - sess.lastAnswerAt;
+  sess.lastAnswerAt = Date.now();
+
+  const intervention =
+    sess.consecutiveWrong >= 3
+      ? { type: "struggling", message: "Three in a row have gone wrong. It may help to review the lesson for this topic, or take a hint on the next one.", suggest: "review" }
+    : sinceLast > 10 * 60_000
+      ? { type: "stalled", message: "That one took a while. There is no prize for doing it unaided — a hint is there if you want it.", suggest: "hint" }
+    : (ok && sess.hintsUsed === 0 && sess.asked >= 5 && sess.score === sess.asked && sess.tierIdx === diag.TIER_ORDER.length - 1)
+      ? { type: "ready_to_advance", message: "Everything correct at the hardest tier without hints. This topic looks secure — the advanced track will stretch you further.", suggest: "advance" }
+      : null;
+
   const next = sess.asked >= PRACTICE_LEN ? null : pickPractice(sess);
   if (!next) {
     const total = sess.asked;
@@ -571,7 +588,7 @@ api.post("/practice/answer", requireAuth, (req, res) => {
   sess.pending = next;
   res.json({
     correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: false,
-    asked: sess.asked, score: sess.score,
+    asked: sess.asked, score: sess.score, intervention,
     question: publicQuestion(sess.topicId, next.idx)
   });
 });

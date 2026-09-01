@@ -539,9 +539,10 @@
       "id": "6.5",
       "section": "Adaptive engine",
       "title": "Intervention triggers for struggle and rapid mastery",
-      "status": "partial",
+      "status": "done",
       "priority": 2,
-      "notes": "The /next endpoint surfaces blocked topics with their missing prerequisites, and spacing reacts to lapses. No in-session intervention triggers (3 wrong in a row, or >10 minutes without progress)."
+      "notes": "Server-side triggers during a practice session: three consecutive wrong answers suggests reviewing or taking a hint; more than ten minutes on one question suggests a hint; a flawless unaided run at the hardest tier suggests moving to the advanced track. Decided server-side so the client cannot suppress them, and surfaced in the practice UI.",
+      "evidence": "check:intervention-triggers"
     },
     {
       "id": "6.6",

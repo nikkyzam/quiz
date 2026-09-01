@@ -966,6 +966,60 @@ export const CHECKS = {
     return `${cases.length} classifier cases, mistakes recorded and reported by category and topic`;
   },
 
+
+  /* 6.5 — intervention triggers during a session */
+  "intervention-triggers": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "interv@b.com", password: "a-long-enough-pass", name: "I" });
+    const kid = (await post(c, "/learners", { name: "Intervention Kid" })).body.learner;
+
+    /* Three consecutive wrong answers must raise a struggling intervention. */
+    const start = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-nscoord" });
+    let struggling = null, seenBefore3 = [];
+    for (let i = 0; i < 4; i++) {
+      const step = await post(c, "/practice/answer",
+        { sessionId: start.body.sessionId, answer: "-424242", hintsUsed: 0 });
+      if (step.body.done) break;
+      if (i < 2) seenBefore3.push(step.body.intervention);
+      if (step.body.intervention?.type === "struggling") { struggling = step.body.intervention; break; }
+    }
+    assert(seenBefore3.every(x => x === null || x?.type !== "struggling"),
+      "struggling intervention fired before three consecutive wrong answers");
+    assert(struggling, "three wrong answers in a row raised no intervention");
+    assert(struggling.message && struggling.suggest, "intervention carries no message or suggestion");
+
+    /* A correct answer clears the streak, so it does not fire again immediately. */
+    const solve = async q => {
+      if (q.type === "mc") {
+        for (let i = 0; i < q.opts.length; i++)
+          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) return i;
+        return 0;
+      }
+      if (q.type === "order") return (await post(c, "/answer", { questionId: q.id, answer: [] }))
+        .body.correctAnswer.split("  →  ");
+      if (q.type === "multi") { const p = await post(c, "/answer", { questionId: q.id, answer: [] });
+        return p.body.correctAnswer.split(", ").map(t => q.opts.indexOf(t)); }
+      return (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
+    };
+    const s2 = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-nscoord" });
+    let q = s2.body.question, cleared = true;
+    for (let i = 0; i < 3; i++) {
+      const wrong = await post(c, "/practice/answer",
+        { sessionId: s2.body.sessionId, answer: "-424242", hintsUsed: 0 });
+      if (wrong.body.done) break;
+      q = wrong.body.question;
+      const right = await post(c, "/practice/answer",
+        { sessionId: s2.body.sessionId, answer: await solve(q), hintsUsed: 0 });
+      if (right.body.done) break;
+      q = right.body.question;
+      if (right.body.intervention?.type === "struggling") cleared = false;
+    }
+    assert(cleared, "a correct answer did not clear the wrong-answer streak");
+
+    return "struggling fires on the third consecutive miss, not before, and a correct answer clears it";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
