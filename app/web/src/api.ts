@@ -89,6 +89,15 @@ export const api = {
   review: (learnerId: string) =>
     call<{ review: ReviewItem[] }>(`/learners/${learnerId}/review`),
 
+  /* adaptive practice (4.1.4) */
+  startPractice: (learnerId: string, topicId: string) =>
+    post<{ sessionId: string; length: number; question: Question; asked: number; score: number }>(
+      "/practice/start", { learnerId, topicId }),
+  answerPractice: (sessionId: string, answer: unknown, hintsUsed: number) =>
+    post<{ correct: boolean; correctAnswer: string; explanation: string; figA: any; done: boolean;
+           asked?: number; score?: number; question?: Question; summary?: any }>(
+      "/practice/answer", { sessionId, answer, hintsUsed }),
+
   /* mastery check (4.1.6) */
   startMastery: (learnerId: string, topicId: string) =>
     post<{ checkId: string; threshold: number; questions: Question[] }>("/mastery/start", { learnerId, topicId }),

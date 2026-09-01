@@ -261,9 +261,10 @@
       "id": "4.1.4",
       "section": "Student app",
       "title": "Practice mode: adaptive sequence, 3-level hints, feedback, stars, mistake review",
-      "status": "partial",
-      "notes": "3-level hints, feedback and star value done. Adaptive sequencing and end-of-session mistake review not built.",
-      "priority": 1
+      "status": "done",
+      "notes": "Adaptive session held server-side: difficulty follows performance, three-level hints reduce the star award, and every mistake is returned at the end with its answer and explanation. Time on task recorded.",
+      "priority": 1,
+      "evidence": "check:adaptive-practice"
     },
     {
       "id": "4.1.5",
@@ -338,7 +339,7 @@
       "section": "Parent portal",
       "title": "Progress monitoring: level, mastery, time spent, readiness",
       "status": "partial",
-      "notes": "Mastery and run history done. Time-on-task not recorded.",
+      "notes": "Mastery, run history and per-session time on task recorded. No aggregate time-spent reporting or competition-readiness view.",
       "priority": 1
     },
     {
@@ -561,7 +562,7 @@
       "section": "Assessment",
       "title": "Feedback types incl. partial credit and elegance bonus",
       "status": "partial",
-      "notes": "Correct/incorrect feedback with explanation done. No partial credit or elegance scoring.",
+      "notes": "Correct/incorrect feedback with explanation, plus end-of-session mistake review. No partial credit on multi-step items and no elegance bonus.",
       "priority": 2
     },
     {

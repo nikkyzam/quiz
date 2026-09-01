@@ -391,6 +391,114 @@ api.post("/answer", (req, res) => {
   res.json({ correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null });
 });
 
+/* ---------------- adaptive practice session (spec 4.1.4) ----------------
+   Unlike a fixed tier run, this serves one question at a time and adjusts
+   difficulty from the learner's answers, then hands back the mistakes to
+   review at the end. Held server-side so the client cannot steer it. */
+const practiceSessions = new Map();
+const PRACTICE_LEN = 10;
+
+api.post("/practice/start", requireAuth, (req, res) => {
+  const { learnerId, topicId } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const bank = QUESTIONS[topicId];
+  if (!bank) return res.status(404).json({ error: "unknown_topic" });
+
+  const byTier = {};
+  for (const t of diag.TIER_ORDER)
+    byTier[t] = bank.map((q, i) => ({ q, i })).filter(o => tierOf(o.q) === t).map(o => o.i);
+
+  const id = randomUUID();
+  const sess = {
+    learnerId, topicId, byTier, used: new Set(),
+    tierIdx: 0, streakRight: 0, streakWrong: 0,
+    asked: 0, score: 0, missed: [], hintsUsed: 0, startedAt: Date.now()
+  };
+  practiceSessions.set(id, sess);
+  const first = pickPractice(sess);
+  if (first == null) { practiceSessions.delete(id); return res.status(404).json({ error: "empty_topic" }); }
+  sess.pending = first;
+  res.json({
+    sessionId: id, length: PRACTICE_LEN,
+    question: publicQuestion(topicId, first.idx), asked: 0, score: 0
+  });
+});
+
+function pickPractice(sess) {
+  const order = [sess.tierIdx, ...diag.TIER_ORDER.map((_, i) => i).filter(i => i !== sess.tierIdx)];
+  for (const ti of order) {
+    const pool = (sess.byTier[diag.TIER_ORDER[ti]] || []).filter(i => !sess.used.has(i));
+    if (pool.length) {
+      const idx = pool[Math.floor(Math.random() * pool.length)];
+      sess.used.add(idx);
+      return { idx, tier: diag.TIER_ORDER[ti] };
+    }
+  }
+  return null;
+}
+
+api.post("/practice/answer", requireAuth, (req, res) => {
+  const { sessionId, answer, hintsUsed } = req.body || {};
+  const sess = practiceSessions.get(sessionId);
+  if (!sess) return res.status(404).json({ error: "unknown_session" });
+  if (!ownLearner(req, sess.learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  if (!sess.pending) return res.status(409).json({ error: "no_question_pending" });
+
+  const { idx } = sess.pending;
+  const q = QUESTIONS[sess.topicId][idx];
+  const { ok, correctAnswer } = gradeAnswer(q, answer);
+
+  sess.asked++;
+  sess.hintsUsed += Math.max(0, Math.min(3, Number(hintsUsed) || 0));
+  if (ok) {
+    sess.score++; sess.streakRight++; sess.streakWrong = 0;
+    if (sess.streakRight >= 2 && sess.tierIdx < diag.TIER_ORDER.length - 1) { sess.tierIdx++; sess.streakRight = 0; }
+  } else {
+    sess.missed.push({ id: `${sess.topicId}:${idx}`, q: q.q, correctAnswer, explanation: q.expl });
+    sess.streakWrong++; sess.streakRight = 0;
+    if (sess.streakWrong >= 2 && sess.tierIdx > 0) { sess.tierIdx--; sess.streakWrong = 0; }
+  }
+
+  const next = sess.asked >= PRACTICE_LEN ? null : pickPractice(sess);
+  if (!next) {
+    const total = sess.asked;
+    const pct = Math.round((sess.score / total) * 100);
+    const ts = now();
+    /* Stars reflect hint use (spec 7.4): unaided work is worth more. */
+    const avgHints = sess.hintsUsed / total;
+    const stars = avgHints < 0.34 ? 3 : avgHints < 1.34 ? 2 : 1;
+
+    db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
+      .run(randomUUID(), sess.learnerId, sess.topicId, "adaptive", sess.score, total, pct, ts);
+    const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
+      .get(sess.learnerId, sess.topicId, "adaptive");
+    if (!prev) {
+      db.prepare(`INSERT INTO progress (learner_id, topic_id, tier, best_score, best_total, best_pct, runs, last_at)
+                  VALUES (?,?,?,?,?,?,1,?)`).run(sess.learnerId, sess.topicId, "adaptive", sess.score, total, pct, ts);
+    } else if (pct > prev.best_pct) {
+      db.prepare(`UPDATE progress SET best_score=?, best_total=?, best_pct=?, runs=runs+1, last_at=?
+                  WHERE learner_id=? AND topic_id=? AND tier=?`)
+        .run(sess.score, total, pct, ts, sess.learnerId, sess.topicId, "adaptive");
+    } else {
+      db.prepare("UPDATE progress SET runs=runs+1, last_at=? WHERE learner_id=? AND topic_id=? AND tier=?")
+        .run(ts, sess.learnerId, sess.topicId, "adaptive");
+    }
+    practiceSessions.delete(sessionId);
+    return res.json({
+      correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: true,
+      summary: { score: sess.score, total, pct, stars, hintsUsed: sess.hintsUsed,
+                 threshold: thresholdOf(sess.topicId), missed: sess.missed,
+                 seconds: Math.round((Date.now() - sess.startedAt) / 1000) }
+    });
+  }
+  sess.pending = next;
+  res.json({
+    correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null, done: false,
+    asked: sess.asked, score: sess.score,
+    question: publicQuestion(sess.topicId, next.idx)
+  });
+});
+
 /* ---------------- progress ---------------- */
 api.post("/runs", requireAuth, (req, res) => {
   const { learnerId, topicId, tier, score, total } = req.body || {};

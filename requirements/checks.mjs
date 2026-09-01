@@ -691,6 +691,86 @@ export const CHECKS = {
     return "diagnostic, formative and summative assessments all reachable";
   },
 
+
+  /* 4.1.4 — adaptive practice: difficulty follows performance, hints cost
+     stars, and mistakes come back for review at the end */
+  "adaptive-practice": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "prac@b.com", password: "a-long-enough-pass", name: "P" });
+    const kid = (await post(c, "/learners", { name: "Practice Kid" })).body.learner;
+
+    const solve = async q => {
+      if (q.type === "mc") {
+        for (let i = 0; i < q.opts.length; i++)
+          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) return i;
+        return 0;
+      }
+      if (q.type === "multi") {
+        const probe = await post(c, "/answer", { questionId: q.id, answer: [] });
+        return probe.body.correctAnswer.split(", ").map(t => q.opts.indexOf(t));
+      }
+      if (q.type === "order") {
+        const probe = await post(c, "/answer", { questionId: q.id, answer: [] });
+        return probe.body.correctAnswer.split("  →  ");
+      }
+      return (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
+    };
+
+    /* An all-correct session: full marks, 3 stars (no hints), nothing to review. */
+    let r = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-ratios" });
+    assert(r.status === 200, "practice session did not start");
+    assert(r.body.length > 1, "practice session has no length");
+    let q = r.body.question, sum = null, guard = 0;
+    while (guard++ < 30) {
+      const step = await post(c, "/practice/answer",
+        { sessionId: r.body.sessionId, answer: await solve(q), hintsUsed: 0 });
+      assert(step.body.correct === true, "a solved question was marked wrong");
+      if (step.body.done) { sum = step.body.summary; break; }
+      q = step.body.question;
+    }
+    assert(sum, "practice session never finished");
+    assert(sum.pct === 100, `all-correct session scored ${sum.pct}%`);
+    assert(sum.stars === 3, `no hints used but earned ${sum.stars} stars`);
+    assert(sum.missed.length === 0, "a perfect session reported mistakes");
+    assert(typeof sum.seconds === "number", "session did not record time on task");
+
+    /* An all-wrong session using hints: every miss returned for review, fewer stars. */
+    const r2 = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-ratios" });
+    let sum2 = null, g2 = 0;
+    while (g2++ < 30) {
+      const step = await post(c, "/practice/answer",
+        { sessionId: r2.body.sessionId, answer: "-999999", hintsUsed: 3 });
+      if (step.body.done) { sum2 = step.body.summary; break; }
+    }
+    assert(sum2, "second session never finished");
+    assert(sum2.pct === 0, `all-wrong session scored ${sum2.pct}%`);
+    assert(sum2.stars === 1, `heavy hint use still earned ${sum2.stars} stars`);
+    assert(sum2.missed.length === sum2.total, "not every mistake was returned for review");
+    assert(sum2.missed.every(m => m.q && m.correctAnswer && m.explanation),
+      "review items are missing the question, answer or explanation");
+
+    /* Both sessions recorded against the learner. */
+    const prog = (await c(`/learners/${kid.id}/progress`)).body.progress;
+    const row = prog.find(p => p.tier === "adaptive" && p.topic_id === "g6-ratios");
+    assert(row, "adaptive practice was not recorded");
+    assert(row.best_pct === 100, `best kept as ${row.best_pct}, expected the higher score`);
+    assert(row.runs === 2, `expected 2 sessions recorded, got ${row.runs}`);
+
+    /* A finished session cannot be continued. */
+    const stale = await post(c, "/practice/answer", { sessionId: r2.body.sessionId, answer: 0 });
+    assert(stale.status === 404, "a completed practice session accepted another answer");
+
+    /* Another account cannot drive this learner's session. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "pracbob@b.com", password: "a-long-enough-pass", name: "B" });
+    const hijack = await post(bob, "/practice/start", { learnerId: kid.id, topicId: "g6-ratios" });
+    assert(hijack.status === 403, "another account started a session for someone else's learner");
+
+    return "adaptive over 10 questions, stars reflect hint use, all mistakes returned, best score kept";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

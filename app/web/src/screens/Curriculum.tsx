@@ -69,11 +69,11 @@ export function GradeMap({ gradeKey, cur, onBack, onOpen }: {
   );
 }
 
-export function TierPicker({ topicId, topicName, advanced, tiers, counts, threshold, learner, onBack, onStart, onDiagnostic, onMastery }: {
+export function TierPicker({ topicId, topicName, advanced, tiers, counts, threshold, learner, onBack, onStart, onDiagnostic, onMastery, onPractice }: {
   topicId: string; topicName: string; advanced: boolean;
   tiers: Tier[]; counts: any; threshold: number; learner: Learner;
   onBack: () => void; onStart: (tier: string) => void;
-  onDiagnostic: () => void; onMastery: () => void;
+  onDiagnostic: () => void; onMastery: () => void; onPractice: () => void;
 }) {
   const [rows, setRows] = useState<ProgressRow[]>([]);
   useEffect(() => { api.progress(learner.id).then(r => setRows(r.progress)).catch(() => {}); }, [learner.id]);
@@ -86,8 +86,13 @@ export function TierPicker({ topicId, topicName, advanced, tiers, counts, thresh
         ? "advanced topics use a lower bar so exploring stays worthwhile."
         : "core topics need a high bar before they count as mastered."}</p>
       <div className="rowbtns" style={{ marginBottom: 16 }}>
-        <button className="btn ghost" onClick={onDiagnostic}>Not sure where to start? Take a placement check</button>
+        <button className="btn" onClick={onPractice}>Adaptive practice →</button>
+        <button className="btn ghost" onClick={onDiagnostic}>Placement check</button>
       </div>
+      <p className="muted" style={{ fontSize: ".85rem", marginTop: -6 }}>
+        Adaptive practice picks each question from how you are doing, and shows you
+        what to look at again afterwards. Or choose a fixed tier below.
+      </p>
       <div className="tierList">
         {tiers.map(t => {
           const n = counts[topicId]?.[t.id] || 0;
