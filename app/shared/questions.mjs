@@ -4,6 +4,9 @@
    actual worksheets. */
 
 const SECS = {
+  N:"Number",
+  F:"Fractions",
+  G:"Geometry & Measure",
   R:"Ratios & Rates",
   A:"Know the Plane", B:"Points & Quadrants", C:"Distance on the Grid",
   D:"Reflections", E:"Rectangles & Word Problems", F:"Compare & Order", G:"Fractions & Decimals"
@@ -11,7 +14,11 @@ const SECS = {
 
 const ABCD = [["A",2,3],["B",-3,1],["C",-2,-4],["D",3,-2]];
 
-const QUESTIONS = {};
+import { K_BANKS } from "./banks/k.mjs";
+import { G12_BANKS } from "./banks/g1g2.mjs";
+import { G3_BANKS } from "./banks/g3.mjs";
+
+const QUESTIONS = { ...K_BANKS, ...G12_BANKS, ...G3_BANKS };
 
 QUESTIONS["g6-nscoord"] = [
 /* A — Know the Plane */

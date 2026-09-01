@@ -1101,6 +1101,65 @@ export const CHECKS = {
     return `${Object.keys(formats).length} formats, papers scored server-side, timing enforced, history tracked`;
   },
 
+
+  /* 13.1 + 3.1.2-3.1.4 — authored content is valid and spread across grades */
+  "content-integrity": async () => {
+    const { QUESTIONS, SECS } = await import("../app/shared/questions.mjs");
+    const { CURRICULUM } = await import("../app/shared/curriculum.mjs");
+    const { PREREQS } = await import("../app/shared/prereqs.mjs");
+
+    const ids = new Set();
+    for (const g of Object.values(CURRICULUM))
+      for (const u of g.units) for (const t of u.topics) ids.add(t.id);
+
+    let total = 0;
+    for (const [topic, bank] of Object.entries(QUESTIONS)) {
+      assert(ids.has(topic), `question bank "${topic}" is not a curriculum topic`);
+      assert(bank.length >= 5, `${topic} has only ${bank.length} questions`);
+      const tiers = new Set(bank.map(q => (q.lvl || 1)));
+      assert(tiers.size >= 2, `${topic} has questions at only one difficulty tier`);
+      bank.forEach((q, i) => {
+        const tag = `${topic}#${i + 1}`;
+        total++;
+        assert(q.q && q.q.trim(), `${tag} has no question text`);
+        assert(q.expl && q.expl.trim(), `${tag} has no explanation`);
+        assert(SECS[q.sec], `${tag} uses unknown section "${q.sec}"`);
+        if (q.type === "mc") {
+          assert(q.opts && q.opts[q.a] !== undefined, `${tag} has a bad answer index`);
+          assert(new Set(q.opts).size === q.opts.length, `${tag} has duplicate options`);
+          q.opts.forEach(o => assert(o === String(o).trim(), `${tag} option has stray whitespace`));
+        } else if (q.type === "in") {
+          assert(typeof q.ans === "number" && !isNaN(q.ans), `${tag} has a non-numeric answer`);
+        } else if (q.type === "pair") {
+          assert(Array.isArray(q.ansP) && q.ansP.length === 2, `${tag} has a bad ordered pair`);
+        } else if (q.type === "multi") {
+          assert(Array.isArray(q.aMulti) && q.aMulti.length, `${tag} has no correct selections`);
+          assert(q.aMulti.every(i => q.opts[i] !== undefined), `${tag} selects a non-existent option`);
+          assert(q.aMulti.length < q.opts.length, `${tag} marks every option correct`);
+        } else if (q.type === "order") {
+          assert([...q.items].sort().join("|") === [...q.ansOrder].sort().join("|"),
+            `${tag}: ansOrder is not a permutation of items`);
+          assert(q.items.length >= 3, `${tag} has too few items to order`);
+        } else assert(false, `${tag} has unknown type "${q.type}"`);
+      });
+    }
+
+    /* Spread: content must not all sit in one grade. */
+    const gradesWith = new Set();
+    for (const [g, v] of Object.entries(CURRICULUM))
+      for (const u of v.units) for (const t of u.topics) if (QUESTIONS[t.id]) gradesWith.add(g);
+    assert(gradesWith.size >= 5, `only ${gradesWith.size} grades have content`);
+    assert(gradesWith.has("K"), "Kindergarten has no authored content");
+
+    /* Every authored topic should sit on the prerequisite graph. */
+    for (const topic of Object.keys(QUESTIONS)) {
+      const onGraph = PREREQS[topic] || Object.values(PREREQS).some(v => v.includes(topic));
+      assert(onGraph, `authored topic "${topic}" is absent from the prerequisite graph`);
+    }
+
+    return `${Object.keys(QUESTIONS).length} banks, ${total} questions, ${gradesWith.size} grades, all valid`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
