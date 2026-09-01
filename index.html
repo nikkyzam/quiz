@@ -169,6 +169,12 @@
   .stat span{font-size:.76rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em}
   .waiting{color:var(--muted); text-align:center; padding:26px 10px}
   .stale{color:var(--muted); font-size:.82rem; margin-top:14px}
+  .sharetext{
+    width:100%; margin-top:8px; padding:12px 13px; border-radius:10px;
+    border:2px solid var(--line); background:var(--card); color:var(--ink);
+    font-family:var(--mono); font-size:.85rem; line-height:1.5; resize:vertical;
+  }
+  .sharetext:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
   @media (prefers-reduced-motion: reduce){ *{transition:none !important} }
 </style>
 </head>
@@ -231,7 +237,12 @@
     <div class="card" id="resCard"></div>
     <div class="endbtns">
       <button class="btn" id="retryBtn"></button>
+      <button class="btn ghost" id="shareBtn">Share results</button>
       <button class="btn ghost" id="restartBtn">Choose another level</button>
+    </div>
+    <div id="shareBox" hidden>
+      <p class="best" id="shareNote">Send this to whoever is checking your work:</p>
+      <textarea class="sharetext" id="shareText" readonly rows="8"></textarea>
     </div>
   </section>
 
@@ -524,7 +535,7 @@ function begin(q, m){
 }
 
 /* ---- live progress: publishes to the shared store when available ---- */
-let DB = null, answeredCount = 0, unwatch = null, dbState = "pending";
+let DB = null, answeredCount = 0, unwatch = null, dbState = "pending", dbReason = "";
 
 function pushProgress(state){
   if(!DB) return;
@@ -560,16 +571,23 @@ function startWatching(){
     setTimeout(()=>{ if($("#watch").classList.contains("on")) startWatching(); }, 700);
     return;
   }
-  if(!DB){                              // no shared store in this view — say why
+  if(!DB){                              // no shared store in this view — say exactly why
     $("#liveDot").className = "livedot idle";
     $("#liveState").textContent = "Live view unavailable here";
     $("#wQ").textContent = $("#wScore").textContent = $("#wPct").textContent = "—";
-    $("#watchCard").innerHTML = `<div class="waiting">
-      <p style="margin:0 0 10px"><b>This copy of the quiz can&rsquo;t show live progress.</b></p>
-      <p style="margin:0 0 10px">Live progress only works on the Claude artifact version of this page,
-      opened while signed in. The public web copy has no shared connection, so it runs as a normal quiz.</p>
-      <p style="margin:0">Both people &mdash; whoever is answering and whoever is watching &mdash;
-      need to open the artifact link signed in to the same account.</p></div>`;
+    $("#watchCard").innerHTML = dbReason === "public"
+      ? `<div class="waiting">
+          <p style="margin:0 0 10px"><b>You&rsquo;re on the public web copy.</b></p>
+          <p style="margin:0 0 10px">This version has no shared connection, so it runs as a normal quiz.
+          Live progress works only on the Claude artifact version, opened from your Claude artifacts list.</p>
+          <p style="margin:0">Use <b>Share results</b> at the end of a run instead &mdash; it works anywhere.</p>
+        </div>`
+      : `<div class="waiting">
+          <p style="margin:0 0 10px"><b>Signed in, but the shared connection didn&rsquo;t open.</b></p>
+          <p style="margin:0 0 10px">This usually means the page was opened as its own tab rather than
+          inside Claude. Go back to your artifacts list in Claude and open it from there.</p>
+          <p style="margin:0"><b>Share results</b> at the end of a run works either way.</p>
+        </div>`;
     $("#wStale").textContent = "";
     return;
   }
@@ -728,6 +746,9 @@ function results(){
   show("#results");
   $("#resScore").textContent = score;
   $("#resTot").textContent = queue.length;
+  $("#shareBox").hidden = true;
+  $("#shareNote").textContent = "Send this to whoever is checking your work:";
+  $("#shareBtn").style.display = mode === "full" ? "" : "none";
   const pct = score/queue.length;
 
   if(mode==="full"){
@@ -795,6 +816,41 @@ function renderLevels(){
 }
 renderLevels();
 
+/* Share results: a plain-text summary that works on any copy of the page,
+   for when the live view isn't available. */
+function buildSummary(){
+  const lines = [];
+  lines.push("Coordinate Quest — " + LEVELS[activeLevel].name);
+  lines.push("Score: " + score + "/" + queue.length +
+             " (" + Math.round(score/queue.length*100) + "%)");
+  lines.push("");
+  const weak = [];
+  Object.keys(SECS).forEach(k=>{
+    const idxs = Q.map((q,i)=>(q.sec===k && lvlOf(q)===activeLevel)?i:-1).filter(i=>i>=0);
+    if(!idxs.length) return;
+    const got = idxs.filter(i=>fullAnswers[i]).length;
+    lines.push((got===idxs.length ? "✓ " : "• ") + SECS[k] + ": " + got + "/" + idxs.length);
+    if(got/idxs.length < 0.7) weak.push(SECS[k]);
+  });
+  lines.push("");
+  lines.push(weak.length ? "Needs review: " + weak.join(", ") : "No weak topics — solid all round.");
+  return lines.join("\n");
+}
+
+$("#shareBtn").addEventListener("click", ()=>{
+  const box = $("#shareBox"), txt = buildSummary();
+  $("#shareText").value = txt;
+  box.hidden = false;
+  $("#shareText").focus(); $("#shareText").select();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt)
+      .then(()=>{ $("#shareNote").textContent = "Copied — paste it to whoever is checking your work."; })
+      .catch(()=>{ $("#shareNote").textContent = "Select the text below and copy it."; });
+  } else {
+    $("#shareNote").textContent = "Select the text below and copy it.";
+  }
+});
+
 $("#retryBtn").addEventListener("click", ()=>begin(missed, "retry"));
 $("#restartBtn").addEventListener("click", ()=>{ renderLevels(); show("#welcome"); });
 
@@ -818,10 +874,10 @@ $("#bestLine").textContent = "Level 1 covers exactly what tomorrow's quiz asks. 
    static host there is no window.claude at all and the quiz runs unchanged. */
 if(window.claude && typeof window.claude.use === "function"){
   window.claude.use("db")
-    .then(d=>{ DB = d; dbState = d ? "ready" : "none"; })
-    .catch(()=>{ dbState = "none"; });
+    .then(d=>{ DB = d; dbState = d ? "ready" : "none"; if(!d) dbReason = "viewer"; })
+    .catch(()=>{ dbState = "none"; dbReason = "viewer"; });
 } else {
-  dbState = "none";  // plain static host: the quiz runs exactly as before
+  dbState = "none"; dbReason = "public";  // plain static host: the quiz runs exactly as before
 }
 </script>
 </body>
