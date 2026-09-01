@@ -359,6 +359,66 @@ export const CHECKS = {
     return "headers set, COPPA consent required, audit trail written, export/erase work, login throttled";
   },
 
+
+  /* 4.1.6 + 7.2 — mastery checks: no hints, server-marked, threshold applied */
+  "mastery-check": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "check@b.com", password: "a-long-enough-pass", name: "C" });
+    const kid = (await post(c, "/learners", { name: "Check Kid" })).body.learner;
+
+    const start = await post(c, "/mastery/start", { learnerId: kid.id, topicId: "g6-ratios" });
+    assert(start.status === 200, "could not start a mastery check");
+    const { checkId, questions, threshold } = start.body;
+    assert(questions.length > 1, "mastery check has too few questions");
+    assert(threshold === 90, `core topic check threshold should be 90, got ${threshold}`);
+
+    // Answers must not be present, exactly as in normal practice.
+    const raw = JSON.stringify(questions);
+    for (const key of ['"ans"', '"ansP"', '"expl"', '"a":'])
+      assert(!raw.includes(key), `mastery check leaked ${key}`);
+
+    // Hints must be refused while a check is live (spec 4.1.6: no hints).
+    const hint = await post(c, "/hint", { questionId: questions[0].id, level: 1 });
+    assert(hint.status === 409, `hints were available during a mastery check (status ${hint.status})`);
+
+    // Deliberately answer everything wrong: the server must mark it, not the client.
+    const wrong = {};
+    for (const q of questions) wrong[q.id] = q.type === "mc" ? -1 : "-99999";
+    const failed = await post(c, "/mastery/submit", { checkId, answers: wrong });
+    assert(failed.body.score === 0, `expected 0, server marked ${failed.body.score}`);
+    assert(failed.body.passed === false, "a zero score passed the check");
+    assert(failed.body.detail.length === questions.length, "no per-question detail returned");
+
+    // A spent check cannot be replayed.
+    const replay = await post(c, "/mastery/submit", { checkId, answers: wrong });
+    assert(replay.status === 404, "a completed mastery check could be submitted twice");
+
+    // Now pass one, using the grader to discover answers the way a learner would.
+    const s2 = (await post(c, "/mastery/start", { learnerId: kid.id, topicId: "g6-ratios" })).body;
+    const right = {};
+    for (const q of s2.questions) {
+      if (q.type === "mc") {
+        for (let i = 0; i < q.opts.length; i++) {
+          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) { right[q.id] = i; break; }
+        }
+      } else {
+        right[q.id] = (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
+      }
+    }
+    const passed = await post(c, "/mastery/submit", { checkId: s2.checkId, answers: right });
+    assert(passed.body.pct === 100, `expected 100%, got ${passed.body.pct}`);
+    assert(passed.body.passed === true, "a perfect score did not pass");
+
+    // Recorded against the learner under its own tier.
+    const prog = (await c(`/learners/${kid.id}/progress`)).body.progress;
+    const row = prog.find(r => r.tier === "mastery" && r.topic_id === "g6-ratios");
+    assert(row && row.best_pct === 100, "mastery result not recorded");
+    assert(row.runs === 2, `expected 2 attempts recorded, got ${row.runs}`);
+
+    return "server-marked, hints refused (409), no answer leak, replay blocked, result recorded";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

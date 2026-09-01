@@ -1,9 +1,9 @@
 BeastForge — requirements status
 ====================================================
 Total requirements: 120
-  done       12  (10%)
-  partial    23  (19%)
-  todo       73  (61%)
+  done       13  (11%)
+  partial    24  (20%)
+  todo       71  (59%)
   blocked    11  (9%)
   deferred    1  (1%)
 
@@ -19,6 +19,7 @@ Automated checks
   PASS  mastery-thresholds 90 core / 80 advanced enforced server-side, boundaries inclusive, bad input refused
   PASS  accessibility-wcag-aa 5 screens axe-clean (WCAG 2.1 A/AA), 24 contrast pairs >= 4.5:1
   PASS  security-privacy   headers set, COPPA consent required, audit trail written, export/erase work, login throttled
+  PASS  mastery-check      server-marked, hints refused (409), no answer leak, replay blocked, result recorded
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

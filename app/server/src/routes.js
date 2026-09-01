@@ -196,9 +196,87 @@ api.post("/hint", (req, res) => {
   const bank = QUESTIONS[topicId];
   const idx = Number(idxRaw);
   if (!bank || !bank[idx]) return res.status(400).json({ error: "unknown_question" });
+  for (const sess of checkSessions.values())
+    if (sess.ids.includes(String(questionId)))
+      return res.status(409).json({ error: "hints_disabled_during_mastery_check" });
   const lvl = Math.min(3, Math.max(1, Number(level) || 1));
   const ladder = hintLadder(bank[idx]);
   res.json({ level: lvl, hint: ladder[lvl - 1], last: lvl >= 3 });
+});
+
+/* ---------------- mastery check (spec 4.1.6) ----------------
+   A short quiz at the end of a topic. No hints are available during it, so
+   the hint endpoint refuses any question issued as part of a check. Sessions
+   are held server-side; the client cannot mark its own check as passed. */
+const CHECK_SIZE = 8;
+const checkSessions = new Map();   // id -> { learnerId, topicId, ids, issuedAt }
+
+api.post("/mastery/start", requireAuth, (req, res) => {
+  const { learnerId, topicId } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const bank = QUESTIONS[topicId];
+  if (!bank) return res.status(404).json({ error: "unknown_topic" });
+
+  // Draw across all tiers so a check tests the whole topic, not one tier.
+  const idxs = bank.map((_, i) => i);
+  for (let i = idxs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [idxs[i], idxs[j]] = [idxs[j], idxs[i]];
+  }
+  const picked = idxs.slice(0, Math.min(CHECK_SIZE, idxs.length));
+  const id = randomUUID();
+  checkSessions.set(id, { learnerId, topicId, ids: picked.map(i => `${topicId}:${i}`), issuedAt: Date.now() });
+  audit(req.user.id, "mastery.started", topicId, req);
+  res.json({
+    checkId: id,
+    threshold: thresholdOf(topicId),
+    questions: picked.map(i => publicQuestion(topicId, i))
+  });
+});
+
+/* Marked by the server from the answers submitted, so the client cannot
+   report its own score. */
+api.post("/mastery/submit", requireAuth, (req, res) => {
+  const { checkId, answers } = req.body || {};
+  const sess = checkSessions.get(checkId);
+  if (!sess) return res.status(404).json({ error: "unknown_check" });
+  if (!ownLearner(req, sess.learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  if (!answers || typeof answers !== "object") return res.status(400).json({ error: "missing_answers" });
+
+  let score = 0;
+  const detail = sess.ids.map(qid => {
+    const [topicId, idx] = qid.split(":");
+    const q = QUESTIONS[topicId][Number(idx)];
+    const { ok, correctAnswer } = gradeAnswer(q, answers[qid]);
+    if (ok) score++;
+    return { id: qid, correct: ok, correctAnswer, explanation: q.expl };
+  });
+
+  const total = sess.ids.length;
+  const pct = Math.round((score / total) * 100);
+  const threshold = thresholdOf(sess.topicId);
+  const passed = pct >= threshold;
+  const ts = now();
+
+  db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
+    .run(randomUUID(), sess.learnerId, sess.topicId, "mastery", score, total, pct, ts);
+  const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
+    .get(sess.learnerId, sess.topicId, "mastery");
+  if (!prev) {
+    db.prepare(`INSERT INTO progress (learner_id, topic_id, tier, best_score, best_total, best_pct, runs, last_at)
+                VALUES (?,?,?,?,?,?,1,?)`).run(sess.learnerId, sess.topicId, "mastery", score, total, pct, ts);
+  } else if (pct > prev.best_pct) {
+    db.prepare(`UPDATE progress SET best_score=?, best_total=?, best_pct=?, runs=runs+1, last_at=?
+                WHERE learner_id=? AND topic_id=? AND tier=?`)
+      .run(score, total, pct, ts, sess.learnerId, sess.topicId, "mastery");
+  } else {
+    db.prepare(`UPDATE progress SET runs=runs+1, last_at=? WHERE learner_id=? AND topic_id=? AND tier=?`)
+      .run(ts, sess.learnerId, sess.topicId, "mastery");
+  }
+
+  checkSessions.delete(checkId);
+  audit(req.user.id, "mastery.submitted", `${sess.topicId}:${pct}%`, req);
+  res.json({ score, total, pct, threshold, passed, detail });
 });
 
 /* Grading happens here, never in the browser. */
