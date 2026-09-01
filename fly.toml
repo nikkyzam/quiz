@@ -1,0 +1,31 @@
+# Fly.io deployment. `fly launch --no-deploy` then `fly deploy`.
+# A volume is required so the SQLite database survives redeploys:
+#   fly volumes create mathquest_data --size 1
+app = "beastforge"
+primary_region = "lhr"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "8080"
+  DB_FILE = "/data/mathquest.db"
+
+[[mounts]]
+  source = "mathquest_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/ready"
+    timeout = "5s"

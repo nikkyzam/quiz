@@ -838,7 +838,8 @@
       "section": "Architecture",
       "title": "CDN and video streaming",
       "status": "todo",
-      "priority": 3
+      "priority": 3,
+      "notes": "Static assets are served by the API process with cache headers. No CDN - that is a deployment decision that follows from choosing a host."
     },
     {
       "id": "11.5",
@@ -860,9 +861,9 @@
       "section": "Architecture",
       "title": "CI/CD with automated tests and IaC",
       "status": "partial",
-      "notes": "CI runs the full requirement suite on every push and is green; installs both workspaces, builds the a11y bundle and typechecks. Not done: deployment pipeline, blue-green releases, Infrastructure as Code.",
+      "notes": "CI runs the full requirement suite on every push. A single-container Dockerfile builds the client and serves it from the API, with configs for Fly.io and Render pointing health checks at /ready and mounting persistent storage for SQLite. The check boots the production build and verifies it serves client, assets and API, that the SPA fallback does not swallow unknown API routes, and that Secure/HttpOnly cookies and HSTS are set. NOT done: an actual deployment (needs a host account), blue-green releases, and Infrastructure as Code.",
       "priority": 1,
-      "evidence": null
+      "evidence": "check:production-build"
     },
     {
       "id": "13.1",

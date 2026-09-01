@@ -1,0 +1,21 @@
+# Render deployment. Point Render at this repo; it reads this file.
+# The disk keeps the SQLite database across deploys.
+services:
+  - type: web
+    name: beastforge
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /ready
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 8080
+      - key: DB_FILE
+        value: /data/mathquest.db
+      - key: ADMIN_EMAILS
+        sync: false          # set this yourself; it grants admin access
+    disk:
+      name: mathquest-data
+      mountPath: /data
+      sizeGB: 1

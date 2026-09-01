@@ -43,13 +43,14 @@ Automated checks
   PASS  admin-portal       aggregate analytics, retention policy, audited access, RBAC enforced and admin not self-assignable
   PASS  partial-credit     partial credit on ordering and select-all, guessing everything scores worse, single answers stay all-or-nothing
   PASS  puzzles            8 puzzles, hints one at a time, wrong answers never reveal the solution, trophies reflect hint use
-  PASS  performance        slowest endpoint curriculum at 1ms, curriculum 28KB, 40 concurrent reads in 9ms, 10 concurrent writes all recorded
+  PASS  performance        slowest endpoint curriculum at 1ms, curriculum 28KB, 40 concurrent reads in 11ms, 10 concurrent writes all recorded
   PASS  pwa-offline        installable manifest, offline shell, API excluded from cache, production build emits all shell files
   PASS  achievement-titles 6 titles, requirements validated against real badges, strongest shown first
   PASS  leaderboards       off by default, teacher-controlled, anonymised by default, class-scoped with no global board
   PASS  reliability        liveness and readiness separated, backup restorable and integrity-checked, pruning bounded
   PASS  math-notation      7 notations rendered as MathML with spoken labels, prose left alone
   PASS  content-lint       13 rules each proven to fire, 198 questions and 8 puzzles clean
+  PASS  production-build   single-process production build serves client, assets and API; cookies hardened; configs coherent
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)

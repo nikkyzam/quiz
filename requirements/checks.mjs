@@ -2288,6 +2288,88 @@ export const CHECKS = {
     return `13 rules each proven to fire, ${report.questions} questions and ${report.puzzles} puzzles clean`;
   },
 
+
+  /* 11.7 — the deployable artefact actually works.
+     Production mode serves the built client from the API process, so a broken
+     build or a wrong path would only show up after deploying. Check it here. */
+  "production-build": async () => {
+    const { execSync, spawn } = await import("node:child_process");
+    const { existsSync, readFileSync, rmSync } = await import("node:fs");
+
+    /* Deployment files exist and are coherent. */
+    assert(existsSync("Dockerfile"), "no Dockerfile");
+    const df = readFileSync("Dockerfile", "utf8");
+    assert(/node:2[4-9]/.test(df), "Dockerfile does not pin a Node version with node:sqlite");
+    assert(/VOLUME \/data/.test(df), "Dockerfile does not declare a volume for the database");
+    assert(/DB_FILE=\/data/.test(df), "Dockerfile does not point the database at the volume");
+    assert(/HEALTHCHECK/.test(df), "Dockerfile has no health check");
+    assert(existsSync(".dockerignore"), "no .dockerignore, so node_modules would be copied in");
+    assert(existsSync("DEPLOY.md"), "no deployment instructions");
+
+    for (const f of ["fly.toml", "render.yaml"]) {
+      assert(existsSync(f), `no ${f}`);
+      const c = readFileSync(f, "utf8");
+      assert(/\/ready/.test(c), `${f} does not use the readiness probe for health checks`);
+      assert(/\/data/.test(c), `${f} does not mount persistent storage`);
+    }
+
+    /* Build the client and boot the server exactly as production would. */
+    execSync("./node_modules/.bin/vite build", { cwd: "app/web", stdio: "pipe" });
+    assert(existsSync("app/web/dist/index.html"), "production build produced no client");
+
+    const port = 4188;
+    const dbFile = "./data/prodcheck.db";
+    rmSync("app/server/" + dbFile.replace("./", ""), { force: true });
+    const srv = spawn("node", ["src/index.js"], {
+      cwd: "app/server",
+      env: { ...process.env, NODE_ENV: "production", PORT: String(port), DB_FILE: dbFile },
+      stdio: "ignore"
+    });
+    try {
+      let up = false;
+      for (let i = 0; i < 50 && !up; i++) {
+        try { up = (await fetch(`http://localhost:${port}/ready`)).ok; } catch {}
+        if (!up) await new Promise(r => setTimeout(r, 150));
+      }
+      assert(up, "the production server never became ready");
+
+      /* One process must serve the client, its assets and the API. */
+      const shell = await fetch(`http://localhost:${port}/`);
+      assert(shell.ok, `production server did not serve the client (${shell.status})`);
+      assert((await shell.text()).includes("<title>"), "served client has no title");
+
+      const deep = await fetch(`http://localhost:${port}/some/client/route`);
+      assert(deep.ok, "client-side routes do not fall back to the shell");
+
+      const asset = await fetch(`http://localhost:${port}/manifest.webmanifest`);
+      assert(asset.ok, "static assets are not served in production");
+
+      const api = await fetch(`http://localhost:${port}/api/curriculum`);
+      assert(api.ok, "the API is not reachable in production mode");
+
+      /* The SPA fallback must NOT swallow unknown API routes. */
+      const bogus = await fetch(`http://localhost:${port}/api/definitely-not-here`);
+      assert(bogus.status === 404,
+        `an unknown API route returned ${bogus.status}; the SPA fallback is catching /api`);
+
+      /* Production must set the hardened cookie flags. */
+      const reg = await fetch(`http://localhost:${port}/api/auth/register`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "prod@b.com", password: "a-long-enough-pass",
+                               name: "Prod", coppaConsent: true })
+      });
+      const cookie = (reg.headers.getSetCookie?.() || []).join(";");
+      assert(/Secure/i.test(cookie), "the session cookie is not Secure in production");
+      assert(/HttpOnly/i.test(cookie), "the session cookie is not HttpOnly in production");
+      assert(reg.headers.get("strict-transport-security"), "HSTS is not set in production");
+
+      return "single-process production build serves client, assets and API; cookies hardened; configs coherent";
+    } finally {
+      srv.kill();
+      rmSync("app/server/" + dbFile.replace("./", ""), { force: true });
+    }
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
