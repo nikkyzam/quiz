@@ -12,6 +12,7 @@ import { PREREQS, prereqsOf, allPrereqs, unlockedBy } from "../../shared/prereqs
 import { classify, summarise as summariseErrors, CATEGORIES } from "./errors.js";
 import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
 import * as rewards from "./rewards.js";
+import { generate, generatedTopics } from "../../shared/generators.mjs";
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
@@ -60,6 +61,35 @@ function shuffled(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+/* A generated question's id carries its seed, so the server can rebuild the
+   exact same problem when marking it — no session storage, and a learner
+   returning to a review item sees the identical question. */
+function resolveQuestion(questionId) {
+  const parts = String(questionId || "").split(":");
+  if (parts[0] === "gen") {
+    const [, topicId, seedRaw] = parts;
+    const seed = Number(seedRaw);
+    if (!Number.isFinite(seed)) return null;
+    const q = generate(topicId, seed);
+    return q ? { q, topicId } : null;
+  }
+  const [topicId, idxRaw] = parts;
+  const bank = QUESTIONS[topicId];
+  const idx = Number(idxRaw);
+  if (!bank || !Number.isInteger(idx) || !bank[idx]) return null;
+  return { q: bank[idx], topicId };
+}
+
+function publicGenerated(topicId, seed) {
+  const g = generate(topicId, seed);
+  if (!g) return null;
+  return {
+    id: `gen:${topicId}:${seed}`,
+    sec: g.sec, secName: SECS[g.sec] || "Problem",
+    type: g.type, q: g.q, mono: false, hint: g.hint || null, fig: null, generated: true
+  };
 }
 
 function gradeAnswer(q, raw) {
@@ -225,15 +255,13 @@ function hintLadder(q) {
 
 api.post("/hint", (req, res) => {
   const { questionId, level } = req.body || {};
-  const [topicId, idxRaw] = String(questionId || "").split(":");
-  const bank = QUESTIONS[topicId];
-  const idx = Number(idxRaw);
-  if (!bank || !bank[idx]) return res.status(400).json({ error: "unknown_question" });
+  const resolved = resolveQuestion(questionId);
+  if (!resolved) return res.status(400).json({ error: "unknown_question" });
   for (const sess of checkSessions.values())
     if (sess.ids.includes(String(questionId)))
       return res.status(409).json({ error: "hints_disabled_during_mastery_check" });
   const lvl = Math.min(3, Math.max(1, Number(level) || 1));
-  const ladder = hintLadder(bank[idx]);
+  const ladder = hintLadder(resolved.q);
   res.json({ level: lvl, hint: ladder[lvl - 1], last: lvl >= 3 });
 });
 
@@ -414,14 +442,26 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
 /* Grading happens here, never in the browser. */
 api.post("/answer", (req, res) => {
   const { questionId, answer } = req.body || {};
-  const [topicId, idxRaw] = String(questionId || "").split(":");
-  const bank = QUESTIONS[topicId];
-  const idx = Number(idxRaw);
-  if (!bank || !Number.isInteger(idx) || !bank[idx]) return res.status(400).json({ error: "unknown_question" });
-  const q = bank[idx];
+  const resolved = resolveQuestion(questionId);
+  if (!resolved) return res.status(400).json({ error: "unknown_question" });
+  const q = resolved.q;
   const { ok, correctAnswer } = gradeAnswer(q, answer);
   res.json({ correct: ok, correctAnswer, explanation: q.expl, figA: q.figA || null });
 });
+
+/* ---------------- generated practice (spec 3.2.3) ----------------
+   Unlimited fresh variants for topics that have a template. */
+api.get("/topics/:id/generated", (req, res) => {
+  const topicId = req.params.id;
+  const count = Math.min(20, Math.max(1, Number(req.query.count) || 5));
+  if (!generatedTopics().includes(topicId)) return res.status(404).json({ error: "no_template" });
+  const base = Number(req.query.seed) || Math.floor(Math.random() * 1e9);
+  const questions = [];
+  for (let i = 0; i < count; i++) questions.push(publicGenerated(topicId, base + i * 7919));
+  res.json({ topicId, seed: base, questions });
+});
+
+api.get("/generated/topics", (_req, res) => res.json({ topics: generatedTopics() }));
 
 /* ---------------- knowledge graph (spec 6.2) ---------------- */
 const TOPIC_NAME = (() => {

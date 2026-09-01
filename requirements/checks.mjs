@@ -1349,6 +1349,80 @@ export const CHECKS = {
     return "learner CSV, class CSV and printable report, with correct escaping and access control";
   },
 
+
+  /* 3.2.3 — algorithmically generated problem variants */
+  "generated-problems": async () => {
+    const { generate, generatedTopics, TEMPLATES } = await import("../app/shared/generators.mjs");
+
+    /* Reproducible: the same seed must rebuild the identical problem, or a
+       generated question could not be marked or reviewed later. */
+    for (const t of generatedTopics()) {
+      const a = generate(t, 4242), b = generate(t, 4242);
+      assert(a && b, `${t} generated nothing`);
+      assert(a.q === b.q && a.ans === b.ans, `${t} is not reproducible from its seed`);
+      assert(a.expl && a.hint, `${t} generated no explanation or hint`);
+    }
+
+    /* Varied: different seeds must give genuinely different problems. */
+    for (const t of generatedTopics()) {
+      const seen = new Set();
+      for (let i = 0; i < 40; i++) seen.add(generate(t, i * 977).q);
+      assert(seen.size > 10, `${t} produced only ${seen.size} distinct problems in 40 seeds`);
+    }
+
+    /* Answers must be correct, checked against each template's own maths. */
+    for (let i = 0; i < 50; i++) {
+      const m = generate("g3-mult", i);
+      const [x, y] = m.q.match(/(\d+) × (\d+)/).slice(1).map(Number);
+      assert(m.ans === x * y, `g3-mult generated ${m.q} with answer ${m.ans}`);
+      const p = generate("g6-percent", i);
+      const [pct, base] = p.q.match(/What is (\d+)% of (\d+)/).slice(1).map(Number);
+      assert(p.ans === (base * pct) / 100, `g6-percent wrong: ${p.q} => ${p.ans}`);
+      assert(Number.isInteger(p.ans), `g6-percent produced a non-whole answer: ${p.q}`);
+      const d = generate("g6-nscoord", i);
+      assert(d.ans > 0, `g6-nscoord generated a zero distance: ${d.q}`);
+      const r2 = generate("g6-ratios", i);
+      assert(Number.isInteger(r2.ans) && r2.ans > 0, `g6-ratios produced ${r2.ans}`);
+    }
+
+    /* Served without answers, and gradeable through the normal endpoint. */
+    const c = client();
+    const list = (await c("/generated/topics")).body.topics;
+    assert(list.length >= 3, "too few generated topics published");
+    const res = await c("/topics/g3-mult/generated?count=5&seed=777");
+    assert(res.status === 200 && res.body.questions.length === 5, "generated endpoint failed");
+    const raw = JSON.stringify(res.body.questions);
+    for (const k of ['"ans"', '"expl"']) assert(!raw.includes(k), `generated question leaked ${k}`);
+    assert(res.body.questions.every(q => q.id.startsWith("gen:")), "generated ids are not marked");
+    assert(new Set(res.body.questions.map(q => q.q)).size === 5, "the same problem was served five times");
+
+    /* The server can mark a generated question from its id alone. */
+    const q0 = res.body.questions[0];
+    const [x, y] = q0.q.match(/(\d+) × (\d+)/).slice(1).map(Number);
+    const right = await post(c, "/answer", { questionId: q0.id, answer: String(x * y) });
+    assert(right.body.correct === true, "a correct answer to a generated question was marked wrong");
+    assert(right.body.explanation, "no explanation returned for a generated question");
+    const wrong = await post(c, "/answer", { questionId: q0.id, answer: String(x * y + 1) });
+    assert(wrong.body.correct === false, "a wrong answer to a generated question was accepted");
+
+    /* Hints work on generated questions too. */
+    const h = await post(c, "/hint", { questionId: q0.id, level: 1 });
+    assert(h.status === 200 && h.body.hint, "hints unavailable for generated questions");
+
+    /* Repeating the same request returns the same problems. */
+    const again = await c("/topics/g3-mult/generated?count=5&seed=777");
+    assert(JSON.stringify(again.body.questions.map(q => q.q)) ===
+           JSON.stringify(res.body.questions.map(q => q.q)),
+      "the same seed served different problems");
+
+    /* Unknown template and malformed ids are refused. */
+    assert((await c("/topics/g8-rsa/generated")).status === 404, "a topic with no template returned questions");
+    assert((await post(c, "/answer", { questionId: "gen:g3-mult:notanumber", answer: "1" })).status === 400,
+      "a malformed generated id was accepted");
+
+    return `${generatedTopics().length} templates, reproducible from seed, served without answers, gradeable and hintable`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

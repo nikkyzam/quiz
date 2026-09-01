@@ -65,8 +65,10 @@
       "id": "3.2.3",
       "section": "Content types",
       "title": "Algorithmically generated problem variants",
-      "status": "todo",
-      "priority": 2
+      "status": "done",
+      "priority": 2,
+      "evidence": "check:generated-problems",
+      "notes": "Seeded templates for five topics give unlimited fresh variants. The seed travels in the question id, so the server can rebuild and mark the exact problem later without storing it \u2014 which also means a review item shows the identical question. Grading, hints and error analysis all work unchanged on generated questions."
     },
     {
       "id": "3.2.4",
