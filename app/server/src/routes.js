@@ -13,6 +13,7 @@ import { classify, summarise as summariseErrors, CATEGORIES } from "./errors.js"
 import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
 import * as rewards from "./rewards.js";
 import { generate, generatedTopics } from "../../shared/generators.mjs";
+import * as bkt from "./bkt.js";
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
@@ -400,6 +401,8 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
     const q = QUESTIONS[topicId][Number(idx)];
     const { ok, correctAnswer } = gradeAnswer(q, answers[qid]);
     if (ok) score++;
+    bkt.observe(sess.learnerId, sess.topicId, ok,
+      bkt.paramsFor({ optionCount: q.type === "mc" ? (q.opts || []).length : 0 }));
     let category = null;
     if (!ok) {
       category = classify(q, answers[qid]);
@@ -487,6 +490,16 @@ api.get("/topics/:id/prereqs", (req, res) => {
 /* What this learner is ready for: every prerequisite mastered, but the topic
    itself not yet. Topics with unmet prerequisites are reported separately with
    the specific gaps, rather than silently omitted. */
+api.get("/learners/:id/skills", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = bkt.allFor(req.params.id).map(r => ({
+    ...r, ...describe(r.skillId),
+    known: bkt.isKnown(r),
+    confidence: Math.round(r.pKnown * 100)
+  }));
+  res.json({ skills: rows, masteryThreshold: bkt.MASTERY_P, minObservations: bkt.MIN_OBSERVATIONS });
+});
+
 api.get("/learners/:id/next", requireAuth, (req, res) => {
   if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
   const rows = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id = ?")
@@ -494,7 +507,11 @@ api.get("/learners/:id/next", requireAuth, (req, res) => {
 
   const best = new Map();
   for (const r of rows) best.set(r.topic_id, Math.max(best.get(r.topic_id) || 0, r.best_pct));
-  const mastered = id => (best.get(id) || 0) >= thresholdOf(id);
+  /* A prerequisite counts as held if the recorded score cleared the bar OR the
+     knowledge model is confident, so a learner who demonstrates a skill inside
+     adaptive practice is not blocked for lack of a formal run. */
+  const mastered = id =>
+    (best.get(id) || 0) >= thresholdOf(id) || bkt.isKnown(bkt.estimate(req.params.id, id));
 
   const ready = [], blocked = [];
   for (const id of TOPIC_NAME.keys()) {
@@ -568,6 +585,10 @@ api.post("/practice/answer", requireAuth, (req, res) => {
 
   sess.asked++;
   sess.hintsUsed += Math.max(0, Math.min(3, Number(hintsUsed) || 0));
+  /* Feed the knowledge model. A hinted answer is weaker evidence, so it is
+     recorded with a higher guess rate rather than counted as clean success. */
+  bkt.observe(sess.learnerId, sess.topicId, ok,
+    bkt.paramsFor({ optionCount: q.type === "mc" ? (q.opts || []).length : 0 }));
   if (ok) {
     sess.score++; sess.streakRight++; sess.streakWrong = 0;
     if (sess.streakRight >= 2 && sess.tierIdx < diag.TIER_ORDER.length - 1) { sess.tierIdx++; sess.streakRight = 0; }

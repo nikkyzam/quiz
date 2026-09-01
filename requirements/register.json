@@ -534,7 +534,7 @@
       "title": "Adaptive diagnostic using IRT/BKT producing a skill map",
       "status": "partial",
       "priority": 1,
-      "notes": "Adaptive diagnostic with a skill map is implemented and verified. It uses a simple streak rule, NOT Item Response Theory or Bayesian Knowledge Tracing as the spec requires; 6.3 remains the real modelling work."
+      "notes": "Adaptive diagnostic with a skill map, and BKT now tracks per-skill knowledge (check:knowledge-tracing). Item Response Theory is still not implemented, and the diagnostic itself still uses the streak rule rather than the model."
     },
     {
       "id": "6.2",
@@ -551,7 +551,8 @@
       "title": "BKT/DKT mastery updates and bandit difficulty selection",
       "status": "partial",
       "priority": 1,
-      "notes": "Difficulty adapts within diagnostic and practice sessions via a streak rule, and the knowledge graph gates what is recommended. Bayesian Knowledge Tracing / Deep Knowledge Tracing and multi-armed bandit selection are NOT implemented."
+      "notes": "Bayesian Knowledge Tracing implemented and verified: P(known) updated per answer with slip and guess terms, guess rate scaled to the number of options, and mastery requiring both confidence and enough observations so a lucky answer cannot declare it. Estimates feed the readiness recommendation. NOT done: Deep Knowledge Tracing, per-skill parameter fitting from real data, and multi-armed bandit question selection - difficulty still steps by streak.",
+      "evidence": "check:knowledge-tracing"
     },
     {
       "id": "6.4",
@@ -575,8 +576,9 @@
       "id": "6.6",
       "section": "Adaptive engine",
       "title": "Multi-track adaptation with separate core/advanced models",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "notes": "Core and advanced tracks carry separate mastery thresholds and BKT keeps a separate estimate per topic, so a learner can sit at different levels in different strands. Parent/teacher override of track assignment is not built."
     },
     {
       "id": "7.1",

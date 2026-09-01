@@ -1518,6 +1518,81 @@ export const CHECKS = {
     return "goals set, updated, measured against real rounds, and access-controlled";
   },
 
+
+  /* 6.3 — Bayesian Knowledge Tracing */
+  "knowledge-tracing": async () => {
+    const bkt = await import("../app/server/src/bkt.js");
+
+    /* Direction: correct raises the estimate, wrong lowers it. */
+    const start = bkt.DEFAULTS.pInit;
+    assert(bkt.update(start, true) > start, "a correct answer did not raise P(known)");
+    assert(bkt.update(0.9, false) < 0.9, "a wrong answer did not lower P(known)");
+
+    /* Bounded: the estimate stays a probability whatever the history. */
+    let p = start;
+    for (let i = 0; i < 60; i++) p = bkt.update(p, true);
+    assert(p <= 1 && p > 0.99, `after 60 correct answers P(known) = ${p}`);
+    let q = 0.99;
+    for (let i = 0; i < 60; i++) q = bkt.update(q, false);
+    assert(q >= 0 && q < 0.3, `after 60 wrong answers P(known) = ${q}`);
+
+    /* Slip: one wrong answer must NOT erase a well-established skill. */
+    let strong = start;
+    for (let i = 0; i < 8; i++) strong = bkt.update(strong, true);
+    const afterSlip = bkt.update(strong, false);
+    assert(afterSlip > 0.3, `a single slip collapsed a strong skill to ${afterSlip.toFixed(3)}`);
+
+    /* Guess: one lucky answer must NOT declare mastery. This is the behaviour
+       a streak counter cannot express, and the reason the spec asks for BKT. */
+    const oneLucky = bkt.update(start, true, bkt.paramsFor({ optionCount: 4 }));
+    assert(!bkt.isKnown({ pKnown: oneLucky, observations: 1 }),
+      "a single lucky multiple-choice answer counted as mastery");
+
+    /* Guess rate must reflect the number of options. */
+    assert(bkt.paramsFor({ optionCount: 2 }).pGuess > bkt.paramsFor({ optionCount: 5 }).pGuess,
+      "a two-option question is not treated as easier to guess than a five-option one");
+
+    /* Evidence requirement: high probability alone is not mastery. */
+    assert(!bkt.isKnown({ pKnown: 0.99, observations: 1 }),
+      "mastery declared on a single observation");
+    assert(bkt.isKnown({ pKnown: 0.99, observations: 5 }), "mastery never reached despite strong evidence");
+
+    /* End to end: practice answers move the learner's stored estimate. */
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "bkt@b.com", password: "a-long-enough-pass", name: "K" });
+    const kid = (await post(c, "/learners", { name: "BKT Kid" })).body.learner;
+
+    let before = (await c(`/learners/${kid.id}/skills`)).body.skills;
+    assert(before.length === 0, "a new learner already has skill estimates");
+
+    const st = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-ratios" });
+    let cur = st.body.question, guard = 0;
+    while (guard++ < 15) {
+      const step = await post(c, "/practice/answer",
+        { sessionId: st.body.sessionId, answer: "-999999", hintsUsed: 0 });
+      if (step.body.done) break;
+      cur = step.body.question;
+    }
+    const after = (await c(`/learners/${kid.id}/skills`)).body;
+    const skill = after.skills.find(s => s.skillId === "g6-ratios");
+    assert(skill, "no skill estimate recorded after a practice session");
+    assert(skill.observations >= 5, `only ${skill.observations} observations recorded`);
+    assert(skill.pKnown < bkt.DEFAULTS.pInit,
+      `an all-wrong session left P(known) at ${skill.pKnown}, no lower than the prior`);
+    assert(skill.known === false, "an all-wrong session was counted as known");
+    assert(skill.name, "skill estimates are not named");
+
+    /* Another account cannot read the model for this learner. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "bktbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await bob(`/learners/${kid.id}/skills`)).status === 403,
+      "another account read this learner's skill model");
+
+    return "P(known) updated per answer, slip and guess handled, mastery needs evidence not just confidence";
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

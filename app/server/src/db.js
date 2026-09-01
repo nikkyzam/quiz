@@ -181,6 +181,16 @@ CREATE INDEX IF NOT EXISTS idx_contests_learner ON contests(learner_id, finished
 
 CREATE INDEX IF NOT EXISTS idx_mistakes_learner ON mistakes(learner_id, at DESC);
 
+-- Bayesian Knowledge Tracing state, one row per learner per skill.
+CREATE TABLE IF NOT EXISTS skill_state (
+  learner_id   TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  skill_id     TEXT NOT NULL,
+  p_known      REAL NOT NULL,
+  observations INTEGER NOT NULL DEFAULT 0,
+  updated_at   TEXT NOT NULL,
+  PRIMARY KEY (learner_id, skill_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);
 
 CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_at DESC);
