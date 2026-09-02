@@ -31,6 +31,9 @@ import { parent as parentRoutes } from "./routes-parent.js";
 import { game as gameRoutes, unlockedAreas } from "./routes-game.js";
 import { teacher as teacherRoutes, percentileFor } from "./routes-teacher.js";
 import { admin as adminRoutes } from "./routes-admin.js";
+import { student as studentRoutes } from "./routes-student.js";
+import { LOCALES } from "../../shared/i18n.mjs";
+import { translateQuestion, translatedExplanation } from "../../shared/translations.mjs";
 import { thresholdFor, masteryState, accommodationsFor } from "./policy.js";
 
 export const api = Router();
@@ -38,6 +41,7 @@ api.use(parentRoutes);
 api.use(gameRoutes);
 api.use(teacherRoutes);
 api.use(adminRoutes);
+api.use(studentRoutes);
 
 
 
@@ -266,7 +270,17 @@ api.get("/topics/:topicId/:tier/questions", (req, res) => {
   if (!bank) return res.status(404).json({ error: "unknown_topic" });
   const idxs = bank.map((q, i) => ({ q, i })).filter(o => tierOf(o.q) === tier).map(o => o.i);
   if (!idxs.length) return res.status(404).json({ error: "empty_tier" });
-  res.json({ questions: idxs.map(i => publicQuestion(topicId, i)) });
+  /* Content localisation (8.4): a translated bank is served in the requested
+     locale; anything untranslated comes back in English and is flagged. */
+  const lang = LOCALES[String(req.query.lang)] ? String(req.query.lang) : "en";
+  let translated = 0;
+  const questions = idxs.map(i => {
+    const r = translateQuestion(publicQuestion(topicId, i), lang, topicId, i);
+    if (r.translated) translated++;
+    return r.question;
+  });
+  res.json({ questions, lang: translated === questions.length && lang !== "en" ? lang : "en",
+             requestedLang: lang, translated, total: questions.length });
 });
 
 
@@ -466,8 +480,11 @@ api.post("/answer", (req, res) => {
   if (!resolved) return res.status(400).json({ error: "unknown_question" });
   const q = resolved.q;
   const { ok, correctAnswer, credit, creditDetail } = gradeAnswer(q, answer);
+  const lang = LOCALES[String(req.body?.lang)] ? String(req.body.lang) : "en";
+  const idx = Number(String(questionId).split(":")[1]);
   res.json({ correct: ok, correctAnswer, credit: credit ?? (ok ? 1 : 0), creditDetail: creditDetail || null,
-             explanation: q.expl, figA: q.figA || null });
+             explanation: lang === "en" ? q.expl : translatedExplanation(lang, resolved.topicId, idx, q.expl),
+             figA: q.figA || null });
 });
 
 /* ---------------- generated practice (spec 3.2.3) ----------------
@@ -1242,15 +1259,20 @@ api.post("/proofs/submit", requireAuth, (req, res) => {
 
   sess.attempts++;
   const result = checkProof(proof, submission || {});
+  let points = 0;
   if (result.correct) {
     db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
       .run(randomUUID(), sess.learnerId, `proof:${proof.id}`, "proof", 1, 1, 100, now());
+    points = 20;
     rewards.award(sess.learnerId, "points", `proof:${proof.id}`, 20);
+    /* Elegance bonus (7.3): a freeform proof that covers every rubric point
+       in no more lines than the reference is rewarded for economy. */
+    if (result.elegant) { points += 10; rewards.award(sess.learnerId, "points", `proof:${proof.id}:elegant`, 10); }
     rewards.sweep(sess.learnerId);
     proofSessions.delete(sessionId);
   }
   audit(req.user.id, "proof.submitted", `${proof.id}:${result.correct ? "correct" : "retry"}`, req);
-  res.json({ ...result, attempts: sess.attempts, kind: proof.kind });
+  res.json({ ...result, points, attempts: sess.attempts, kind: proof.kind });
 });
 
 api.get("/learners/:id/proofs", requireAuth, (req, res) => {

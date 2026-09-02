@@ -78,7 +78,7 @@ export const PUZZLES = [
     multiple: true,
     hints: ["Half the perimeter is the length plus the width.",
             "So the two sides add up to 10. List the pairs.",
-            "Multiply the two sides of any pair together; a 1 by 9 rectangle is one option."] },
+            "Multiply the two sides of any pair together; the thinnest rectangle is one option."] },
   { id: "pz-three-primes", title: "Prime Sum", difficulty: 3, topic: "g3-primefact",
     prompt: "Give me any prime number that can be written as the sum of two other primes.",
     accepts: [5, 7, 13, 19, 31, 43, 61, 73],

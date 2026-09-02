@@ -15,7 +15,7 @@
 import { QUESTIONS, SECS } from "../app/shared/questions.mjs";
 import { CURRICULUM } from "../app/shared/curriculum.mjs";
 import { PUZZLES } from "../app/shared/puzzles.mjs";
-import { allProofs } from "../app/shared/proofs.mjs";
+import { allProofs, checkFreeform } from "../app/shared/proofs.mjs";
 import { TEMPLATES, generate } from "../app/shared/generators.mjs";
 
 /* Crude on purpose: it flags a Kindergarten question written like a legal
@@ -64,6 +64,12 @@ function applyRules(q, where, grade, seenText, err, warn) {
   if (q.type === "in" && typeof q.ans !== "number") err(where, "numeric answer is not a number");
   if (q.type === "pair" && (!Array.isArray(q.ansP) || q.ansP.length !== 2))
     err(where, "ordered pair answer malformed");
+  if (q.type === "plot") {
+    if (!Array.isArray(q.ansPt) || q.ansPt.length !== 2 || !q.ansPt.every(Number.isInteger))
+      err(where, "plot answer is not an integer point");
+    else if (q.grid && (q.ansPt[0] < q.grid.min || q.ansPt[0] > q.grid.max || q.ansPt[1] < q.grid.min || q.ansPt[1] > q.grid.max))
+      err(where, "plot answer lies outside its grid");
+  }
   if (q.type === "multi") {
     if (!q.aMulti || !q.aMulti.length) err(where, "no correct selections");
     else if (q.opts && q.aMulti.length === q.opts.length) err(where, "every option marked correct");
@@ -114,6 +120,18 @@ export function runAll() {
   }
 
   for (const pr of allProofs()) {
+    if (pr.kind === "freeform") {
+      /* A rubric proof must carry a reference proof that its own rubric
+         accepts, or the rubric may be unsatisfiable. */
+      if (!pr.rubric?.length || pr.rubric.some(r => !r.accept?.length || !r.must)) err(`proof:${pr.id}`, "rubric incomplete");
+      if (!pr.reference?.length) err(`proof:${pr.id}`, "no reference proof");
+      else {
+        const r = checkFreeform(pr, { lines: pr.reference });
+        if (!r.correct) err(`proof:${pr.id}`, `reference proof fails its own rubric (missing ${r.missing.map(m => m.key).join(", ")})`);
+        if (checkFreeform(pr, { lines: ["This is obviously true."] }).correct) err(`proof:${pr.id}`, "rubric accepts a non-proof");
+      }
+      continue;
+    }
     if (!pr.steps || !pr.steps.length) err(`proof:${pr.id}`, "no steps");
     if (pr.kind === "reasons") {
       if (pr.steps.some(s => !s.reason)) err(`proof:${pr.id}`, "a step has no reason");

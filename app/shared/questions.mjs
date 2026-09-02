@@ -314,6 +314,9 @@ QUESTIONS["g6-ratios"] = [
 ];
 
 
+import { PLOT_G6 } from "./banks/plot.mjs";
+QUESTIONS["g6-nscoord"].push(...PLOT_G6);
+
 export { SECS, QUESTIONS };
 
 /* ---- Grade 6 · Percents (g6-percent) ----

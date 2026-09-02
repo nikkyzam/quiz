@@ -1138,6 +1138,8 @@ export const CHECKS = {
           assert(typeof q.ans === "number" && !isNaN(q.ans), `${tag} has a non-numeric answer`);
         } else if (q.type === "pair") {
           assert(Array.isArray(q.ansP) && q.ansP.length === 2, `${tag} has a bad ordered pair`);
+        } else if (q.type === "plot") {
+          assert(Array.isArray(q.ansPt) && q.ansPt.length === 2 && q.ansPt.every(Number.isInteger), `${tag} has a bad plot point`);
         } else if (q.type === "multi") {
           assert(Array.isArray(q.aMulti) && q.aMulti.length, `${tag} has no correct selections`);
           assert(q.aMulti.every(i => q.opts[i] !== undefined), `${tag} selects a non-existent option`);
@@ -1628,7 +1630,10 @@ export const CHECKS = {
     /* Marking: correct accepted, wrong rejected, with useful feedback. */
     for (const p of proofs) {
       let good, bad;
-      if (p.kind === "order") {
+      if (p.kind === "freeform") {
+        good = { lines: p.reference };
+        bad = { lines: ["Because it is true."] };
+      } else if (p.kind === "order") {
         good = { order: p.steps.map((_, i) => String(i)) };
         bad = { order: p.steps.map((_, i) => String(i)).reverse() };
       } else if (p.kind === "reasons") {
@@ -1642,7 +1647,7 @@ export const CHECKS = {
       assert(checkProof(p, bad).correct === false, `${p.id}: a wrong proof was accepted`);
       assert(checkProof(p, {}).correct === false, `${p.id}: an empty submission was accepted`);
       const fb = checkProof(p, bad);
-      assert(fb.wrongSteps || fb.firstWrongPosition !== null,
+      assert(fb.wrongSteps || fb.firstWrongPosition !== null || fb.missing?.length,
         `${p.id}: rejection gave no indication of what was wrong`);
     }
 
@@ -3177,6 +3182,160 @@ export const CHECKS = {
     assert((await t("/admin/hierarchy")).status === 403 && (await post(t, "/admin/districts", { name: "X" })).status === 403, "teacher reached admin hierarchy");
 
     return `roster import + parent claim, groups, accommodations (5-question check, hints, +50% time), thresholds 95/85 per class, decay, unit test over ${res.byTopic.length} topics, percentiles, contest board, gifted report, hierarchy`;
+  },
+
+  /* 3.2.1 + 4.1.3 + 3.2.2 + 3.2.7 + 5.9 + 3.3.5 + 4.1.10 + 3.2.5 + 3.4.6 + 7.3 +
+     3.5.4 + 8.4 + 10.8 + 10.6 — the student app's content types: comic
+     lessons that resume and gate on embedded checks, plot input, simulations
+     with server-checked tasks, seeded mini-games, contest guides, the proof
+     template library with freeform rubric marking and an elegance bonus,
+     LaTeX to MathML, localisation with RTL, and offline sync. */
+  "student-app-depth": async () => {
+    const { LESSONS, publicLesson } = await import("../app/shared/lessons.mjs");
+    const { SIMULATIONS, checkTask } = await import("../app/shared/simulations.mjs");
+    const { GAMES, buildRound, scoreRound } = await import("../app/shared/games.mjs");
+    const { allProofs, checkProof, TEMPLATES, PROOF_KINDS } = await import("../app/shared/proofs.mjs");
+    const { latexToMathML } = await import("../app/shared/mathml.mjs");
+    const { STRINGS, LOCALES, missingKeys, dirOf, t } = await import("../app/shared/i18n.mjs");
+
+    /* --- lessons: structure, alt text, no answer leaks --- */
+    assert(LESSONS.length >= 6, `only ${LESSONS.length} lessons`);
+    for (const l of LESSONS) {
+      assert(l.panels.length >= 4 && l.panels.some(p => p.check), `${l.id} is too short or has no check`);
+      for (const p of l.panels) assert(p.alt && p.alt.length > 10 && p.art?.kind, `${l.id} has a panel without art or alt text`);
+      const raw = JSON.stringify(publicLesson(l));
+      for (const k of ['"ans"', '"ansPt"', '"expl"', '"a":']) assert(!raw.includes(k), `${l.id} leaked ${k}`);
+    }
+    const c = client();
+    await post(c, "/auth/register", { coppaConsent: true, email: "stud@b.com", password: "a-long-enough-pass", name: "S" });
+    const kid = (await post(c, "/learners", { name: "Lesson Kid" })).body.learner;
+    const les = LESSONS.find(l => l.id === "les-g6-nscoord");
+    const firstCheck = les.panels.findIndex(p => p.check);
+    /* Cannot skip past a check; wrong answer refused without the answer; right answer unlocks. */
+    const skip = await post(c, `/lessons/${les.id}/progress`, { learnerId: kid.id, panel: firstCheck + 1 });
+    assert(skip.status === 409 && skip.body.error === "check_not_passed", "a lesson check was skipped");
+    const wrong = await post(c, `/lessons/${les.id}/check`, { learnerId: kid.id, panel: firstCheck, answer: [9, 9] });
+    assert(wrong.body.correct === false && !wrong.body.correctAnswer && wrong.body.hint, "a wrong lesson check leaked or gave no hint");
+    const right = await post(c, `/lessons/${les.id}/check`, { learnerId: kid.id, panel: firstCheck, answer: [2, -3] });
+    assert(right.body.correct === true && right.body.explanation, "plot check misgraded (right answer refused)");
+    const moved = await post(c, `/lessons/${les.id}/progress`, { learnerId: kid.id, panel: firstCheck + 1 });
+    assert(moved.status === 200 && moved.body.panel === firstCheck + 1, "could not advance after passing the check");
+    let mine = (await c(`/learners/${kid.id}/lessons`)).body.lessons.find(x => x.id === les.id);
+    assert(mine.resumeAt === firstCheck + 1 && !mine.completed, "resume position not saved");
+    /* Finish: pass the remaining checks then move to the end. */
+    for (let i = firstCheck + 1; i < les.panels.length; i++)
+      if (les.panels[i].check) {
+        const ck = les.panels[i].check;
+        await post(c, `/lessons/${les.id}/check`, { learnerId: kid.id, panel: i, answer: ck.type === "plot" ? ck.ansPt : ck.type === "mc" ? ck.a : ck.ans });
+      }
+    const done = await post(c, `/lessons/${les.id}/progress`, { learnerId: kid.id, panel: les.panels.length });
+    assert(done.body.completed === true && done.body.badges.includes("lessons_1"), "completing a lesson gave no completion or badge");
+    mine = (await c(`/learners/${kid.id}/lessons`)).body.lessons.find(x => x.id === les.id);
+    assert(mine.completed && mine.resumeAt === null, "completed lesson still offers a resume point");
+
+    /* --- plot questions served and graded --- */
+    const qs = (await c("/topics/g6-nscoord/practice/questions")).body.questions;
+    const plot = qs.find(q => q.type === "plot");
+    assert(plot && plot.grid && !("ansPt" in plot), "plot question not served or leaks its point");
+    assert((await post(c, "/answer", { questionId: plot.id, answer: [4, 2] })).body.correct === true, "plot answer misgraded");
+    assert((await post(c, "/answer", { questionId: plot.id, answer: "4, 3" })).body.correct === false, "wrong plot accepted");
+
+    /* --- simulations: valid state required; tasks checked server-side --- */
+    assert(SIMULATIONS.length >= 5 && SIMULATIONS.every(s => s.tasks.length >= 3), "too few simulations or tasks");
+    const area = SIMULATIONS.find(s => s.id === "sim-area");
+    assert(checkTask(area, "area-24", { w: 6, h: 4 }).ok && !checkTask(area, "area-24", { w: 5, h: 5 }).ok, "area task misjudged");
+    assert(checkTask(area, "area-24", { w: 24, h: "x" }).error === "invalid_state", "malformed state accepted");
+    const tri = SIMULATIONS.find(s => s.id === "sim-triangle");
+    assert(checkTask(tri, "right-triangle", { ax: 0, ay: 0, bx: 4, by: 0, cx: 0, cy: 3 }).ok, "right angle not recognised");
+    const simDone = await post(c, "/simulations/sim-reflect/check", { learnerId: kid.id, taskId: "image-3-neg2", state: { x: 3, y: 2, axis: "x" } });
+    assert(simDone.body.ok === true, "simulation task not credited through the API");
+    assert((await post(c, "/simulations/sim-reflect/check", { learnerId: kid.id, taskId: "image-3-neg2", state: { x: 3, y: 2, axis: "y" } })).body.ok === false, "wrong mirror accepted");
+    assert((await c(`/learners/${kid.id}/simulations`)).body.completed.some(x => x.taskId === "image-3-neg2"), "completed task not listed");
+
+    /* --- mini-games: seeded, reproducible, scored server-side --- */
+    assert(Object.keys(GAMES).length >= 4, "too few games");
+    for (const id of Object.keys(GAMES)) {
+      const a = buildRound(id, 42), b = buildRound(id, 42);
+      assert(JSON.stringify(a) === JSON.stringify(b), `${id} is not reproducible from its seed`);
+      assert(!JSON.stringify(a).includes('"answer"'), `${id} serves its answers`);
+      assert(scoreRound(id, 42, []).score === 0, `${id} scores an empty round above zero`);
+    }
+    const start = (await post(c, "/games/table-sprint/start", { learnerId: kid.id })).body;
+    assert(start.sessionId && start.items.length === 20 && start.seconds > 0, "game round malformed");
+    const resp = start.items.map(it => it.a * it.b);
+    resp[0] = -1;
+    const fin = (await post(c, "/games/finish", { sessionId: start.sessionId, responses: resp })).body;
+    assert(fin.score === 19 && fin.points === 38 && fin.badges.includes("games_1"), `game misscored: ${JSON.stringify(fin)}`);
+    assert((await post(c, "/games/finish", { sessionId: start.sessionId, responses: resp })).status === 404, "a game round was finished twice");
+
+    /* --- contest guides and proof templates --- */
+    const guides = (await c("/contest/guides?format=amc8")).body.guides;
+    assert(guides.some(g => g.format === "amc8") && guides.some(g => g.format === null), "guides missing format-specific or general advice");
+    const tpl = (await c("/proofs/templates")).body.templates;
+    for (const k of ["direct", "contrapositive", "contradiction", "induction", "pigeonhole", "extremal"])
+      assert(tpl[k]?.scaffold?.length >= 3, `template ${k} missing`);
+
+    /* --- proofs: pigeonhole and extremal represented; freeform rubric marking --- */
+    const proofs = allProofs();
+    assert(proofs.some(p => p.template === "pigeonhole") && proofs.some(p => p.template === "extremal") && proofs.some(p => p.template === "contrapositive"),
+      "pigeonhole, extremal or contrapositive proof missing");
+    assert(proofs.length >= 10 && new Set(proofs.map(p => p.grade)).size >= 7, `proof breadth: ${proofs.length} proofs over ${new Set(proofs.map(p => p.grade)).size} grades`);
+    assert(PROOF_KINDS.freeform, "no freeform kind");
+    const free = proofs.find(p => p.id === "p-free-even-square");
+    const good = checkProof(free, { lines: ["Let n be even, so n = 2k for a whole number k.", "Then n^2 = (2k)^2 = 4k^2.", "So n^2 = 2(2k^2), which is even."] });
+    assert(good.correct && good.elegant, `a valid three-line proof was refused: ${JSON.stringify(good)}`);
+    const longer = checkProof(free, { text: "Let n be even.\nThat means n = 2k.\nSquare both sides.\nn^2 = (2k)^2 = 4k^2.\nSo n^2 = 2(2k^2), which is even." });
+    assert(longer.correct && !longer.elegant, "a longer valid proof was refused or called elegant");
+    const outOfOrder = checkProof(free, { lines: ["So n^2 = 2(2k^2), which is even.", "n = 2k.", "n^2 = (2k)^2 = 4k^2."] });
+    assert(!outOfOrder.correct && outOfOrder.missing.length, "steps out of order were accepted");
+    const vague = checkProof(free, { lines: ["It is obviously even."] });
+    assert(!vague.correct && vague.missing[0].key === "define" && !JSON.stringify(vague).includes("2k"), "vague proof accepted, or feedback leaked phrasing");
+    const started = await post(c, `/proofs/${free.id}/start`, { learnerId: kid.id });
+    assert(started.body.proof.rubric?.every(r => r.must && !r.accept), "served freeform proof leaks accept patterns");
+    const sub = await post(c, "/proofs/submit", { sessionId: started.body.sessionId, submission: { lines: ["n = 2k", "(2k)^2 = 4k^2", "= 2(2k^2), so even"] } });
+    assert(sub.body.correct && sub.body.elegant && sub.body.points === 30, `elegance bonus not paid: ${JSON.stringify(sub.body)}`);
+
+    /* --- LaTeX to MathML --- */
+    const frac = latexToMathML("\\frac{3}{4} + x^2");
+    assert(/<mfrac>/.test(frac.mathml) && /<msup>/.test(frac.mathml) && frac.spoken === "3 over 4 plus x squared", `LaTeX render wrong: ${frac.spoken}`);
+    assert(latexToMathML("\\sqrt[3]{27}").spoken === "the cube root of 27", "cube root not spoken");
+    let threw = false; try { latexToMathML("\\evil{x}"); } catch { threw = true; }
+    assert(threw, "unsupported LaTeX was accepted silently");
+    assert((await post(c, "/render/latex", { src: "\\frac{1}{2}" })).body.spoken === "1 over 2", "render endpoint broken");
+    assert((await post(c, "/render/latex", { src: "\\bad" })).status === 400, "render endpoint accepted bad LaTeX");
+
+    /* --- localisation: parity, RTL, translated content with honest fallback --- */
+    for (const loc of Object.keys(LOCALES)) assert(missingKeys(loc).length === 0, `${loc} is missing keys: ${missingKeys(loc).slice(0, 3).join(", ")}`);
+    assert(Object.keys(STRINGS.en).length >= 60, "UI dictionary is thin");
+    assert(dirOf("ar") === "rtl" && dirOf("es") === "ltr", "writing direction wrong");
+    assert(t("es", "quiz.correct") === "¡Correcto!" && t("ar", "nav.home") !== "Home", "translation lookup broken");
+    const i18n = (await c("/i18n?locale=ar")).body;
+    assert(i18n.dir === "rtl" && i18n.strings["nav.home"] === STRINGS.ar["nav.home"], "i18n endpoint wrong");
+    const es = (await c("/topics/k-count/practice/questions?lang=es")).body;
+    assert(es.lang === "es" && es.questions[0].q.startsWith("¿"), "translated bank not served");
+    const esAns = (await post(c, "/answer", { questionId: "k-count:0", answer: 8, lang: "es" })).body;
+    assert(/8 viene/.test(esAns.explanation), "explanation not translated");
+    const fallback = (await c("/topics/g6-ratios/practice/questions?lang=es")).body;
+    assert(fallback.lang === "en" && fallback.requestedLang === "es", "untranslated bank not flagged as a fallback");
+    const enOrder = (await c("/topics/k-count/practice/questions")).body.questions[0];
+    const esOrder = es.questions[0];
+    assert(enOrder.id === esOrder.id && enOrder.type === esOrder.type, "translation changed the question identity");
+
+    /* --- offline sync: graded on arrival, idempotent by client id --- */
+    const batch = { clientId: "offline-batch-0001", topicId: "g6-ratios", seconds: 90, finishedAt: new Date(Date.now() - 3600e3).toISOString(),
+      answers: { "g6-ratios:0": 0, "g6-ratios:2": "0.5", "g6-ratios:3": "banana" } };
+    const s1 = (await post(c, "/sync", { learnerId: kid.id, batches: [batch] })).body.results[0];
+    assert(s1.duplicate === false && s1.total === 3 && s1.detail.length === 3 && typeof s1.pct === "number", `sync misgraded: ${JSON.stringify(s1)}`);
+    const s2 = (await post(c, "/sync", { learnerId: kid.id, batches: [batch] })).body.results[0];
+    assert(s2.duplicate === true && s2.pct === s1.pct, "a re-sent batch was recorded twice");
+    const progRows = (await c(`/learners/${kid.id}/progress`)).body.progress.filter(r => r.tier === "offline");
+    assert(progRows.length === 1 && progRows[0].runs === 1, "offline run recorded wrongly");
+    assert((await post(c, "/sync", { learnerId: kid.id, batches: [{ clientId: "x", topicId: "g6-ratios", answers: {} }] })).body.results[0].error, "malformed batch accepted");
+    const bob = client();
+    await post(bob, "/auth/register", { coppaConsent: true, email: "studbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await post(bob, "/sync", { learnerId: kid.id, batches: [batch] })).status === 403, "another account synced for this learner");
+
+    return `${LESSONS.length} lessons with gated checks and resume, plot input, ${SIMULATIONS.length} simulations, ${Object.keys(GAMES).length} games, ${proofs.length} proofs incl. freeform + elegance, LaTeX, ${Object.keys(LOCALES).length} locales incl. RTL, offline sync`;
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

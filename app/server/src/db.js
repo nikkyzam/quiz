@@ -392,6 +392,8 @@ export function migrate() {
   if (addColumn("class_settings", "threshold_adv", "INTEGER")) applied.push("class_settings.threshold_adv");
   // 4.3.2: assignments may target a group
   if (addColumn("assignments", "group_id", "TEXT")) applied.push("assignments.group_id");
+  // 10.6: offline rounds carry a client id so a re-sent batch is not recorded twice
+  if (addColumn("runs", "client_id", "TEXT")) applied.push("runs.client_id");
   // 4.4.1: users belong to a school
   if (addColumn("users", "school_id", "TEXT")) applied.push("users.school_id");
   return applied;
