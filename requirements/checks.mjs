@@ -2588,6 +2588,143 @@ export const CHECKS = {
     return `junior ${junior}px targets vs senior ${senior}px, type scales by band, motion optional`;
   },
 
+  /* 6.1 + 6.3 + 6.6 + 4.2.2 — IRT-driven diagnostic, bandit difficulty
+     selection, and a per-learner track that parent or teacher can set. */
+  "adaptive-engine": async () => {
+    const irt = await import("../app/server/src/irt.js");
+    const bandit = await import("../app/server/src/bandit.js");
+
+    /* --- IRT: the model behaves like a model --- */
+    const boss = irt.ITEM_PARAMS.boss, prac = irt.ITEM_PARAMS.practice;
+    assert(irt.prob(2, boss) > irt.prob(0, boss), "success probability does not rise with ability");
+    assert(irt.prob(0, prac) > irt.prob(0, boss), "a boss item is not harder than a practice item");
+    const strong = irt.estimate(Array.from({ length: 6 }, () => ({ item: boss, correct: true })));
+    const weak = irt.estimate(Array.from({ length: 6 }, () => ({ item: prac, correct: false })));
+    assert(strong.theta > 0.6 && weak.theta < -0.6,
+      `estimates do not separate strong (${strong.theta}) from weak (${weak.theta})`);
+    const one = irt.estimate([{ item: boss, correct: true }]);
+    assert(strong.se < one.se, "standard error does not shrink with more evidence");
+    assert(irt.estimate([]).se > strong.se, "the prior is not less certain than the posterior");
+    const cands = Object.entries(irt.ITEM_PARAMS).map(([tier, item]) => ({ tier, item }));
+    assert(irt.selectItem(1.4, cands).tier === "boss", "max-information selection did not pick the hardest item for a strong learner");
+    assert(irt.selectItem(-1.4, cands).tier === "practice", "max-information selection did not pick the easiest item for a weak learner");
+    assert(irt.placement(strong.theta) === "boss" && irt.placement(weak.theta) === "practice",
+      "placement does not follow ability");
+
+    /* --- Bandit: the policy reaches for the hardest tier the learner can manage --- */
+    const rng = (() => { let s = 12345; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; })();
+    const tally = arms => {
+      const t = { practice: 0, challenge: 0, boss: 0 };
+      for (let i = 0; i < 2000; i++) t[bandit.choose(arms, rng)]++;
+      return t;
+    };
+    const novice = tally({ practice: { successes: 8, failures: 0 }, challenge: { successes: 0, failures: 6 }, boss: { successes: 0, failures: 6 } });
+    assert(novice.practice > novice.challenge && novice.practice > novice.boss,
+      `a learner failing harder tiers was not kept on practice: ${JSON.stringify(novice)}`);
+    const expert = tally({ practice: { successes: 8, failures: 0 }, challenge: { successes: 8, failures: 0 }, boss: { successes: 8, failures: 0 } });
+    assert(expert.boss > expert.practice, `a learner succeeding everywhere was not moved up: ${JSON.stringify(expert)}`);
+    const blank = tally({});
+    assert(blank.practice > 50 && blank.challenge > 50 && blank.boss > 50,
+      `with no evidence the policy does not explore every tier: ${JSON.stringify(blank)}`);
+    const beta = Array.from({ length: 500 }, () => bandit.sampleBeta(9, 1, rng));
+    assert(beta.reduce((a, b) => a + b, 0) / beta.length > 0.8, "Beta(9,1) samples are not centred near 0.9");
+
+    /* --- Through the API: diagnostic placement uses the model --- */
+    const c = client();
+    await post(c, "/auth/register", { coppaConsent: true, email: "engine@b.com", password: "a-long-enough-pass", name: "E" });
+    const kid = (await post(c, "/learners", { name: "Engine Kid" })).body.learner;
+    assert(kid.track === "core", "a new learner does not start on the core track");
+
+    const solve = async q => {
+      if (q.type === "mc") {
+        for (let i = 0; i < q.opts.length; i++)
+          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) return i;
+        return 0;
+      }
+      if (q.type === "multi") return (await post(c, "/answer", { questionId: q.id, answer: [] }))
+        .body.correctAnswer.split(", ").map(t => q.opts.indexOf(t));
+      if (q.type === "order") return (await post(c, "/answer", { questionId: q.id, answer: [] }))
+        .body.correctAnswer.split("  →  ");
+      return (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
+    };
+    let r = await post(c, "/diagnostic/start", { learnerId: kid.id, topicId: "g6-nscoord" });
+    let q = r.body.question, summary = null, guard = 0;
+    while (guard++ < 30) {
+      const step = await post(c, "/diagnostic/answer", { diagnosticId: r.body.diagnosticId, answer: await solve(q) });
+      if (step.body.done) { summary = step.body.summary; break; }
+      q = step.body.question;
+    }
+    assert(summary?.ability?.model === "2PL-IRT/EAP", "diagnostic did not report an IRT ability estimate");
+    assert(summary.ability.theta > 0.6, `all-correct diagnostic estimated theta ${summary.ability.theta}`);
+    assert(summary.ability.se < 1, "ability estimate carries no precision");
+    assert(summary.sequence.at(-1) === "boss", `an all-correct run ended on ${summary.sequence.at(-1)}, not boss`);
+    assert(summary.recommendation.tier === "boss", "strong learner not placed at boss");
+    assert(summary.asked < 12 || summary.ability.se <= 0.45 + 1e-9,
+      "the diagnostic neither stopped early on precision nor hit its maximum");
+
+    /* The placement seeds the bandit, and practice records every arm it pulls. */
+    let model = (await c(`/learners/${kid.id}/model/g6-nscoord`)).body;
+    assert(model.placement?.ability?.theta > 0.6, "stored placement has no ability estimate");
+    assert(model.arms.boss.successes >= 2, "placement did not seed the bandit");
+
+    const s = await post(c, "/practice/start", { learnerId: kid.id, topicId: "g6-nscoord" });
+    q = s.body.question; guard = 0; let done = false;
+    while (guard++ < 30 && !done) {
+      const step = await post(c, "/practice/answer", { sessionId: s.body.sessionId, answer: await solve(q), hintsUsed: 0 });
+      done = step.body.done; q = step.body.question;
+    }
+    model = (await c(`/learners/${kid.id}/model/g6-nscoord`)).body;
+    const pulls = Object.values(model.arms).reduce((a, x) => a + x.successes + x.failures, 0);
+    assert(pulls >= 12, `bandit recorded ${pulls} pulls after a placement seed and a 10-question session`);
+    const after = tally(model.arms);
+    assert(after.practice < 1000, `after a perfect run the policy still favours practice: ${JSON.stringify(after)}`);
+
+    /* A learner who keeps failing wherever they are sent must be moved: the
+       arm they are failing on loses its draw and another tier gets tried. */
+    const kid2 = (await post(c, "/learners", { name: "Struggling Kid" })).body.learner;
+    const s2 = await post(c, "/practice/start", { learnerId: kid2.id, topicId: "g6-nscoord" });
+    for (let i = 0; i < 12; i++) {
+      const step = await post(c, "/practice/answer", { sessionId: s2.body.sessionId, answer: "-424242", hintsUsed: 0 });
+      if (step.body.done) break;
+    }
+    const arms2 = (await c(`/learners/${kid2.id}/model/g6-nscoord`)).body.arms;
+    const tried = Object.values(arms2).filter(x => x.successes + x.failures > 0).length;
+    assert(tried >= 2, `the bandit kept a failing learner on one tier: ${JSON.stringify(arms2)}`);
+    assert(Object.values(arms2).reduce((a, x) => a + x.failures, 0) === 10, "not every miss was recorded against an arm");
+
+    /* --- Track override by parent, and by teacher for a class member --- */
+    const t = (await c(`/learners/${kid.id}/track`)).body;
+    assert(t.track === "core" && t.tracks.enrichment && t.recommended?.track, "track endpoint is incomplete");
+    assert((await c(`/learners/${kid.id}/track`, { method: "PUT", body: JSON.stringify({ track: "olympiad" }) })).status === 400,
+      "an unknown track was accepted");
+    const setTrack = await c(`/learners/${kid.id}/track`, { method: "PUT", body: JSON.stringify({ track: "competition" }) });
+    assert(setTrack.body.track === "competition", "parent could not set the track");
+    const next = (await c(`/learners/${kid.id}/next`)).body;
+    assert(next.track === "competition", "recommendations do not carry the track");
+    if (next.ready.some(e => e.track === "adv") && next.ready.some(e => e.track !== "adv"))
+      assert(next.ready[0].track === "adv", "competition track does not put advanced work first");
+    await c(`/learners/${kid.id}/track`, { method: "PUT", body: JSON.stringify({ track: "core" }) });
+    const coreNext = (await c(`/learners/${kid.id}/next`)).body;
+    assert(coreNext.ready.filter(e => e.track === "adv").every(e => e.optional === true),
+      "core track does not mark advanced topics optional");
+
+    const teacher = client();
+    await post(teacher, "/auth/register", { coppaConsent: true, email: "enginet@b.com", password: "a-long-enough-pass", name: "T", role: "teacher" });
+    const cls = (await post(teacher, "/classes", { name: "Engine Class" })).body.class;
+    const before = await teacher(`/classes/${cls.id}/learners/${kid.id}/track`, { method: "PUT", body: JSON.stringify({ track: "enrichment" }) });
+    assert(before.status === 404, "teacher set a track for a learner not in their class");
+    await post(c, "/classes/join", { joinCode: cls.joinCode, learnerId: kid.id });
+    const byTeacher = await teacher(`/classes/${cls.id}/learners/${kid.id}/track`, { method: "PUT", body: JSON.stringify({ track: "enrichment" }) });
+    assert(byTeacher.body.track === "enrichment", "teacher could not set the track for a class member");
+    assert((await c(`/learners/${kid.id}/track`)).body.track === "enrichment", "teacher's track change did not persist");
+    const stranger = client();
+    await post(stranger, "/auth/register", { coppaConsent: true, email: "engines@b.com", password: "a-long-enough-pass", name: "S" });
+    assert((await stranger(`/learners/${kid.id}/track`, { method: "PUT", body: JSON.stringify({ track: "core" }) })).status === 403,
+      "another account changed this learner's track");
+
+    return `IRT placement θ=${summary.ability.theta}±${summary.ability.se} over ${summary.asked} items, bandit explored ${tried} tiers, track set by parent and teacher`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

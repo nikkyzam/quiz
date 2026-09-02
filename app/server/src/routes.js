@@ -15,6 +15,7 @@ import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
 import * as rewards from "./rewards.js";
 import { generate, generatedTopics } from "../../shared/generators.mjs";
 import * as bkt from "./bkt.js";
+import * as bandit from "./bandit.js";
 import { PROOFS, publicProof, checkProof, proofsForTopic, allProofs, PROOF_KINDS } from "../../shared/proofs.mjs";
 import { PUZZLES, publicPuzzle, checkPuzzle, puzzleById } from "../../shared/puzzles.mjs";
 import { requireRole } from "./security.js";
@@ -263,7 +264,7 @@ api.post("/auth/change-password", requireAuth, (req, res) => {
 
 /* ---------------- learners ---------------- */
 api.get("/learners", requireAuth, (req, res) => {
-  const rows = db.prepare("SELECT id, name, beast, created_at FROM learners WHERE user_id = ? ORDER BY created_at")
+  const rows = db.prepare("SELECT id, name, beast, track, created_at FROM learners WHERE user_id = ? ORDER BY created_at")
     .all(req.user.id);
   const withStars = rows.map(l => {
     const p = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id = ?").all(l.id);
@@ -273,14 +274,70 @@ api.get("/learners", requireAuth, (req, res) => {
   res.json({ learners: withStars });
 });
 
+/* Curriculum tracks (spec 4.2.2, 6.6). The track is a choice an adult makes
+   for a child; it shapes what is recommended, never what is allowed. */
+export const TRACKS = {
+  core:        { name: "Core",        blurb: "Grade-level standards. Advanced topics are there but optional." },
+  enrichment:  { name: "Enrichment",  blurb: "Core plus the advanced strands, recommended side by side." },
+  competition: { name: "Competition", blurb: "Advanced strands first, with timed papers and proofs woven in." }
+};
+const validTrack = t => Object.hasOwn(TRACKS, String(t));
+
 api.post("/learners", requireAuth, (req, res) => {
-  const { name, beast } = req.body || {};
+  const { name, beast, track } = req.body || {};
   if (!name || !String(name).trim()) return res.status(400).json({ error: "missing_name" });
+  if (track !== undefined && !validTrack(track)) return res.status(400).json({ error: "unknown_track" });
   const id = randomUUID();
-  db.prepare("INSERT INTO learners (id, user_id, name, beast, created_at) VALUES (?,?,?,?,?)")
-    .run(id, req.user.id, String(name).trim().slice(0, 40), beast || "vex", now());
+  const tr = validTrack(track) ? track : "core";
+  db.prepare("INSERT INTO learners (id, user_id, name, beast, track, created_at) VALUES (?,?,?,?,?,?)")
+    .run(id, req.user.id, String(name).trim().slice(0, 40), beast || "vex", tr, now());
   audit(req.user.id, "learner.created", id, req);
-  res.json({ learner: { id, name: String(name).trim(), beast: beast || "vex" } });
+  res.json({ learner: { id, name: String(name).trim(), beast: beast || "vex", track: tr } });
+});
+
+/* What the evidence suggests, so a parent choosing a track is not guessing. */
+function recommendTrack(learnerId) {
+  const rows = db.prepare("SELECT topic_id, best_pct FROM progress WHERE learner_id=?").all(learnerId);
+  const mastered = rows.filter(r => r.best_pct >= thresholdOf(r.topic_id));
+  const advMastered = mastered.filter(r => trackOf(r.topic_id) === "adv").length;
+  const coreMastered = mastered.filter(r => trackOf(r.topic_id) === "core").length;
+  const contest = db.prepare("SELECT MAX(pct) m FROM contests WHERE learner_id=?").get(learnerId).m || 0;
+  if (advMastered >= 2 || contest >= 80)
+    return { track: "competition", reason: advMastered >= 2
+      ? `${advMastered} advanced topics mastered` : `scored ${contest}% on a timed paper` };
+  if (coreMastered >= 3 || advMastered >= 1)
+    return { track: "enrichment", reason: coreMastered >= 3
+      ? `${coreMastered} core topics mastered` : "an advanced topic already mastered" };
+  return { track: "core", reason: rows.length ? "core mastery still building" : "no evidence yet" };
+}
+
+api.get("/learners/:id/track", requireAuth, (req, res) => {
+  const l = db.prepare("SELECT track FROM learners WHERE id=? AND user_id=?").get(req.params.id, req.user.id);
+  if (!l) return res.status(403).json({ error: "not_your_learner" });
+  res.json({ track: l.track, tracks: TRACKS, recommended: recommendTrack(req.params.id) });
+});
+
+api.put("/learners/:id/track", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const { track } = req.body || {};
+  if (!validTrack(track)) return res.status(400).json({ error: "unknown_track" });
+  db.prepare("UPDATE learners SET track=? WHERE id=?").run(track, req.params.id);
+  audit(req.user.id, "learner.track.set", `${req.params.id}:${track}`, req);
+  res.json({ track });
+});
+
+/* The learner's adaptive model for one topic: knowledge estimate, bandit
+   arms and the latest IRT placement. Read-only, for the parent and for tests. */
+api.get("/learners/:id/model/:topicId", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const { id, topicId } = req.params;
+  res.json({
+    topicId,
+    knowledge: bkt.estimate(id, topicId),
+    arms: bandit.load(id, topicId),
+    armWeights: bandit.WEIGHT,
+    placement: diag.latestFor(id, topicId)
+  });
 });
 
 api.delete("/learners/:id", requireAuth, (req, res) => {
@@ -382,6 +439,9 @@ api.post("/diagnostic/answer", requireAuth, (req, res) => {
   if (stop) {
     const summary = diag.summarise(sess, SECS);
     diag.persist(sess, summary);
+    /* Hand the placement to the bandit so practice starts where the
+       diagnostic left off rather than from a blank prior. */
+    bandit.seed(sess.learnerId, sess.topicId, summary.recommendation.tier);
     diag.endSession(diagnosticId);
     audit(req.user.id, "diagnostic.completed", `${sess.topicId}:${summary.overall}%`, req);
     return res.json({ correct: ok, correctAnswer, explanation: q.expl, done: true, summary });
@@ -590,16 +650,28 @@ api.get("/learners/:id/next", requireAuth, (req, res) => {
   const mastered = id =>
     (best.get(id) || 0) >= thresholdOf(id) || bkt.isKnown(bkt.estimate(req.params.id, id));
 
+  /* The learner's track (4.2.2, 6.6) decides how advanced work is presented:
+     optional on the core track, alongside on enrichment, first on competition.
+     Nothing is hidden — a child on the core track can still open an advanced
+     topic — but the ordering and the "optional" flag follow the adult's choice. */
+  const learner = db.prepare("SELECT track FROM learners WHERE id=?").get(req.params.id);
+  const track = learner?.track || "core";
+
   const ready = [], blocked = [];
   for (const id of TOPIC_NAME.keys()) {
     if (!QUESTIONS[id]) continue;              // nothing to practise yet
     if (mastered(id)) continue;
     const missing = prereqsOf(id).filter(p => !mastered(p));
-    const entry = { ...describe(id), bestPct: best.get(id) || 0 };
+    const adv = trackOf(id) === "adv";
+    const entry = { ...describe(id), bestPct: best.get(id) || 0,
+                    optional: track === "core" && adv };
     if (missing.length === 0) ready.push(entry);
     else blocked.push({ ...entry, missing: missing.map(describe) });
   }
-  res.json({ ready, blocked });
+  const rank = e => (track === "competition" ? (e.track === "adv" ? 0 : 1)
+                   : track === "core" ? (e.track === "adv" ? 1 : 0) : 0);
+  ready.sort((a, b) => rank(a) - rank(b));
+  res.json({ track, ready, blocked });
 });
 
 /* ---------------- adaptive practice session (spec 4.1.4) ----------------
@@ -622,6 +694,9 @@ api.post("/practice/start", requireAuth, (req, res) => {
   const id = randomUUID();
   const sess = {
     learnerId, topicId, byTier, used: new Set(),
+    /* Difficulty is chosen by the bandit (6.3); the arms persist across
+       sessions so a learner picks up where the evidence left them. */
+    arms: bandit.load(learnerId, topicId),
     tierIdx: 0, streakRight: 0, streakWrong: 0,
     asked: 0, score: 0, missed: [], hintsUsed: 0, startedAt: Date.now(),
     consecutiveWrong: 0, lastAnswerAt: Date.now(), fastMastery: true
@@ -637,16 +712,15 @@ api.post("/practice/start", requireAuth, (req, res) => {
 });
 
 function pickPractice(sess) {
-  const order = [sess.tierIdx, ...diag.TIER_ORDER.map((_, i) => i).filter(i => i !== sess.tierIdx)];
-  for (const ti of order) {
-    const pool = (sess.byTier[diag.TIER_ORDER[ti]] || []).filter(i => !sess.used.has(i));
-    if (pool.length) {
-      const idx = pool[Math.floor(Math.random() * pool.length)];
-      sess.used.add(idx);
-      return { idx, tier: diag.TIER_ORDER[ti] };
-    }
-  }
-  return null;
+  /* Thompson sampling over the tiers that still have unused questions. */
+  const available = diag.TIER_ORDER.filter(t => (sess.byTier[t] || []).some(i => !sess.used.has(i)));
+  if (!available.length) return null;
+  const tier = bandit.choose(sess.arms, Math.random, available);
+  sess.tierIdx = diag.TIER_ORDER.indexOf(tier);
+  const pool = sess.byTier[tier].filter(i => !sess.used.has(i));
+  const idx = pool[Math.floor(Math.random() * pool.length)];
+  sess.used.add(idx);
+  return { idx, tier };
 }
 
 api.post("/practice/answer", requireAuth, (req, res) => {
@@ -656,7 +730,7 @@ api.post("/practice/answer", requireAuth, (req, res) => {
   if (!ownLearner(req, sess.learnerId)) return res.status(403).json({ error: "not_your_learner" });
   if (!sess.pending) return res.status(409).json({ error: "no_question_pending" });
 
-  const { idx } = sess.pending;
+  const { idx, tier: servedTier } = sess.pending;
   const q = QUESTIONS[sess.topicId][idx];
   const { ok, correctAnswer, credit, creditDetail } = gradeAnswer(q, answer);
   const earned = credit ?? (ok ? 1 : 0);
@@ -668,9 +742,12 @@ api.post("/practice/answer", requireAuth, (req, res) => {
      recorded with a higher guess rate rather than counted as clean success. */
   bkt.observe(sess.learnerId, sess.topicId, ok,
     bkt.paramsFor({ optionCount: q.type === "mc" ? (q.opts || []).length : 0 }));
+  /* And the bandit: this tier's arm learns whether it was the right call. */
+  const arm = sess.arms[servedTier] ||= { successes: 0, failures: 0 };
+  if (ok) arm.successes++; else arm.failures++;
+  bandit.record(sess.learnerId, sess.topicId, servedTier, ok);
   if (ok) {
     sess.score++; sess.streakRight++; sess.streakWrong = 0;
-    if (sess.streakRight >= 2 && sess.tierIdx < diag.TIER_ORDER.length - 1) { sess.tierIdx++; sess.streakRight = 0; }
   } else {
     const category = classify(q, answer);
     sess.missed.push({ id: `${sess.topicId}:${idx}`, q: q.q, correctAnswer,
@@ -678,7 +755,6 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     db.prepare("INSERT INTO mistakes (id, learner_id, topic_id, question_id, category, at) VALUES (?,?,?,?,?,?)")
       .run(randomUUID(), sess.learnerId, sess.topicId, `${sess.topicId}:${idx}`, category, now());
     sess.streakWrong++; sess.streakRight = 0;
-    if (sess.streakWrong >= 2 && sess.tierIdx > 0) { sess.tierIdx--; sess.streakWrong = 0; }
   }
 
   /* Intervention triggers (spec 6.5), decided server-side from the session
@@ -947,6 +1023,21 @@ api.post("/classes/:id/assignments", requireAuth, requireTeacher, (req, res) => 
   db.prepare("INSERT INTO assignments (id, class_id, topic_id, tier, due_at, created_at) VALUES (?,?,?,?,?,?)")
     .run(id, req.params.id, topicId, tier || null, dueAt || null, now());
   res.json({ assignment: { id, topicId, tier: tier || null, dueAt: dueAt || null } });
+});
+
+/* A teacher may set the track for a learner in their class (6.6). The parent
+   keeps the same power; whichever adult set it last wins, and both are audited. */
+api.put("/classes/:id/learners/:learnerId/track", requireAuth, requireTeacher, (req, res) => {
+  const cls = ownClass(req, req.params.id);
+  if (!cls) return res.status(403).json({ error: "not_your_class" });
+  const member = db.prepare("SELECT 1 FROM class_members WHERE class_id=? AND learner_id=?")
+    .get(cls.id, req.params.learnerId);
+  if (!member) return res.status(404).json({ error: "not_in_class" });
+  const { track } = req.body || {};
+  if (!validTrack(track)) return res.status(400).json({ error: "unknown_track" });
+  db.prepare("UPDATE learners SET track=? WHERE id=?").run(track, req.params.learnerId);
+  audit(req.user.id, "learner.track.set", `${req.params.learnerId}:${track}`, req);
+  res.json({ track });
 });
 
 /* Class progress: one row per learner per assignment, plus a topic heatmap. */

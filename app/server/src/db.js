@@ -223,6 +223,17 @@ CREATE TABLE IF NOT EXISTS skill_state (
 
 CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);
 
+-- Bandit posteriors for difficulty selection (spec 6.3): one Beta(successes+1,
+-- failures+1) per learner, topic and tier.
+CREATE TABLE IF NOT EXISTS bandit_arms (
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  topic_id   TEXT NOT NULL,
+  tier       TEXT NOT NULL,
+  successes  INTEGER NOT NULL DEFAULT 0,
+  failures   INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (learner_id, topic_id, tier)
+);
+
 CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_at DESC);
 `);
 
@@ -249,6 +260,11 @@ export function migrate() {
   // 10.3: roles and recorded COPPA consent
   if (addColumn("users", "role", "TEXT NOT NULL DEFAULT 'parent'")) applied.push("users.role");
   if (addColumn("users", "coppa_consent_at", "TEXT")) applied.push("users.coppa_consent_at");
+  // 4.2.2 / 6.6: curriculum track per learner, overridable by parent or teacher
+  if (addColumn("learners", "track", "TEXT NOT NULL DEFAULT 'core'")) applied.push("learners.track");
+  // 6.1: IRT ability estimate stored with each diagnostic
+  if (addColumn("diagnostics", "theta", "REAL")) applied.push("diagnostics.theta");
+  if (addColumn("diagnostics", "se", "REAL")) applied.push("diagnostics.se");
   return applied;
 }
 
