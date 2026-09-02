@@ -1214,8 +1214,9 @@ export const CHECKS = {
     /* Every badge the code can award must exist in the catalogue, or it would
        render as a raw code. Scan the source for award(... "badge", "code"). */
     const { readFileSync } = await import("node:fs");
-    const src = readFileSync("app/server/src/routes.js", "utf8") +
-                readFileSync("app/server/src/rewards.js", "utf8");
+    const { readdirSync } = await import("node:fs");
+    const src = readdirSync("app/server/src").filter(f => f.endsWith(".js"))
+      .map(f => readFileSync(`app/server/src/${f}`, "utf8")).join("\n");
     const awarded = [...src.matchAll(/award\([^,]+,\s*"badge",\s*"([a-z_]+)"/g)].map(m => m[1]);
     const gives = [...src.matchAll(/give\("([a-z_]+)"\)/g)].map(m => m[1]);
     for (const code of new Set([...awarded, ...gives]))
@@ -1839,7 +1840,8 @@ export const CHECKS = {
     const kid = (await post(c, "/learners", { name: "Puzzle Kid" })).body.learner;
 
     const list = (await c("/puzzles")).body.puzzles;
-    assert(list.length === PUZZLES.length, "puzzle list incomplete");
+    assert(list.length === PUZZLES.filter(p => !p.hidden).length, "puzzle list incomplete");
+    assert(list.every(p => !p.hidden), "a hidden puzzle is listed without an unlock");
     assert(list.every(p => p.hintCount > 0 && !("accepts" in p)), "puzzle list exposes answers");
 
     const target = PUZZLES[1];
@@ -2832,6 +2834,176 @@ export const CHECKS = {
     assert((await bob("/me/notifications")).body.notifications.length === 0, "another account saw this parent's notifications");
 
     return `time on task, readiness with reasons, ${alerts.length} alerts into the feed, goal notification, overview with ${withSample.length} samples and ${ids.length} standards-mapped topics, challenge paid once`;
+  },
+
+  /* 5.2 + 5.3 + 5.4 + 5.5 + 5.6 + 5.7 + 5.8 + 4.1.8 — the deeper gamification:
+     a 100+ badge catalogue where every badge has a rule that fires, gear
+     unlocked by achievements, per-subject levels with prestige, streak
+     freezes, a branching story, hidden areas, and class teams with a weekly
+     tournament that never messages. */
+  "gamification-depth": async () => {
+    const rewards = await import("../app/server/src/rewards.js");
+    const { CHAPTERS, epilogue } = await import("../app/shared/story.mjs");
+    const { ACCESSORIES } = await import("../app/shared/accessories.mjs");
+    const { AREAS } = await import("../app/shared/unlockables.mjs");
+
+    /* --- catalogue: 100+, categorised, and every rule provably fires --- */
+    const codes = Object.keys(rewards.BADGES);
+    assert(codes.length >= 100, `only ${codes.length} badges in the catalogue`);
+    const cats = new Set(Object.values(rewards.BADGES).map(b => b.category));
+    for (const c of ["subject", "meta", "puzzle", "proof", "competition", "story"])
+      assert(cats.has(c), `no ${c} badges`);
+    assert(rewards.RULES.length >= 90, `only ${rewards.RULES.length} rule-driven badges`);
+    /* A maxed-out statistics object must satisfy every rule; an empty one none.
+       If a rule cannot fire even then, it is decoration and the check fails. */
+    const maxed = {
+      points: 1e6, level: 99, rounds: 1e4, perfectRounds: 1e3, unaidedPerfect: 1e3, masteredTopics: 500,
+      masteredByGrade: Object.fromEntries(["K","1","2","3","4","5","6","7","8"].map(g => [g, 50])),
+      masteredByStrand: { NT: 50, CB: 50, AL: 50, GE: 50, PS: 50, LG: 50, PR: 50 },
+      masteredBySubject: Object.fromEntries(Object.keys(rewards.SUBJECTS).map(k => [k, 50])),
+      roundsByGrade: Object.fromEntries(["K","1","2","3","4","5","6","7","8"].map(g => [g, 50])),
+      subjectLevels: Object.fromEntries(Object.keys(rewards.SUBJECTS).map(k => [k, 50])),
+      masteredCore: 200, masteredAdv: 200, bossMastered: 100, masteryPassed: 100, diagnostics: 10, comebacks: 5,
+      streak: 365, puzzlesSolved: 20, goldPuzzles: 20, proofs: 50, contests: 50, contestBest: 100,
+      challenges: 100, chapters: 6, lessons: 50, games: 50
+    };
+    const empty = { ...Object.fromEntries(Object.keys(maxed).map(k => [k, typeof maxed[k] === "object" ? {} : 0])), level: 1, subjectLevels: {} };
+    for (const r of rewards.RULES) {
+      assert(r.when(maxed) === true, `badge "${r.code}" cannot be earned even by a maxed-out learner`);
+      assert(!r.when(empty), `badge "${r.code}" is awarded to a learner who has done nothing`);
+      assert(rewards.BADGES[r.code]?.name && rewards.BADGES[r.code].hint, `badge "${r.code}" has no name or hint`);
+    }
+    assert(new Set(codes).size === codes.length, "duplicate badge codes");
+
+    /* --- through the API --- */
+    const c = client();
+    await post(c, "/auth/register", { coppaConsent: true, email: "deep@b.com", password: "a-long-enough-pass", name: "D" });
+    const kid = (await post(c, "/learners", { name: "Deep Kid" })).body.learner;
+
+    /* Gear: nothing equipped, nothing unlocked, and a locked item is refused. */
+    let av = (await c(`/learners/${kid.id}/avatar`)).body;
+    assert(av.unlocked.length === 0 && av.locked.length === ACCESSORIES.length, "a new learner has gear unlocked");
+    assert(av.locked.every(l => l.hint), "locked gear does not say how to unlock it");
+    const refused = await c(`/learners/${kid.id}/avatar`, { method: "PUT", body: JSON.stringify({ slot: "hat", item: "cap" }) });
+    assert(refused.status === 403, "locked gear was equipped");
+
+    /* A round unlocks first_steps, which unlocks the cap; sweep awards milestones. */
+    const run = await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    const got = run.body.reward.badges.map(b => b.code);
+    for (const want of ["first_steps", "grade_6_explorer", "unaided_1"])
+      assert(got.includes(want), `round did not award ${want} (got ${got.join(", ")})`);
+    av = (await c(`/learners/${kid.id}/avatar`)).body;
+    assert(av.unlocked.some(a => a.id === "cap"), "first_steps did not unlock the cap");
+    const worn = await c(`/learners/${kid.id}/avatar`, { method: "PUT", body: JSON.stringify({ slot: "hat", item: "cap" }) });
+    assert(worn.body.equipped.hat === "cap", "could not equip unlocked gear");
+    assert((await c(`/learners/${kid.id}/avatar`, { method: "PUT", body: JSON.stringify({ slot: "hat", item: "crown" }) })).status === 403,
+      "gear unlocked by a badge not held was equipped");
+
+    /* Per-subject levels: points on a ratios topic land in "number". */
+    const lv = (await c(`/learners/${kid.id}/levels`)).body;
+    assert(lv.subjects.length === Object.keys(rewards.SUBJECTS).length, "not every subject reported");
+    const num = lv.subjects.find(s => s.subject === "number");
+    assert(num.points > 0 && lv.subjects.find(s => s.subject === "combinatorics").points === 0, "subject points not attributed by topic");
+    assert(lv.overall.level >= 1 && num.nextLevelAt > num.points, "level progress not reported");
+    const early = await post(c, `/learners/${kid.id}/prestige`, { subject: "number" });
+    assert(early.status === 409 && early.body.needed === rewards.PRESTIGE_LEVEL, "prestige allowed before the level was reached");
+    /* Direct model test for prestige, since reaching level 10 legitimately takes thousands of points. */
+    for (let i = 0; i < 60; i++) rewards.award(kid.id, "points", "round:g5-modarith", 100);
+    const before = rewards.subjectLevels(kid.id).find(s => s.subject === "numtheory");
+    assert(before.level >= rewards.PRESTIGE_LEVEL && before.canPrestige, `numtheory level ${before.level} after 6000 points`);
+    const pr = await post(c, `/learners/${kid.id}/prestige`, { subject: "numtheory" });
+    assert(pr.body.stars === 1, "prestige did not award a star");
+    const afterP = rewards.subjectLevels(kid.id).find(s => s.subject === "numtheory");
+    assert(afterP.level === 1 && afterP.prestige === 1 && afterP.points === before.points,
+      `prestige did not restart the level (level ${afterP.level}, stars ${afterP.prestige})`);
+    assert((await c(`/learners/${kid.id}/rewards`)).body.badges.some(b => b.code === "prestige_numtheory"), "no prestige badge");
+
+    /* Streak freezes: a one-day gap is bridged when a freeze is held, spent once. */
+    const { DatabaseSync } = await import("node:sqlite");
+    const dbx = new DatabaseSync("app/server/data/verify.db");
+    const kid2 = (await post(c, "/learners", { name: "Streak Kid" })).body.learner;
+    const day = n => new Date(Date.now() - n * 86400000).toISOString();
+    const ins = dbx.prepare("INSERT INTO awards (id, learner_id, kind, code, amount, at) VALUES (?,?,?,?,?,?)");
+    for (const n of [9, 8, 7, 6, 5, 4, 3, 2]) ins.run(`s${n}`, kid2.id, "points", `round:x${n}`, 10, day(n));
+    /* Days 2..9 active, yesterday (1) missed, today (0) not yet: streak is broken... */
+    const withoutFreeze = rewards.streak(kid2.id, undefined, { spend: false });
+    assert(withoutFreeze === 0, `a missed day did not break the streak (${withoutFreeze})`);
+    /* ...unless a freeze is held. Grant one and add today's activity. */
+    ins.run("fe", kid2.id, "freeze_earned", "streak:7:test", 0, day(2));
+    ins.run("s0", kid2.id, "points", "round:x0", 10, day(0));
+    const st = (await c(`/learners/${kid2.id}/streak`)).body;
+    assert(st.days === 9, `freeze did not bridge the gap: streak ${st.days}`);
+    assert(st.freezesUsed === 1 && st.freezesAvailable === 0, `freeze accounting wrong: ${JSON.stringify(st)}`);
+    const again = (await c(`/learners/${kid2.id}/streak`)).body;
+    assert(again.freezesUsed === 1, "the same freeze was spent twice");
+
+    /* Story: chapter one open, later chapters locked until earned, choices
+       persist and change the next chapter's opening. */
+    const kid3 = (await post(c, "/learners", { name: "Story Kid" })).body.learner;
+    let story = (await c(`/learners/${kid3.id}/story`)).body;
+    assert(story.chapters.length === CHAPTERS.length && CHAPTERS.length >= 6, "story is short");
+    assert(story.chapters[0].unlocked && !story.chapters[1].unlocked, "chapter gating wrong");
+    assert(story.chapters[1].panels === null && story.chapters[1].unlockHint, "a locked chapter leaked its panels or gives no hint");
+    assert((await post(c, `/learners/${kid3.id}/story/ch2`, { choice: "spark" })).status === 403, "a locked chapter accepted a choice");
+    assert((await post(c, `/learners/${kid3.id}/story/ch1`, { choice: "up" })).status === 400, "an unknown choice was accepted");
+    const ch1 = await post(c, `/learners/${kid3.id}/story/ch1`, { choice: "right" });
+    assert(ch1.body.chosen === "right" && ch1.body.badges.includes("story_1"), "choice not recorded or chapter badge missing");
+    assert((await post(c, `/learners/${kid3.id}/story/ch1`, { choice: "left" })).status === 409, "a choice was overwritten");
+    await post(c, "/runs", { learnerId: kid3.id, topicId: "g6-ratios", tier: "practice", score: 5, total: 8 });
+    story = (await c(`/learners/${kid3.id}/story`)).body;
+    assert(story.chapters[1].unlocked && /river/.test(story.chapters[1].intro), "the earlier choice did not shape the next chapter");
+    const alt = { ch1: "left", ch2: "spark", ch3: "shield", ch4: "time", ch5: "compass", ch6: "bridge" };
+    const alt2 = { ...alt, ch1: "right", ch6: "bell" };
+    assert(epilogue(alt) !== epilogue(alt2), "the ending does not depend on the choices");
+
+    /* Hidden areas and puzzles: absent until unlocked, then served. */
+    let unl = (await c(`/learners/${kid3.id}/unlocks`)).body;
+    assert(unl.areas.length === AREAS.length && unl.areas.every(a => !a.unlocked), "a new learner has areas open");
+    assert(unl.hiddenPuzzles.length === 0, "hidden puzzles served before unlock");
+    const listed = (await c(`/puzzles?learnerId=${kid3.id}`)).body.puzzles;
+    assert(listed.every(p => !p.hidden), "a hidden puzzle appeared in the public list");
+    assert((await post(c, "/puzzles/pz-vault-locker/answer", { learnerId: kid3.id, answer: 10 })).status === 403, "a hidden puzzle accepted an answer while locked");
+    for (const t of ["g6-ratios", "g6-nscoord"])           // boss tier mastered -> the Vault
+      await post(c, "/runs", { learnerId: kid3.id, topicId: t, tier: "boss", score: 8, total: 8 });
+    unl = (await c(`/learners/${kid3.id}/unlocks`)).body;
+    const vault = unl.areas.find(a => a.id === "vault");
+    assert(vault.unlocked && vault.puzzles.length >= 2, "mastering a boss tier did not open the Vault");
+    assert(unl.hiddenPuzzles.some(p => p.id === "pz-vault-locker"), "unlocked hidden puzzle not served");
+    assert((await c(`/puzzles?learnerId=${kid3.id}`)).body.puzzles.some(p => p.id === "pz-vault-locker"), "unlocked puzzle absent from the list");
+    const solved = await post(c, "/puzzles/pz-vault-locker/answer", { learnerId: kid3.id, answer: 10, hintsUsed: 0 });
+    assert(solved.body.correct === true, "hidden puzzle not answerable once unlocked");
+    assert((await c(`/learners/${kid3.id}/rewards`)).body.badges.some(b => b.code === "area_vault"), "no badge for entering the Vault");
+
+    /* Multiple-solution puzzles accept any valid answer and refuse others. */
+    for (const a of [18, 90]) assert((await post(c, "/puzzles/pz-digitsum/answer", { learnerId: kid3.id, answer: a })).body.correct, `${a} refused`);
+    assert(!(await post(c, "/puzzles/pz-digitsum/answer", { learnerId: kid3.id, answer: 19 })).body.correct, "19 accepted");
+
+    /* Teams and tournament: teacher-made, class-scoped, off by default,
+       anonymised by default, no messaging. */
+    const t = client();
+    await post(t, "/auth/register", { coppaConsent: true, email: "deept@b.com", password: "a-long-enough-pass", name: "T", role: "teacher" });
+    const cls = (await post(t, "/classes", { name: "Deep Class" })).body.class;
+    await post(c, "/classes/join", { joinCode: cls.joinCode, learnerId: kid.id });
+    await post(c, "/classes/join", { joinCode: cls.joinCode, learnerId: kid3.id });
+    const team = (await post(t, `/classes/${cls.id}/teams`, { name: "Red" })).body.team;
+    assert((await post(t, `/classes/${cls.id}/teams/${team.id}/members`, { learnerId: kid2.id })).status === 404, "a non-member was put in a team");
+    await post(t, `/classes/${cls.id}/teams/${team.id}/members`, { learnerId: kid.id });
+    await post(t, `/classes/${cls.id}/teams/${team.id}/members`, { learnerId: kid3.id });
+    const off = (await c(`/classes/${cls.id}/tournament`)).body;
+    assert(off.enabled === false, "tournament on by default");
+    await t(`/classes/${cls.id}/settings`, { method: "PUT", body: JSON.stringify({ tournamentOn: true }) });
+    const on = (await c(`/classes/${cls.id}/tournament`)).body;
+    assert(on.enabled && on.teams[0].name === "Red" && on.teams[0].points > 0, `tournament not scored: ${JSON.stringify(on).slice(0, 200)}`);
+    assert(on.messaging === false, "tournament advertises messaging");
+    assert(on.teams[0].members.every(m => m.you ? m.name !== "Learner 1" && m.name !== "Learner 2" : /^Learner \d+$/.test(m.name)),
+      "other children's names shown to a parent by default");
+    const other = client();
+    await post(other, "/auth/register", { coppaConsent: true, email: "deepo@b.com", password: "a-long-enough-pass", name: "O" });
+    assert((await other(`/classes/${cls.id}/tournament`)).status === 403, "a stranger read the tournament");
+    assert((await other(`/classes/${cls.id}/teams`)).status === 403, "a stranger read the teams");
+    assert((await post(other, `/classes/${cls.id}/teams`, { name: "X" })).status === 403, "a parent created a team");
+
+    return `${codes.length} badges (${rewards.RULES.length} rule-driven, all fire), gear, subject levels + prestige, freezes, ${CHAPTERS.length}-chapter branching story, ${AREAS.length} hidden areas, teams + tournament`;
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

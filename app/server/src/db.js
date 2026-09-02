@@ -237,6 +237,51 @@ CREATE TABLE IF NOT EXISTS notifications (
 );
 CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, created_at DESC);
 
+-- Gamification (spec 5.3, 5.4, 5.6, 5.8, 4.3.5): equipped avatar gear,
+-- prestige per subject, story choices, teams and tournaments.
+CREATE TABLE IF NOT EXISTS learner_gear (
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  slot       TEXT NOT NULL,
+  item       TEXT NOT NULL,
+  PRIMARY KEY (learner_id, slot)
+);
+CREATE TABLE IF NOT EXISTS prestige (
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  subject    TEXT NOT NULL,
+  stars      INTEGER NOT NULL DEFAULT 0,
+  points_at  INTEGER NOT NULL DEFAULT 0,
+  at         TEXT NOT NULL,
+  PRIMARY KEY (learner_id, subject)
+);
+CREATE TABLE IF NOT EXISTS story_choices (
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  chapter    TEXT NOT NULL,
+  choice     TEXT NOT NULL,
+  at         TEXT NOT NULL,
+  PRIMARY KEY (learner_id, chapter)
+);
+CREATE TABLE IF NOT EXISTS lesson_progress (
+  learner_id   TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  lesson_id    TEXT NOT NULL,
+  panel        INTEGER NOT NULL DEFAULT 0,
+  checks_passed INTEGER NOT NULL DEFAULT 0,
+  started_at   TEXT NOT NULL,
+  completed_at TEXT,
+  PRIMARY KEY (learner_id, lesson_id)
+);
+CREATE TABLE IF NOT EXISTS teams (
+  id         TEXT PRIMARY KEY,
+  class_id   TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  name       TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS team_members (
+  team_id    TEXT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  PRIMARY KEY (team_id, learner_id)
+);
+CREATE INDEX IF NOT EXISTS idx_teams_class ON teams(class_id);
+
 -- Bandit posteriors for difficulty selection (spec 6.3): one Beta(successes+1,
 -- failures+1) per learner, topic and tier.
 CREATE TABLE IF NOT EXISTS bandit_arms (
@@ -281,6 +326,8 @@ export function migrate() {
   if (addColumn("diagnostics", "se", "REAL")) applied.push("diagnostics.se");
   // 4.2.3: time on task per round
   if (addColumn("runs", "seconds", "INTEGER NOT NULL DEFAULT 0")) applied.push("runs.seconds");
+  // 5.8: weekly tournaments, teacher-controlled like leaderboards
+  if (addColumn("class_settings", "tournament_on", "INTEGER NOT NULL DEFAULT 0")) applied.push("class_settings.tournament_on");
   return applied;
 }
 

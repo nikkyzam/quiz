@@ -60,12 +60,58 @@ export const PUZZLES = [
     accepts: [4],
     hints: ["Think about the worst possible luck, not the best.",
             "You could take three socks and get one of every colour.",
-            "The next sock has to match one you already hold."] }
+            "The next sock has to match one you already hold."] },
+
+  /* Puzzles with more than one right answer (3.2.4): any value that satisfies
+     the conditions is accepted, so there is genuinely more than one solution
+     and more than one way to reach one. */
+  { id: "pz-digitsum", title: "Any Nine", difficulty: 1, topic: "g1-tensones",
+    prompt: "Give me ANY two-digit number whose digits add up to 9.",
+    accepts: [18, 27, 36, 45, 54, 63, 72, 81, 90],
+    multiple: true,
+    hints: ["Pick a tens digit first, then work out what the ones digit must be.",
+            "If the tens digit is 4, the ones digit has to be 5.",
+            "There are nine different answers. Any one of them will do."] },
+  { id: "pz-rect-perim", title: "Twenty Around", difficulty: 2, topic: "g3-perimeter",
+    prompt: "A rectangle has a perimeter of 20 and whole-number sides. Give me the AREA of any such rectangle.",
+    accepts: [9, 16, 21, 24, 25],
+    multiple: true,
+    hints: ["Half the perimeter is the length plus the width.",
+            "So the two sides add up to 10. List the pairs.",
+            "Multiply the two sides of any pair together; a 1 by 9 rectangle is one option."] },
+  { id: "pz-three-primes", title: "Prime Sum", difficulty: 3, topic: "g3-primefact",
+    prompt: "Give me any prime number that can be written as the sum of two other primes.",
+    accepts: [5, 7, 13, 19, 31, 43, 61, 73],
+    multiple: true,
+    hints: ["One of the two primes you add must be even — and there is only one even prime.",
+            "So you are looking for a prime that is 2 more than another prime.",
+            "Start from the smallest odd prime and add two. Check whether the result is prime."] },
+
+  /* Hidden puzzles (5.7): only served once the learner has unlocked the area
+     they live in. */
+  { id: "pz-vault-locker", title: "The Locker Problem", difficulty: 4, topic: "g4-factorpair", hidden: true, area: "vault",
+    prompt: "100 lockers are closed. Person 1 opens every locker. Person 2 toggles every 2nd locker, person 3 every 3rd, and so on up to person 100. How many lockers end up open?",
+    accepts: [10],
+    hints: ["A locker is toggled once for each factor of its number.",
+            "It ends up open if it is toggled an odd number of times.",
+            "Which numbers have an odd number of factors? Think about square numbers."] },
+  { id: "pz-vault-weights", title: "Four Weights", difficulty: 4, topic: "g5-bases", hidden: true, area: "vault",
+    prompt: "With a balance scale and only four weights, you can weigh every whole number of grams from 1 to 40, putting weights on either pan. What is the heaviest of the four weights?",
+    accepts: [27],
+    hints: ["Weights on the other pan count as negatives.",
+            "Try 1 and 3 first: they make 1, 2, 3 and 4.",
+            "Each new weight is three times the last."] },
+  { id: "pz-observatory-stars", title: "Counting Stars", difficulty: 4, topic: "g5-pascal", hidden: true, area: "observatory",
+    prompt: "Seven points sit on a circle, no three in a line. How many triangles can be drawn with corners at three of the points?",
+    accepts: [35],
+    hints: ["Any three points make a triangle here.",
+            "So count the ways to choose 3 points out of 7.",
+            "7 × 6 × 5 divided by the 6 orderings of each trio."] }
 ];
 
 export const publicPuzzle = p => ({
   id: p.id, title: p.title, difficulty: p.difficulty, topic: p.topic, prompt: p.prompt,
-  hintCount: p.hints.length
+  hintCount: p.hints.length, multiple: !!p.multiple, hidden: !!p.hidden, area: p.area || null
 });
 
 export const checkPuzzle = (p, answer) => {

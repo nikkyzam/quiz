@@ -28,9 +28,11 @@ import {
 } from "./helpers.js";
 export { MASTERY, trackOf, thresholdOf };
 import { parent as parentRoutes } from "./routes-parent.js";
+import { game as gameRoutes, unlockedAreas } from "./routes-game.js";
 
 export const api = Router();
 api.use(parentRoutes);
+api.use(gameRoutes);
 
 
 
@@ -698,6 +700,11 @@ function rewardRound(learnerId, topicId, { score, total, pct, hintsUsed = 0, con
   if (st >= 3) give("streak_3");
   if (st >= 7) give("streak_7");
 
+  /* Counted separately so milestone badges can read it. */
+  if (pct === 100 && hintsUsed === 0) rewards.award(learnerId, "unaided_perfect", `round:${topicId}`);
+  /* Rule-driven badges (5.2): everything whose condition has just come true. */
+  earned.push(...rewards.sweep(learnerId));
+
   return { points: pts, badges: earned.map(c => ({ code: c, ...rewards.BADGES[c] })), streak: st };
 }
 
@@ -1052,14 +1059,16 @@ api.put("/classes/:id/settings", requireAuth, requireTeacher, (req, res) => {
   if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
   const on = req.body?.leaderboardOn === true;
   const names = req.body?.displayNames === true;
-  db.prepare(`INSERT INTO class_settings (class_id, leaderboard_on, display_names, updated_at)
-              VALUES (?,?,?,?)
+  const tournament = req.body?.tournamentOn === true;
+  db.prepare(`INSERT INTO class_settings (class_id, leaderboard_on, display_names, tournament_on, updated_at)
+              VALUES (?,?,?,?,?)
               ON CONFLICT(class_id) DO UPDATE SET
                 leaderboard_on=excluded.leaderboard_on,
-                display_names=excluded.display_names, updated_at=excluded.updated_at`)
-    .run(req.params.id, on ? 1 : 0, names ? 1 : 0, now());
-  audit(req.user.id, "class.settings.updated", `${req.params.id}:leaderboard=${on}`, req);
-  res.json({ settings: { leaderboardOn: on, displayNames: names } });
+                display_names=excluded.display_names,
+                tournament_on=excluded.tournament_on, updated_at=excluded.updated_at`)
+    .run(req.params.id, on ? 1 : 0, names ? 1 : 0, tournament ? 1 : 0, now());
+  audit(req.user.id, "class.settings.updated", `${req.params.id}:leaderboard=${on}:tournament=${tournament}`, req);
+  res.json({ settings: { leaderboardOn: on, displayNames: names, tournamentOn: tournament } });
 });
 
 api.get("/classes/:id/leaderboard", requireAuth, (req, res) => {
@@ -1101,12 +1110,25 @@ api.get("/classes/:id/leaderboard", requireAuth, (req, res) => {
    Untimed and outside the adaptive path. Hints are available one at a time;
    the solution is never given, so a puzzle stays worth coming back to. */
 api.get("/puzzles", (req, res) => {
-  res.json({ puzzles: PUZZLES.map(publicPuzzle) });
+  /* Hidden puzzles (5.7) appear only for a learner who has unlocked their area. */
+  const learnerId = req.query.learnerId;
+  let open = new Set();
+  if (learnerId && req.user && ownLearner(req, learnerId))
+    open = new Set(unlockedAreas(learnerId).filter(a => a.unlocked).map(a => a.id));
+  res.json({ puzzles: PUZZLES.filter(p => !p.hidden || open.has(p.area)).map(publicPuzzle) });
 });
+
+/* A hidden puzzle stays hidden: hints and answers are refused until unlocked. */
+function puzzleLocked(p, req, learnerId) {
+  if (!p.hidden) return false;
+  if (!learnerId || !ownLearner(req, learnerId)) return true;
+  return !unlockedAreas(learnerId).some(a => a.unlocked && a.id === p.area);
+}
 
 api.post("/puzzles/:id/hint", requireAuth, (req, res) => {
   const p = puzzleById(req.params.id);
   if (!p) return res.status(404).json({ error: "unknown_puzzle" });
+  if (puzzleLocked(p, req, req.body?.learnerId)) return res.status(403).json({ error: "puzzle_locked" });
   const level = Math.max(1, Math.min(p.hints.length, Number(req.body?.level) || 1));
   res.json({ level, hint: p.hints[level - 1], last: level >= p.hints.length });
 });
@@ -1116,6 +1138,7 @@ api.post("/puzzles/:id/answer", requireAuth, (req, res) => {
   if (!p) return res.status(404).json({ error: "unknown_puzzle" });
   const { learnerId, answer, hintsUsed } = req.body || {};
   if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  if (puzzleLocked(p, req, learnerId)) return res.status(403).json({ error: "puzzle_locked" });
 
   const correct = checkPuzzle(p, answer);
   if (!correct) {
@@ -1131,6 +1154,7 @@ api.post("/puzzles/:id/answer", requireAuth, (req, res) => {
       .run(learnerId, p.id, hints, 1, now());
     rewards.award(learnerId, "points", `puzzle:${p.id}`, 25 + p.difficulty * 10);
     if (hints === 0) rewards.award(learnerId, "badge", "elegant_solution");
+    rewards.sweep(learnerId);
   }
   /* A trophy reflects how it was solved, not merely that it was. */
   const trophy = hints === 0 ? "gold" : hints === 1 ? "silver" : "bronze";
@@ -1192,6 +1216,7 @@ api.post("/proofs/submit", requireAuth, (req, res) => {
     db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
       .run(randomUUID(), sess.learnerId, `proof:${proof.id}`, "proof", 1, 1, 100, now());
     rewards.award(sess.learnerId, "points", `proof:${proof.id}`, 20);
+    rewards.sweep(sess.learnerId);
     proofSessions.delete(sessionId);
   }
   audit(req.user.id, "proof.submitted", `${proof.id}:${result.correct ? "correct" : "retry"}`, req);
