@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner } from "../api";
-import { Grid } from "../beasts";
+import { Grid, Beast } from "../beasts";
+
+const fbMood = (fb: any) => fb ? (fb.correct ? "happy" as const : "oops" as const) : "idle" as const;
 import { ReadAloud } from "../components/ReadAloud";
 import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
 
@@ -103,7 +105,10 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
       </div>
 
       <div className="card">
-        <div className="sec">{q.secName}</div>
+        <div className="qhead">
+          <Beast kind={learner?.beast || "vex"} size={48} mood={fbMood(typeof fb !== "undefined" ? fb : null)} />
+          <div className="sec">{q.secName}</div>
+        </div>
         <p className="qtext">{q.q}</p>
         <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}

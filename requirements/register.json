@@ -493,8 +493,9 @@
       "id": "5.3",
       "section": "Gamification",
       "title": "Avatar customisation tied to achievements",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "notes": "Three original monsters, chosen per learner and shown throughout, with four moods that respond to what is happening. Unlockable accessories tied to achievements are not built."
     },
     {
       "id": "5.4",
@@ -519,7 +520,8 @@
       "section": "Gamification",
       "title": "Narrative arc with student-influenced outcomes",
       "status": "todo",
-      "priority": 3
+      "priority": 3,
+      "notes": "Monsters react to answers, which is character but not narrative. No story arc."
     },
     {
       "id": "5.7",
@@ -790,8 +792,10 @@
       "id": "10.7",
       "section": "Non-functional",
       "title": "Usability: age-appropriate UI, onboarding, multilingual",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:age-appropriate-ui",
+      "notes": "The interface scales with the grade being worked on: K-2 gets 60px touch targets, 18% larger type and warm orange; 3-5 teal; 6-8 a denser layout at the 48px minimum. Rounded display face, pill buttons, pressable card shadows, and monsters that react to answers - cheering, wincing or looking thoughtful. Celebration never carries meaning alone; correctness is always stated in words. All motion is disabled under prefers-reduced-motion, confetti included. NOT done: onboarding tutorial, contextual help, multilingual copy."
     },
     {
       "id": "10.8",

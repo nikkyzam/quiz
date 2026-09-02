@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner } from "../api";
-import { Grid } from "../beasts";
+import { Grid, Beast, Confetti } from "../beasts";
 import { ReadAloud } from "../components/ReadAloud";
 import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
 
@@ -28,6 +28,7 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
   const [finished, setFinished] = useState(false);
   const [hints, setHints] = useState<string[]>([]);
   const [nudge, setNudge] = useState<{ type: string; message: string; suggest: string } | null>(null);
+  const [cheer, setCheer] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,6 +44,7 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
     try {
       const r = await api.answerPractice(sessionId, answer, hints.length);
       setFb({ correct: r.correct, correctAnswer: r.correctAnswer, explanation: r.explanation, figA: r.figA });
+      if (r.correct) setCheer(c => c + 1);
       if (r.done && r.summary) setSummary(r.summary as Summary);
       else { setPendingNext(r.question!); setAsked(r.asked ?? asked + 1); setScore(r.score ?? score);
              setNudge(r.intervention ?? null); }
@@ -71,8 +73,14 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
   if (summary && finished) {
     return (
       <>
-        <div className="eyebrow">{topicName} · adaptive practice</div>
-        <div className="bigscore" aria-live="polite">{summary.score}<small> / {summary.total}</small></div>
+        <Confetti fire={summary.pct >= 80 ? summary.total : 0} />
+        <div className="hero">
+          <Beast kind={learner.beast} size={72} mood={summary.pct >= 80 ? "happy" : "thinking"} />
+          <div>
+            <div className="eyebrow">{topicName} · adaptive practice</div>
+            <div className="bigscore" aria-live="polite">{summary.score}<small> / {summary.total}</small></div>
+          </div>
+        </div>
         <p className="verdict">
           {"★".repeat(summary.stars)}{"☆".repeat(3 - summary.stars)} — {summary.pct}%
           {summary.hintsUsed > 0 && ` · ${summary.hintsUsed} hint${summary.hintsUsed === 1 ? "" : "s"} used`}
@@ -115,8 +123,13 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
         <div className="fill" style={{ width: `${(asked / len) * 100}%` }} />
       </div>
 
+      <Confetti fire={cheer && fb?.correct ? cheer : 0} />
       <div className="card">
-        <div className="sec">{q.secName}</div>
+        <div className="qhead">
+          <Beast kind={learner.beast} size={54}
+                 mood={fb ? (fb.correct ? "happy" : "oops") : hints.length ? "thinking" : "idle"} />
+          <div className="sec">{q.secName}</div>
+        </div>
         <p className="qtext">{q.q}</p>
         <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}

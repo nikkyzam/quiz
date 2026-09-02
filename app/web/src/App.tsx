@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { api, ApiError, type User, type Learner, type Grade, type Tier } from "./api";
 import { Beast } from "./beasts";
+import { useAgeBand } from "./useAgeBand";
 import { AuthScreen } from "./screens/Auth";
 import { LearnerPicker } from "./screens/Learners";
 import { GradeList, GradeMap, TierPicker } from "./screens/Curriculum";
@@ -39,6 +40,12 @@ export default function App() {
   const [active, setActive] = useState<Learner | null>(null);
   const [cur, setCur] = useState<any | null>(null);
   const [view, setView] = useState<View>({ s: "grades" });
+
+  /* The interface scales with the grade being worked on: bigger targets and
+     warmer colour for the youngest, tighter for the oldest. */
+  const gradeInView = view.s === "grade" ? view.g
+    : (view as any).topicId ? String((view as any).topicId).match(/^k|^g(\d)/)?.[0] : null;
+  useAgeBand(gradeInView);
 
   useEffect(() => {
     (async () => {

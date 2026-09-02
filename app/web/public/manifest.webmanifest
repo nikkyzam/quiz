@@ -4,8 +4,8 @@
   "description": "K-8 maths practice with adaptive tiers, puzzles and proofs.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0E1524",
-  "theme_color": "#2557D6",
+  "background_color": "#171021",
+  "theme_color": "#6D3BEB",
   "icons": [
     { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]

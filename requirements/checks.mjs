@@ -2541,6 +2541,53 @@ export const CHECKS = {
     }
   },
 
+
+  /* 10.7 — age-appropriate interface that scales by grade band */
+  "age-appropriate-ui": async () => {
+    const { readFileSync } = await import("node:fs");
+    const css = readFileSync("app/web/src/styles.css", "utf8");
+    const { bandFor } = await import("../app/web/src/useAgeBand.ts").catch(() => ({}));
+
+    /* Bands must exist and differ, or "age-appropriate" is decoration. */
+    for (const band of ["junior", "middle", "senior"])
+      assert(css.includes(`[data-band="${band}"]`), `no styling for the ${band} band`);
+    const tapOf = band => {
+      const m = css.match(new RegExp(`\\[data-band="${band}"\\][^}]*--tap:\\s*(\\d+)px`));
+      return m ? Number(m[1]) : null;
+    };
+    const junior = tapOf("junior"), senior = tapOf("senior");
+    assert(junior && senior, "touch target sizes are not set per band");
+    assert(junior > senior, `junior targets (${junior}px) are not larger than senior (${senior}px)`);
+    assert(senior >= 44, `senior touch target is ${senior}px, below the 44px minimum`);
+
+    const stepOf = band => {
+      const m = css.match(new RegExp(`\\[data-band="${band}"\\][^}]*--step:\\s*([\\d.]+)`));
+      return m ? Number(m[1]) : null;
+    };
+    assert(stepOf("junior") > stepOf("senior"), "junior type is not larger than senior type");
+
+    /* Interactive controls must be sized from the token, not hard-coded. */
+    for (const sel of [".btn{", ".opt{", ".topic{", ".movebtn{", ".ansin{"]) {
+      const block = css.slice(css.indexOf(sel), css.indexOf("}", css.indexOf(sel)));
+      assert(/var\(--tap\)/.test(block), `${sel} does not use the --tap token for its size`);
+    }
+
+    /* Motion must be optional. */
+    assert(/@media \(prefers-reduced-motion: reduce\)/.test(css),
+      "no reduced-motion handling");
+    const reduce = css.slice(css.lastIndexOf("prefers-reduced-motion: reduce"));
+    assert(/animation:\s*none/.test(reduce), "animations are not disabled under reduced motion");
+    assert(/\.confetti\{display:none\}/.test(css.replace(/\s/g, "")),
+      "confetti is not suppressed under reduced motion");
+
+    /* Celebration must not be the only signal that an answer was right. */
+    const practice = readFileSync("app/web/src/screens/Practice.tsx", "utf8");
+    assert(/Correct!/.test(practice) || /fb.correct \?/.test(practice),
+      "correctness is signalled by animation alone");
+
+    return `junior ${junior}px targets vs senior ${senior}px, type scales by band, motion optional`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
