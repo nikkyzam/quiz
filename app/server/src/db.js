@@ -341,6 +341,95 @@ CREATE TABLE IF NOT EXISTS schools (
   created_at  TEXT NOT NULL
 );
 
+-- Integrations (spec 9.2, 9.4, 9.5, 11.5): webhooks and their deliveries,
+-- push subscriptions, LTI platforms/links/contexts, analytics, preferences.
+CREATE TABLE IF NOT EXISTS webhooks (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  url        TEXT NOT NULL,
+  secret     TEXT NOT NULL,
+  events     TEXT NOT NULL,
+  active     INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS webhook_deliveries (
+  id           TEXT PRIMARY KEY,
+  webhook_id   TEXT NOT NULL REFERENCES webhooks(id) ON DELETE CASCADE,
+  event        TEXT NOT NULL,
+  payload      TEXT NOT NULL,
+  status       TEXT NOT NULL,
+  attempts     INTEGER NOT NULL DEFAULT 0,
+  next_at      TEXT NOT NULL,
+  last_error   TEXT,
+  created_at   TEXT NOT NULL,
+  delivered_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_deliveries_due ON webhook_deliveries(status, next_at);
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  endpoint   TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  p256dh     TEXT NOT NULL,
+  auth       TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS lti_platforms (
+  id             TEXT PRIMARY KEY,
+  issuer         TEXT NOT NULL,
+  client_id      TEXT NOT NULL,
+  auth_login_url TEXT NOT NULL,
+  token_url      TEXT,
+  jwks_url       TEXT NOT NULL,
+  deployment_id  TEXT NOT NULL,
+  name           TEXT,
+  created_at     TEXT NOT NULL,
+  UNIQUE (issuer, client_id)
+);
+CREATE TABLE IF NOT EXISTS lti_nonces (
+  state       TEXT PRIMARY KEY,
+  nonce       TEXT NOT NULL,
+  platform_id TEXT NOT NULL,
+  created_at  TEXT NOT NULL,
+  expires_at  TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS lti_links (
+  platform_id TEXT NOT NULL,
+  subject     TEXT NOT NULL,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at  TEXT NOT NULL,
+  PRIMARY KEY (platform_id, subject)
+);
+CREATE TABLE IF NOT EXISTS lti_contexts (
+  platform_id TEXT NOT NULL,
+  context_id  TEXT NOT NULL,
+  class_id    TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  created_at  TEXT NOT NULL,
+  PRIMARY KEY (platform_id, context_id)
+);
+CREATE TABLE IF NOT EXISTS analytics_events (
+  id         TEXT PRIMARY KEY,
+  kind       TEXT NOT NULL,
+  learner_id TEXT REFERENCES learners(id) ON DELETE CASCADE,
+  user_id    TEXT,
+  props      TEXT,
+  at         TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_events_at ON analytics_events(at);
+CREATE TABLE IF NOT EXISTS analytics_daily (
+  day         TEXT NOT NULL,
+  metric      TEXT NOT NULL,
+  value       REAL NOT NULL,
+  computed_at TEXT NOT NULL,
+  PRIMARY KEY (day, metric)
+);
+CREATE TABLE IF NOT EXISTS user_prefs (
+  user_id       TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  email_alerts  INTEGER NOT NULL DEFAULT 1,
+  email_summary INTEGER NOT NULL DEFAULT 1,
+  push          INTEGER NOT NULL DEFAULT 1,
+  locale        TEXT NOT NULL DEFAULT 'en',
+  updated_at    TEXT NOT NULL
+);
+
 -- Bandit posteriors for difficulty selection (spec 6.3): one Beta(successes+1,
 -- failures+1) per learner, topic and tier.
 CREATE TABLE IF NOT EXISTS bandit_arms (

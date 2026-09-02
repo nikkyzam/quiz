@@ -32,6 +32,9 @@ import { game as gameRoutes, unlockedAreas } from "./routes-game.js";
 import { teacher as teacherRoutes, percentileFor } from "./routes-teacher.js";
 import { admin as adminRoutes } from "./routes-admin.js";
 import { student as studentRoutes } from "./routes-student.js";
+import { integrations as integrationRoutes } from "./routes-integrations.js";
+import * as webhooks from "./webhooks.js";
+import { track } from "./analytics.js";
 import { LOCALES } from "../../shared/i18n.mjs";
 import { translateQuestion, translatedExplanation } from "../../shared/translations.mjs";
 import { thresholdFor, masteryState, accommodationsFor } from "./policy.js";
@@ -42,6 +45,7 @@ api.use(gameRoutes);
 api.use(teacherRoutes);
 api.use(adminRoutes);
 api.use(studentRoutes);
+api.use(integrationRoutes);
 
 
 
@@ -480,6 +484,7 @@ api.post("/answer", (req, res) => {
   if (!resolved) return res.status(400).json({ error: "unknown_question" });
   const q = resolved.q;
   const { ok, correctAnswer, credit, creditDetail } = gradeAnswer(q, answer);
+  track("answer", { topicId: resolved.topicId, correct: ok, type: q.type }, { userId: req.user?.id || null });
   const lang = LOCALES[String(req.body?.lang)] ? String(req.body.lang) : "en";
   const idx = Number(String(questionId).split(":")[1]);
   res.json({ correct: ok, correctAnswer, credit: credit ?? (ok ? 1 : 0), creditDetail: creditDetail || null,
@@ -635,6 +640,7 @@ api.post("/practice/answer", requireAuth, (req, res) => {
      recorded with a higher guess rate rather than counted as clean success. */
   bkt.observe(sess.learnerId, sess.topicId, ok,
     bkt.paramsFor({ optionCount: q.type === "mc" ? (q.opts || []).length : 0 }));
+  track("answer", { topicId: sess.topicId, correct: ok, type: q.type, tier: servedTier, mode: "practice" }, { learnerId: sess.learnerId });
   /* And the bandit: this tier's arm learns whether it was the right call. */
   const arm = sess.arms[servedTier] ||= { successes: 0, failures: 0 };
   if (ok) arm.successes++; else arm.failures++;
@@ -740,6 +746,7 @@ function rewardRound(learnerId, topicId, { score, total, pct, hintsUsed = 0, con
   if (pct === 100 && hintsUsed === 0) rewards.award(learnerId, "unaided_perfect", `round:${topicId}`);
   /* Rule-driven badges (5.2): everything whose condition has just come true. */
   earned.push(...rewards.sweep(learnerId));
+  for (const code of earned) webhooks.emit(learnerId, "badge.earned", { code, ...rewards.BADGES[code] });
 
   return { points: pts, badges: earned.map(c => ({ code: c, ...rewards.BADGES[c] })), streak: st };
 }
@@ -823,6 +830,7 @@ api.post("/contest/submit", requireAuth, (req, res) => {
   });
 
   const { score, total, pct, correctBeforePenalty } = scorePaper({ marks, expired });
+  webhooks.emit(sess.learnerId, "contest.submitted", { format: sess.format, score, total, pct, expired });
   db.prepare(`INSERT INTO contests (id, learner_id, format, score, total, pct, seconds, limit_secs, expired, detail, finished_at)
               VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
     .run(randomUUID(), sess.learnerId, sess.format, score, total, pct, seconds,

@@ -21,6 +21,7 @@ import { translatedTopics } from "../../shared/translations.mjs";
 import { QUESTIONS } from "../../shared/questions.mjs";
 import { ownLearner, gradeAnswer, recordRun, describe, resolveQuestion } from "./helpers.js";
 import { classify } from "./errors.js";
+import * as webhooks from "./webhooks.js";
 
 export const student = Router();
 
@@ -75,6 +76,7 @@ student.post("/lessons/:id/progress", requireAuth, (req, res) => {
   if (completed && !cur?.completed_at) {
     rewards.award(learnerId, "points", `lesson:${l.id}`, 15);
     badges = rewards.sweep(learnerId);
+    webhooks.emit(learnerId, "lesson.completed", { lessonId: l.id, title: l.title });
     audit(req.user.id, "lesson.completed", l.id, req);
   }
   res.json({ panel: Math.min(target, l.panels.length - 1), completed, badges });

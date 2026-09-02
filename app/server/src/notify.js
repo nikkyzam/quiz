@@ -10,6 +10,7 @@
 
 import { randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
+import * as webhooks from "./webhooks.js";
 
 export const KINDS = {
   struggling:       "Struggling with a topic",
@@ -83,10 +84,13 @@ export function checkGoal(learnerId) {
   const since = new Date(Date.now() - 7 * 86400000).toISOString();
   const done = db.prepare("SELECT COUNT(*) c FROM runs WHERE learner_id=? AND finished_at >= ?")
     .get(learnerId, since).c;
-  if (done >= g.rounds_per_week)
-    return notify(learner.user_id, { learnerId, kind: "goal_met",
+  if (done >= g.rounds_per_week) {
+    const n = notify(learner.user_id, { learnerId, kind: "goal_met",
       title: `${learner.name} met this week's goal`,
       body: `${done} rounds this week against a target of ${g.rounds_per_week}.` });
+    if (n) webhooks.emit(learnerId, "goal.met", { rounds: done, target: g.rounds_per_week });
+    return n;
+  }
   const daysLeft = (7 - new Date().getUTCDay()) % 7;
   if (daysLeft <= 2)
     return notify(learner.user_id, { learnerId, kind: "goal_at_risk",

@@ -76,6 +76,17 @@ if (hours > 0) {
   console.log(`Scheduled backups every ${hours}h`);
 }
 
+/* ---------- background jobs (9.2, 9.4, 11.5, 10.3) ----------
+   Webhook delivery, the notification outbox, weekly summaries, analytics
+   and retention. JOBS_INTERVAL_MS=0 disables the scheduler (tests run the
+   jobs on demand through /api/admin/jobs). */
+const jobsEvery = Number(process.env.JOBS_INTERVAL_MS ?? 60_000);
+let stopJobs = null;
+if (jobsEvery > 0) {
+  const { schedule } = await import("./jobs.js");
+  stopJobs = schedule({ everyMs: jobsEvery });
+}
+
 /* ---------- graceful shutdown ----------
    A redeploy sends SIGTERM. Without this the process dies mid-request and
    in-flight writes are lost; with it, open requests finish first. */
@@ -85,6 +96,7 @@ function shutdown(signal) {
   shuttingDown = true;
   console.log(`${signal} received, draining connections`);
   if (backupTimer) clearInterval(backupTimer);
+  if (stopJobs) stopJobs();
   server.close(() => {
     console.log("closed cleanly");
     process.exit(0);

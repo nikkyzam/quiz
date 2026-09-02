@@ -24,7 +24,13 @@ export async function withServer(fn) {
               brute-force control that matters, is still exercised in full by
               check:security-privacy. */
            REGISTER_LIMIT_PER_HOUR: "1000",
-           ADMIN_EMAILS: "boss@b.com" },
+           ADMIN_EMAILS: "boss@b.com",
+           /* Integrations run against mock services the checks stand up on
+              loopback: an Anthropic-shaped LLM, an SMTP server, push and
+              webhook receivers. Background jobs are run on demand. */
+           JOBS_INTERVAL_MS: "0", PUBLIC_URL: `http://localhost:${PORT}`,
+           ANTHROPIC_API_KEY: "test-key", TUTOR_API_URL: "http://127.0.0.1:4126", TUTOR_TIMEOUT_MS: "1500",
+           SMTP_HOST: "127.0.0.1", SMTP_PORT: "4127", SMTP_TLS: "none", SMTP_USER: "bf", SMTP_PASS: "pw", SMTP_FROM: "BeastForge <no-reply@beastforge.test>" },
     stdio: "ignore"
   });
   try {
@@ -3336,6 +3342,296 @@ export const CHECKS = {
     assert((await post(bob, "/sync", { learnerId: kid.id, batches: [batch] })).status === 403, "another account synced for this learner");
 
     return `${LESSONS.length} lessons with gated checks and resume, plot input, ${SIMULATIONS.length} simulations, ${Object.keys(GAMES).length} games, ${proofs.length} proofs incl. freeform + elegance, LaTeX, ${Object.keys(LOCALES).length} locales incl. RTL, offline sync`;
+  },
+
+
+  /* 9.2 + 9.5 + 9.4 + 4.2.4 + 4.1.11 + 11.5 + 9.1 — integrations, each proven
+     against a mock of the real counterpart: signed webhooks with retry,
+     GraphQL with ownership, an LTI 1.3 launch verified against a platform's
+     JWKS, SMTP email and Web Push decrypted by the subscriber, the AI tutor
+     with safety filters, latency budget and provider fallback, the analytics
+     pipeline, and OneRoster import and sync. */
+  "integrations": async () => {
+    const http = await import("node:http");
+    const net = await import("node:net");
+    const cryptoMod = await import("node:crypto");
+    const { sign } = await import("../app/server/src/webhooks.js");
+    const push = await import("../app/server/src/push.js");
+    const tutorMod = await import("../app/server/src/tutor.js");
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+    const servers = [];
+    const listen = (srv, port) => new Promise(r => { srv.listen(port, "127.0.0.1", () => r()); servers.push(srv); });
+    const readBody = req => new Promise(r => { const c = []; req.on("data", d => c.push(d)); req.on("end", () => r(Buffer.concat(c))); });
+    try {
+      /* ---- mocks ---- */
+      const hooks = []; let hookFailures = 1;
+      await listen(http.createServer(async (req, res) => {
+        const body = await readBody(req);
+        hooks.push({ headers: req.headers, body: body.toString() });
+        if (hookFailures-- > 0) { res.writeHead(500); return res.end("nope"); }
+        res.writeHead(200); res.end("ok");
+      }), 4128);
+
+      const mails = [];
+      await listen(net.createServer(sock => {
+        let data = false, buf = "", msg = "";
+        sock.write("220 mock ESMTP\r\n");
+        sock.on("data", d => {
+          buf += d.toString();
+          let i;
+          while ((i = buf.indexOf("\r\n")) >= 0) {
+            const line = buf.slice(0, i); buf = buf.slice(i + 2);
+            if (data) { if (line === ".") { data = false; mails.push(msg); msg = ""; sock.write("250 queued\r\n"); } else msg += line + "\n"; continue; }
+            if (/^EHLO/i.test(line)) sock.write("250-mock\r\n250 AUTH PLAIN LOGIN\r\n");
+            else if (/^AUTH PLAIN/i.test(line)) sock.write(Buffer.from(line.slice(11), "base64").toString().includes("\0bf\0pw") ? "235 ok\r\n" : "535 no\r\n");
+            else if (/^(MAIL FROM|RCPT TO)/i.test(line)) sock.write("250 ok\r\n");
+            else if (/^DATA/i.test(line)) { data = true; sock.write("354 go\r\n"); }
+            else if (/^QUIT/i.test(line)) { sock.write("221 bye\r\n"); sock.end(); }
+            else sock.write("500 what\r\n");
+          }
+        });
+      }), 4127);
+
+      const pushes = [];
+      await listen(http.createServer(async (req, res) => {
+        pushes.push({ headers: req.headers, body: await readBody(req) });
+        res.writeHead(201); res.end();
+      }), 4129);
+
+      const llmCalls = [];
+      await listen(http.createServer(async (req, res) => {
+        const body = JSON.parse((await readBody(req)).toString() || "{}");
+        llmCalls.push({ url: req.url, headers: req.headers, body });
+        const last = body.messages?.at(-1)?.content || "";
+        const text = /SLOW/.test(last) ? null : /LEAK/.test(last) ? "The answer is 0.5, so type 0.5." : "What do you notice about the two numbers in the ratio? Try writing them as a fraction first.";
+        const reply = () => { res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ id: "msg_1", type: "message", role: "assistant", model: body.model, stop_reason: "end_turn",
+            content: [{ type: "text", text }], usage: { input_tokens: 10, output_tokens: 10 } })); };
+        if (text === null) setTimeout(() => { try { res.writeHead(200, { "Content-Type": "application/json" }); res.end(JSON.stringify({ content: [{ type: "text", text: "late" }], stop_reason: "end_turn" })); } catch {} }, 4000);
+        else reply();
+      }), 4126);
+
+      const platformKeys = cryptoMod.generateKeyPairSync("rsa", { modulusLength: 2048 });
+      const platformJwk = { ...platformKeys.publicKey.export({ format: "jwk" }), kid: "pk1", alg: "RS256", use: "sig" };
+      await listen(http.createServer((req, res) => {
+        if (req.url === "/jwks") { res.writeHead(200, { "Content-Type": "application/json" }); return res.end(JSON.stringify({ keys: [platformJwk] })); }
+        res.writeHead(404); res.end();
+      }), 4130);
+
+      await listen(http.createServer(async (req, res) => {
+        const json = o => { res.writeHead(200, { "Content-Type": "application/json" }); res.end(JSON.stringify(o)); };
+        if (req.url === "/token") {
+          const auth = Buffer.from((req.headers.authorization || "").replace("Basic ", ""), "base64").toString();
+          if (auth !== "cid:csecret") { res.writeHead(401); return res.end(); }
+          return json({ access_token: "tok123", token_type: "Bearer" });
+        }
+        if (req.headers.authorization !== "Bearer tok123") { res.writeHead(401); return res.end(); }
+        if (req.url.endsWith("/classes")) return json({ classes: [{ sourcedId: "c1", title: "Year 4 Maths" }] });
+        if (req.url.endsWith("/users")) return json({ users: [{ sourcedId: "u1", givenName: "Ada", familyName: "Lovelace", role: "student" }, { sourcedId: "u2", givenName: "Alan", familyName: "Turing", role: "student" }, { sourcedId: "t1", givenName: "Grace", familyName: "Hopper", role: "teacher" }] });
+        if (req.url.endsWith("/enrollments")) return json({ enrollments: [{ class: { sourcedId: "c1" }, user: { sourcedId: "u1" }, role: "student" }, { class: { sourcedId: "c1" }, user: { sourcedId: "u2" }, role: "student" }, { class: { sourcedId: "c1" }, user: { sourcedId: "t1" }, role: "teacher" }] });
+        res.writeHead(404); res.end();
+      }), 4131);
+
+      /* ---- accounts ---- */
+      const c = client(), a = client(), t = client();
+      await post(c, "/auth/register", { coppaConsent: true, email: "integ@b.com", password: "a-long-enough-pass", name: "I" });
+      const kid = (await post(c, "/learners", { name: "Integration Kid" })).body.learner;
+      if ((await post(a, "/auth/register", { coppaConsent: true, email: "boss@b.com", password: "a-long-enough-pass", name: "Boss" })).status === 409)
+        await post(a, "/auth/login", { email: "boss@b.com", password: "a-long-enough-pass" });
+      await post(t, "/auth/register", { coppaConsent: true, email: "integt@b.com", password: "a-long-enough-pass", name: "T", role: "teacher" });
+
+      /* ---- webhooks: registered, signed, retried after a failure, scoped to own learners ---- */
+      assert((await post(c, "/webhooks", { url: "ftp://x" })).status === 400, "bad webhook URL accepted");
+      const wh = (await post(c, "/webhooks", { url: "http://127.0.0.1:4128/hook", events: ["run.recorded", "badge.earned"] })).body.webhook;
+      assert(wh.secret && wh.events.length === 2, "webhook not registered");
+      await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+      let drained = (await post(a, "/admin/jobs/webhooks")).body.result;
+      assert(drained.retried >= 1, `the failed delivery was not scheduled for retry: ${JSON.stringify(drained)}`);
+      let dl = (await c(`/webhooks/${wh.id}/deliveries`)).body.deliveries;
+      assert(dl.some(d => d.status === "pending" && d.attempts === 1 && /500/.test(d.last_error)), "retry state not recorded");
+      const { DatabaseSync } = await import("node:sqlite");
+      const dbx = new DatabaseSync("app/server/data/verify.db");
+      dbx.prepare("UPDATE webhook_deliveries SET next_at=? WHERE status='pending'").run(new Date(0).toISOString());
+      drained = (await post(a, "/admin/jobs/webhooks")).body.result;
+      assert(drained.delivered >= 1 && drained.retried === 0, `retry did not deliver: ${JSON.stringify(drained)}`);
+      const runHook = hooks.find(h => h.headers["x-event"] === "run.recorded" && JSON.parse(h.body).data.pct === 100 && !JSON.parse(h.body).data.test);
+      assert(runHook, "run.recorded webhook never arrived");
+      assert(runHook.headers["x-signature"] === sign(wh.secret, runHook.body), "webhook signature does not verify");
+      assert(hooks.some(h => h.headers["x-event"] === "badge.earned"), "badge.earned webhook never arrived");
+      dl = (await c(`/webhooks/${wh.id}/deliveries`)).body.deliveries;
+      assert(dl.every(d => d.status === "delivered") && dl.some(d => d.attempts === 2), "delivery record wrong after retry");
+      const bob = client();
+      await post(bob, "/auth/register", { coppaConsent: true, email: "integbob@b.com", password: "a-long-enough-pass", name: "B" });
+      assert((await bob(`/webhooks/${wh.id}/deliveries`)).body.deliveries.length === 0, "another account read webhook deliveries");
+      assert((await c(`/webhooks/${wh.id}`, { method: "DELETE" })).body.deleted === 1, "could not delete webhook");
+
+      /* ---- GraphQL: typed reads, ownership enforced ---- */
+      const gq = (cl, query, variables) => post(cl, "/graphql", { query, variables });
+      const mine = (await gq(c, `{ learners { id name track rewards { points level badges { code name } } progress { topicId topic { name standards { codes } } bestPct } } }`)).body;
+      assert(!mine.errors && mine.data.learners[0].name === "Integration Kid" && mine.data.learners[0].rewards.points > 0, `graphql learners: ${JSON.stringify(mine).slice(0, 200)}`);
+      assert(mine.data.learners[0].progress[0].topic.standards.codes.length, "graphql topic has no standards");
+      const theirs = (await gq(bob, `query($id: ID!) { learner(id: $id) { name } }`, { id: kid.id })).body;
+      assert(theirs.data.learner === null, "graphql leaked another account's learner");
+      const anon = (await gq(client(), `{ me { email } grades { key label units { name topics { id questions } } } }`)).body;
+      assert(anon.data.me === null && anon.data.grades.length === 9, "graphql public curriculum or anonymous me wrong");
+      assert((await gq(c, `{ nope }`)).body.errors?.length, "graphql accepted an unknown field");
+
+      /* ---- LTI 1.3: login redirect, signed launch, provisioning ---- */
+      const reg = await post(a, "/admin/lti/platforms", { issuer: "https://lms.test", clientId: "tool-1", authLoginUrl: "http://127.0.0.1:4130/auth",
+        jwksUrl: "http://127.0.0.1:4130/jwks", deploymentId: "dep-1", name: "Mock LMS" });
+      assert(reg.status === 200, "platform not registered");
+      assert((await post(t, "/admin/lti/platforms", { issuer: "x" })).status === 403, "teacher registered a platform");
+      const jwks = (await c("/lti/jwks")).body;
+      assert(jwks.keys?.[0]?.kty === "RSA" && jwks.keys[0].kid && !jwks.keys[0].d, "tool JWKS missing or leaks the private key");
+      assert((await c("/lti/config")).body.oidc_initiation_url.endsWith("/api/lti/login"), "tool config wrong");
+      const login = await fetch(BASE + "/api/lti/login?iss=https://lms.test&login_hint=user-1&target_link_uri=" + encodeURIComponent(BASE + "/lessons") + "&client_id=tool-1", { redirect: "manual" });
+      assert(login.status === 302, `login initiation returned ${login.status}`);
+      const redirect = new URL(login.headers.get("location"));
+      assert(redirect.origin === "http://127.0.0.1:4130" && redirect.searchParams.get("response_mode") === "form_post" && redirect.searchParams.get("nonce"), "OIDC redirect malformed");
+      const state = redirect.searchParams.get("state"), nonce = redirect.searchParams.get("nonce");
+      const b64u = o => Buffer.from(JSON.stringify(o)).toString("base64url");
+      const CL = s => `https://purl.imsglobal.org/spec/lti/claim/${s}`;
+      const nowSec = Math.floor(Date.now() / 1000);
+      const makeToken = (over = {}, key = platformKeys.privateKey) => {
+        const claims = { iss: "https://lms.test", aud: "tool-1", sub: "user-1", exp: nowSec + 300, iat: nowSec, nonce, name: "Ms Hopper",
+          [CL("message_type")]: "LtiResourceLinkRequest", [CL("version")]: "1.3.0", [CL("deployment_id")]: "dep-1",
+          [CL("roles")]: ["http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor"],
+          [CL("context")]: { id: "ctx-9", title: "Period 3 Maths" }, [CL("target_link_uri")]: BASE + "/lessons", ...over };
+        const data = `${b64u({ alg: "RS256", typ: "JWT", kid: "pk1" })}.${b64u(claims)}`;
+        return `${data}.${cryptoMod.sign("sha256", Buffer.from(data), key).toString("base64url")}`;
+      };
+      const launchWith = (token, st = state) => fetch(BASE + "/api/lti/launch", { method: "POST", redirect: "manual",
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id_token: token, state: st }) });
+      const forged = cryptoMod.generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey;
+      assert((await launchWith(makeToken({}, forged))).status === 401, "a token signed by the wrong key was accepted");
+      /* A rejected launch spends the state; get a fresh one for the real launch. */
+      const login2 = await fetch(BASE + "/api/lti/login?iss=https://lms.test&login_hint=user-1&client_id=tool-1", { redirect: "manual" });
+      const r2 = new URL(login2.headers.get("location")); const state2 = r2.searchParams.get("state"), nonce2 = r2.searchParams.get("nonce");
+      assert((await launchWith(makeToken({ nonce: nonce2, [CL("deployment_id")]: "dep-9" }), state2)).status === 401, "wrong deployment accepted");
+      const login3 = await fetch(BASE + "/api/lti/login?iss=https://lms.test&login_hint=user-1&client_id=tool-1", { redirect: "manual" });
+      const r3 = new URL(login3.headers.get("location")); const state3 = r3.searchParams.get("state"), nonce3 = r3.searchParams.get("nonce");
+      const launched = await launchWith(makeToken({ nonce: nonce3 }), state3);
+      assert(launched.status === 302 && launched.headers.get("location") === "/lessons", `instructor launch failed: ${launched.status} ${await launched.text()}`);
+      const sid = (launched.headers.getSetCookie?.() || []).join(";");
+      assert(/sid=/.test(sid) && /HttpOnly/i.test(sid), "launch issued no session cookie");
+      assert((await launchWith(makeToken({ nonce: nonce3 }), state3)).status === 401, "a launch state was replayed");
+      const ltiTeacher = async (path, opts = {}) => { const r = await fetch(BASE + "/api" + path, { ...opts, headers: { cookie: sid.split(";")[0], "Content-Type": "application/json", ...(opts.headers || {}) } }); return { status: r.status, body: await r.json().catch(() => ({})) }; };
+      const me = (await ltiTeacher("/auth/me")).body.user;
+      assert(me?.role === "teacher" && me.name === "Ms Hopper", `LTI instructor not provisioned as a teacher: ${JSON.stringify(me)}`);
+      const classes = (await ltiTeacher("/classes")).body.classes;
+      assert(classes.some(x => x.name === "Period 3 Maths"), "LMS context did not become a class");
+      /* A learner launch into the same context joins that class. */
+      const login4 = await fetch(BASE + "/api/lti/login?iss=https://lms.test&login_hint=user-2&client_id=tool-1", { redirect: "manual" });
+      const r4 = new URL(login4.headers.get("location"));
+      const learnerLaunch = await launchWith(makeToken({ nonce: r4.searchParams.get("nonce"), sub: "user-2", name: "Sam Student",
+        [CL("roles")]: ["http://purl.imsglobal.org/vocab/lis/v2/membership#Learner"] }), r4.searchParams.get("state"));
+      assert(learnerLaunch.status === 302, "learner launch failed");
+      const roster = (await ltiTeacher(`/classes/${classes.find(x => x.name === "Period 3 Maths").id}/progress`)).body.learners;
+      assert(roster.some(l => l.name === "Sam Student"), "LTI learner was not enrolled in the context's class");
+
+      /* ---- push: subscription, encrypted delivery the subscriber can decrypt, VAPID ---- */
+      const vapid = (await c("/push/vapid-public-key")).body.publicKey;
+      assert(Buffer.from(vapid, "base64url").length === 65, "VAPID public key is not a P-256 point");
+      const sub = push.makeSubscriber();
+      assert((await post(c, "/me/push/subscribe", { endpoint: "http://127.0.0.1:4129/push/abc", keys: { p256dh: "bad", auth: sub.auth } })).status === 400, "bad push keys accepted");
+      assert((await post(c, "/me/push/subscribe", { endpoint: "http://127.0.0.1:4129/push/abc", keys: { p256dh: sub.p256dh, auth: sub.auth } })).body.ok, "push subscription refused");
+
+      /* ---- email + push delivery of the outbox; preferences honoured; weekly summary ---- */
+      await c(`/learners/${kid.id}/goal`, { method: "PUT", body: JSON.stringify({ roundsPerWeek: 1 }) });
+      await post(c, "/runs", { learnerId: kid.id, topicId: "g6-percent", tier: "practice", score: 4, total: 8 });   // goal met -> notification
+      let delivered = (await post(a, "/admin/jobs/deliver")).body.result;
+      assert(delivered.email >= 1 && delivered.push >= 1, `outbox not delivered: ${JSON.stringify(delivered)}`);
+      const mail = mails.find(m => /Subject: =\?UTF-8\?B\?/.test(m) && /integ@b\.com/.test(m));
+      assert(mail, "no email reached the SMTP server for the parent");
+      const subject = Buffer.from(mail.match(/Subject: =\?UTF-8\?B\?([^?]+)\?=/)[1], "base64").toString();
+      assert(/goal/i.test(subject), `email subject is "${subject}"`);
+      const p1 = pushes.find(p => p.headers.authorization?.startsWith("vapid t="));
+      assert(p1 && p1.headers["content-encoding"] === "aes128gcm" && p1.headers.ttl, "push request lacks VAPID or aes128gcm");
+      const jwt = p1.headers.authorization.match(/t=([^,]+)/)[1];
+      const [h, pl, sg] = jwt.split(".");
+      const vapidKey = cryptoMod.createPublicKey({ format: "jwk", key: { kty: "EC", crv: "P-256",
+        x: Buffer.from(vapid, "base64url").subarray(1, 33).toString("base64url"), y: Buffer.from(vapid, "base64url").subarray(33, 65).toString("base64url") } });
+      assert(cryptoMod.verify("sha256", Buffer.from(`${h}.${pl}`), { key: vapidKey, dsaEncoding: "ieee-p1363" }, Buffer.from(sg, "base64url")), "VAPID JWT signature invalid");
+      assert(JSON.parse(Buffer.from(pl, "base64url")).aud === "http://127.0.0.1:4129", "VAPID audience is not the push origin");
+      const plain = JSON.parse(push.decryptPayload(p1.body, sub));
+      assert(/goal/i.test(plain.title) && plain.kind === "goal_met", `push payload did not decrypt to the notification: ${JSON.stringify(plain)}`);
+      const feed = (await c("/me/notifications")).body.notifications.find(n => n.kind === "goal_met");
+      assert(feed.deliveredVia === "email+push", `delivery channels recorded as ${feed.deliveredVia}`);
+      await c("/me/preferences", { method: "PUT", body: JSON.stringify({ emailAlerts: false, push: false }) });
+      const mailsBefore = mails.length, pushesBefore = pushes.length;
+      await post(c, "/runs", { learnerId: kid.id, topicId: "g3-mult", tier: "practice", score: 1, total: 8 });
+      await post(c, "/runs", { learnerId: kid.id, topicId: "g3-mult", tier: "challenge", score: 1, total: 8 });
+      await c(`/learners/${kid.id}/alerts`);            // struggling alert
+      delivered = (await post(a, "/admin/jobs/deliver")).body.result;
+      assert(mails.length === mailsBefore && pushes.length === pushesBefore && delivered.inApp >= 1, "preferences to stop email/push were ignored");
+      await c("/me/preferences", { method: "PUT", body: JSON.stringify({ emailSummary: true }) });
+      const weekly = (await post(a, "/admin/jobs/weekly-summary", { force: true })).body.result;
+      assert(weekly.created >= 1 && /W\d\d/.test(weekly.week), `weekly summary not created: ${JSON.stringify(weekly)}`);
+      const mine2 = (await c("/me/weekly-summary")).body;
+      assert(mine2.learners[0].rounds >= 3 && /Integration Kid: \d+ rounds/.test(mine2.text), `summary text wrong: ${mine2.text}`);
+      await post(a, "/admin/jobs/deliver");
+      assert(mails.some(m => /integ@b\.com/.test(m) && /Weekly summary/.test(Buffer.from((m.match(/Subject: =\?UTF-8\?B\?([^?]+)\?=/) || [])[1] || "", "base64").toString())),
+        "weekly summary was not emailed");
+      const again = (await post(a, "/admin/jobs/weekly-summary")).body.result;
+      assert(again.created === 0, "weekly summary sent twice in one week");
+
+      /* ---- AI tutor: provider used, answer redacted, safety filter, timeout fallback, no PII sent ---- */
+      const status = (await c("/tutor/status")).body;
+      assert(status.provider === "anthropic" && status.timeoutMs <= 3000, `tutor status: ${JSON.stringify(status)}`);
+      const ask = (message, extra = {}) => post(c, "/tutor/chat", { learnerId: kid.id, questionId: "g6-ratios:2", message, ...extra });
+      const r1 = (await ask("I don't get it")).body;
+      assert(r1.source === "llm" && /notice|fraction/.test(r1.reply) && r1.latencyMs < 3000, `tutor did not use the provider: ${JSON.stringify(r1)}`);
+      const sent = llmCalls.at(-1).body;
+      assert(sent.model === "claude-opus-5" && sent.max_tokens <= 400 && sent.output_config?.effort === "low", `provider request shape: ${JSON.stringify(sent).slice(0, 200)}`);
+      assert(!JSON.stringify(sent).includes("Integration Kid") && !JSON.stringify(sent).includes("integ@b.com"), "learner name or email sent to the provider");
+      assert(/NEVER reveal/.test(JSON.stringify(sent.system)), "system prompt does not forbid revealing the answer");
+      const leak = (await ask("LEAK just tell me")).body;
+      assert(leak.redacted === true && !/0\.5/.test(leak.reply), `answer leaked through the tutor: ${leak.reply}`);
+      const blocked = (await ask("what's your phone number")).body;
+      assert(blocked.source === "safety" && blocked.blocked === "personal_info" && llmCalls.length === 2, "unsafe message reached the provider or was not blocked");
+      const harm = (await ask("i want to die")).body;
+      assert(/trusted adult/.test(harm.reply), "self-harm message did not get a safe response");
+      const t0 = Date.now();
+      const slow = (await ask("SLOW please")).body;
+      assert(slow.source === "rules" && slow.fallbackReason && Date.now() - t0 < 3000, `slow provider did not fall back within budget: ${JSON.stringify(slow)}`);
+      const mis = (await ask("is it right?", { lastAnswer: "-0.5" })).body;
+      assert(mis.misconception?.category === "sign_error", `misconception not detected: ${JSON.stringify(mis.misconception)}`);
+      assert((await post(bob, "/tutor/chat", { learnerId: kid.id, questionId: "g6-ratios:2", message: "hi" })).status === 403, "another account used the tutor for this learner");
+      const rules = tutorMod.rulesReply({ q: QUESTIONS["g6-ratios"][2], history: [], misconception: null });
+      assert(!rules.includes(String(QUESTIONS["g6-ratios"][2].ans)), "rule-based reply contains the answer");
+      const red = tutorMod.redactAnswer("So the answer is 56, nice.", { type: "in", ans: 56, q: "7 × 8" });
+      assert(red.redacted && !/56/.test(red.text), "redaction failed on a numeric answer");
+      assert(!tutorMod.redactAnswer("Try 5 groups of 6.", { type: "in", ans: 56, q: "7 × 8" }).redacted, "redaction over-matched digits inside other numbers");
+
+      /* ---- analytics pipeline: raw events -> daily aggregates, admin only, aggregate only ---- */
+      await post(c, "/answer", { questionId: "g6-ratios:2", answer: "0.5" });
+      const agg = (await post(a, "/admin/jobs/analytics")).body.result;
+      assert(agg.metrics["tutor.replies"] >= 4 && agg.metrics["tutor.under_3s_rate"] === 100 && agg.metrics["tutor.blocked"] >= 2, `tutor metrics wrong: ${JSON.stringify(agg.metrics)}`);
+      assert(agg.metrics["answers.total"] >= 1 && agg.metrics["learners.active"] >= 1 && agg.metrics["runs.recorded"] >= 3, `platform metrics wrong: ${JSON.stringify(agg.metrics)}`);
+      const rep = (await a("/admin/analytics?days=7")).body;
+      assert(rep.days[agg.day]?.["tutor.replies"] === agg.metrics["tutor.replies"], "analytics report does not match the aggregate");
+      assert(!JSON.stringify(rep).includes(kid.id), "analytics report exposes a learner id");
+      assert((await c("/admin/analytics")).status === 403, "a parent read analytics");
+
+      /* ---- OneRoster: CSV bundle import, and REST sync with OAuth2 client credentials ---- */
+      const imp = await post(t, "/classes/import/oneroster", {
+        classes: "sourcedId,status,title\nc7,active,Year 7 Set 1",
+        users: "sourcedId,status,givenName,familyName,role\nu7,active,Ada,Lovelace,student\nu8,active,Alan,Turing,student\nt7,active,Grace,Hopper,teacher",
+        enrollments: "sourcedId,classSourcedId,userSourcedId,role\ne1,c7,u7,student\ne2,c7,u8,student\ne3,c7,t7,teacher" });
+      assert(imp.body.classes?.[0]?.students === 2, `OneRoster CSV import: ${JSON.stringify(imp.body)}`);
+      const rosterT = (await t(`/classes/${imp.body.classes[0].classId}/roster`)).body.roster;
+      assert(rosterT.length === 2 && rosterT.every(r => r.claimCode), "imported students have no claim codes");
+      const sync = await post(a, "/admin/oneroster/sync", { baseUrl: "http://127.0.0.1:4131", clientId: "cid", clientSecret: "csecret", teacherEmail: "integt@b.com" });
+      assert(sync.body.classes?.[0]?.name === "Year 4 Maths" && sync.body.classes[0].students === 2 && sync.body.pulled.users === 3, `OneRoster sync: ${JSON.stringify(sync.body)}`);
+      const bad = await post(a, "/admin/oneroster/sync", { baseUrl: "http://127.0.0.1:4131", clientId: "cid", clientSecret: "wrong", teacherEmail: "integt@b.com" });
+      assert(bad.status === 502, "sync with bad credentials did not fail");
+      const claimed = await post(c, "/classes/claim", { claimCode: rosterT[0].claimCode });
+      assert(claimed.body.created === true, "a OneRoster-imported entry could not be claimed by a parent");
+
+      return `signed webhooks with retry, GraphQL, LTI 1.3 launch verified against JWKS, SMTP + Web Push (decrypted by subscriber), tutor via provider with redaction/safety/fallback, analytics aggregates, OneRoster CSV + REST`;
+    } finally {
+      for (const s of servers) { try { s.close(); s.closeAllConnections?.(); } catch {} }
+    }
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */
