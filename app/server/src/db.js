@@ -282,6 +282,65 @@ CREATE TABLE IF NOT EXISTS team_members (
 );
 CREATE INDEX IF NOT EXISTS idx_teams_class ON teams(class_id);
 
+-- Platform settings an admin can change (spec 7.6), as JSON values.
+CREATE TABLE IF NOT EXISTS settings (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+-- Teacher portal depth (spec 4.3.1, 4.3.2): roster entries a parent claims,
+-- groups within a class, and per-learner accommodations.
+CREATE TABLE IF NOT EXISTS roster_entries (
+  id          TEXT PRIMARY KEY,
+  class_id    TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  name        TEXT NOT NULL,
+  external_id TEXT,
+  guardian_email TEXT,
+  claim_code  TEXT NOT NULL UNIQUE,
+  learner_id  TEXT REFERENCES learners(id) ON DELETE SET NULL,
+  created_at  TEXT NOT NULL,
+  claimed_at  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_roster_class ON roster_entries(class_id);
+CREATE TABLE IF NOT EXISTS class_groups (
+  id         TEXT PRIMARY KEY,
+  class_id   TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  name       TEXT NOT NULL,
+  track      TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS group_members (
+  group_id   TEXT NOT NULL REFERENCES class_groups(id) ON DELETE CASCADE,
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  PRIMARY KEY (group_id, learner_id)
+);
+CREATE TABLE IF NOT EXISTS accommodations (
+  learner_id     TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  class_id       TEXT NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  extra_time_pct INTEGER NOT NULL DEFAULT 0,
+  hints_in_checks INTEGER NOT NULL DEFAULT 0,
+  shorter_checks INTEGER NOT NULL DEFAULT 0,
+  read_aloud     INTEGER NOT NULL DEFAULT 0,
+  notes          TEXT,
+  updated_at     TEXT NOT NULL,
+  PRIMARY KEY (learner_id, class_id)
+);
+
+-- School and district hierarchy (spec 4.4.1). Teachers belong to a school;
+-- an admin sees aggregates per school and per district, never a child.
+CREATE TABLE IF NOT EXISTS districts (
+  id         TEXT PRIMARY KEY,
+  name       TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS schools (
+  id          TEXT PRIMARY KEY,
+  district_id TEXT REFERENCES districts(id) ON DELETE SET NULL,
+  name        TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
+
 -- Bandit posteriors for difficulty selection (spec 6.3): one Beta(successes+1,
 -- failures+1) per learner, topic and tier.
 CREATE TABLE IF NOT EXISTS bandit_arms (
@@ -328,6 +387,13 @@ export function migrate() {
   if (addColumn("runs", "seconds", "INTEGER NOT NULL DEFAULT 0")) applied.push("runs.seconds");
   // 5.8: weekly tournaments, teacher-controlled like leaderboards
   if (addColumn("class_settings", "tournament_on", "INTEGER NOT NULL DEFAULT 0")) applied.push("class_settings.tournament_on");
+  // 7.6: per-class mastery thresholds
+  if (addColumn("class_settings", "threshold_core", "INTEGER")) applied.push("class_settings.threshold_core");
+  if (addColumn("class_settings", "threshold_adv", "INTEGER")) applied.push("class_settings.threshold_adv");
+  // 4.3.2: assignments may target a group
+  if (addColumn("assignments", "group_id", "TEXT")) applied.push("assignments.group_id");
+  // 4.4.1: users belong to a school
+  if (addColumn("users", "school_id", "TEXT")) applied.push("users.school_id");
   return applied;
 }
 

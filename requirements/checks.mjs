@@ -3006,6 +3006,179 @@ export const CHECKS = {
     return `${codes.length} badges (${rewards.RULES.length} rule-driven, all fire), gear, subject levels + prestige, freezes, ${CHAPTERS.length}-chapter branching story, ${AREAS.length} hidden areas, teams + tournament`;
   },
 
+  /* 4.3.1 + 4.3.2 + 4.3.4 + 4.3.5 + 4.4.1 + 7.2 + 7.6 + 13.12 + 4.1.9 — teacher and
+     admin depth: roster import claimed by parents, groups and accommodations
+     that change conditions not marking, configurable thresholds with decay,
+     the gifted report, unit tests, contest percentiles and leaderboards, and
+     a school/district hierarchy with aggregates only. */
+  "teacher-admin-depth": async () => {
+    const { parseRosterCsv } = await import("../app/server/src/routes-teacher.js");
+    const policy = await import("../app/server/src/policy.js");
+
+    /* --- roster parsing handles plain and OneRoster-style CSV, quoted fields --- */
+    const plain = parseRosterCsv('name,guardian_email\n"Lee, Sam",sam@x.com\nPriya Patel,\n');
+    assert(plain.rows.length === 2 && plain.rows[0].name === "Lee, Sam" && plain.rows[0].guardianEmail === "sam@x.com", "plain CSV misparsed");
+    const one = parseRosterCsv("sourcedId,status,givenName,familyName,role\nu1,active,Ada,Lovelace,student\nu2,active,Alan,Turing,student");
+    assert(one.rows.length === 2 && one.rows[1].name === "Alan Turing" && one.rows[0].externalId === "u1", "OneRoster CSV misparsed");
+    assert(parseRosterCsv("foo,bar\n1,2").error === "no_name_column", "a CSV without names was accepted");
+
+    const t = client(), p = client();
+    await post(t, "/auth/register", { coppaConsent: true, email: "tad@b.com", password: "a-long-enough-pass", name: "T", role: "teacher" });
+    await post(p, "/auth/register", { coppaConsent: true, email: "pad@b.com", password: "a-long-enough-pass", name: "P" });
+    const cls = (await post(t, "/classes", { name: "Depth Class" })).body.class;
+
+    /* --- roster import: codes issued, parent claims, re-import updates not duplicates --- */
+    const imp = await post(t, `/classes/${cls.id}/roster/import`, { csv: "sourcedId,givenName,familyName\ns1,Ada,Lovelace\ns2,Alan,Turing" });
+    assert(imp.body.imported === 2 && imp.body.entries.every(e => /^[A-Z0-9]{8}$/.test(e.claimCode)), "import issued no claim codes");
+    const again = await post(t, `/classes/${cls.id}/roster/import`, { csv: "sourcedId,givenName,familyName\ns1,Ada,Byron" });
+    assert(again.body.entries[0].updated === true && again.body.entries[0].claimCode === imp.body.entries[0].claimCode, "re-import duplicated an entry");
+    assert((await post(p, "/classes/claim", { claimCode: "NOPE0000" })).status === 404, "unknown claim code accepted");
+    const claimed = await post(p, "/classes/claim", { claimCode: imp.body.entries[0].claimCode });
+    assert(claimed.body.created === true && claimed.body.joined.classId === cls.id, "claim did not create and enrol a learner");
+    const kid = (await p("/learners")).body.learners.find(l => l.id === claimed.body.learnerId);
+    assert(kid && kid.name === "Ada Byron", "claimed learner did not take the roster name");
+    assert((await post(p, "/classes/claim", { claimCode: imp.body.entries[0].claimCode })).status === 409, "a claim code was used twice");
+    const roster = (await t(`/classes/${cls.id}/roster`)).body.roster;
+    assert(roster.find(r => r.name === "Ada Byron").claimed && roster.find(r => r.name === "Alan Turing").claimCode, "roster status wrong");
+    const other = (await post(p, "/learners", { name: "Second Kid" })).body.learner;
+    const claim2 = await post(p, "/classes/claim", { claimCode: imp.body.entries[1].claimCode, learnerId: other.id });
+    assert(claim2.body.created === false && claim2.body.learnerId === other.id, "claim did not link an existing learner");
+
+    /* --- groups: a group assignment applies to its members only; a track group sets tracks --- */
+    const grp = (await post(t, `/classes/${cls.id}/groups`, { name: "Stretch", track: "enrichment" })).body.group;
+    await post(t, `/classes/${cls.id}/groups/${grp.id}/members`, { learnerId: kid.id });
+    assert((await p(`/learners/${kid.id}/track`)).body.track === "enrichment", "group track not applied");
+    assert((await p(`/learners/${other.id}/track`)).body.track === "core", "group track leaked to a non-member");
+    assert((await post(t, `/classes/${cls.id}/assignments`, { topicId: "g6-ratios", groupId: "nope" })).status === 404, "unknown group accepted");
+    await post(t, `/classes/${cls.id}/assignments`, { topicId: "g6-ratios", groupId: grp.id });
+    await post(t, `/classes/${cls.id}/assignments`, { topicId: "g6-percent" });
+    const prog = (await t(`/classes/${cls.id}/progress`)).body;
+    const ada = prog.learners.find(l => l.learnerId === kid.id), sec = prog.learners.find(l => l.learnerId === other.id);
+    assert(ada.assignments.length === 2 && sec.assignments.length === 1, "group assignment applied to the wrong learners");
+    assert(prog.heatmap.find(h => h.groupId === grp.id).assigned === 1, "heatmap counts non-members for a group assignment");
+
+    /* --- accommodations: hints allowed and a shorter check, marking unchanged --- */
+    const acc = await t(`/classes/${cls.id}/learners/${kid.id}/accommodations`, { method: "PUT",
+      body: JSON.stringify({ hintsInChecks: true, shorterChecks: true, extraTimePct: 50, notes: "dyslexia" }) });
+    assert(acc.body.accommodations.hintsInChecks && acc.body.accommodations.extraTimePct === 50, "accommodations not stored");
+    assert((await t(`/classes/${cls.id}/learners/${other.id}/accommodations`, { method: "PUT", body: JSON.stringify({ extraTimePct: 500 }) })).body.accommodations.extraTimePct === 100,
+      "extra time not bounded");
+    const check = (await post(p, "/mastery/start", { learnerId: kid.id, topicId: "g6-nscoord" })).body;
+    assert(check.questions.length === 5 && check.accommodations?.shorterChecks, `shorter check has ${check.questions.length} questions`);
+    const hint = await post(p, "/hint", { questionId: check.questions[0].id, level: 1 });
+    assert(hint.status === 200 && hint.body.hint, "accommodated learner was refused a hint during a check");
+    const plain2 = (await post(p, "/mastery/start", { learnerId: other.id, topicId: "g6-nscoord" })).body;
+    assert(plain2.questions.length === 8 && !plain2.accommodations?.shorterChecks && !plain2.accommodations?.hintsInChecks,
+      "accommodations leaked to another learner");
+    assert((await post(p, "/hint", { questionId: plain2.questions[0].id, level: 1 })).status === 409, "hints allowed in a plain check");
+    const paper = (await post(p, "/contest/start", { learnerId: kid.id, format: "drill" })).body;
+    assert(paper.limitSeconds === 6 * 60 * 1.5, `extra time not applied to the paper (${paper.limitSeconds}s)`);
+
+    /* --- configurable thresholds: per class, bounded, strictest wins; platform default via admin --- */
+    assert((await t(`/classes/${cls.id}/thresholds`, { method: "PUT", body: JSON.stringify({ core: 30 }) })).status === 400, "an absurd threshold was accepted");
+    await t(`/classes/${cls.id}/thresholds`, { method: "PUT", body: JSON.stringify({ core: 95, adv: 85 }) });
+    const th = (await p(`/learners/${kid.id}/thresholds`)).body;
+    assert(th.core === 95 && th.adv === 85 && th.defaults.core === 90, `class threshold not applied: ${JSON.stringify(th)}`);
+    const r92 = await post(p, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 23, total: 25 });
+    assert(r92.body.threshold === 95 && r92.body.star === false, "92% counted as mastery under a 95% class bar");
+    const loner = (await post(p, "/learners", { name: "No Class Kid" })).body.learner;
+    const r92b = await post(p, "/runs", { learnerId: loner.id, topicId: "g6-ratios", tier: "practice", score: 23, total: 25 });
+    assert(r92b.body.threshold === 90 && r92b.body.star === true, "class threshold leaked to a learner outside the class");
+    const a = client();
+    if ((await post(a, "/auth/register", { coppaConsent: true, email: "boss@b.com", password: "a-long-enough-pass", name: "Boss" })).status === 409)
+      await post(a, "/auth/login", { email: "boss@b.com", password: "a-long-enough-pass" });
+    assert((await a("/admin/settings")).body.mastery.core === 90, "admin settings do not show the default");
+    await a("/admin/settings", { method: "PUT", body: JSON.stringify({ mastery: { core: 85, adv: 75 } }) });
+    assert((await p(`/learners/${loner.id}/thresholds`)).body.core === 85, "platform threshold not applied");
+    assert((await p(`/learners/${kid.id}/thresholds`)).body.core === 95, "class override lost to the platform setting");
+    await a("/admin/settings", { method: "PUT", body: JSON.stringify({ mastery: { core: 90, adv: 80 } }) });
+    assert((await t("/admin/settings")).status === 403, "a teacher read admin settings");
+
+    /* --- decay: a long-overdue review turns mastery into "decayed" and back into the review queue --- */
+    const { DatabaseSync } = await import("node:sqlite");
+    const dbx = new DatabaseSync("app/server/data/verify.db");
+    await post(p, "/runs", { learnerId: loner.id, topicId: "g6-percent", tier: "practice", score: 8, total: 8 });
+    let ms = (await p(`/learners/${loner.id}/mastery`)).body.topics.find(x => x.topicId === "g6-percent");
+    assert(ms.state === "mastered", `fresh mastery reported as ${ms.state}`);
+    const longAgo = new Date(Date.now() - 40 * 86400000).toISOString();
+    dbx.prepare("UPDATE review_schedule SET due_at=? WHERE learner_id=? AND topic_id='g6-percent'").run(longAgo, loner.id);
+    ms = (await p(`/learners/${loner.id}/mastery`)).body.topics.find(x => x.topicId === "g6-percent");
+    assert(ms.state === "decayed" && ms.bestPct === 100, `overdue mastery reported as ${ms.state}`);
+    const rev = (await p(`/learners/${loner.id}/review`)).body.review;
+    assert(rev[0]?.topicId === "g6-percent" && rev[0].reason === "mastery_decayed", "decayed topic not first in the review queue");
+    const nx = (await p(`/learners/${loner.id}/next`)).body;
+    assert([...nx.ready, ...nx.blocked].some(e => e.topicId === "g6-percent"), "a decayed topic is still treated as mastered by next-up");
+
+    /* --- unit test across a unit's topics, recorded per topic --- */
+    const units = (await p("/units")).body.units;
+    const unit = units.find(u => u.grade === "6" && u.topics >= 2);
+    assert(unit, "no testable unit");
+    const ut = (await post(p, "/unit-test/start", { learnerId: loner.id, grade: unit.grade, unit: unit.unit })).body;
+    assert(ut.questions.length >= 4 && new Set(ut.questions.map(q => q.id.split(":")[0])).size >= 2, "unit test does not span topics");
+    assert(!JSON.stringify(ut).includes('"expl"'), "unit test leaked explanations");
+    const answers = {};
+    for (const q of ut.questions) {
+      const probe = (await post(p, "/answer", { questionId: q.id, answer: "__" })).body;
+      answers[q.id] = q.type === "mc" ? q.opts.indexOf(probe.correctAnswer) : q.type === "multi" ? probe.correctAnswer.split(", ").map(x => q.opts.indexOf(x))
+        : q.type === "order" ? probe.correctAnswer.split("  →  ") : probe.correctAnswer;
+    }
+    const res = (await post(p, "/unit-test/submit", { testId: ut.testId, answers })).body;
+    assert(res.pct === 100 && res.passed && res.byTopic.length >= 2 && res.byTopic.every(b => b.name), `unit test misgraded: ${JSON.stringify(res).slice(0, 200)}`);
+    const progRows = (await p(`/learners/${loner.id}/progress`)).body.progress.filter(r => r.tier === "unit");
+    assert(progRows.length >= 2, "unit test not recorded per topic");
+    assert((await post(p, "/unit-test/submit", { testId: ut.testId, answers })).status === 404, "unit test replayed");
+
+    /* --- contest percentile and class contest leaderboard --- */
+    const sub = async (cl, lid, fmt, right) => {
+      const s = (await post(cl, "/contest/start", { learnerId: lid, format: fmt })).body;
+      const ans = {};
+      for (const q of s.questions) {
+        if (!right) { ans[q.id] = "-99999"; continue; }
+        const probe = (await post(cl, "/answer", { questionId: q.id, answer: "__" })).body;
+        ans[q.id] = q.type === "mc" ? q.opts.indexOf(probe.correctAnswer) : q.type === "multi" ? probe.correctAnswer.split(", ").map(x => q.opts.indexOf(x))
+          : q.type === "order" ? probe.correctAnswer.split("  →  ") : probe.correctAnswer;
+      }
+      return (await post(cl, "/contest/submit", { contestId: s.contestId, answers: ans })).body;
+    };
+    const first = await sub(p, other.id, "drill", false);
+    assert(first.percentile === null || first.percentile <= 50, `a zero paper sits at percentile ${first.percentile}`);
+    const strong = await sub(p, loner.id, "drill", true);
+    assert(strong.pct === 100 && strong.percentile >= 50, `strong paper percentile ${strong.percentile}`);
+    const hist = (await p(`/learners/${other.id}/contests`)).body.byFormat.find(f => f.format === "drill");
+    assert(hist.percentile < strong.percentile, `weak paper (${hist.percentile}) not below strong (${strong.percentile})`);
+    assert((await p(`/classes/${cls.id}/contest-leaderboard`)).body.enabled === false, "contest leaderboard on by default");
+    await t(`/classes/${cls.id}/settings`, { method: "PUT", body: JSON.stringify({ leaderboardOn: true }) });
+    await sub(p, kid.id, "drill", true);
+    const lb = (await p(`/classes/${cls.id}/contest-leaderboard?format=drill`)).body;
+    assert(lb.enabled && lb.board[0].best === 100 && lb.board.length === 2, `contest leaderboard wrong: ${JSON.stringify(lb)}`);
+    assert(lb.board.every(b => b.you), "parent of both learners sees them anonymised");
+    assert((await p(`/classes/${cls.id}/contest-leaderboard?format=nope`)).status === 400, "unknown format accepted");
+
+    /* --- gifted report and team detail --- */
+    assert((await t(`/classes/${cls.id}/gifted.csv`)).status === 200 && (await t(`/classes/${cls.id}/gifted.html`)).status === 200,
+      "gifted report unavailable");
+    const team = (await post(t, `/classes/${cls.id}/teams`, { name: "Blue" })).body.team;
+    await post(t, `/classes/${cls.id}/teams/${team.id}/members`, { learnerId: kid.id });
+    const td = (await t(`/classes/${cls.id}/teams/${team.id}`)).body;
+    assert(td.members.length === 1 && td.lineup.drill.includes("Ada Byron"), `team detail wrong: ${JSON.stringify(td)}`);
+    assert((await p(`/classes/${cls.id}/gifted.html`)).status === 403, "a parent read the gifted report");
+
+    /* --- schools and districts: hierarchy with aggregates, admin only --- */
+    const d = (await post(a, "/admin/districts", { name: "North District" })).body.district;
+    const sch = (await post(a, "/admin/schools", { name: "Hill School", districtId: d.id })).body.school;
+    assert((await post(a, "/admin/schools", { name: "X", districtId: "nope" })).status === 404, "unknown district accepted");
+    await a("/admin/users/school", { method: "PUT", body: JSON.stringify({ email: "tad@b.com", schoolId: sch.id }) });
+    const h = (await a("/admin/hierarchy")).body;
+    const north = h.districts.find(x => x.id === d.id);
+    assert(north.schools[0].teachers === 1 && north.schools[0].classes === 1 && north.schools[0].learners === 2,
+      `school aggregates wrong: ${JSON.stringify(north.schools[0])}`);
+    assert(north.totals.learners === 2 && h.totals.learners === 2, "district totals do not roll up");
+    assert(!JSON.stringify(h).includes("Ada"), "hierarchy leaked a child's name");
+    assert((await t("/admin/hierarchy")).status === 403 && (await post(t, "/admin/districts", { name: "X" })).status === 403, "teacher reached admin hierarchy");
+
+    return `roster import + parent claim, groups, accommodations (5-question check, hints, +50% time), thresholds 95/85 per class, decay, unit test over ${res.byTopic.length} topics, percentiles, contest board, gifted report, hierarchy`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();

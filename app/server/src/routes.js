@@ -29,10 +29,15 @@ import {
 export { MASTERY, trackOf, thresholdOf };
 import { parent as parentRoutes } from "./routes-parent.js";
 import { game as gameRoutes, unlockedAreas } from "./routes-game.js";
+import { teacher as teacherRoutes, percentileFor } from "./routes-teacher.js";
+import { admin as adminRoutes } from "./routes-admin.js";
+import { thresholdFor, masteryState, accommodationsFor } from "./policy.js";
 
 export const api = Router();
 api.use(parentRoutes);
 api.use(gameRoutes);
+api.use(teacherRoutes);
+api.use(adminRoutes);
 
 
 
@@ -270,7 +275,7 @@ api.post("/hint", (req, res) => {
   const resolved = resolveQuestion(questionId);
   if (!resolved) return res.status(400).json({ error: "unknown_question" });
   for (const sess of checkSessions.values())
-    if (sess.ids.includes(String(questionId)))
+    if (sess.ids.includes(String(questionId)) && !sess.hintsAllowed)
       return res.status(409).json({ error: "hints_disabled_during_mastery_check" });
   const lvl = Math.min(3, Math.max(1, Number(level) || 1));
   const ladder = hintLadder(resolved.q);
@@ -347,27 +352,33 @@ api.get("/learners/:id/review", requireAuth, (req, res) => {
 
   /* Two reasons to practise something: it is not mastered yet, or it is
      mastered but the spacing schedule says it is due a refresher. */
+  const bar = id => thresholdFor(id, learnerId);
   const notMastered = rows
-    .filter(r => r.best_pct < thresholdOf(r.topic_id))
+    .filter(r => r.best_pct < bar(r.topic_id))
     .map(r => ({
       topicId: r.topic_id, tier: r.tier, bestPct: r.best_pct,
-      threshold: thresholdOf(r.topic_id), track: trackOf(r.topic_id),
-      gap: thresholdOf(r.topic_id) - r.best_pct, lastAt: r.last_at,
+      threshold: bar(r.topic_id), track: trackOf(r.topic_id),
+      gap: bar(r.topic_id) - r.best_pct, lastAt: r.last_at,
       reason: "not_yet_mastered"
     }))
     .sort((a, b) => b.gap - a.gap);
 
   const dueRows = spacing.due(learnerId);
   const seen = new Set(notMastered.map(i => i.topicId));
+  /* A mastered topic whose review is long overdue has DECAYED (7.6): it is
+     listed ahead of ordinary due reviews because the mastery has lapsed. */
   const dueForReview = dueRows
     .filter(d => !seen.has(d.topic_id))
     .map(d => ({
-      topicId: d.topic_id, threshold: thresholdOf(d.topic_id), track: trackOf(d.topic_id),
+      topicId: d.topic_id, threshold: bar(d.topic_id), track: trackOf(d.topic_id),
       gap: 0, lastAt: d.last_at, dueAt: d.due_at,
-      intervalDays: d.interval_days, reason: "due_for_review"
-    }));
+      intervalDays: d.interval_days,
+      reason: masteryState(learnerId, d.topic_id).state === "decayed" ? "mastery_decayed" : "due_for_review"
+    }))
+    .sort((a, b) => (a.reason === "mastery_decayed" ? 0 : 1) - (b.reason === "mastery_decayed" ? 0 : 1));
 
-  res.json({ review: [...notMastered, ...dueForReview], schedule: spacing.scheduleFor(learnerId) });
+  res.json({ review: [...notMastered, ...dueForReview], schedule: spacing.scheduleFor(learnerId),
+             thresholds: { core: bar("k-count"), adv: bar("k-evenodd") } });
 });
 
 /* ---------------- mastery check (spec 4.1.6) ----------------
@@ -389,13 +400,18 @@ api.post("/mastery/start", requireAuth, (req, res) => {
     const j = Math.floor(Math.random() * (i + 1));
     [idxs[i], idxs[j]] = [idxs[j], idxs[i]];
   }
-  const picked = idxs.slice(0, Math.min(CHECK_SIZE, idxs.length));
+  /* Accommodations (4.3.2) change the conditions, never the marking. */
+  const acc = accommodationsFor(learnerId);
+  const size = acc.shorterChecks ? Math.ceil(CHECK_SIZE * 0.6) : CHECK_SIZE;
+  const picked = idxs.slice(0, Math.min(size, idxs.length));
   const id = randomUUID();
-  checkSessions.set(id, { learnerId, topicId, ids: picked.map(i => `${topicId}:${i}`), issuedAt: Date.now() });
+  checkSessions.set(id, { learnerId, topicId, ids: picked.map(i => `${topicId}:${i}`), issuedAt: Date.now(),
+                          hintsAllowed: acc.hintsInChecks });
   audit(req.user.id, "mastery.started", topicId, req);
   res.json({
     checkId: id,
-    threshold: thresholdOf(topicId),
+    threshold: thresholdFor(topicId, learnerId),
+    accommodations: acc.hintsInChecks || acc.shorterChecks || acc.extraTimePct ? acc : null,
     questions: picked.map(i => publicQuestion(topicId, i))
   });
 });
@@ -429,7 +445,7 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
 
   const total = sess.ids.length;
   const pct = Math.round((score / total) * 100);
-  const threshold = thresholdOf(sess.topicId);
+  const threshold = thresholdFor(sess.topicId, sess.learnerId);
   const passed = pct >= threshold;
   const ts = now();
 
@@ -504,8 +520,11 @@ api.get("/learners/:id/next", requireAuth, (req, res) => {
   /* A prerequisite counts as held if the recorded score cleared the bar OR the
      knowledge model is confident, so a learner who demonstrates a skill inside
      adaptive practice is not blocked for lack of a formal run. */
-  const mastered = id =>
-    (best.get(id) || 0) >= thresholdOf(id) || bkt.isKnown(bkt.estimate(req.params.id, id));
+  const mastered = id => {
+    const st = masteryState(req.params.id, id, best.get(id) || 0);
+    if (st.state === "decayed") return false;        // lapsed mastery needs a fresh round
+    return st.state === "mastered" || bkt.isKnown(bkt.estimate(req.params.id, id));
+  };
 
   /* The learner's track (4.2.2, 6.6) decides how advanced work is presented:
      optional on the core track, alongside on enrichment, first on competition.
@@ -746,7 +765,8 @@ api.post("/contest/start", requireAuth, (req, res) => {
   }
   const ids = pool.slice(0, Math.min(fmt.questions, pool.length));
   const id = randomUUID();
-  const limitSecs = fmt.minutes * 60;
+  const acc = accommodationsFor(learnerId);
+  const limitSecs = Math.round(fmt.minutes * 60 * (1 + acc.extraTimePct / 100));
   contestSessions.set(id, {
     learnerId, format, ids, startedAt: Date.now(),
     deadline: Date.now() + limitSecs * 1000, limitSecs
@@ -802,6 +822,7 @@ api.post("/contest/submit", requireAuth, (req, res) => {
   }
   res.json({
     score, total, pct, correctBeforePenalty, seconds, limitSeconds: sess.limitSecs, expired, reward,
+    percentile: percentileFor(sess.format, pct, sess.learnerId),
     detail,
     byTopic: Object.values(byTopic).map(t => ({ ...t, pct: Math.round((t.correct / t.asked) * 100) }))
               .sort((a, b) => a.pct - b.pct)
@@ -820,6 +841,7 @@ api.get("/learners/:id/contests", requireAuth, (req, res) => {
     if (!f.latest) f.latest = r.pct;
     f.trend.push(r.pct);
   }
+  for (const f of Object.values(byFormat)) f.percentile = percentileFor(f.format, f.best, req.params.id);
   res.json({ history: rows, byFormat: Object.values(byFormat) });
 });
 
@@ -866,12 +888,14 @@ api.post("/classes/join", requireAuth, (req, res) => {
 
 api.post("/classes/:id/assignments", requireAuth, requireTeacher, (req, res) => {
   if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
-  const { topicId, tier, dueAt } = req.body || {};
+  const { topicId, tier, dueAt, groupId } = req.body || {};
   if (!QUESTIONS[topicId]) return res.status(400).json({ error: "unknown_topic" });
+  if (groupId && !db.prepare("SELECT 1 FROM class_groups WHERE id=? AND class_id=?").get(groupId, req.params.id))
+    return res.status(404).json({ error: "unknown_group" });
   const id = randomUUID();
-  db.prepare("INSERT INTO assignments (id, class_id, topic_id, tier, due_at, created_at) VALUES (?,?,?,?,?,?)")
-    .run(id, req.params.id, topicId, tier || null, dueAt || null, now());
-  res.json({ assignment: { id, topicId, tier: tier || null, dueAt: dueAt || null } });
+  db.prepare("INSERT INTO assignments (id, class_id, topic_id, tier, due_at, group_id, created_at) VALUES (?,?,?,?,?,?,?)")
+    .run(id, req.params.id, topicId, tier || null, dueAt || null, groupId || null, now());
+  res.json({ assignment: { id, topicId, tier: tier || null, dueAt: dueAt || null, groupId: groupId || null } });
 });
 
 /* A teacher may set the track for a learner in their class (6.6). The parent
@@ -898,24 +922,30 @@ api.get("/classes/:id/progress", requireAuth, requireTeacher, (req, res) => {
     JOIN learners l ON l.id = m.learner_id WHERE m.class_id=? ORDER BY l.name`).all(cls.id);
   const assignments = db.prepare("SELECT * FROM assignments WHERE class_id=?").all(cls.id);
 
+  const groupOf = {};
+  for (const gm of db.prepare(`SELECT gm.group_id, gm.learner_id FROM group_members gm
+                               JOIN class_groups g ON g.id=gm.group_id WHERE g.class_id=?`).all(cls.id))
+    (groupOf[gm.learner_id] ||= new Set()).add(gm.group_id);
   const rows = members.map(m => {
     const prog = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id=?").all(m.id);
-    const done = assignments.map(a => {
+    /* A group assignment applies only to that group's members (4.3.2). */
+    const done = assignments.filter(a => !a.group_id || groupOf[m.id]?.has(a.group_id)).map(a => {
       const match = prog.filter(p => p.topic_id === a.topic_id && (!a.tier || p.tier === a.tier));
       const best = match.reduce((x, p) => Math.max(x, p.best_pct), 0);
-      return { assignmentId: a.id, topicId: a.topic_id, bestPct: best,
-               mastered: best >= thresholdOf(a.topic_id), attempted: match.length > 0 };
+      return { assignmentId: a.id, topicId: a.topic_id, groupId: a.group_id || null, bestPct: best,
+               mastered: best >= thresholdFor(a.topic_id, m.id), attempted: match.length > 0 };
     });
-    const mastered = prog.filter(p => p.best_pct >= thresholdOf(p.topic_id)).length;
+    const mastered = prog.filter(p => p.best_pct >= thresholdFor(p.topic_id, m.id)).length;
     return { learnerId: m.id, name: m.name, assignments: done, topicsMastered: mastered };
   });
 
   /* Heatmap: for each assigned topic, how the class as a whole is doing. */
   const heatmap = assignments.map(a => {
-    const scores = rows.map(r => (r.assignments.find(x => x.assignmentId === a.id) || {}).bestPct || 0);
+    const targets = rows.filter(r => r.assignments.some(x => x.assignmentId === a.id));
+    const scores = targets.map(r => (r.assignments.find(x => x.assignmentId === a.id) || {}).bestPct || 0);
     const attempted = scores.filter(s => s > 0).length;
     return {
-      topicId: a.topic_id, assigned: rows.length, attempted,
+      topicId: a.topic_id, groupId: a.group_id || null, assigned: targets.length, attempted,
       averagePct: scores.length ? Math.round(scores.reduce((x, y) => x + y, 0) / scores.length) : 0,
       mastered: rows.filter(r => (r.assignments.find(x => x.assignmentId === a.id) || {}).mastered).length
     };
@@ -1028,7 +1058,7 @@ api.post("/runs", requireAuth, (req, res) => {
   /* Client-reported time is bounded: it informs reporting, never scoring. */
   const secs = Math.min(4 * 3600, Math.max(0, Number(seconds) || 0));
   const pct = recordRun(learnerId, topicId, tier, s, t, { seconds: secs });
-  const track = trackOf(topicId), threshold = thresholdOf(topicId);
+  const track = trackOf(topicId), threshold = thresholdFor(topicId, learnerId);
   const next = spacing.schedule(learnerId, topicId, s / t);
   const reward = rewardRound(learnerId, topicId, { score: s, total: t, pct });
   res.json({ pct, threshold, track, star: pct >= threshold, nextReview: next, reward });
