@@ -223,6 +223,20 @@ CREATE TABLE IF NOT EXISTS skill_state (
 
 CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);
 
+-- In-app notifications and the outbox that email/push drain (spec 4.2.5, 9.4).
+CREATE TABLE IF NOT EXISTS notifications (
+  id           TEXT PRIMARY KEY,
+  user_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  learner_id   TEXT REFERENCES learners(id) ON DELETE CASCADE,
+  kind         TEXT NOT NULL,
+  title        TEXT NOT NULL,
+  body         TEXT NOT NULL,
+  created_at   TEXT NOT NULL,
+  read_at      TEXT,
+  delivered_via TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, created_at DESC);
+
 -- Bandit posteriors for difficulty selection (spec 6.3): one Beta(successes+1,
 -- failures+1) per learner, topic and tier.
 CREATE TABLE IF NOT EXISTS bandit_arms (
@@ -265,6 +279,8 @@ export function migrate() {
   // 6.1: IRT ability estimate stored with each diagnostic
   if (addColumn("diagnostics", "theta", "REAL")) applied.push("diagnostics.theta");
   if (addColumn("diagnostics", "se", "REAL")) applied.push("diagnostics.se");
+  // 4.2.3: time on task per round
+  if (addColumn("runs", "seconds", "INTEGER NOT NULL DEFAULT 0")) applied.push("runs.seconds");
   return applied;
 }
 

@@ -21,127 +21,18 @@ import { PUZZLES, publicPuzzle, checkPuzzle, puzzleById } from "../../shared/puz
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
+import {
+  tierOf, MASTERY, TOPIC_TRACK, trackOf, thresholdOf, TOPIC_NAME, describe,
+  publicQuestion, publicGenerated, resolveQuestion, gradeAnswer, hintLadder,
+  ownLearner, recordRun
+} from "./helpers.js";
+export { MASTERY, trackOf, thresholdOf };
+import { parent as parentRoutes } from "./routes-parent.js";
 
 export const api = Router();
+api.use(parentRoutes);
 
-const TIER_BY_LVL = { 1: "practice", 2: "challenge", 3: "boss" };
-const tierOf = q => TIER_BY_LVL[q.lvl || 1];
 
-/* Topic -> track index, built once from the curriculum. Spec 7.6: mastery is
-   90% for core skills and 80% for advanced, so the threshold is a property of
-   the topic, decided server-side rather than trusted from the client. */
-export const MASTERY = { core: 90, adv: 80 };
-const TOPIC_TRACK = (() => {
-  const map = new Map();
-  for (const g of Object.values(CURRICULUM))
-    for (const u of g.units)
-      for (const t of u.topics) map.set(t.id, u.track === "adv" ? "adv" : "core");
-  return map;
-})();
-export const trackOf = topicId => TOPIC_TRACK.get(topicId) || null;
-export const thresholdOf = topicId => MASTERY[trackOf(topicId) || "core"];
-
-/* Strip everything that would give the answer away. The client never sees
-   `a`, `ans`, `ansP` or `expl` until it has submitted. */
-function publicQuestion(topicId, idx) {
-  const q = QUESTIONS[topicId][idx];
-  return {
-    id: `${topicId}:${idx}`,
-    sec: q.sec, secName: SECS[q.sec] || "Problem",
-    type: q.type, q: q.q,
-    opts: (q.type === "mc" || q.type === "multi") ? q.opts : undefined,
-    // Ordering items are sent shuffled; the correct sequence stays server-side.
-    items: q.type === "order" ? shuffled(q.items) : undefined,
-    mono: q.mono || false,
-    hint: q.hint || null,
-    fig: q.fig || null
-  };
-}
-
-/* Fisher-Yates on a copy; the caller's array is never mutated. */
-function shuffled(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-/* A generated question's id carries its seed, so the server can rebuild the
-   exact same problem when marking it — no session storage, and a learner
-   returning to a review item sees the identical question. */
-function resolveQuestion(questionId) {
-  const parts = String(questionId || "").split(":");
-  if (parts[0] === "gen") {
-    const [, topicId, seedRaw] = parts;
-    const seed = Number(seedRaw);
-    if (!Number.isFinite(seed)) return null;
-    const q = generate(topicId, seed);
-    return q ? { q, topicId } : null;
-  }
-  const [topicId, idxRaw] = parts;
-  const bank = QUESTIONS[topicId];
-  const idx = Number(idxRaw);
-  if (!bank || !Number.isInteger(idx) || !bank[idx]) return null;
-  return { q: bank[idx], topicId };
-}
-
-function publicGenerated(topicId, seed) {
-  const g = generate(topicId, seed);
-  if (!g) return null;
-  return {
-    id: `gen:${topicId}:${seed}`,
-    sec: g.sec, secName: SECS[g.sec] || "Problem",
-    type: g.type, q: g.q, mono: false, hint: g.hint || null, fig: null, generated: true
-  };
-}
-
-function gradeAnswer(q, raw) {
-  /* Ordering: exact match to be correct, but partial credit for the
-     positions that were right (spec 7.3). */
-  if (q.type === "order") {
-    const got = Array.isArray(raw) ? raw.map(String) : [];
-    const want = q.ansOrder;
-    const inPlace = got.filter((v, i) => v === want[i]).length;
-    const ok = got.length === want.length && inPlace === want.length;
-    return {
-      ok, correctAnswer: want.join("  →  "),
-      credit: want.length ? inPlace / want.length : 0,
-      creditDetail: `${inPlace} of ${want.length} in the right place`
-    };
-  }
-  /* Select-all: set equality to be correct. Partial credit rewards the right
-     picks and penalises wrong ones, so guessing everything scores nothing. */
-  if (q.type === "multi") {
-    const got = Array.isArray(raw) ? [...new Set(raw.map(Number))] : [];
-    const want = [...q.aMulti];
-    const hits = got.filter(i => want.includes(i)).length;
-    const falseHits = got.filter(i => !want.includes(i)).length;
-    const ok = hits === want.length && falseHits === 0;
-    const credit = want.length ? Math.max(0, (hits - falseHits) / want.length) : 0;
-    return {
-      ok, correctAnswer: want.map(i => q.opts[i]).join(", "),
-      credit: Math.min(1, credit),
-      creditDetail: `${hits} correct, ${falseHits} incorrect selected`
-    };
-  }
-  if (q.type === "mc") {
-    const ok = Number(raw) === q.a;
-    return { ok, correctAnswer: q.opts[q.a], credit: ok ? 1 : 0 };
-  }
-  if (q.type === "pair") {
-    const p = String(raw).replace(/−/g, "-").replace(/[^0-9.,\-]/g, "")
-      .split(",").filter(s => s !== "");
-    const ok = p.length === 2 &&
-      Math.abs(parseFloat(p[0]) - q.ansP[0]) < 1e-9 &&
-      Math.abs(parseFloat(p[1]) - q.ansP[1]) < 1e-9;
-    return { ok, correctAnswer: `(${q.ansP[0]}, ${q.ansP[1]})`, credit: ok ? 1 : 0 };
-  }
-  const n = parseFloat(String(raw).replace(/−/g, "-").replace(/[^0-9.\-]/g, ""));
-  const numOk = !isNaN(n) && Math.abs(n - q.ans) < 1e-9;
-  return { ok: numOk, correctAnswer: String(q.ans), credit: numOk ? 1 : 0 };
-}
 
 /* ---------------- auth ---------------- */
 const COOKIE = {
@@ -347,9 +238,6 @@ api.delete("/learners/:id", requireAuth, (req, res) => {
   res.json({ deleted: r.changes });
 });
 
-function ownLearner(req, id) {
-  return db.prepare("SELECT id FROM learners WHERE id = ? AND user_id = ?").get(id, req.user.id);
-}
 
 /* ---------------- curriculum ---------------- */
 api.get("/curriculum", (_req, res) => {
@@ -374,18 +262,6 @@ api.get("/topics/:topicId/:tier/questions", (req, res) => {
   res.json({ questions: idxs.map(i => publicQuestion(topicId, i)) });
 });
 
-/* Hint ladder (spec 4.1.4): three levels, served one at a time so the client
-   cannot read ahead. Level 3 is the worked solution. Questions may supply a
-   `hints` array; otherwise we fall back to what the bank has authored. */
-function hintLadder(q) {
-  if (Array.isArray(q.hints) && q.hints.length) return q.hints.slice(0, 3);
-  const ladder = [];
-  if (q.hint) ladder.push(q.hint);
-  else ladder.push("Read the question again and name what you are being asked to find.");
-  ladder.push("Work out what you know first, then take it one step at a time.");
-  ladder.push(q.expl);
-  return ladder;
-}
 
 api.post("/hint", (req, res) => {
   const { questionId, level } = req.body || {};
@@ -555,21 +431,8 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
   const passed = pct >= threshold;
   const ts = now();
 
-  db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
-    .run(randomUUID(), sess.learnerId, sess.topicId, "mastery", score, total, pct, ts);
-  const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
-    .get(sess.learnerId, sess.topicId, "mastery");
-  if (!prev) {
-    db.prepare(`INSERT INTO progress (learner_id, topic_id, tier, best_score, best_total, best_pct, runs, last_at)
-                VALUES (?,?,?,?,?,?,1,?)`).run(sess.learnerId, sess.topicId, "mastery", score, total, pct, ts);
-  } else if (pct > prev.best_pct) {
-    db.prepare(`UPDATE progress SET best_score=?, best_total=?, best_pct=?, runs=runs+1, last_at=?
-                WHERE learner_id=? AND topic_id=? AND tier=?`)
-      .run(score, total, pct, ts, sess.learnerId, sess.topicId, "mastery");
-  } else {
-    db.prepare(`UPDATE progress SET runs=runs+1, last_at=? WHERE learner_id=? AND topic_id=? AND tier=?`)
-      .run(ts, sess.learnerId, sess.topicId, "mastery");
-  }
+  recordRun(sess.learnerId, sess.topicId, "mastery", score, total,
+    { seconds: (Date.now() - sess.issuedAt) / 1000, at: ts });
 
   spacing.schedule(sess.learnerId, sess.topicId, score / total);
   const reward = rewardRound(sess.learnerId, sess.topicId, { score, total, pct });
@@ -604,14 +467,6 @@ api.get("/topics/:id/generated", (req, res) => {
 api.get("/generated/topics", (_req, res) => res.json({ topics: generatedTopics() }));
 
 /* ---------------- knowledge graph (spec 6.2) ---------------- */
-const TOPIC_NAME = (() => {
-  const m = new Map();
-  for (const g of Object.values(CURRICULUM))
-    for (const u of g.units)
-      for (const t of u.topics) m.set(t.id, { name: t.name, grade: g.label, unit: u.name, track: u.track });
-  return m;
-})();
-const describe = id => ({ topicId: id, ...(TOPIC_NAME.get(id) || { name: id }) });
 
 api.get("/topics/:id/prereqs", (req, res) => {
   const id = req.params.id;
@@ -782,21 +637,8 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     const avgHints = sess.hintsUsed / total;
     const stars = avgHints < 0.34 ? 3 : avgHints < 1.34 ? 2 : 1;
 
-    db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
-      .run(randomUUID(), sess.learnerId, sess.topicId, "adaptive", sess.score, total, pct, ts);
-    const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
-      .get(sess.learnerId, sess.topicId, "adaptive");
-    if (!prev) {
-      db.prepare(`INSERT INTO progress (learner_id, topic_id, tier, best_score, best_total, best_pct, runs, last_at)
-                  VALUES (?,?,?,?,?,?,1,?)`).run(sess.learnerId, sess.topicId, "adaptive", sess.score, total, pct, ts);
-    } else if (pct > prev.best_pct) {
-      db.prepare(`UPDATE progress SET best_score=?, best_total=?, best_pct=?, runs=runs+1, last_at=?
-                  WHERE learner_id=? AND topic_id=? AND tier=?`)
-        .run(sess.score, total, pct, ts, sess.learnerId, sess.topicId, "adaptive");
-    } else {
-      db.prepare("UPDATE progress SET runs=runs+1, last_at=? WHERE learner_id=? AND topic_id=? AND tier=?")
-        .run(ts, sess.learnerId, sess.topicId, "adaptive");
-    }
+    recordRun(sess.learnerId, sess.topicId, "adaptive", sess.score, total,
+      { seconds: (Date.now() - sess.startedAt) / 1000, at: ts });
     spacing.schedule(sess.learnerId, sess.topicId, sess.score / total);
     const reward = rewardRound(sess.learnerId, sess.topicId,
       { score: sess.score, total, pct, hintsUsed: sess.hintsUsed });
@@ -1171,29 +1013,14 @@ api.get("/learners/:id/errors", requireAuth, (req, res) => {
 
 /* ---------------- progress ---------------- */
 api.post("/runs", requireAuth, (req, res) => {
-  const { learnerId, topicId, tier, score, total } = req.body || {};
+  const { learnerId, topicId, tier, score, total, seconds } = req.body || {};
   if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
   if (!trackOf(topicId)) return res.status(400).json({ error: "unknown_topic" });
   if (!TIERS.some(t => t.id === tier)) return res.status(400).json({ error: "unknown_tier" });
   const s = Math.max(0, Number(score) | 0), t = Math.max(1, Number(total) | 0);
-  const pct = Math.round((s / t) * 100);
-  const ts = now();
-
-  db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
-    .run(randomUUID(), learnerId, topicId, tier, s, t, pct, ts);
-
-  const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
-    .get(learnerId, topicId, tier);
-  if (!prev) {
-    db.prepare(`INSERT INTO progress (learner_id, topic_id, tier, best_score, best_total, best_pct, runs, last_at)
-                VALUES (?,?,?,?,?,?,1,?)`).run(learnerId, topicId, tier, s, t, pct, ts);
-  } else {
-    const better = pct > prev.best_pct;
-    db.prepare(`UPDATE progress SET best_score=?, best_total=?, best_pct=?, runs=runs+1, last_at=?
-                WHERE learner_id=? AND topic_id=? AND tier=?`)
-      .run(better ? s : prev.best_score, better ? t : prev.best_total,
-           better ? pct : prev.best_pct, ts, learnerId, topicId, tier);
-  }
+  /* Client-reported time is bounded: it informs reporting, never scoring. */
+  const secs = Math.min(4 * 3600, Math.max(0, Number(seconds) || 0));
+  const pct = recordRun(learnerId, topicId, tier, s, t, { seconds: secs });
   const track = trackOf(topicId), threshold = thresholdOf(topicId);
   const next = spacing.schedule(learnerId, topicId, s / t);
   const reward = rewardRound(learnerId, topicId, { score: s, total: t, pct });

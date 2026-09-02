@@ -19,7 +19,8 @@ export const BADGES = {
   contest_ready:    { name: "Contest Ready",          hint: "Score 80% or more on a timed paper" },
   streak_3:         { name: "Three in a Row",         hint: "Practise three days running" },
   streak_7:         { name: "A Full Week",            hint: "Practise seven days running" },
-  elegant_solution: { name: "Elegant Solution",       hint: "Solve a puzzle with no hints at all" }
+  elegant_solution: { name: "Elegant Solution",       hint: "Solve a puzzle with no hints at all" },
+  daily_challenger: { name: "Daily Challenger",       hint: "Get a challenge of the day right" }
 };
 
 /* Advanced content is worth more (spec 5.1). */

@@ -2725,6 +2725,115 @@ export const CHECKS = {
     return `IRT placement θ=${summary.ability.theta}±${summary.ability.se} over ${summary.asked} items, bandit explored ${tried} tiers, track set by parent and teacher`;
   },
 
+  /* 4.2.3 + 4.2.5 + 4.2.6 + 4.2.7 + 4.1.2 + 8.3 — parent portal: time on task,
+     readiness, alerts into a notification feed, goal notifications, the
+     curriculum overview with sample problems and standards, and the home
+     screen with its dual-track map and challenge of the day. */
+  "parent-portal": async () => {
+    const c = client();
+    await post(c, "/auth/register", { coppaConsent: true, email: "parent@b.com", password: "a-long-enough-pass", name: "P" });
+    const kid = (await post(c, "/learners", { name: "Portal Kid" })).body.learner;
+
+    /* Time on task accumulates from recorded seconds and is bounded. */
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8, seconds: 120 });
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-percent", tier: "practice", score: 3, total: 8, seconds: 999999 });
+    const time = (await c(`/learners/${kid.id}/time`)).body;
+    assert(time.totalSeconds === 120 + 4 * 3600, `time on task is ${time.totalSeconds}, expected 120 + a 4h cap`);
+    assert(time.byDay.length === 7 && time.byDay.at(-1).seconds === time.totalSeconds, "per-day breakdown is wrong");
+    assert(time.byTopic[0].name, "per-topic time carries no topic name");
+
+    /* Readiness names its evidence. */
+    const ready = (await c(`/learners/${kid.id}/readiness`)).body;
+    assert(ready.mastery.core === 1 && ready.mastery.started === 2, `mastery summary wrong: ${JSON.stringify(ready.mastery)}`);
+    assert(ready.readiness.advanced.ready === false && /core topic/.test(ready.readiness.advanced.reason),
+      "advanced readiness does not explain itself");
+    assert(ready.readiness.competition.ready === false, "competition readiness claimed without evidence");
+    assert(typeof ready.level === "number", "readiness carries no level");
+
+    /* Alerts: two poor rounds on a topic raise a struggling alert, which lands
+       in the notification feed exactly once per day. */
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-percent", tier: "challenge", score: 2, total: 8 });
+    let alerts = (await c(`/learners/${kid.id}/alerts`)).body.alerts;
+    assert(alerts.some(a => a.kind === "struggling" && a.topicId === "g6-percent"), `no struggling alert: ${JSON.stringify(alerts)}`);
+    await c(`/learners/${kid.id}/alerts`);
+    let feed = (await c("/me/notifications")).body;
+    assert(feed.notifications.filter(n => n.kind === "struggling").length === 1, "struggling alert was duplicated in the feed");
+    assert(feed.unread >= 1 && feed.notifications[0].learnerName === "Portal Kid", "feed lacks unread count or learner name");
+    const nid = feed.notifications[0].id;
+    await post(c, `/me/notifications/${nid}/read`);
+    feed = (await c("/me/notifications")).body;
+    assert(feed.notifications.find(n => n.id === nid).readAt, "marking read did not stick");
+
+    /* Ready-to-advance alert once the evidence is there. */
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g3-mult", tier: "practice", score: 8, total: 8 });
+    alerts = (await c(`/learners/${kid.id}/alerts`)).body.alerts;
+    assert(alerts.some(a => a.kind === "ready_to_advance"), `no ready-to-advance alert with two core topics mastered: ${JSON.stringify(alerts)}`);
+
+    /* Goal met raises a notification the moment the target is reached. */
+    await c(`/learners/${kid.id}/goal`, { method: "PUT", body: JSON.stringify({ roundsPerWeek: 4 }) });
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "challenge", score: 5, total: 8 });
+    feed = (await c("/me/notifications")).body;
+    assert(feed.notifications.some(n => n.kind === "goal_met"), "reaching the weekly goal raised no notification");
+
+    /* Curriculum overview: every unit, one real sample per authored topic,
+       served without answers, and a standards code on every topic. */
+    const ov = (await c("/curriculum/overview/6")).body;
+    assert(ov.units.length >= 5, "overview is missing units");
+    const withSample = ov.units.flatMap(u => u.topics).filter(t => t.sample);
+    assert(withSample.length >= 2, "no sample problems in the overview");
+    const raw = JSON.stringify(ov);
+    for (const k of ['"ans"', '"ansP"', '"expl"', '"a":']) assert(!raw.includes(k), `overview leaked ${k}`);
+    const allTopics = ov.units.flatMap(u => u.topics);
+    assert(allTopics.every(t => t.standards && t.standards.codes.length), "a topic has no standards alignment");
+    assert(allTopics.some(t => t.standards.framework === "CCSS") && allTopics.some(t => t.standards.framework === "ENRICH"),
+      "overview does not distinguish standards-aligned from enrichment topics");
+    assert((await c("/curriculum/overview/99")).status === 404, "unknown grade not rejected");
+    const { TOPIC_STANDARDS } = await import("../app/shared/standards.mjs");
+    const { CURRICULUM } = await import("../app/shared/curriculum.mjs");
+    const ids = Object.values(CURRICULUM).flatMap(g => g.units.flatMap(u => u.topics.map(t => t.id)));
+    const unmapped = ids.filter(id => !TOPIC_STANDARDS[id]);
+    assert(unmapped.length === 0, `${unmapped.length} topics have no standards mapping: ${unmapped.slice(0, 5).join(", ")}`);
+    for (const id of ids) assert(TOPIC_STANDARDS[id].ccss.every(code => /^([K0-8]\.[A-Z]+\.[A-Z](\.\d+)?(\.[A-Z])?|[A-Z]-[A-Z]+\.[A-Z]\.\d+|MP\.\d)$/.test(code)),
+      `${id} has a malformed standards code: ${TOPIC_STANDARDS[id].ccss.join(", ")}`);
+
+    /* Home: streak, daily goal, dual-track map, and a challenge that is the
+       same all day, graded server-side, paid once. */
+    const home = (await c(`/learners/${kid.id}/home`)).body;
+    assert(home.streak.days >= 1, "home shows no streak after today's rounds");
+    assert(home.dailyGoal.target === 1 && home.dailyGoal.done >= 4 && home.dailyGoal.met, `daily goal wrong: ${JSON.stringify(home.dailyGoal)}`);
+    assert(home.map.length === 9 && home.map.every(g => g.core && g.advanced), "dual-track map is incomplete");
+    const g6 = home.map.find(g => g.grade === "6");
+    assert(g6.core.mastered >= 1 && g6.core.started >= 2, `map does not reflect progress: ${JSON.stringify(g6)}`);
+    assert(home.challenge?.id && home.challenge.done === false && !JSON.stringify(home.challenge).includes('"expl"'),
+      "challenge of the day is missing or leaks its answer");
+    const again = (await c(`/learners/${kid.id}/home`)).body;
+    assert(again.challenge.id === home.challenge.id, "the challenge changed on reload");
+    const wrongQ = await post(c, `/learners/${kid.id}/challenge`, { questionId: "g6-ratios:0", answer: 0 });
+    assert(wrongQ.status === 400 || home.challenge.id === "g6-ratios:0", "an arbitrary question was accepted as the challenge");
+    const probe = (await post(c, "/answer", { questionId: home.challenge.id, answer: "__" })).body;
+    const solved = home.challenge.type === "mc" ? home.challenge.opts.indexOf(probe.correctAnswer)
+      : home.challenge.type === "multi" ? probe.correctAnswer.split(", ").map(t => home.challenge.opts.indexOf(t))
+      : home.challenge.type === "order" ? probe.correctAnswer.split("  →  ") : probe.correctAnswer;
+    const before = (await c(`/learners/${kid.id}/rewards`)).body.points;
+    const done = await post(c, `/learners/${kid.id}/challenge`, { questionId: home.challenge.id, answer: solved });
+    assert(done.body.correct === true && done.body.bonus === 30, `challenge not credited: ${JSON.stringify(done.body)}`);
+    const after = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(after.points === before + 30, "challenge bonus not paid");
+    assert(after.badges.some(b => b.code === "daily_challenger"), "no badge for the challenge");
+    const twice = await post(c, `/learners/${kid.id}/challenge`, { questionId: home.challenge.id, answer: solved });
+    assert(twice.status === 409, "the challenge was paid twice");
+    assert((await c(`/learners/${kid.id}/home`)).body.challenge.done === true, "home does not show the challenge as done");
+
+    /* Another account sees none of it. */
+    const bob = client();
+    await post(bob, "/auth/register", { coppaConsent: true, email: "parentbob@b.com", password: "a-long-enough-pass", name: "B" });
+    for (const p of ["time", "readiness", "alerts", "home"])
+      assert((await bob(`/learners/${kid.id}/${p}`)).status === 403, `another account read ${p}`);
+    assert((await bob("/me/notifications")).body.notifications.length === 0, "another account saw this parent's notifications");
+
+    return `time on task, readiness with reasons, ${alerts.length} alerts into the feed, goal notification, overview with ${withSample.length} samples and ${ids.length} standards-mapped topics, challenge paid once`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
