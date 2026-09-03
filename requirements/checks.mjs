@@ -28,7 +28,7 @@ export async function withServer(fn) {
            /* Integrations run against mock services the checks stand up on
               loopback: an Anthropic-shaped LLM, an SMTP server, push and
               webhook receivers. Background jobs are run on demand. */
-           JOBS_INTERVAL_MS: "0", PUBLIC_URL: `http://localhost:${PORT}`,
+           JOBS_INTERVAL_MS: "0", PUBLIC_URL: `http://localhost:${PORT}`, GLOBAL_LIMIT_PER_MINUTE: "1000000",
            ANTHROPIC_API_KEY: "test-key", TUTOR_API_URL: "http://127.0.0.1:4126", TUTOR_TIMEOUT_MS: "1500",
            SMTP_HOST: "127.0.0.1", SMTP_PORT: "4127", SMTP_TLS: "none", SMTP_USER: "bf", SMTP_PASS: "pw", SMTP_FROM: "BeastForge <no-reply@beastforge.test>" },
     stdio: "ignore"
@@ -3841,6 +3841,102 @@ export const CHECKS = {
       for (const s of servers) { try { s.close(); s.closeAllConnections?.(); } catch {} }
       for (const f of [kid, kid + "-wal", kid + "-shm"]) rmSync(f, { force: true });
     }
+  },
+
+
+  /* 11.7 + 10.4 + 10.1 + 13.10 + 11.4 — operations: a deployment pipeline and
+     infrastructure as code that agree with each other, a restore drill that
+     boots a service from the newest (sealed) backup, Prometheus metrics, a
+     load-test rig, real page-load timing in a throttled browser, and CDN-
+     ready asset builds. */
+  "ops-depth": async () => {
+    const { readFileSync, existsSync, rmSync } = await import("node:fs");
+    const { execSync, spawn } = await import("node:child_process");
+    const { drill } = await import("../tools/restore-drill.mjs");
+    const { loadTest } = await import("../tools/loadtest.mjs");
+
+    /* ---- pipeline and IaC agree with the runtime config ---- */
+    const deploy = readFileSync(".github/workflows/deploy.yml", "utf8");
+    assert(/workflow_run:/.test(deploy) && /Verify requirements/.test(deploy), "deploy does not wait for verification");
+    assert(/--strategy bluegreen/.test(deploy), "deploy is not blue-green");
+    assert(/\/ready/.test(deploy) && /FLY_API_TOKEN/.test(deploy), "deploy lacks a readiness smoke test or credential gating");
+    assert(/docker build/.test(deploy) && /DATA_KEY/.test(deploy), "deploy does not build and boot the image with a key");
+    const tf = readFileSync("infra/terraform/main.tf", "utf8"), fly = readFileSync("fly.toml", "utf8");
+    const flyApp = fly.match(/^app\s*=\s*"([^"]+)"/m)[1], flyRegion = fly.match(/primary_region\s*=\s*"([^"]+)"/)[1], flyVol = fly.match(/source\s*=\s*"([^"]+)"/)[1];
+    assert(tf.includes(`default     = "${flyApp}"`) && tf.includes(`default     = "${flyRegion}"`), "terraform app/region disagree with fly.toml");
+    assert(tf.includes(`name   = "${flyVol}"`), "terraform volume name disagrees with fly.toml mount");
+    for (const v of ["data_key", "admin_emails"]) assert(new RegExp(`variable "${v}"[\\s\\S]*?sensitive\\s*=\\s*true`).test(tf), `${v} is not a sensitive variable`);
+    assert(/fly_volume/.test(tf) && /fly_ip/.test(tf) && /BACKUP_ENCRYPT=1/.test(tf), "terraform is missing the volume, IPs or backup secrets");
+    const compose = readFileSync("docker-compose.yml", "utf8");
+    assert(/DATA_KEY: \$\{DATA_KEY:\?/.test(compose) && /beastforge_data:\/data/.test(compose) && /healthcheck:/.test(compose), "compose file lacks required key, volume or health check");
+    assert(existsSync("infra/README.md"), "no infrastructure README");
+
+    /* ---- metrics reflect traffic ---- */
+    const c = client();
+    await c("/curriculum"); await c("/topics/g6-ratios/practice/questions"); await c("/nope-404");
+    const prom = await (await fetch(BASE + "/metrics")).text();
+    assert(/beastforge_up 1/.test(prom) && /beastforge_db_ready 1/.test(prom), "metrics lack up/ready gauges");
+    const reqs = Number(prom.match(/beastforge_http_requests_total (\d+)/)[1]);
+    assert(reqs >= 3, "request counter not counting");
+    assert(/beastforge_http_request_duration_ms_bucket\{le="\+Inf"\} \d+/.test(prom) && /beastforge_route_requests_total\{route="GET \/api\/curriculum"\}/.test(prom), "histogram or route counters missing");
+    const snap = await (await fetch(BASE + "/metrics.json")).json();
+    assert(snap.uptimeSeconds >= 0 && snap.requests >= reqs && typeof snap.errorRate === "number", "metrics snapshot malformed");
+
+    /* ---- restore drill from a sealed backup ---- */
+    const a = client();
+    if ((await post(a, "/auth/register", { coppaConsent: true, email: "boss@b.com", password: "a-long-enough-pass", name: "Boss" })).status === 409)
+      await post(a, "/auth/login", { email: "boss@b.com", password: "a-long-enough-pass" });
+    await post(client(), "/auth/register", { coppaConsent: true, email: "drill@b.com", password: "a-long-enough-pass", name: "Drill" });
+    const usersNow = (await a("/admin/overview")).body.users;
+    const sealed = (await post(a, "/admin/backup", { encrypt: true })).body;
+    assert(sealed.ok && sealed.encrypted && sealed.file.endsWith(".db.enc"), `sealed backup not made: ${JSON.stringify(sealed)}`);
+    assert(readFileSync(sealed.file).subarray(0, 6).toString() === "BFENC1" && !readFileSync(sealed.file).includes("SQLite format"), "sealed backup is not encrypted");
+    const dataKey = readFileSync("app/server/data/.datakey", "utf8").trim();
+    const dr = await drill({ dir: "app/server/data/backups", port: 4177, env: { DATA_KEY: dataKey } });
+    assert(dr.encrypted && dr.integrity === "ok", `drill did not restore the sealed backup: ${JSON.stringify(dr)}`);
+    assert(dr.users === usersNow && dr.readyUsers === usersNow, `restored service has ${dr.readyUsers} users, expected ${usersNow}`);
+    assert(dr.secondsToServe < 20, `restore took ${dr.secondsToServe}s`);
+    let failed = false;
+    try { await drill({ dir: "app/server/data/backups", port: 4178, env: { DATA_KEY: Buffer.alloc(32, 9).toString("base64") } }); } catch { failed = true; }
+    assert(failed, "a sealed backup was restored with the wrong key");
+
+    /* ---- load: concurrent virtual users, no errors, bounded latency ---- */
+    const lt = await loadTest({ base: BASE, users: 150, seconds: 3 });
+    assert(lt.requests > 500 && lt.errorRate === 0, `load test: ${lt.requests} requests, errors ${lt.errors} (${JSON.stringify(lt.statuses)})`);
+    assert(lt.p95 < 1000, `p95 latency ${lt.p95}ms under 150 concurrent users`);
+
+    /* ---- real page load in a throttled browser against the production build ---- */
+    const { measure } = await import("../tools/pageload.mjs");
+    execSync("./node_modules/.bin/vite build", { cwd: "app/web", stdio: "pipe" });
+    const port = 4191, dbFile = "./data/pagecheck.db";
+    rmSync("app/server/" + dbFile.replace("./", ""), { force: true });
+    const srv = spawn("node", ["src/index.js"], { cwd: "app/server", stdio: "ignore",
+      env: { ...process.env, NODE_ENV: "production", PORT: String(port), DB_FILE: dbFile, JOBS_INTERVAL_MS: "0", DATA_KEY: Buffer.alloc(32, 3).toString("base64") } });
+    let pl = {};
+    try {
+      let up = false;
+      for (let i = 0; i < 50 && !up; i++) { try { up = (await fetch(`http://localhost:${port}/ready`)).ok; } catch {} if (!up) await new Promise(r => setTimeout(r, 150)); }
+      assert(up, "production server for page-load timing did not start");
+      const assets = await fetch(`http://localhost:${port}/`);
+      const html = await assets.text();
+      const asset = html.match(/src="(\/assets\/[^"]+\.js)"/)?.[1];
+      assert(asset, "built shell references no hashed script");
+      const cc = (await fetch(`http://localhost:${port}${asset}`)).headers.get("cache-control") || "";
+      assert(/max-age=31536000/.test(cc) && /immutable/.test(cc), `hashed asset cache-control is "${cc}"`);
+      for (const profile of ["broadband", "3g"]) {
+        pl[profile] = await measure(`http://localhost:${port}`, profile, { runs: 2 });
+        assert(pl[profile].withinBudget, `${profile}: interactive in ${pl[profile].interactiveMs}ms, budget ${pl[profile].budgetMs}ms`);
+        assert(pl[profile].fcp === null || pl[profile].fcp <= pl[profile].budgetMs, `${profile}: first contentful paint ${pl[profile].fcp}ms`);
+      }
+    } finally { srv.kill(); rmSync("app/server/" + dbFile.replace("./", ""), { force: true }); }
+
+    /* ---- CDN-ready build: assets referenced from the CDN origin ---- */
+    execSync("./node_modules/.bin/vite build --outDir dist-cdn", { cwd: "app/web", stdio: "pipe", env: { ...process.env, CDN_BASE: "https://cdn.example.test/bf/" } });
+    const cdnHtml = readFileSync("app/web/dist-cdn/index.html", "utf8");
+    assert(/src="https:\/\/cdn\.example\.test\/bf\/assets\//.test(cdnHtml), "CDN build does not reference assets from the CDN");
+    rmSync("app/web/dist-cdn", { recursive: true, force: true });
+
+    return `deploy+IaC coherent, metrics, sealed backup restored and served in ${dr.secondsToServe}s, ${lt.users} users ${lt.rps} req/s p95 ${lt.p95}ms 0 errors, page interactive broadband ${pl.broadband.interactiveMs}ms / 3G ${pl["3g"].interactiveMs}ms, CDN build`;
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

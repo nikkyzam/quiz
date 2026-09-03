@@ -1,0 +1,73 @@
+# Continuous deployment (spec 11.7).
+#
+# Runs after the verification workflow succeeds on main. Builds the single
+# container image, deploys it to Fly.io with a blue-green strategy (the new
+# machines must pass /ready before traffic moves and the old ones stop), and
+# then smoke-tests the live URL. Nothing here runs until the owner adds the
+# FLY_API_TOKEN secret; the job explains that instead of failing quietly.
+#
+# Infrastructure (app, volume, secrets) is declared in infra/terraform and
+# applied separately; this workflow only ships code onto it.
+
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["Verify requirements"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check deployment credentials
+        id: creds
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          if [ -z "$FLY_API_TOKEN" ]; then
+            echo "FLY_API_TOKEN is not set. Add it as a repository secret (see DEPLOY.md) to enable deployment."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build image (always, so a broken Dockerfile fails here, not on the host)
+        run: docker build -t beastforge:${{ github.sha }} .
+
+      - name: Boot the image and probe readiness
+        run: |
+          docker run -d --name bf -p 8080:8080 -e DATA_KEY="$(head -c 32 /dev/urandom | base64)" -e NODE_ENV=production beastforge:${{ github.sha }}
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/ready; then echo; echo "ready"; exit 0; fi
+            sleep 1
+          done
+          docker logs bf; exit 1
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        if: steps.creds.outputs.ready == 'true'
+
+      - name: Deploy (blue-green)
+        if: steps.creds.outputs.ready == 'true'
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --remote-only --strategy bluegreen --wait-timeout 300
+
+      - name: Smoke test the live service
+        if: steps.creds.outputs.ready == 'true'
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          HOST=$(flyctl status --json | python3 -c 'import json,sys; print(json.load(sys.stdin)["Hostname"])')
+          curl -fsS "https://$HOST/ready"
+          curl -fsS "https://$HOST/api/curriculum" | head -c 200

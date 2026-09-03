@@ -1,9 +1,11 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import { attachUser } from "./auth.js";
 import { securityHeaders, rateLimit } from "./security.js";
 import { api } from "./routes.js";
 import { backup } from "./backup.js";
+import { metricsMiddleware, prometheus, snapshot } from "./metrics.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -11,6 +13,11 @@ const PORT = process.env.PORT || 4000;
 app.set("trust proxy", 1);          // correct req.ip behind a proxy
 app.disable("x-powered-by");
 app.use(securityHeaders);
+app.use(metricsMiddleware);
+/* Compress responses (10.1): the shell's script and the curriculum JSON are
+   a quarter of their size on the wire, which is most of the difference on a
+   slow connection. */
+app.use(compression({ threshold: 1024 }));
 /* Abuse limit per address across the whole API (11.6): generous enough for a
    classroom behind one NAT, low enough that a single client cannot flood the
    process. Login and registration keep their own stricter limits. */
@@ -24,6 +31,19 @@ app.use("/api", api);
 /* Liveness vs readiness: /health says the process is up, /ready says the
    database is actually readable. A load balancer needs the difference. */
 app.get("/health", (_q, s) => s.json({ ok: true }));
+/* Prometheus metrics (10.4). Open by default for a scraper on the private
+   network; set METRICS_TOKEN to require a bearer token. */
+app.get("/metrics", async (req, res) => {
+  const token = process.env.METRICS_TOKEN;
+  if (token && req.get("authorization") !== `Bearer ${token}`) return res.status(401).type("text/plain").send("unauthorized\n");
+  const { healthy } = await import("./backup.js");
+  res.type("text/plain; version=0.0.4").send(prometheus({ dbReady: healthy().ok }));
+});
+app.get("/metrics.json", (req, res) => {
+  const token = process.env.METRICS_TOKEN;
+  if (token && req.get("authorization") !== `Bearer ${token}`) return res.status(401).json({ error: "unauthorized" });
+  res.json(snapshot());
+});
 app.get("/ready", async (_q, s) => {
   const { healthy } = await import("./backup.js");
   const h = healthy();
@@ -41,6 +61,10 @@ if (process.env.NODE_ENV === "production") {
   const here = dirname(fileURLToPath(import.meta.url));      // app/server/src
   const dist = resolve(here, "../../web/dist");
   if (existsSync(dist)) {
+    /* Hashed assets never change: cache them for a year (11.4). The shell
+       and manifest are revalidated. A CDN in front of this path (CDN_BASE at
+       build time) serves the same files with the same headers. */
+    app.use("/assets", express.static(join(dist, "assets"), { maxAge: "365d", immutable: true, index: false }));
     app.use(express.static(dist, { maxAge: "1h", index: false }));
     /* Client-side routing: anything not under /api falls back to the shell. */
     app.get(/^(?!\/api).*/, (_q, s) => s.sendFile(join(dist, "index.html")));

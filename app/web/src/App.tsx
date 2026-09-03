@@ -48,13 +48,13 @@ export default function App() {
   useAgeBand(gradeInView);
 
   useEffect(() => {
+    /* The first screen needs only the session; the curriculum (the largest
+       payload) loads alongside and fills in when it arrives (10.1). */
     (async () => {
-      try {
-        const [{ user }, c] = await Promise.all([api.me(), api.curriculum()]);
-        setUser(user); setCur(c);
-      } catch { /* offline or API down — handled by the guards below */ }
+      try { setUser((await api.me()).user); } catch { /* offline or API down */ }
       setBooted(true);
     })();
+    api.curriculum().then(setCur).catch(() => {});
   }, []);
 
   const refreshLearners = useCallback(async () => {
@@ -67,6 +67,7 @@ export default function App() {
   useEffect(() => { if (user) refreshLearners().catch(() => {}); }, [user, refreshLearners]);
 
   if (!booted) return <Shell><div className="loading" role="status">Loading…</div></Shell>;
+  const curriculumPending = user && active && !cur;
   if (!user) return <Shell><AuthScreen onDone={u => setUser(u)} /></Shell>;
 
   if (!active) {
@@ -95,7 +96,8 @@ export default function App() {
 
   return (
     <Shell nav={nav}>
-      {view.s === "dash" && <Dashboard learner={active} cur={cur!} onBack={back} onDeleted={async () => {
+      {curriculumPending && <div className="loading" role="status">Loading the curriculum…</div>}
+      {view.s === "dash" && cur && <Dashboard learner={active} cur={cur} onBack={back} onDeleted={async () => {
         await refreshLearners(); setActive(null);
       }} />}
 

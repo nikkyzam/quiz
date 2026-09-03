@@ -1021,7 +1021,7 @@ api.get("/admin/overview", requireAuth, requireAdmin, (req, res) => {
 api.post("/admin/backup", requireAuth, requireAdmin, async (req, res) => {
   const { backup } = await import("./backup.js");
   try {
-    const r = backup();
+    const r = backup(undefined, undefined, req.body?.encrypt === true ? { encrypt: true } : {});
     audit(req.user.id, "admin.backup", r.file, req);
     res.json({ ok: true, ...r });
   } catch (e) {

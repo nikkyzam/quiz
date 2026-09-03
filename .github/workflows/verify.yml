@@ -35,6 +35,18 @@ jobs:
         working-directory: app/web
         run: ./node_modules/.bin/tsc -b --pretty false
 
+      # Real page-load timing (10.1) runs the production build in headless
+      # Chromium under throttled network profiles.
+      - name: Install Chromium for page-load measurement
+        working-directory: app/web
+        run: npx playwright-core install --with-deps chromium || npx playwright install --with-deps chromium
+
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_wrapper: false }
+      - name: Validate infrastructure as code
+        working-directory: infra/terraform
+        run: terraform init -backend=false -input=false && terraform validate
+
       # Fails the build if any requirement claims `done` without a passing check.
       - name: Verify requirements
         run: node requirements/verify.mjs
