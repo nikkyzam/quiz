@@ -29,6 +29,8 @@ export const K_BANKS = {
  expl:"Counting back 12, 11, 10, 9 — the missing number is 10."},
 {lvl:2,sec:"N",type:"in",q:"Start at 15 and count back 3. Where do you land?",ans:12,
  hint:"14, 13...",expl:"15, then 14, 13, 12. You land on 12."},
+{lvl:2,sec:"N",type:"in",q:"A rocket counts down: 10, 9, 8, 7, __. What number comes next?",ans:6,
+ hint:"Each number is one less.",expl:"After 7 comes 6 when counting back."},
 {lvl:3,sec:"N",type:"order",q:"Put these in order, largest first.",
  items:["7","13","2","19"],ansOrder:["19","13","7","2"],
  expl:"Counting down: 19, then 13, then 7, then 2."}
@@ -73,6 +75,8 @@ export const K_BANKS = {
  expl:"9 counters make 4 pairs with 1 left over, so 9 is odd."},
 {sec:"N",type:"multi",q:"Select EVERY even number.",opts:["2","5","8","11","10"],aMulti:[0,2,4],
  expl:"2, 8 and 10 pair up exactly. 5 and 11 each leave one over."},
+{lvl:2,sec:"N",type:"in",q:"Pip has 8 shoes. How many pairs of shoes is that?",ans:4,
+ hint:"Two shoes make one pair.",expl:"8 shoes make 4 pairs, with none left over. That is why 8 is even."},
 {lvl:2,sec:"N",type:"mc",q:"You have 7 socks. Can every sock find a partner?",
  opts:["No, one is left over","Yes, all of them"],a:0,
  expl:"7 is odd, so after 3 pairs there is 1 sock with no partner."},

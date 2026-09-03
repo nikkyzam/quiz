@@ -1,6 +1,6 @@
 /* Thin API client. Cookies carry the session, so every call sends credentials. */
 
-async function call<T>(path: string, opts: RequestInit = {}): Promise<T> {
+export async function call<T>(path: string, opts: RequestInit = {}): Promise<T> {
   const res = await fetch("/api" + path, {
     credentials: "include",
     headers: { "Content-Type": "application/json", ...(opts.headers || {}) },
@@ -16,8 +16,11 @@ export class ApiError extends Error {
   constructor(code: string, status: number) { super(code); this.status = status; }
 }
 
-const post = <T,>(p: string, body?: unknown) =>
+export const post = <T,>(p: string, body?: unknown) =>
   call<T>(p, { method: "POST", body: JSON.stringify(body ?? {}) });
+export const put = <T,>(p: string, body?: unknown) =>
+  call<T>(p, { method: "PUT", body: JSON.stringify(body ?? {}) });
+export const del = <T,>(p: string) => call<T>(p, { method: "DELETE" });
 
 export type User = { id: string; email: string; name: string };
 export type Learner = { id: string; name: string; beast: string; stars?: number; topics?: number };

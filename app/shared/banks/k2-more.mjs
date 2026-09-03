@@ -1,0 +1,205 @@
+/* Kindergarten to Grade 2: patterns, early logic, composing numbers,
+   subtraction, intro combinatorics, measurement and early algebra (spec 3.1.2,
+   3.4.2, 3.4.3, 3.4.4). Sentences stay short and concrete for the reading
+   level; numbers stay small enough for fingers or counters. */
+export const K2_MORE_BANKS = {
+"k-patterns": [
+{sec:"N",type:"mc",q:"What comes next?  red, blue, red, blue, __",opts:["red","blue","green"],a:0,
+ expl:"The pattern repeats red, blue. After blue comes red again."},
+{sec:"N",type:"mc",q:"What comes next?  clap, clap, stamp, clap, clap, __",opts:["stamp","clap","jump"],a:0,
+ expl:"The unit is clap, clap, stamp. After two claps comes a stamp."},
+{sec:"N",type:"mc",q:"Which is a pattern?",opts:["1, 2, 1, 2, 1, 2","1, 5, 2, 8, 3","4, 1, 1, 7, 2"],a:0,
+ expl:"1, 2, 1, 2 repeats the same two numbers over and over. The others do not repeat."},
+{sec:"N",type:"in",q:"Count in twos: 2, 4, 6, __",ans:8,hint:"Add 2 each time.",
+ expl:"Each number is 2 more than the last. 6 + 2 = 8."},
+{lvl:2,sec:"N",type:"mc",q:"The pattern is circle, circle, square. What is the 6th shape?",
+ opts:["square","circle","triangle"],a:0,
+ expl:"The unit has 3 shapes. Shapes 3 and 6 are both the last in a unit: square."},
+{lvl:2,sec:"N",type:"in",q:"Count in fives: 5, 10, 15, __",ans:20,hint:"Add 5 each time.",
+ expl:"Each number goes up by 5. 15 + 5 = 20."},
+{lvl:3,sec:"N",type:"in",q:"A pattern goes 1, 3, 5, 7. What number comes next?",ans:9,
+ hint:"How much does it go up each time?",expl:"It goes up by 2 each time. 7 + 2 = 9."}
+],
+
+"k-logic": [
+{sec:"N",type:"mc",q:"Max is taller than Sam. Who is shorter?",opts:["Sam","Max","They are the same"],a:0,
+ expl:"If Max is taller, then Sam must be the shorter one."},
+{sec:"N",type:"mc",q:"All of my pets are dogs. Rex is my pet. What is Rex?",opts:["A dog","A cat","A fish"],a:0,
+ expl:"Every pet is a dog, and Rex is a pet. So Rex is a dog."},
+{sec:"N",type:"mc",q:"Which one does NOT belong?  apple, banana, carrot, grape",opts:["carrot","apple","grape"],a:0,
+ expl:"Apple, banana and grape are fruits. A carrot is a vegetable."},
+{sec:"N",type:"mc",q:"Ana is not holding the red ball or the blue ball. There is also a green ball. Which is she holding?",
+ opts:["The green ball","The red ball","The blue ball"],a:0,
+ expl:"It is not red and not blue, so the only one left is green."},
+{lvl:2,sec:"N",type:"mc",q:"Three friends stand in a line. Priya is first. Omar is not last. Who is last?",
+ opts:["Lee","Omar","Priya"],a:0,
+ expl:"Priya is first. Omar is not last, so Omar is second. That leaves Lee at the back."},
+{lvl:2,sec:"N",type:"in",q:"I am a number. I am bigger than 3 and smaller than 5. What am I?",ans:4,
+ hint:"Count from 3 to 5.",expl:"The only whole number between 3 and 5 is 4."},
+{lvl:3,sec:"N",type:"in",q:"Two boxes hold 5 toys altogether. One box has 1 more toy than the other. How many are in the bigger box?",
+ ans:3,hint:"Try 2 and 3.",expl:"2 + 3 = 5, and 3 is 1 more than 2. The bigger box has 3."}
+],
+
+"k-compose": [
+{sec:"N",type:"in",q:"5 is 2 and __.",ans:3,hint:"What goes with 2 to make 5?",
+ expl:"2 and 3 make 5."},
+{sec:"N",type:"in",q:"7 is 4 and __.",ans:3,expl:"4 and 3 make 7."},
+{sec:"N",type:"mc",q:"Which pair makes 10?",mono:true,opts:["6 and 4","6 and 3","5 and 4"],a:0,
+ expl:"6 and 4 make 10. The others make 9."},
+{sec:"N",type:"multi",q:"Select EVERY pair that makes 6.",opts:["1 and 5","2 and 4","3 and 4","6 and 0"],aMulti:[0,1,3],
+ expl:"1 and 5, 2 and 4, and 6 and 0 all make 6. 3 and 4 make 7."},
+{lvl:2,sec:"N",type:"in",q:"9 is 6 and __.",ans:3,hint:"Count on from 6 to 9.",
+ expl:"From 6, count 7, 8, 9. That is 3 more, so 9 is 6 and 3."},
+{lvl:2,sec:"N",type:"in",q:"10 is 3 and __.",ans:7,expl:"3 and 7 make 10."},
+{lvl:3,sec:"N",type:"in",q:"How many different pairs of whole numbers make 4? (0 and 4 counts, and 4 and 0 is the same pair.)",
+ ans:3,hint:"Start with 0 and 4.",expl:"0 and 4, 1 and 3, 2 and 2. That is 3 pairs."}
+],
+
+"k-combos": [
+{sec:"N",type:"in",q:"You have a red hat and a blue hat, and one scarf. How many ways can you wear one hat and the scarf?",
+ ans:2,hint:"Try each hat.",expl:"Red hat with the scarf, or blue hat with the scarf. That is 2 ways."},
+{sec:"N",type:"in",q:"Pick one fruit from apple or pear, and one drink from milk or juice. How many different snacks can you make?",
+ ans:4,hint:"Draw each fruit with each drink.",
+ expl:"Apple-milk, apple-juice, pear-milk, pear-juice. That is 4 snacks."},
+{sec:"N",type:"mc",q:"Two children, Ana and Ben, sit on two chairs. How many ways can they sit?",mono:true,opts:["2","1","4"],a:0,
+ expl:"Ana left and Ben right, or Ben left and Ana right. 2 ways."},
+{lvl:2,sec:"N",type:"in",q:"There are 3 colours of t-shirt and 2 colours of shorts. How many outfits can you make?",
+ ans:6,hint:"Each t-shirt goes with each pair of shorts.",
+ expl:"Each of the 3 t-shirts goes with 2 shorts: 2 + 2 + 2 = 6 outfits."},
+{lvl:2,sec:"N",type:"in",q:"A flag has a top stripe and a bottom stripe. You can use red or blue for each. How many different flags can you make?",
+ ans:4,hint:"Top red or blue, and bottom red or blue.",
+ expl:"Red-red, red-blue, blue-red, blue-blue. That is 4 flags."},
+{lvl:3,sec:"N",type:"in",q:"Three friends line up for a photo. How many different orders can they stand in?",
+ ans:6,hint:"Pick who goes first, then who goes second.",
+ expl:"3 choices for first, then 2 for second, then 1 left. 3 × 2 × 1 = 6 orders."}
+],
+
+"g1-sub20": [
+{sec:"N",type:"in",q:"13 − 5 = ?",ans:8,hint:"Take away 3 to reach 10, then 2 more.",
+ expl:"13 − 3 = 10, then 10 − 2 = 8."},
+{sec:"N",type:"in",q:"15 − 7 = ?",ans:8,expl:"15 − 5 = 10, then 10 − 2 = 8."},
+{sec:"N",type:"in",q:"12 − 6 = ?",ans:6,hint:"6 + 6 = 12.",expl:"6 + 6 = 12, so 12 − 6 = 6. A double helps."},
+{sec:"N",type:"mc",q:"Which one equals 9?",mono:true,opts:["17 − 8","16 − 8","18 − 8"],a:0,
+ expl:"17 − 8 = 9. The others give 8 and 10."},
+{sec:"N",type:"in",q:"There are 14 birds. 6 fly away. How many are left?",ans:8,expl:"14 − 6 = 8 birds left."},
+{lvl:2,sec:"N",type:"in",q:"20 − 11 = ?",ans:9,hint:"Count up from 11 to 20.",
+ expl:"From 11 to 20 is 9 steps, so 20 − 11 = 9."},
+{lvl:2,sec:"N",type:"in",q:"? − 6 = 8. What is the missing number?",ans:14,hint:"Add 6 back.",
+ expl:"If taking away 6 leaves 8, the start was 8 + 6 = 14."},
+{lvl:3,sec:"N",type:"in",q:"Sam had 18 stickers. He gave 5 to Ana and 4 to Lee. How many does he have now?",
+ ans:9,hint:"Take away both amounts.",expl:"He gave away 5 + 4 = 9. 18 − 9 = 9 stickers left."}
+],
+
+"g1-time": [
+{sec:"G",type:"mc",q:"The short hand points to 3 and the long hand points to 12. What time is it?",
+ opts:["3 o'clock","12 o'clock","half past 3"],a:0,
+ expl:"The short hand shows the hour, 3. The long hand on 12 means exactly o'clock."},
+{sec:"G",type:"mc",q:"The short hand is halfway between 6 and 7. The long hand points to 6. What time is it?",
+ opts:["half past 6","6 o'clock","half past 7"],a:0,
+ expl:"The long hand on 6 means half past. The hour hand has left 6 but not reached 7, so it is half past 6."},
+{sec:"G",type:"in",q:"How many minutes are in one hour?",ans:60,expl:"One hour is 60 minutes."},
+{sec:"G",type:"mc",q:"Which is longer?",opts:["1 hour","30 minutes","10 minutes"],a:0,
+ expl:"An hour is 60 minutes, which is more than 30 or 10."},
+{lvl:2,sec:"G",type:"in",q:"It is 2 o'clock. What time will it be in 3 hours?",ans:5,hint:"Count on 3 hours from 2.",
+ expl:"2, then 3, 4, 5. It will be 5 o'clock."},
+{lvl:2,sec:"G",type:"mc",q:"Lunch is at 12 o'clock. It is now half past 11. Is lunch before or after now?",
+ opts:["After","Before","Now"],a:0,
+ expl:"Half past 11 comes before 12 o'clock, so lunch is still to come."},
+{lvl:3,sec:"G",type:"in",q:"A film starts at 4 o'clock and lasts 2 hours. What time does it end?",ans:6,
+ hint:"Count on 2 hours.",expl:"4 o'clock plus 2 hours is 6 o'clock."}
+],
+
+"g1-length": [
+{sec:"G",type:"mc",q:"Which is the longest?",opts:["A bus","A bike","A shoe"],a:0,
+ expl:"A bus is much longer than a bike, and a bike is longer than a shoe."},
+{sec:"G",type:"in",q:"A pencil is as long as 6 paper clips. A crayon is 2 clips shorter. How many clips long is the crayon?",
+ ans:4,hint:"Take 2 from 6.",expl:"6 − 2 = 4 paper clips."},
+{sec:"G",type:"mc",q:"You measure a book with cubes. It is 8 cubes long. Then you use bigger blocks. Will it take more or fewer blocks?",
+ opts:["Fewer","More","The same"],a:0,
+ expl:"Bigger blocks cover more each, so you need fewer of them."},
+{sec:"G",type:"in",q:"A ribbon is 10 cubes long. You cut off 3 cubes. How long is it now?",ans:7,expl:"10 − 3 = 7 cubes."},
+{lvl:2,sec:"N",type:"order",q:"Put these from shortest to longest.",items:["4 cubes","9 cubes","2 cubes","6 cubes"],
+ ansOrder:["2 cubes","4 cubes","6 cubes","9 cubes"],
+ expl:"Compare the numbers: 2, then 4, then 6, then 9."},
+{lvl:2,sec:"G",type:"in",q:"A red rope is 5 cubes long. A blue rope is 3 cubes longer. How long is the blue rope?",
+ ans:8,hint:"Add 3 to 5.",expl:"5 + 3 = 8 cubes."},
+{lvl:3,sec:"G",type:"in",q:"Two sticks lie end to end. One is 7 cubes and one is 6 cubes. How long are they together?",
+ ans:13,expl:"7 + 6 = 13 cubes long together."}
+],
+
+"g1-arrange": [
+{sec:"N",type:"in",q:"Two books, red and blue, go on a shelf. How many ways can you order them?",ans:2,
+ hint:"Red first or blue first.",expl:"Red then blue, or blue then red. 2 ways."},
+{sec:"N",type:"in",q:"Three cups are red, blue and green. How many ways can you put them in a row?",ans:6,
+ hint:"Pick the first cup, then the next.",
+ expl:"3 choices for the first, 2 for the second, 1 left. 3 × 2 × 1 = 6 ways."},
+{sec:"N",type:"mc",q:"You have 3 beads: A, B and C. Which list shows a DIFFERENT order from A B C?",
+ opts:["B A C","A B C","A, B, C"],a:0,
+ expl:"B A C puts B first. The other two are the same order as A B C, just written differently."},
+{lvl:2,sec:"N",type:"in",q:"How many ways can you arrange the letters in CAT?",ans:6,hint:"Three letters, all different.",
+ expl:"CAT, CTA, ACT, ATC, TCA, TAC. That is 6 ways."},
+{lvl:2,sec:"N",type:"in",q:"Four children line up. How many choices are there for who goes first?",ans:4,
+ expl:"Any of the 4 children could be first, so there are 4 choices."},
+{lvl:3,sec:"N",type:"in",q:"Ana must stand at the front. Ben, Lee and Omar can stand behind her in any order. How many line-ups are there?",
+ ans:6,hint:"Only the three behind her change.",expl:"Ana is fixed. The other three can go in 3 × 2 × 1 = 6 orders."}
+],
+
+"g2-add100": [
+{sec:"N",type:"in",q:"34 + 25 = ?",ans:59,hint:"Add the tens, then the ones.",expl:"30 + 20 = 50 and 4 + 5 = 9. Together 59."},
+{sec:"N",type:"in",q:"47 + 8 = ?",ans:55,hint:"Make the next ten first.",expl:"47 + 3 = 50, then 50 + 5 = 55."},
+{sec:"N",type:"in",q:"63 − 20 = ?",ans:43,expl:"Taking away 2 tens from 63 leaves 43."},
+{sec:"N",type:"in",q:"58 − 9 = ?",ans:49,hint:"Take away 10, then add 1 back.",expl:"58 − 10 = 48, then 48 + 1 = 49."},
+{sec:"N",type:"mc",q:"Which one equals 80?",mono:true,opts:["45 + 35","45 + 25","55 + 35"],a:0,
+ expl:"45 + 35 = 80. The others give 70 and 90."},
+{lvl:2,sec:"N",type:"in",q:"29 + 36 = ?",ans:65,hint:"29 is 1 less than 30.",expl:"30 + 36 = 66, and 1 less is 65."},
+{lvl:2,sec:"N",type:"in",q:"A shop had 72 apples and sold 38. How many are left?",ans:34,
+ expl:"72 − 38: 72 − 40 = 32, then add 2 back: 34 apples."},
+{lvl:3,sec:"N",type:"in",q:"Ana has 46 stickers. Ben has 27 more than Ana. How many do they have altogether?",
+ ans:119,hint:"Find Ben's first.",expl:"Ben has 46 + 27 = 73. Together 46 + 73 = 119."}
+],
+
+"g2-trees": [
+{sec:"N",type:"in",q:"A tree diagram shows 2 hats, and each hat branches to 3 scarves. How many hat-and-scarf pairs are there?",
+ ans:6,hint:"Count the ends of the branches.",expl:"Each of the 2 hats has 3 branches: 3 + 3 = 6 pairs."},
+{sec:"N",type:"in",q:"You toss a coin twice. How many different results can you get? Heads then tails is not the same as tails then heads.",
+ ans:4,hint:"Draw a branch for each toss.",expl:"HH, HT, TH, TT. That is 4 results."},
+{sec:"N",type:"mc",q:"A tree diagram starts with 3 branches and each splits into 2. How many end points are there?",
+ mono:true,opts:["6","5","3"],a:0,
+ expl:"3 branches, each splitting into 2, gives 3 × 2 = 6 ends."},
+{lvl:2,sec:"N",type:"in",q:"Lunch is a sandwich or soup, then an apple, a pear or a plum. How many different lunches are there?",
+ ans:6,hint:"2 first choices, 3 second choices.",expl:"2 × 3 = 6 lunches."},
+{lvl:2,sec:"N",type:"in",q:"A spinner has red, blue and green. You spin it twice. How many results are there?",
+ ans:9,hint:"3 for the first spin and 3 for the second.",expl:"Each of 3 first spins pairs with 3 second spins: 3 × 3 = 9."},
+{lvl:3,sec:"N",type:"in",q:"You toss a coin three times. How many results have heads exactly once?",ans:3,
+ hint:"Where can the single head go?",expl:"The one head can be the 1st, 2nd or 3rd toss: HTT, THT, TTH. That is 3."}
+],
+
+"g2-missing": [
+{sec:"N",type:"in",q:"7 + ? = 12",ans:5,hint:"Count on from 7 to 12.",expl:"7 + 5 = 12, so the missing number is 5."},
+{sec:"N",type:"in",q:"? − 4 = 9",ans:13,hint:"Add 4 back on.",expl:"9 + 4 = 13. Check: 13 − 4 = 9."},
+{sec:"N",type:"in",q:"15 − ? = 8",ans:7,expl:"15 − 7 = 8, so the missing number is 7."},
+{sec:"N",type:"mc",q:"Which number makes this true?  ? + 6 = 6 + 9",mono:true,opts:["9","6","15"],a:0,
+ expl:"Both sides add 6, so the missing number must be 9."},
+{lvl:2,sec:"N",type:"in",q:"? + ? = 16, and both numbers are the same. What is each one?",ans:8,
+ hint:"Halve 16.",expl:"8 + 8 = 16. Each number is 8."},
+{lvl:2,sec:"N",type:"in",q:"24 + ? = 40",ans:16,hint:"Count up from 24 to 40.",expl:"24 + 6 = 30, then 30 + 10 = 40. That is 16 altogether."},
+{lvl:3,sec:"N",type:"in",q:"A box had some pens. 9 were taken out and 7 were put in. Now there are 20. How many were there at first?",
+ ans:22,hint:"Undo the changes.",expl:"Undo: 20 − 7 = 13, then 13 + 9 = 22 pens at first."}
+],
+
+"g2-perimeter": [
+{sec:"G",type:"in",q:"A square has sides of 3 cm. What is its perimeter, in cm?",ans:12,hint:"Add all 4 sides.",
+ expl:"3 + 3 + 3 + 3 = 12 cm."},
+{sec:"G",type:"in",q:"A rectangle is 5 cm long and 2 cm wide. What is its perimeter, in cm?",ans:14,
+ expl:"5 + 2 + 5 + 2 = 14 cm around the outside."},
+{sec:"G",type:"mc",q:"Which of these tells you what perimeter is?",opts:["The distance around a shape","The space inside a shape","The number of corners"],a:0,
+ expl:"Perimeter is the distance all the way around the edge."},
+{sec:"G",type:"in",q:"A triangle has sides 4 cm, 5 cm and 6 cm. What is its perimeter, in cm?",ans:15,expl:"4 + 5 + 6 = 15 cm."},
+{lvl:2,sec:"G",type:"in",q:"A square has a perimeter of 20 cm. How long is one side, in cm?",ans:5,hint:"4 equal sides.",
+ expl:"20 shared into 4 equal sides is 5 cm each."},
+{lvl:2,sec:"G",type:"in",q:"A rectangle has a perimeter of 18 cm. It is 6 cm long. How wide is it, in cm?",ans:3,
+ hint:"Two lengths make 12.",expl:"The two long sides make 12 cm. 18 − 12 = 6 for the two short sides, so each is 3 cm."},
+{lvl:3,sec:"G",type:"in",q:"A shape is made from two 2 cm squares joined side by side. What is its perimeter, in cm?",ans:12,
+ hint:"It is a 4 by 2 rectangle.",expl:"Joined, the squares make a 4 cm by 2 cm rectangle: 4 + 2 + 4 + 2 = 12 cm."}
+]
+};

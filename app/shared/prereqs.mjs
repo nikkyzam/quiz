@@ -21,6 +21,8 @@ export const PREREQS = {
   "k-half":       ["k-compose"],
   "k-combos":     ["k-count"],
   "k-trees":      ["k-combos"],
+  "k-3d":         ["k-2d"],
+  "k-compare":    ["k-sort"],
   "k-symmetry":   ["k-2d"],
   "k-combine":    ["k-2d"],
   "k-turns":      ["k-symmetry"],
@@ -29,6 +31,7 @@ export const PREREQS = {
   "k-picgraph":   ["k-sort"],
 
   /* ---- grade 1 ---- */
+  "g1-attrib":    ["k-2d", "k-3d"],
   "g1-add20":     ["k-add10"],
   "g1-sub20":     ["k-sub10", "g1-add20"],
   "g1-equals":    ["g1-add20"],
