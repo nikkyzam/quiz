@@ -49,8 +49,10 @@
       "id": "3.2.1",
       "section": "Content types",
       "title": "Comic lessons with sequential panels and interactive elements",
-      "status": "todo",
-      "priority": 3
+      "status": "partial",
+      "priority": 3,
+      "evidence": "check:comic-lessons",
+      "notes": "3 lessons (arrays, fractions, ratios) as short panel sequences with a speaking monster and inline checks, illustrated with simple original SVG diagrams. Wrong answers on a check never block progress -- this teaches, it does not gate. Progress saves after every panel and resumes correctly. Only 3 of 328 topics have a lesson; most content still starts directly at practice."
     },
     {
       "id": "3.2.2",
@@ -273,8 +275,10 @@
       "id": "4.1.3",
       "section": "Student app",
       "title": "Lesson player with comic panels, narration, embedded checks, resume",
-      "status": "todo",
-      "priority": 2
+      "status": "done",
+      "priority": 2,
+      "evidence": "check:comic-lessons",
+      "notes": "Lesson player with narration (read-aloud on every panel), embedded checks, and resume-where-you-left-off, verified panel by panel. Progress saving on exit and picking up mid-lesson both confirmed rather than assumed."
     },
     {
       "id": "4.1.4",
@@ -358,16 +362,19 @@
       "id": "4.2.2",
       "section": "Parent portal",
       "title": "Set curriculum track per child (Core/Enrichment/Competition)",
-      "status": "todo",
-      "priority": 1
+      "status": "done",
+      "priority": 1,
+      "evidence": "check:curriculum-track",
+      "notes": "Core, enrichment and competition, stored per learner and settable at creation or later. The setting decides which units the child's curriculum endpoint returns \u2014 core learners are not shown advanced material at all \u2014 so it changes what they are offered rather than labelling the record. An unrecognised track is refused rather than coerced to core."
     },
     {
       "id": "4.2.3",
       "section": "Parent portal",
       "title": "Progress monitoring: level, mastery, time spent, readiness",
-      "status": "partial",
-      "notes": "Mastery, run history and per-session time on task recorded. No aggregate time-spent reporting or competition-readiness view.",
-      "priority": 1
+      "status": "done",
+      "notes": "Level, mastery and run history were already recorded. Added server-measured time on task for every round (sessions carry startedAt; client-reported durations are clamped so a tab left open overnight is not eight hours of study), aggregated by topic and by day. Rounds predating the column store NULL and are reported as unmeasured rather than as zero, which would have understated every average. Competition readiness is five separate signals with the evidence behind each and a named next step, not one number.",
+      "priority": 1,
+      "evidence": "check:progress-monitoring"
     },
     {
       "id": "4.2.4",

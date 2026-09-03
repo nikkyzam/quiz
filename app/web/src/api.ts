@@ -93,6 +93,16 @@ export const api = {
   review: (learnerId: string) =>
     call<{ review: ReviewItem[] }>(`/learners/${learnerId}/review`),
 
+  /* comic lessons (3.2.1, 4.1.3) */
+  lessons: () => call<{ lessons: { id: string; topicId: string; title: string; blurb: string; panelCount: number }[] }>("/lessons"),
+  lesson: (learnerId: string, lessonId: string) =>
+    call<{ lesson: LessonPublic; progress: { panelIndex: number; completed: boolean } }>(
+      `/learners/${learnerId}/lessons/${lessonId}`),
+  lessonPanel: (lessonId: string, learnerId: string, panelIndex: number, answer: unknown) =>
+    post<{ result: { correct: boolean; correctAnswer: string; expl: string } | null;
+           completed: boolean; nextIndex: number }>(
+      `/lessons/${lessonId}/panel`, { learnerId, panelIndex, answer }),
+
   /* adaptive practice (4.1.4) */
   startPractice: (learnerId: string, topicId: string) =>
     post<{ sessionId: string; length: number; question: Question; asked: number; score: number }>(
@@ -118,6 +128,12 @@ export type DiagnosticSummary = {
   skillMap: SkillRow[];
   recommendation: { topicId: string; tier: string; focus: string | null; message: string };
 };
+export type LessonArt = { kind: string; [k: string]: any };
+export type LessonPanel =
+  | { i: number; kind: "panel"; speaker: string; text: string; art: LessonArt | null }
+  | { i: number; kind: "check"; q: string; type: "in" | "mc"; opts?: string[]; art: LessonArt | null };
+export type LessonPublic = { id: string; topicId: string; title: string; blurb: string; panels: LessonPanel[] };
+
 export type ReviewItem = {
   topicId: string; tier: string; bestPct: number; threshold: number;
   track: string; gap: number; lastAt: string;

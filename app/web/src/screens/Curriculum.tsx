@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useEffect as useEffect2, useState as useState2 } from "react";
 import { api, type Grade, type Tier, type Learner, type ProgressRow } from "../api";
 import { Beast } from "../beasts";
 
@@ -69,14 +70,22 @@ export function GradeMap({ gradeKey, cur, onBack, onOpen }: {
   );
 }
 
-export function TierPicker({ topicId, topicName, advanced, tiers, counts, threshold, learner, onBack, onStart, onDiagnostic, onMastery, onPractice }: {
+export function TierPicker({ topicId, topicName, advanced, tiers, counts, threshold, learner, onBack, onStart, onDiagnostic, onMastery, onPractice, onLesson }: {
   topicId: string; topicName: string; advanced: boolean;
   tiers: Tier[]; counts: any; threshold: number; learner: Learner;
   onBack: () => void; onStart: (tier: string) => void;
   onDiagnostic: () => void; onMastery: () => void; onPractice: () => void;
+  onLesson: (lessonId: string) => void;
 }) {
   const [rows, setRows] = useState<ProgressRow[]>([]);
+  const [lessonId, setLessonId] = useState2<string | null | undefined>(undefined);
   useEffect(() => { api.progress(learner.id).then(r => setRows(r.progress)).catch(() => {}); }, [learner.id]);
+  useEffect2(() => {
+    api.lessons().then(r => {
+      const match = r.lessons.find(l => l.topicId === topicId);
+      setLessonId(match ? match.id : null);
+    }).catch(() => setLessonId(null));
+  }, [topicId]);
 
   return (
     <>
@@ -85,6 +94,11 @@ export function TierPicker({ topicId, topicName, advanced, tiers, counts, thresh
       <p className="lede">Three tiers, same topic. Mastery here is {threshold}% — {advanced
         ? "advanced topics use a lower bar so exploring stays worthwhile."
         : "core topics need a high bar before they count as mastered."}</p>
+      {lessonId && (
+        <div className="rowbtns" style={{ marginBottom: 16 }}>
+          <button className="btn" onClick={() => onLesson(lessonId)}>📖 Start with the lesson</button>
+        </div>
+      )}
       <div className="rowbtns" style={{ marginBottom: 16 }}>
         <button className="btn" onClick={onPractice}>Adaptive practice →</button>
         <button className="btn ghost" onClick={onDiagnostic}>Placement check</button>

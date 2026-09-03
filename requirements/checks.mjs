@@ -152,6 +152,104 @@ export const CHECKS = {
     return "create, list, validate and delete all behave";
   },
 
+  /* 4.2.2 — a child follows core, enrichment or competition, and the setting
+     decides what curriculum they are actually offered rather than labelling
+     the record. A core learner must not be shown advanced units at all. */
+  "curriculum-track": async () => {
+    const c = client();
+    await post(c, "/auth/register", { coppaConsent: true, email: "track@b.com", password: "a-long-enough-pass", name: "P" });
+
+    const core = (await post(c, "/learners", { name: "Core Kid" })).body.learner;
+    assert(core.track === "core", `default track should be core, got ${core.track}`);
+
+    const comp = (await post(c, "/learners", { name: "Comp Kid", track: "competition" })).body.learner;
+    assert(comp.track === "competition", "track was not stored on create");
+
+    // A typo must be refused, not quietly narrowed to core — that would shrink
+    // a child's curriculum without anyone noticing.
+    const bogus = await post(c, "/learners", { name: "Nope", track: "olympiad" });
+    assert(bogus.status === 400, `unknown track accepted (${bogus.status})`);
+
+    const coreView = (await c(`/learners/${core.id}/curriculum`)).body;
+    const compView = (await c(`/learners/${comp.id}/curriculum`)).body;
+    const units = v => Object.values(v.curriculum).flatMap(g => g.units);
+    const coreUnits = units(coreView), compUnits = units(compView);
+
+    assert(coreUnits.length > 0, "core learner was shown no curriculum at all");
+    assert(coreUnits.every(u => u.track === "core"),
+      "a core learner was shown advanced units");
+    assert(compUnits.some(u => u.track === "adv"),
+      "a competition learner was not shown any advanced units");
+    assert(compUnits.length > coreUnits.length,
+      `competition (${compUnits.length}) should cover more than core (${coreUnits.length})`);
+
+    // And it can be changed afterwards, which is the point of the setting.
+    const moved = await c(`/learners/${core.id}`, { method: "PATCH", body: JSON.stringify({ track: "enrichment" }) });
+    assert(moved.status === 200 && moved.body.learner.track === "enrichment", "track could not be changed");
+    const after = units((await c(`/learners/${core.id}/curriculum`)).body);
+    assert(after.some(u => u.track === "adv"), "curriculum did not widen after the change");
+
+    const badPatch = await c(`/learners/${comp.id}`, { method: "PATCH", body: JSON.stringify({ track: "nonsense" }) });
+    assert(badPatch.status === 400, "unknown track accepted on update");
+
+    return `3 tracks, core sees ${coreUnits.length} units vs competition ${compUnits.length}, changes take effect`;
+  },
+
+  /* 4.2.3 — progress monitoring: level, mastery, time spent and readiness.
+     Time is measured on the server wherever a session exists, and rounds from
+     before durations were kept are reported as unmeasured rather than as
+     instant. Readiness is several signals, not one number. */
+  "progress-monitoring": async () => {
+    const c = client();
+    await post(c, "/auth/register", { coppaConsent: true, email: "monitor@b.com", password: "a-long-enough-pass", name: "P" });
+    const kid = (await post(c, "/learners", { name: "Monitored" })).body.learner;
+
+    // A server-timed round: play a full adaptive session so the duration is
+    // measured rather than reported by the caller.
+    const start = await post(c, "/practice/start", { learnerId: kid.id, topicId: "k-count" });
+    assert(start.status === 200, `could not start practice (${start.status})`);
+    let sid = start.body.sessionId, done = false, guard = 0;
+    while (!done && guard++ < 40) {
+      const step = await post(c, "/practice/answer", { sessionId: sid, answer: "0" });
+      if (step.status !== 200) break;
+      done = step.body.done;
+      if (done) assert(typeof step.body.summary.seconds === "number", "round did not report its duration");
+    }
+
+    const time = (await c(`/learners/${kid.id}/time`)).body;
+    assert(time.rounds >= 1, "no rounds counted");
+    assert(time.measuredRounds >= 1, "the played round was not measured");
+    assert(typeof time.totalSeconds === "number", "no total time reported");
+    assert(Array.isArray(time.byTopic) && time.byTopic.length >= 1, "no per-topic breakdown");
+    assert(Array.isArray(time.byDay) && time.byDay.length >= 1, "no per-day breakdown");
+    assert(time.measuredRounds + time.unmeasuredRounds === time.rounds,
+      "measured and unmeasured rounds do not account for every round");
+
+    // A browser tab left open overnight must not register as hours of study.
+    const inflated = await post(c, "/runs",
+      { learnerId: kid.id, topicId: "k-count", tier: "practice", score: 5, total: 5, seconds: 999999 });
+    assert(inflated.status === 200, "run was refused");
+    const after = (await c(`/learners/${kid.id}/time`)).body;
+    assert(after.totalSeconds < 3 * 60 * 60, `client-reported time was not clamped (${after.totalSeconds}s)`);
+
+    const readiness = (await c(`/learners/${kid.id}/readiness`)).body;
+    assert(Array.isArray(readiness.signals) && readiness.signals.length >= 5,
+      "readiness is not reported as separate signals");
+    assert(readiness.ready === false, "a brand new learner was called competition-ready");
+    assert(typeof readiness.nextStep === "string" && readiness.nextStep.length > 0,
+      "not-ready was reported without a next step");
+    assert(readiness.signals.every(s => typeof s.met === "boolean" && "value" in s),
+      "a signal carried no evidence");
+
+    // Another account cannot read either view.
+    const bob = client();
+    await post(bob, "/auth/register", { coppaConsent: true, email: "notmonitor@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await bob(`/learners/${kid.id}/time`)).status === 403, "time leaked across accounts");
+    assert((await bob(`/learners/${kid.id}/readiness`)).status === 403, "readiness leaked across accounts");
+
+    return `time aggregated (${after.rounds} rounds, clamped), ${readiness.signals.length} readiness signals with a next step, both access-controlled`;
+  },
+
   /* X.3 — one account cannot read or write another account's learner */
   "tenant-isolation": async () => {
     const alice = client(), bob = client();
@@ -2586,6 +2684,105 @@ export const CHECKS = {
       "correctness is signalled by animation alone");
 
     return `junior ${junior}px targets vs senior ${senior}px, type scales by band, motion optional`;
+  },
+
+
+  /* 3.2.1 + 4.1.3 — comic lessons with resume and inline checks */
+  "comic-lessons": async () => {
+    const { LESSONS, publicLesson, checkPanel, allLessons } = await import("../app/shared/lessons.mjs");
+    assert(allLessons().length >= 3, `only ${allLessons().length} lessons authored`);
+
+    for (const l of allLessons()) {
+      assert(l.panels.length >= 4, `${l.id} has too few panels`);
+      assert(l.panels.some(p => p.check), `${l.id} has no inline check`);
+      const raw = JSON.stringify(publicLesson(l));
+      for (const k of ['"ans"', '"a":', '"expl"'])
+        assert(!raw.includes(k), `${l.id} leaked ${k} in its served form`);
+      l.panels.forEach((p, i) => {
+        if (!p.check) return;
+        const ans = p.check.type === "mc" ? p.check.a : p.check.ans;
+        const r = checkPanel(l, i, ans);
+        assert(r.correct, `${l.id} panel ${i} rejects its own correct answer`);
+        const wrongAns = p.check.type === "mc" ? (p.check.a + 1) % p.check.opts.length : ans + 1000;
+        assert(!checkPanel(l, i, wrongAns).correct, `${l.id} panel ${i} accepts a wrong answer`);
+      });
+    }
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "lesson@b.com", password: "a-long-enough-pass", name: "L" });
+    const kid = (await post(c, "/learners", { name: "Lesson Kid" })).body.learner;
+
+    const list = (await c("/lessons")).body.lessons;
+    assert(list.length === allLessons().length, "lesson list incomplete");
+
+    const target = allLessons()[0];
+
+    /* No progress yet: resuming a fresh lesson starts at panel 0. */
+    const fresh = (await c(`/learners/${kid.id}/lessons/${target.id}`)).body;
+    assert(fresh.progress.panelIndex === 0 && fresh.progress.completed === false,
+      "a fresh learner has lesson progress already");
+
+    /* Walk through, answering checks correctly, and confirm progress advances
+       and resumes correctly at each step. */
+    let lastIdx = -1;
+    for (let i = 0; i < target.panels.length; i++) {
+      const p = target.panels[i];
+      const answer = p.check ? (p.check.type === "mc" ? p.check.a : p.check.ans) : null;
+      const step = await post(c, `/lessons/${target.id}/panel`,
+        { learnerId: kid.id, panelIndex: i, answer });
+      assert(step.status === 200, `panel ${i} rejected: ${JSON.stringify(step.body)}`);
+      if (p.check) {
+        assert(step.body.result.correct === true, `panel ${i}: correct check answer marked wrong`);
+        assert(step.body.result.expl, `panel ${i}: check has no explanation`);
+      } else {
+        assert(step.body.result === null, `panel ${i}: a plain panel returned a result`);
+      }
+      lastIdx = i;
+
+      /* Resume must reflect progress so far. */
+      const resume = (await c(`/learners/${kid.id}/lessons/${target.id}`)).body.progress;
+      assert(resume.panelIndex === i, `resume shows panel ${resume.panelIndex}, expected ${i}`);
+    }
+    assert(lastIdx === target.panels.length - 1, "did not reach the final panel");
+
+    const done = (await c(`/learners/${kid.id}/lessons/${target.id}`)).body.progress;
+    assert(done.completed === true, "lesson not marked complete after the final panel");
+
+    /* Points awarded once, not on every repeat completion — this is the exact
+       bug found while writing this check: the award call originally fired on
+       every request that reached the final panel. */
+    const before = (await c(`/learners/${kid.id}/rewards`)).body.points;
+    const lastPanel = target.panels.length - 1;
+    const lp = target.panels[lastPanel];
+    const repeatAnswer = lp.check ? (lp.check.type === "mc" ? lp.check.a : lp.check.ans) : null;
+    await post(c, `/lessons/${target.id}/panel`, { learnerId: kid.id, panelIndex: lastPanel, answer: repeatAnswer });
+    await post(c, `/lessons/${target.id}/panel`, { learnerId: kid.id, panelIndex: lastPanel, answer: repeatAnswer });
+    const after = (await c(`/learners/${kid.id}/rewards`)).body.points;
+    assert(after === before, `revisiting a completed lesson paid out again: ${before} -> ${after}`);
+
+    /* A wrong answer to a check must not block progress — this is a comic,
+       not a mastery gate — but must still report the mistake honestly. */
+    const r2 = client();
+    await post(r2, "/auth/register",
+      { coppaConsent: true, email: "lesson2@b.com", password: "a-long-enough-pass", name: "L2" });
+    const kid2 = (await post(r2, "/learners", { name: "Wrong Kid" })).body.learner;
+    const checkPanelIdx = target.panels.findIndex(p => p.check);
+    const wrongStep = await post(r2, `/lessons/${target.id}/panel`,
+      { learnerId: kid2.id, panelIndex: checkPanelIdx, answer: "definitely-wrong-value-9999" });
+    assert(wrongStep.status === 200, "a wrong check answer blocked the lesson");
+    assert(wrongStep.body.result.correct === false, "a wrong answer was marked correct");
+
+    /* Another account cannot drive or read this learner's lesson. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "lessonbob@b.com", password: "a-long-enough-pass", name: "B" });
+    assert((await post(bob, `/lessons/${target.id}/panel`, { learnerId: kid.id, panelIndex: 0 })).status === 403,
+      "another account advanced this learner's lesson");
+    assert((await bob(`/learners/${kid.id}/lessons/${target.id}`)).status === 403,
+      "another account read this learner's lesson progress");
+
+    return `${allLessons().length} lessons, resume works panel by panel, wrong answers do not block, points awarded once`;
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

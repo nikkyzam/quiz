@@ -49,6 +49,17 @@ CREATE TABLE IF NOT EXISTS reset_tokens (
   expires_at TEXT NOT NULL,
   used_at    TEXT
 );
+-- Lesson progress: how far a learner got, and whether they finished it, so
+-- the app can offer "resume" (spec 4.1.3).
+CREATE TABLE IF NOT EXISTS lesson_progress (
+  learner_id  TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  lesson_id   TEXT NOT NULL,
+  panel_index INTEGER NOT NULL DEFAULT 0,
+  completed   INTEGER NOT NULL DEFAULT 0,
+  updated_at  TEXT NOT NULL,
+  PRIMARY KEY (learner_id, lesson_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_reset_user ON reset_tokens(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
@@ -221,6 +232,17 @@ CREATE TABLE IF NOT EXISTS skill_state (
   PRIMARY KEY (learner_id, skill_id)
 );
 
+-- 6.3: one Beta posterior per (learner, topic, tier) for difficulty selection.
+CREATE TABLE IF NOT EXISTS bandit_arms (
+  learner_id TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  topic_id   TEXT NOT NULL,
+  tier       TEXT NOT NULL,
+  successes  INTEGER NOT NULL DEFAULT 0,
+  failures   INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (learner_id, topic_id, tier)
+);
+
 CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);
 
 CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_at DESC);
@@ -249,6 +271,14 @@ export function migrate() {
   // 10.3: roles and recorded COPPA consent
   if (addColumn("users", "role", "TEXT NOT NULL DEFAULT 'parent'")) applied.push("users.role");
   if (addColumn("users", "coppa_consent_at", "TEXT")) applied.push("users.coppa_consent_at");
+  // 4.2.2: which curriculum a child is following. Defaults to core so existing
+  // learners keep exactly the coverage they had before this column existed.
+  if (addColumn("learners", "track", "TEXT NOT NULL DEFAULT 'core'")) applied.push("learners.track");
+  // 4.2.3: how long a practice round took. Deliberately nullable: NULL means the
+  // round predates this column and was never measured, which is a different fact
+  // from a round that genuinely took under a second. Defaulting to 0 conflated
+  // the two, and an average over them understates every total.
+  if (addColumn("runs", "seconds", "INTEGER")) applied.push("runs.seconds");
   return applied;
 }
 

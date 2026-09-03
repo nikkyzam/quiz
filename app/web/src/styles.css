@@ -431,3 +431,19 @@ svg .poly{fill:var(--accent);opacity:.14;stroke:var(--accent);stroke-width:2}
 
 .qhead{display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .qhead .sec{margin:0}
+
+/* ---------- comic lesson ---------- */
+.lesson-card{max-width:30rem;margin:0 auto}
+.speech{position:relative;background:var(--card);border:2px solid var(--line);
+  border-radius:var(--r-lg);padding:calc(16px * var(--step)) calc(18px * var(--step));
+  box-shadow:var(--shadow);font-family:var(--display);font-weight:500;
+  font-size:calc(1.18rem * var(--step));line-height:1.4;text-wrap:balance}
+.speech::before{content:"";position:absolute;left:36px;bottom:-11px;
+  width:22px;height:22px;background:var(--card);border-right:2px solid var(--line);
+  border-bottom:2px solid var(--line);transform:rotate(45deg)}
+.lessonrow{display:flex;gap:16px;align-items:flex-start;margin:20px 0}
+.lessonart{display:flex;justify-content:center;margin:18px 0}
+.lessondots{display:flex;justify-content:center;gap:8px;margin:22px 0 4px}
+.lessondots i{width:10px;height:10px;border-radius:50%;background:var(--line-strong);display:block}
+.lessondots i.on{background:var(--band)}
+.lessondots i.done{background:var(--good)}

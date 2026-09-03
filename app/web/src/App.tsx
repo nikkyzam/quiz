@@ -10,6 +10,7 @@ import { Dashboard } from "./screens/Dashboard";
 import { Diagnostic } from "./screens/Diagnostic";
 import { MasteryCheck } from "./screens/MasteryCheck";
 import { Practice } from "./screens/Practice";
+import { Lesson } from "./screens/Lesson";
 
 const GRADE_ORDER = ["K", "1", "2", "3", "4", "5", "6", "7", "8"];
 
@@ -20,6 +21,7 @@ type View =
   | { s: "diagnostic"; topicId: string; topicName: string }
   | { s: "mastery"; topicId: string; topicName: string }
   | { s: "practice"; topicId: string; topicName: string; nonce: number }
+  | { s: "lesson"; topicId: string; topicName: string; lessonId: string }
   | { s: "dash" };
 
 
@@ -123,6 +125,7 @@ export default function App() {
           onDiagnostic={() => setView({ s: "diagnostic", topicId: view.topicId, topicName: view.topicName })}
           onMastery={() => setView({ s: "mastery", topicId: view.topicId, topicName: view.topicName })}
           onPractice={() => setView({ s: "practice", topicId: view.topicId, topicName: view.topicName, nonce: Date.now() })}
+          onLesson={(lessonId) => setView({ s: "lesson", topicId: view.topicId, topicName: view.topicName, lessonId })}
         />
       )}
 
@@ -148,6 +151,12 @@ export default function App() {
           onExit={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: false })}
           onRestart={() => setView({ s: "practice", topicId: view.topicId, topicName: view.topicName, nonce: Date.now() })}
         />
+      )}
+
+      {view.s === "lesson" && (
+        <Lesson learner={active} lessonId={view.lessonId} topicName={view.topicName}
+                onExit={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: false })}
+                onDone={() => setView({ s: "tiers", topicId: view.topicId, topicName: view.topicName, advanced: false })} />
       )}
 
       {view.s === "quiz" && (

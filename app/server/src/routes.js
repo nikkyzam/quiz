@@ -17,6 +17,7 @@ import { generate, generatedTopics } from "../../shared/generators.mjs";
 import * as bkt from "./bkt.js";
 import { PROOFS, publicProof, checkProof, proofsForTopic, allProofs, PROOF_KINDS } from "../../shared/proofs.mjs";
 import { PUZZLES, publicPuzzle, checkPuzzle, puzzleById } from "../../shared/puzzles.mjs";
+import { LESSONS, publicLesson, checkPanel, lessonForTopic, allLessons } from "../../shared/lessons.mjs";
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
@@ -261,9 +262,41 @@ api.post("/auth/change-password", requireAuth, (req, res) => {
   res.json({ ok: true, message: "Password changed. Please sign in again." });
 });
 
+/* 4.2.3 — how long a round took.
+   Server-measured wherever a session exists, because that is the only number
+   nobody can inflate. Sessions held in memory carry startedAt; a round with no
+   session reports its own duration and is clamped, since a browser tab left
+   open overnight would otherwise register eight hours of study. */
+const MAX_ROUND_SECONDS = 2 * 60 * 60;
+function elapsedSeconds(sess) {
+  // null, not 0, when there is nothing to measure — see the migration note.
+  if (!sess || !sess.startedAt) return null;
+  return Math.min(MAX_ROUND_SECONDS, Math.max(0, Math.round((Date.now() - sess.startedAt) / 1000)));
+}
+function reportedSeconds(value) {
+  if (value === undefined || value === null) return null;
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.min(MAX_ROUND_SECONDS, Math.round(n));
+}
+
 /* ---------------- learners ---------------- */
+/* 4.2.2 — the three curricula a child can be following.
+   core        standards coverage only
+   enrichment  core plus the advanced/extended units
+   competition enrichment, aimed at contest preparation
+   Stored per learner and used to filter what the curriculum endpoint returns,
+   so the setting changes what the child is actually offered rather than
+   sitting on the record as a label. */
+const TRACKS = new Set(["core", "enrichment", "competition"]);
+const UNIT_TRACKS = {
+  core: new Set(["core"]),
+  enrichment: new Set(["core", "adv"]),
+  competition: new Set(["core", "adv"])
+};
+
 api.get("/learners", requireAuth, (req, res) => {
-  const rows = db.prepare("SELECT id, name, beast, created_at FROM learners WHERE user_id = ? ORDER BY created_at")
+  const rows = db.prepare("SELECT id, name, beast, track, created_at FROM learners WHERE user_id = ? ORDER BY created_at")
     .all(req.user.id);
   const withStars = rows.map(l => {
     const p = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id = ?").all(l.id);
@@ -274,13 +307,55 @@ api.get("/learners", requireAuth, (req, res) => {
 });
 
 api.post("/learners", requireAuth, (req, res) => {
-  const { name, beast } = req.body || {};
+  const { name, beast, track } = req.body || {};
   if (!name || !String(name).trim()) return res.status(400).json({ error: "missing_name" });
+  // An unrecognised track is refused rather than silently coerced to core: a
+  // typo would otherwise quietly narrow a child's curriculum, which is exactly
+  // the kind of wrong nobody notices.
+  if (track !== undefined && !TRACKS.has(track)) return res.status(400).json({ error: "unknown_track" });
+  const chosen = track || "core";
   const id = randomUUID();
-  db.prepare("INSERT INTO learners (id, user_id, name, beast, created_at) VALUES (?,?,?,?,?)")
-    .run(id, req.user.id, String(name).trim().slice(0, 40), beast || "vex", now());
+  db.prepare("INSERT INTO learners (id, user_id, name, beast, track, created_at) VALUES (?,?,?,?,?,?)")
+    .run(id, req.user.id, String(name).trim().slice(0, 40), beast || "vex", chosen, now());
   audit(req.user.id, "learner.created", id, req);
-  res.json({ learner: { id, name: String(name).trim(), beast: beast || "vex" } });
+  res.json({ learner: { id, name: String(name).trim(), beast: beast || "vex", track: chosen } });
+});
+
+/* Changing the track later. Audited like every other change to a child's
+   record, because a parent and a teacher can both be looking at the same
+   learner and "who widened this to competition" is a real question. */
+api.patch("/learners/:id", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(404).json({ error: "not_found" });
+  const { track, name, beast } = req.body || {};
+  if (track !== undefined && !TRACKS.has(track)) return res.status(400).json({ error: "unknown_track" });
+  if (name !== undefined && !String(name).trim()) return res.status(400).json({ error: "missing_name" });
+  if (track !== undefined)
+    db.prepare("UPDATE learners SET track = ? WHERE id = ?").run(track, req.params.id);
+  if (name !== undefined)
+    db.prepare("UPDATE learners SET name = ? WHERE id = ?").run(String(name).trim().slice(0, 40), req.params.id);
+  if (beast !== undefined)
+    db.prepare("UPDATE learners SET beast = ? WHERE id = ?").run(String(beast), req.params.id);
+  audit(req.user.id, "learner.updated", req.params.id, req);
+  const row = db.prepare("SELECT id, name, beast, track FROM learners WHERE id = ?").get(req.params.id);
+  res.json({ learner: row });
+});
+
+/* The curriculum this particular child is following.
+   A core learner is not shown advanced units at all — offering a map full of
+   material that is not part of their plan is how a nine-year-old concludes
+   they are behind. */
+api.get("/learners/:id/curriculum", requireAuth, (req, res) => {
+  const learner = db.prepare("SELECT track FROM learners WHERE id = ? AND user_id = ?")
+    .get(req.params.id, req.user.id);
+  if (!learner) return res.status(404).json({ error: "not_found" });
+  const allowed = UNIT_TRACKS[learner.track] || UNIT_TRACKS.core;
+  // CURRICULUM is keyed by grade ("K", "1", ...), not a list.
+  const curriculum = {};
+  for (const [grade, body] of Object.entries(CURRICULUM)) {
+    const units = (body.units || []).filter(u => allowed.has(u.track));
+    if (units.length) curriculum[grade] = { ...body, units };
+  }
+  res.json({ track: learner.track, curriculum, tiers: TIERS, mastery: MASTERY });
 });
 
 api.delete("/learners/:id", requireAuth, (req, res) => {
@@ -453,7 +528,8 @@ api.post("/mastery/start", requireAuth, (req, res) => {
   }
   const picked = idxs.slice(0, Math.min(CHECK_SIZE, idxs.length));
   const id = randomUUID();
-  checkSessions.set(id, { learnerId, topicId, ids: picked.map(i => `${topicId}:${i}`), issuedAt: Date.now() });
+  checkSessions.set(id, { learnerId, topicId, ids: picked.map(i => `${topicId}:${i}`),
+                          issuedAt: Date.now(), startedAt: Date.now() });
   audit(req.user.id, "mastery.started", topicId, req);
   res.json({
     checkId: id,
@@ -495,8 +571,9 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
   const passed = pct >= threshold;
   const ts = now();
 
-  db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
-    .run(randomUUID(), sess.learnerId, sess.topicId, "mastery", score, total, pct, ts);
+  db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, seconds, finished_at) VALUES (?,?,?,?,?,?,?,?,?)")
+    .run(randomUUID(), sess.learnerId, sess.topicId, "mastery", score, total, pct,
+         elapsedSeconds(sess), ts);
   const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
     .get(sess.learnerId, sess.topicId, "mastery");
   if (!prev) {
@@ -706,8 +783,9 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     const avgHints = sess.hintsUsed / total;
     const stars = avgHints < 0.34 ? 3 : avgHints < 1.34 ? 2 : 1;
 
-    db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
-      .run(randomUUID(), sess.learnerId, sess.topicId, "adaptive", sess.score, total, pct, ts);
+    db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, seconds, finished_at) VALUES (?,?,?,?,?,?,?,?,?)")
+      .run(randomUUID(), sess.learnerId, sess.topicId, "adaptive", sess.score, total, pct,
+           elapsedSeconds(sess), ts);
     const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
       .get(sess.learnerId, sess.topicId, "adaptive");
     if (!prev) {
@@ -1088,8 +1166,8 @@ api.post("/runs", requireAuth, (req, res) => {
   const pct = Math.round((s / t) * 100);
   const ts = now();
 
-  db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
-    .run(randomUUID(), learnerId, topicId, tier, s, t, pct, ts);
+  db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, seconds, finished_at) VALUES (?,?,?,?,?,?,?,?,?)")
+    .run(randomUUID(), learnerId, topicId, tier, s, t, pct, reportedSeconds(req.body?.seconds), ts);
 
   const prev = db.prepare("SELECT * FROM progress WHERE learner_id=? AND topic_id=? AND tier=?")
     .get(learnerId, topicId, tier);
@@ -1113,9 +1191,106 @@ api.get("/learners/:id/progress", requireAuth, (req, res) => {
   if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
   audit(req.user.id, "progress.read", req.params.id, req);
   const progress = db.prepare("SELECT * FROM progress WHERE learner_id = ?").all(req.params.id);
-  const recent = db.prepare("SELECT topic_id, tier, score, total, pct, finished_at FROM runs WHERE learner_id = ? ORDER BY finished_at DESC LIMIT 20")
+  const recent = db.prepare("SELECT topic_id, tier, score, total, pct, seconds, finished_at FROM runs WHERE learner_id = ? ORDER BY finished_at DESC LIMIT 20")
     .all(req.params.id);
   res.json({ progress, recent });
+});
+
+/* 4.2.3 — time on task, aggregated.
+   Rounds recorded before durations were kept carry 0 seconds. Those are counted
+   as unmeasured rather than as instant: averaging them in as zero understates
+   every total, and a parent comparing weeks would see study time "drop" purely
+   because older rounds predate the column. */
+api.get("/learners/:id/time", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const id = req.params.id;
+  const runs = db.prepare("SELECT topic_id, tier, seconds, finished_at FROM runs WHERE learner_id = ?").all(id);
+  const contests = db.prepare("SELECT seconds, finished_at FROM contests WHERE learner_id = ?").all(id);
+
+  const measured = runs.filter(r => r.seconds !== null);
+  const byTopic = {}, byDay = {};
+  for (const r of measured) {
+    byTopic[r.topic_id] = (byTopic[r.topic_id] || 0) + r.seconds;
+    const day = String(r.finished_at).slice(0, 10);
+    byDay[day] = (byDay[day] || 0) + r.seconds;
+  }
+  for (const c of contests) {
+    const day = String(c.finished_at).slice(0, 10);
+    byDay[day] = (byDay[day] || 0) + (c.seconds || 0);
+  }
+
+  const practiceSeconds = measured.reduce((a, r) => a + r.seconds, 0);
+  const contestSeconds = contests.reduce((a, c) => a + (c.seconds || 0), 0);
+  const topics = Object.entries(byTopic)
+    .map(([topicId, seconds]) => ({ topicId, seconds, track: trackOf(topicId) }))
+    .sort((a, b) => b.seconds - a.seconds);
+
+  res.json({
+    totalSeconds: practiceSeconds + contestSeconds,
+    practiceSeconds, contestSeconds,
+    rounds: runs.length,
+    measuredRounds: measured.length,
+    unmeasuredRounds: runs.length - measured.length,
+    averageRoundSeconds: measured.length ? Math.round(practiceSeconds / measured.length) : 0,
+    byTopic: topics,
+    byDay: Object.entries(byDay).map(([day, seconds]) => ({ day, seconds })).sort((a, b) => a.day.localeCompare(b.day))
+  });
+});
+
+/* 4.2.3 — is this child ready for competition work?
+   Deliberately several signals rather than one number. A child can ace timed
+   arithmetic and have met no advanced material at all, and calling that "ready"
+   sends them to a contest to be discouraged. Each signal is reported with the
+   evidence behind it so a parent can disagree with the summary. */
+api.get("/learners/:id/readiness", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const id = req.params.id;
+  const learner = db.prepare("SELECT track FROM learners WHERE id = ?").get(id);
+  const progress = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id = ?").all(id);
+  const contests = db.prepare("SELECT pct, expired, seconds, limit_secs FROM contests WHERE learner_id = ? ORDER BY finished_at DESC LIMIT 10").all(id);
+
+  const advMastered = progress.filter(p => trackOf(p.topic_id) === "adv" && p.best_pct >= MASTERY.adv);
+  const coreMastered = progress.filter(p => trackOf(p.topic_id) === "core" && p.best_pct >= MASTERY.core);
+  const contestsRun = contests.length;
+  const contestAvg = contestsRun ? Math.round(contests.reduce((a, c) => a + c.pct, 0) / contestsRun) : 0;
+  // Running out of time is a different problem from getting things wrong, and
+  // the advice for it is different too, so it is reported separately.
+  const timedOut = contests.filter(c => c.expired).length;
+
+  const signals = [
+    { id: "core-foundation", label: "Core topics mastered", value: coreMastered.length,
+      met: coreMastered.length >= 5,
+      detail: "Contest problems assume the core is automatic." },
+    { id: "advanced-exposure", label: "Advanced topics mastered", value: advMastered.length,
+      met: advMastered.length >= 3,
+      detail: "Competition material lives on the advanced track." },
+    { id: "contest-practice", label: "Mock contests taken", value: contestsRun,
+      met: contestsRun >= 2,
+      detail: "Working under a clock is its own skill." },
+    { id: "contest-accuracy", label: "Average mock contest score", value: contestAvg,
+      met: contestsRun >= 2 && contestAvg >= 60,
+      detail: "Measured only once there are a couple of papers to average." },
+    { id: "pacing", label: "Papers finished inside the limit", value: contestsRun - timedOut,
+      met: contestsRun > 0 && timedOut === 0,
+      detail: "Running out of time is a pacing problem, not a maths one." }
+  ];
+  const met = signals.filter(s => s.met).length;
+
+  res.json({
+    track: learner ? learner.track : "core",
+    ready: met >= 4,
+    signalsMet: met,
+    signalsTotal: signals.length,
+    signals,
+    // Named rather than implied: "not ready" without a next step is just a
+    // closed door.
+    nextStep: met >= 4 ? "Enter a timed mock contest."
+      : !signals[0].met ? "Keep going on core topics until five are mastered."
+      : !signals[1].met ? "Try the advanced units — switch the track to enrichment or competition."
+      : !signals[2].met ? "Take a mock contest to see how the clock feels."
+      : timedOut ? "Practise pacing: finish a paper inside the time limit."
+      : "Keep practising contest papers to lift the average."
+  });
 });
 
 
@@ -1177,6 +1352,71 @@ api.get("/classes/:id/leaderboard", requireAuth, (req, res) => {
     name: settings.displayNames || mineIds.has(r.learnerId) || isTeacher ? r.name : `Learner ${i + 1}`
   }));
   res.json({ enabled: true, displayNames: settings.displayNames, board });
+});
+
+/* ---------------- comic lessons (spec 3.2.1, 4.1.3) ----------------
+   A short panel sequence with inline checks. Progress is saved after every
+   panel, so leaving mid-lesson and coming back resumes rather than restarts. */
+function findLesson(id) { return allLessons().find(l => l.id === id) || null; }
+
+api.get("/lessons", (_req, res) => {
+  res.json({ lessons: allLessons().map(l => ({ id: l.id, topicId: l.topicId, title: l.title, blurb: l.blurb, panelCount: l.panels.length })) });
+});
+
+api.get("/topics/:id/lesson", (req, res) => {
+  const l = lessonForTopic(req.params.id);
+  if (!l) return res.status(404).json({ error: "no_lesson" });
+  res.json({ lesson: publicLesson(l) });
+});
+
+api.get("/learners/:id/lessons/:lessonId", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const l = findLesson(req.params.lessonId);
+  if (!l) return res.status(404).json({ error: "unknown_lesson" });
+  const row = db.prepare("SELECT * FROM lesson_progress WHERE learner_id=? AND lesson_id=?")
+    .get(req.params.id, req.params.lessonId);
+  res.json({
+    lesson: publicLesson(l),
+    progress: row ? { panelIndex: row.panel_index, completed: !!row.completed } : { panelIndex: 0, completed: false }
+  });
+});
+
+api.post("/lessons/:id/panel", requireAuth, (req, res) => {
+  const l = findLesson(req.params.id);
+  if (!l) return res.status(404).json({ error: "unknown_lesson" });
+  const { learnerId, panelIndex, answer } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const idx = Number(panelIndex);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= l.panels.length)
+    return res.status(400).json({ error: "bad_panel_index" });
+
+  const panel = l.panels[idx];
+  let result = null;
+  if (panel.check) {
+    result = checkPanel(l, idx, answer);
+    /* A lesson does not gate on getting it right; it just tells the truth
+       and lets the learner carry on, the same way a comic would. */
+  }
+
+  const completed = idx >= l.panels.length - 1;
+  const already = db.prepare("SELECT completed FROM lesson_progress WHERE learner_id=? AND lesson_id=?")
+    .get(learnerId, l.id);
+  const ts = now();
+  db.prepare(`INSERT INTO lesson_progress (learner_id, lesson_id, panel_index, completed, updated_at)
+              VALUES (?,?,?,?,?)
+              ON CONFLICT(learner_id, lesson_id) DO UPDATE SET
+                panel_index=MAX(lesson_progress.panel_index, excluded.panel_index),
+                completed=MAX(lesson_progress.completed, excluded.completed),
+                updated_at=excluded.updated_at`)
+    .run(learnerId, l.id, idx, completed ? 1 : 0, ts);
+
+  /* Points only on the FIRST completion. Awarding "points" has no unique
+     constraint (unlike badges), so without this check finishing the same
+     lesson twice would pay out twice. */
+  if (completed && !(already && already.completed))
+    rewards.award(learnerId, "points", `lesson:${l.id}`, 15);
+  audit(req.user.id, "lesson.panel", `${l.id}:${idx}`, req);
+  res.json({ result, completed, nextIndex: Math.min(idx + 1, l.panels.length - 1) });
 });
 
 /* ---------------- puzzles (spec 3.2.4, 4.1.5) ----------------
@@ -1257,7 +1497,7 @@ api.post("/proofs/:id/start", requireAuth, (req, res) => {
   const { learnerId } = req.body || {};
   if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
   const sessionId = randomUUID();
-  proofSessions.set(sessionId, { learnerId, proofId: proof.id, attempts: 0 });
+  proofSessions.set(sessionId, { learnerId, proofId: proof.id, attempts: 0, startedAt: Date.now() });
   res.json({ sessionId, proof: publicProof(proof) });
 });
 
@@ -1271,8 +1511,9 @@ api.post("/proofs/submit", requireAuth, (req, res) => {
   sess.attempts++;
   const result = checkProof(proof, submission || {});
   if (result.correct) {
-    db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, finished_at) VALUES (?,?,?,?,?,?,?,?)")
-      .run(randomUUID(), sess.learnerId, `proof:${proof.id}`, "proof", 1, 1, 100, now());
+    db.prepare("INSERT INTO runs (id, learner_id, topic_id, tier, score, total, pct, seconds, finished_at) VALUES (?,?,?,?,?,?,?,?,?)")
+      .run(randomUUID(), sess.learnerId, `proof:${proof.id}`, "proof", 1, 1, 100,
+           elapsedSeconds(sess), now());
     rewards.award(sess.learnerId, "points", `proof:${proof.id}`, 20);
     proofSessions.delete(sessionId);
   }
