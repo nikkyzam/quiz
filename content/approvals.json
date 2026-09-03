@@ -1,0 +1,869 @@
+{
+  "version": 1,
+  "units": {
+    "bank:k-count": {
+      "hash": "9644a2d24b7f9ec2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "9644a2d24b7f9ec2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:k-countback": {
+      "hash": "cc24b07ba68c85b4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "cc24b07ba68c85b4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:k-add10": {
+      "hash": "a13b9b99a8a1e575",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "a13b9b99a8a1e575",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:k-sub10": {
+      "hash": "b0a9e0a0095afdf5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "b0a9e0a0095afdf5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:k-evenodd": {
+      "hash": "8219ad701a95bfa4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "8219ad701a95bfa4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:k-2d": {
+      "hash": "87288d023e9b8aa3",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "87288d023e9b8aa3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g1-add20": {
+      "hash": "a1bdce96dc11c68b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "a1bdce96dc11c68b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g1-tensones": {
+      "hash": "840f4e69032461ee",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "840f4e69032461ee",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g2-arrays": {
+      "hash": "68c4796ce625cd99",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "68c4796ce625cd99",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g2-place1000": {
+      "hash": "4475bc48f496cd77",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "4475bc48f496cd77",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g3-mult": {
+      "hash": "345239dbbfadadb1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "345239dbbfadadb1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g3-fracnum": {
+      "hash": "bf0f878060efd9dc",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "bf0f878060efd9dc",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g3-area": {
+      "hash": "dbbdea3662f6c835",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "dbbdea3662f6c835",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g6-nscoord": {
+      "hash": "c673627e9af6533b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "c673627e9af6533b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g6-ratios": {
+      "hash": "120b523a04efa58d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "120b523a04efa58d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "bank:g6-percent": {
+      "hash": "e1be2e5ed765c336",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "e1be2e5ed765c336",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "puzzles": {
+      "hash": "726c7b814c333809",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "726c7b814c333809",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-cats": {
+      "hash": "e3f8bd110a85a03c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "e3f8bd110a85a03c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-seven-odd": {
+      "hash": "17cd7dd9c1959b52",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "17cd7dd9c1959b52",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-even-sum": {
+      "hash": "1314e906eb0758a2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "1314e906eb0758a2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-birth-month": {
+      "hash": "c5428b3110e91d80",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "c5428b3110e91d80",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-triangle-180": {
+      "hash": "f31eb0fc9d039cb6",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "f31eb0fc9d039cb6",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-infinite-primes": {
+      "hash": "8ce5df103b817855",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "8ce5df103b817855",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-five-numbers": {
+      "hash": "1ae21bf31fcad5ee",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "1ae21bf31fcad5ee",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-contrapositive-odd": {
+      "hash": "49babdd0d943b130",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "49babdd0d943b130",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-free-even-square": {
+      "hash": "343841d7fa463989",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "343841d7fa463989",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-induction-sum": {
+      "hash": "10b6387a7a746e0c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "10b6387a7a746e0c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "proof:p-free-largest-even": {
+      "hash": "996050a62b75cc5a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "996050a62b75cc5a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-k-add10": {
+      "hash": "babb2702ebb9252b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "babb2702ebb9252b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-g1-tensones": {
+      "hash": "9f92a6c73c37c56a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "9f92a6c73c37c56a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-g2-arrays": {
+      "hash": "fe1198b2da8319ed",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "fe1198b2da8319ed",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-g3-fracnum": {
+      "hash": "413a79ba2aa32a77",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "413a79ba2aa32a77",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-g3-area": {
+      "hash": "1a38b712bc76d174",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "1a38b712bc76d174",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-g6-nscoord": {
+      "hash": "9c75c9fc8cdbfe30",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "9c75c9fc8cdbfe30",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-g6-ratios": {
+      "hash": "c209dd4d15454bbf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "c209dd4d15454bbf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "lesson:les-g3-mult": {
+      "hash": "d7e7776976f777c0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "d7e7776976f777c0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "template:g3-mult": {
+      "hash": "12de3df3521703c5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "12de3df3521703c5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "template:g2-add100": {
+      "hash": "fadeeaf3080f76d2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "fadeeaf3080f76d2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "template:g6-percent": {
+      "hash": "7490a378eba6a9ec",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "7490a378eba6a9ec",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "template:g6-nscoord": {
+      "hash": "754b7e4c76a4c1e2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "754b7e4c76a4c1e2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "template:g6-ratios": {
+      "hash": "910cc2657255e000",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "910cc2657255e000",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "simulation:sim-numberline": {
+      "hash": "791c7ff933c55b6f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "791c7ff933c55b6f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "simulation:sim-area": {
+      "hash": "3c320e1a7c6a9b0f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "3c320e1a7c6a9b0f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "simulation:sim-angles": {
+      "hash": "5873ddc3e949a2e3",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "5873ddc3e949a2e3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "simulation:sim-reflect": {
+      "hash": "a312996940f2e541",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "a312996940f2e541",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "simulation:sim-spinner": {
+      "hash": "9f70368de2341d0a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "9f70368de2341d0a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "simulation:sim-triangle": {
+      "hash": "5e65424da3f4ac5c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "5e65424da3f4ac5c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    },
+    "story": {
+      "hash": "f571be94741ef6b1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T05:30:02.262Z",
+      "note": "initial authoring pass; educator review pending (3.5.1)",
+      "history": [
+        {
+          "hash": "f571be94741ef6b1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T05:30:02.262Z",
+          "note": "initial authoring pass; educator review pending (3.5.1)"
+        }
+      ]
+    }
+  }
+}

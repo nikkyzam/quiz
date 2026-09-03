@@ -465,6 +465,24 @@ CREATE TABLE IF NOT EXISTS oidc_links (
   PRIMARY KEY (provider_id, subject)
 );
 
+-- Content drafts from the web authoring tool (spec 8.1, 8.5). A draft is
+-- validated with the same linter as shipped content and can be previewed as
+-- a student; it enters the live banks only through review of the source.
+CREATE TABLE IF NOT EXISTS content_drafts (
+  id         TEXT PRIMARY KEY,
+  author_id  TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind       TEXT NOT NULL,
+  topic_id   TEXT,
+  body       TEXT NOT NULL,
+  status     TEXT NOT NULL DEFAULT 'draft',
+  version    INTEGER NOT NULL DEFAULT 1,
+  review_note TEXT,
+  reviewed_by TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_drafts_author ON content_drafts(author_id, updated_at DESC);
+
 -- Bandit posteriors for difficulty selection (spec 6.3): one Beta(successes+1,
 -- failures+1) per learner, topic and tier.
 CREATE TABLE IF NOT EXISTS bandit_arms (

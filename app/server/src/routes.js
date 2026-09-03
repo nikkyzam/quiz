@@ -34,6 +34,7 @@ import { admin as adminRoutes } from "./routes-admin.js";
 import { student as studentRoutes } from "./routes-student.js";
 import { integrations as integrationRoutes } from "./routes-integrations.js";
 import { securityRoutes } from "./routes-security.js";
+import { cms as cmsRoutes } from "./routes-cms.js";
 import * as webhooks from "./webhooks.js";
 import { track } from "./analytics.js";
 import { LOCALES } from "../../shared/i18n.mjs";
@@ -48,6 +49,7 @@ api.use(adminRoutes);
 api.use(studentRoutes);
 api.use(integrationRoutes);
 api.use(securityRoutes);
+api.use(cmsRoutes);
 
 
 

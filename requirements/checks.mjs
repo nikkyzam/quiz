@@ -3939,6 +3939,111 @@ export const CHECKS = {
     return `deploy+IaC coherent, metrics, sealed backup restored and served in ${dr.secondsToServe}s, ${lt.users} users ${lt.rps} req/s p95 ${lt.p95}ms 0 errors, page interactive broadband ${pl.broadband.interactiveMs}ms / 3G ${pl["3g"].interactiveMs}ms, CDN build`;
   },
 
+
+  /* 8.1 + 8.2 + 8.5 + 3.5.5 + 3.5.2 + 3.5.3 — content management: a registry
+     with licences, an approval workflow with versions enforced by the linter,
+     diversity and alt-text rules proven to fire, and the authoring API that
+     validates drafts, previews them as a student and routes them to review. */
+  "cms-depth": async () => {
+    const { execSync } = await import("node:child_process");
+    const { existsSync, readFileSync } = await import("node:fs");
+    const { lintQuestion, lintLesson, lintDiversity } = await import("../tools/lint-content.mjs");
+    const { status, units, hashOf, approve } = await import("../tools/content-approve.mjs");
+    const { ASSETS, LICENCES, lintAssets, sceneKinds } = await import("../app/shared/assets.mjs");
+    const { LESSONS } = await import("../app/shared/lessons.mjs");
+    const { figureAlt } = await import("../app/shared/figures.mjs");
+
+    /* --- rules fire --- */
+    const fig = lintQuestion({ type: "in", q: "Where is the point on the grid?", ans: 1, expl: "Look at the grid.", sec: "N", fig: { pts: [[1, 2]] } }, "t#1", null, new Map());
+    assert(fig.errors.some(e => /nothing to describe/.test(e)), "an undescribable figure was not flagged");
+    assert(figureAlt({ pts: [[1, 2, "A"]], path: [[1, 2], [3, 4]] }).includes("A at (1, 2)") && figureAlt({ alt: "custom" }) === "custom", "figure alt derivation wrong");
+    const badLesson = lintLesson({ id: "x", grade: "K", panels: [{ art: { kind: "dragon" }, alt: "", text: "Hello there friend" }, { art: { kind: "baskets" }, alt: "A basket with three apples", text: "Count them all now" }, { art: { kind: "baskets" }, alt: "A basket with three apples", text: "Count again please" }] });
+    assert(badLesson.errors.some(e => /not in the asset registry/.test(e)) && badLesson.errors.some(e => /alt text/.test(e)) && badLesson.errors.some(e => /no interactive check/.test(e)),
+      `lesson rules did not fire: ${badLesson.errors.join(" | ")}`);
+    const div = lintDiversity([{ where: "t", text: "Girls are worse at maths than boys, said the stupid teacher." }]);
+    assert(div.errors.length >= 2, `stereotype/demeaning rules did not fire: ${JSON.stringify(div)}`);
+    const skew = lintDiversity(Array.from({ length: 12 }, (_, i) => ({ where: `t${i}`, text: "He gave his brother his ball and he ran." })));
+    assert(skew.warnings.some(w => /pronoun balance/.test(w)), "pronoun imbalance not warned");
+    const same = lintDiversity(Array.from({ length: 12 }, (_, i) => ({ where: `t${i}`, text: "Ben has 3 apples." })));
+    assert(same.warnings.some(w => /name diversity/.test(w)), "name monoculture not warned");
+    assert(lintDiversity([{ where: "t", text: "Priya shares 6 pears with Omar. Ana counts 4 kites. Kwame builds 5 towers." }]).errors.length === 0, "clean text flagged");
+
+    /* --- assets: registered, licensed, every lesson scene covered --- */
+    assert(lintAssets().length === 0, `asset registry problems: ${lintAssets().join("; ")}`);
+    assert(ASSETS.length >= 25 && ASSETS.every(a => LICENCES[a.licence] && a.tags.length && a.origin), "registry incomplete");
+    for (const l of LESSONS) for (const p of l.panels) assert(sceneKinds().includes(p.art.kind), `${l.id} uses unregistered art ${p.art.kind}`);
+    assert(existsSync("app/web/public/icon.svg") && ASSETS.some(a => a.origin === "app/web/public/icon.svg"), "icon not registered");
+
+    /* --- approvals: every unit approved at the current hash; a change is caught --- */
+    assert(existsSync("content/approvals.json"), "no approvals file");
+    const s = status();
+    assert(s.ok && s.rows.length >= 40 && s.rows.every(r => r.version >= 1 && r.approvedBy), `approval status: ${s.problems.length} problems over ${s.rows.length} units`);
+    const tampered = JSON.parse(readFileSync("content/approvals.json", "utf8"));
+    const someUnit = units().find(u => u.kind === "bank");
+    tampered.units[someUnit.id].hash = "0000000000000000";
+    const st = status(tampered);
+    assert(st.problems.some(p => p.id === someUnit.id && p.state === "changed"), "a changed unit was not detected");
+    delete tampered.units["puzzles"];
+    assert(status(tampered).problems.some(p => p.id === "puzzles" && p.state === "unapproved"), "an unapproved unit was not detected");
+    /* Re-approval bumps the version and keeps history. */
+    const fresh = { version: 1, units: {} };
+    approve(fresh, someUnit.id, { by: "A", role: "author" });
+    const before = fresh.units[someUnit.id].version;
+    fresh.units[someUnit.id].hash = "changed";
+    approve(fresh, someUnit.id, { by: "B", role: "educator", note: "checked" });
+    assert(fresh.units[someUnit.id].version === before + 1 && fresh.units[someUnit.id].history.length === 2, "re-approval did not version");
+    assert(status(fresh, { requireEducator: true }).rows.find(r => r.id === someUnit.id).educator === true, "educator sign-off not recognised");
+    assert(!status(undefined, { requireEducator: true }).ok, "educator sign-off is reported present when none exists (3.5.1 is still open)");
+    assert(hashOf({ a: 1, b: [1, 2] }) === hashOf({ b: [1, 2], a: 1 }) && hashOf({ a: 1 }) !== hashOf({ a: 2 }), "hash not canonical");
+    execSync("node tools/content-approve.mjs --status", { stdio: "pipe" });
+    let educatorExit = 0; try { execSync("node tools/content-approve.mjs --status --require-educator", { stdio: "pipe" }); } catch (e) { educatorExit = e.status; }
+    assert(educatorExit === 1, "the CLI does not fail when educator sign-off is required and missing");
+    const lintOut = JSON.parse(execSync("node tools/lint-content.mjs --json").toString());
+    assert(lintOut.approvals.units === s.rows.length && lintOut.approvals.approved === s.rows.length, "linter does not report approvals");
+
+    /* --- authoring API --- */
+    const t = client(), p = client(), a = client();
+    await post(t, "/auth/register", { coppaConsent: true, email: "author@b.com", password: "a-long-enough-pass", name: "Author", role: "teacher" });
+    await post(p, "/auth/register", { coppaConsent: true, email: "cmsparent@b.com", password: "a-long-enough-pass", name: "P" });
+    if ((await post(a, "/auth/register", { coppaConsent: true, email: "boss@b.com", password: "a-long-enough-pass", name: "Boss" })).status === 409)
+      await post(a, "/auth/login", { email: "boss@b.com", password: "a-long-enough-pass" });
+    assert((await t("/cms/meta")).body.types.includes("plot") && (await p("/cms/meta")).status === 403, "meta not served to authors only");
+    const bad = { type: "mc", q: "Pick", opts: ["a", "a"], a: 5, sec: "N" };
+    const lint = (await post(t, "/cms/lint", { kind: "question", body: bad, topicId: "k-count" })).body;
+    assert(lint.errors.length >= 3, `live lint too lenient: ${JSON.stringify(lint)}`);
+    const draft = (await post(t, "/cms/drafts", { kind: "question", body: bad, topicId: "k-count" })).body.draft;
+    assert(draft.status === "draft" && draft.version === 1, "draft not created");
+    assert((await post(t, `/cms/drafts/${draft.id}/submit`)).status === 400, "a draft with lint errors was submitted");
+    const good = { type: "mc", q: "Which number comes right after 4?", opts: ["5", "3", "6", "2"], a: 0, sec: "N", expl: "Counting up: 3, 4, then 5.", hint: "Count on from 4." };
+    const upd = (await t(`/cms/drafts/${draft.id}`, { method: "PUT", body: JSON.stringify({ body: good }) })).body;
+    assert(upd.draft.version === 2 && upd.lint.errors.length === 0, `update did not clear lint: ${JSON.stringify(upd.lint)}`);
+    const prev = (await post(t, "/cms/preview", { kind: "question", body: good })).body;
+    assert(prev.question.opts.length === 4 && !("a" in prev.question) && !("expl" in prev.question) && prev.hints.length === 3, "preview leaks answers or lacks hints");
+    const graded = (await post(t, "/cms/preview/answer", { kind: "question", body: good, answer: 0 })).body;
+    assert(graded.correct === true && graded.explanation, "preview grading failed");
+    const sub = (await post(t, `/cms/drafts/${draft.id}/submit`)).body;
+    assert(sub.draft.status === "submitted", "clean draft not submitted");
+    assert((await p(`/cms/drafts`)).status === 403 && (await p(`/cms/drafts/${draft.id}/export`)).status === 403, "a parent reached the CMS");
+    assert((await post(t, `/cms/drafts/${draft.id}/review`, { decision: "approved" })).status === 403, "an author reviewed their own draft");
+    const rev = (await post(a, `/cms/drafts/${draft.id}/review`, { decision: "approved", note: "good" })).body;
+    assert(rev.draft.status === "approved" && rev.draft.reviewNote === "good", "review not recorded");
+    assert((await t(`/cms/drafts/${draft.id}`, { method: "PUT", body: JSON.stringify({ body: good }) })).status === 409, "an approved draft was edited");
+    const exp = await fetch(BASE + `/api/cms/drafts/${draft.id}/export`, { headers: { cookie: (await t("/auth/me")).setCookie?.[0] || "" } }).catch(() => null);
+    const expBody = (await t(`/cms/drafts/${draft.id}/export`)).body;
+    assert(expBody.kind === "question" && expBody.body.q === good.q && expBody.status === "approved", "export malformed");
+    assert((await a("/cms/drafts?all=1")).body.drafts.some(d => d.id === draft.id), "admin cannot list all drafts");
+    const pz = (await post(t, "/cms/drafts", { kind: "puzzle", body: { title: "Test", prompt: "Give the smallest two-digit prime number that reads the same backwards.", accepts: [11], hints: ["Two digits.", "Same forwards and backwards."], difficulty: 2 } })).body;
+    assert(pz.lint.errors.length === 0 && pz.draft.kind === "puzzle", `puzzle draft lint: ${JSON.stringify(pz.lint)}`);
+    const ls = (await post(t, "/cms/lint", { kind: "lesson", body: { title: "T", panels: [{ art: { kind: "unicorn" }, alt: "short", text: "x" }] } })).body;
+    assert(ls.errors.length >= 3, "lesson draft lint too lenient");
+    const assets = (await t("/cms/assets?tag=fractions")).body;
+    assert(assets.assets.length >= 1 && assets.licences["CC0-1.0"], "asset lookup by tag failed");
+    const ap = (await t("/cms/approvals")).body;
+    assert(ap.ok && ap.units.length === s.rows.length && (await t("/cms/approvals?educator=1")).body.ok === false, "approvals endpoint wrong");
+
+    return `${ASSETS.length} registered assets, ${s.rows.length} content units approved at v≥1 (educator sign-off still open), diversity/alt/lesson rules fire, drafts lint→preview→submit→review→export`;
+  },
+
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
