@@ -42,7 +42,7 @@ export const K_MORE_BANKS = {
 {lvl:2,sec:"G",type:"in",q:"How many flat faces does a cylinder have?",ans:2,
  expl:"A cylinder has a flat circle on top and one on the bottom. That is 2."},
 {lvl:3,sec:"G",type:"mc",q:"I have no flat faces. I roll every way. What am I?",opts:["sphere","cylinder","cone"],a:0,
- hint:"A cylinder and a cone each have a flat face.",expl:"A cylinder and a cone each have a flat face. Only a sphere has none."},
+ hint:"Think about which solids have a flat face.",expl:"A cylinder and a cone each have a flat face. Only a sphere has none."},
 {lvl:3,sec:"G",type:"in",q:"Diego has 1 cube and 1 cylinder. How many flat faces do they have in all?",ans:8,
  hint:"Count the faces of each solid, then add.",expl:"A cube has 6 flat faces. A cylinder has 2. 6 + 2 = 8."}
 ],

@@ -1,0 +1,122 @@
+/* Settings, onboarding and help (spec 8.4, 10.7, 10.8, 9.4, 3.2.9).
+   Tokens only; colours come from styles.css so both themes and every
+   age band stay in contrast. */
+
+/* ---------- settings ---------- */
+.set-section{margin-top:18px}
+.set-section h2{margin-top:0}
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:12px 0;border-top:2px solid var(--line)}
+.set-row:first-of-type{border-top:0;padding-top:0}
+.set-row.stack{flex-direction:column;align-items:stretch}
+.set-lbl{font-weight:700;display:block}
+.set-help{color:var(--muted);font-size:calc(.86rem * var(--step));margin:2px 0 0}
+.set-select{min-height:var(--tap);font-family:var(--body);font-size:calc(1rem * var(--step));
+  padding:0 calc(12px * var(--step));border:2px solid var(--line-strong);border-radius:var(--r);
+  background:var(--paper);color:var(--ink);min-width:12rem;max-width:100%}
+.set-select:focus{border-color:var(--accent)}
+.set-range{width:100%;accent-color:var(--accent);min-height:var(--tap);margin:0}
+.set-scale{display:flex;justify-content:space-between;color:var(--muted);
+  font-size:calc(.8rem * var(--step));font-family:var(--mono)}
+.set-check{display:flex;gap:12px;align-items:center;min-height:var(--tap);cursor:pointer;
+  font-size:calc(.96rem * var(--step))}
+.set-check input{width:24px;height:24px;accent-color:var(--accent);flex:0 0 auto;margin:0}
+.set-check.off{opacity:.6}
+.set-status{margin:8px 0 0;color:var(--good);font-weight:600;font-size:calc(.9rem * var(--step));min-height:1.1em}
+.set-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.set-form{margin-top:14px;max-width:26rem}
+.set-form .field input{background:var(--paper)}
+.who-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 8px}
+.who-line b{font-family:var(--display);font-weight:600}
+
+.rtl-preview{margin-top:12px;padding:12px 14px;border:2px dashed var(--line-strong);
+  border-radius:var(--r);background:var(--paper)}
+.rtl-preview p{margin:0 0 4px} .rtl-preview p:last-child{margin:0}
+.rtl-preview[dir="rtl"]{text-align:right}
+.rtl-preview .num{font-family:var(--mono);font-weight:600;color:var(--accent)}
+
+.audit{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px;max-height:22rem;overflow:auto}
+.audit li{background:var(--paper);border:2px solid var(--line);border-radius:var(--r-sm);
+  padding:8px 12px;font-size:calc(.88rem * var(--step))}
+.audit b{font-family:var(--mono);font-weight:600}
+.audit .when{color:var(--muted);font-family:var(--mono);font-size:calc(.78rem * var(--step));display:block}
+
+.danger-zone{border-color:var(--bad)}
+.danger-zone h3{color:var(--bad)}
+.confirm{margin-top:12px;padding:14px;border:2px solid var(--bad);background:var(--bad-bg);border-radius:var(--r)}
+.confirm p{margin:0 0 10px}
+
+/* ---------- onboarding ---------- */
+.ob{max-width:30rem;margin:4vh auto 0;text-align:center}
+.ob-card{padding:calc(24px * var(--step)) calc(22px * var(--step))}
+.ob-art{font-size:calc(3.2rem * var(--step));line-height:1;margin:0 0 8px}
+.ob-dots{list-style:none;display:flex;justify-content:center;gap:8px;padding:0;margin:0 0 18px}
+.ob-dots li{width:12px;height:12px;border-radius:50%;background:var(--line-strong);
+  transition:width .2s ease,background .2s ease}
+.ob-dots li[aria-current="step"]{background:var(--accent);width:30px;border-radius:var(--r-pill)}
+.ob-dots li span{display:none}
+.ob h1{font-size:calc(1.7rem * var(--step));margin:0 0 .3em}
+.ob p{margin:0 0 12px}
+.ob-list{text-align:left;list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
+.ob-list li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;
+  background:var(--paper);border:2px solid var(--line);border-radius:var(--r);padding:10px 14px}
+.ob-list .ico{font-size:1.4em;line-height:1}
+.ob-list b{font-family:var(--display);font-weight:600;display:block}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.ob-nav .btn{min-width:8rem}
+
+/* ---------- help ---------- */
+.help-search{margin:0 0 16px}
+.help-search .field{margin:0}
+.help-count{margin:0 0 14px;color:var(--muted);font-size:calc(.88rem * var(--step))}
+.help-tools{display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap}
+.faq-group{margin-bottom:24px}
+.faq-group h2{margin:0 0 10px}
+.faq-list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.faq-q{margin:0;font-size:inherit}
+.faq-q button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;
+  text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);
+  border-radius:var(--r);padding:calc(12px * var(--step)) calc(14px * var(--step));
+  min-height:var(--tap);font-family:var(--display);font-weight:600;font-size:calc(1rem * var(--step));
+  box-shadow:var(--shadow);transition:border-color .12s ease}
+.faq-q button:hover{border-color:var(--accent)}
+.faq-q button[aria-expanded="true"]{border-color:var(--accent);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.faq-q .chev{color:var(--accent);font-size:1.3em;line-height:1;flex:0 0 auto}
+.faq-a{border:2px solid var(--accent);border-top:0;border-radius:0 0 var(--r) var(--r);
+  padding:12px 14px 14px;background:var(--card);font-size:calc(.96rem * var(--step))}
+.faq-a p{margin:0 0 .6em} .faq-a p:last-child{margin:0}
+.faq-a kbd{font-family:var(--mono);background:var(--chip);color:var(--accent);
+  border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:.05em .45em;font-size:.9em}
+
+/* ---------- right-to-left (10.8) ----------
+   `dir` is stamped on <html> by src/i18n.ts. Flex rows already follow the
+   writing direction, so .appbar and .spread keep `row` and simply flow
+   right-to-left; what does not flip by itself is text alignment, one-sided
+   margins and paddings, and hover nudges, mirrored here. */
+[dir="rtl"] body,[dir="rtl"] .wrap{text-align:right}
+[dir="rtl"] .appbar,[dir="rtl"] .spread,[dir="rtl"] .appbar .who{flex-direction:row}
+[dir="rtl"] .appbar{padding:6px 14px 6px 8px}
+[dir="rtl"] .gcard,[dir="rtl"] .topic,[dir="rtl"] .tier,[dir="rtl"] .opt,[dir="rtl"] .who,
+[dir="rtl"] .faq-q button,[dir="rtl"] .ob-list,[dir="rtl"] .drow,[dir="rtl"] .card{text-align:right}
+[dir="rtl"] .gstat{text-align:left}
+[dir="rtl"] .badge,[dir="rtl"] .tag{margin-left:0;margin-right:.6em}
+[dir="rtl"] .opt .mark{margin-left:0;margin-right:auto}
+[dir="rtl"] .kbd{margin-right:0;margin-left:auto}
+[dir="rtl"] .scorechip .streak{margin-left:0;margin-right:.5em}
+[dir="rtl"] .nextrow{justify-content:flex-start}
+[dir="rtl"] .topic:hover:not(.locked){transform:translateX(-3px)}
+[dir="rtl"] .opt:hover:not(:disabled){transform:translateX(-4px)}
+[dir="rtl"] .multirow:hover{transform:translateX(-3px)}
+[dir="rtl"] .skip{left:auto;right:-9999px;border-radius:0 0 0 var(--r)}
+[dir="rtl"] .skip:focus{left:auto;right:0}
+[dir="rtl"] .ob-nav{flex-direction:row}
+
+/* ---------- settings: theme choices and nested danger card ---------- */
+.set-fieldset{border:0;padding:0;margin:0;min-width:0}
+.set-fieldset legend{padding:0;margin:0 0 6px}
+.set-choices{display:flex;gap:18px;flex-wrap:wrap}
+.set-section h3{margin:22px 0 6px}
+.set-section .danger-zone{margin-top:22px;padding:14px 18px}
+.set-section .danger-zone h3{margin-top:0}
+.set-status a{margin-left:.35em}
+[dir="rtl"] .set-status a{margin-left:0;margin-right:.35em}

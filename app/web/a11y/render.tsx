@@ -25,7 +25,20 @@ const cur = {
   thresholds: { "g6-nscoord": 90, "g6-crt": 80 }
 };
 
+/* Screens added by the feature areas; each file exports its own SCREENS. */
+import { SCREENS as HOME } from "./screens/home";
+import { SCREENS as LESSONS } from "./screens/lessons";
+import { SCREENS as CONTEST } from "./screens/contest";
+import { SCREENS as PROOFS } from "./screens/proofs";
+import { SCREENS as PLAY } from "./screens/play";
+import { SCREENS as AUTHORING } from "./screens/authoring";
+import { SCREENS as SETTINGS } from "./screens/settings";
+import { SCREENS as FAMILY } from "./screens/family";
+import { SCREENS as TEACHER } from "./screens/teacher";
+import { SCREENS as CORE } from "./screens/core";
+
 export const SCREENS: Record<string, string> = {
+  ...HOME, ...LESSONS, ...CONTEST, ...PROOFS, ...PLAY, ...AUTHORING, ...SETTINGS, ...FAMILY, ...TEACHER, ...CORE,
   auth: renderToStaticMarkup(<AuthScreen onDone={noop} />),
   learners: renderToStaticMarkup(
     <LearnerPicker userName="Sam" learners={[learner]} onPick={noop}

@@ -1,0 +1,72 @@
+/* Contest Corner (3.3.5, 4.1.9). Tokens only; everything else is inherited
+   from styles.css so the age bands scale this screen too. */
+
+.ctabs{flex-wrap:wrap}
+.cpanel{outline-offset:6px}
+
+/* format cards */
+.fmtgrid{list-style:none;margin:0;padding:0;display:grid;gap:12px;
+  grid-template-columns:repeat(auto-fill,minmax(14rem,1fr))}
+.fmt{display:flex;flex-direction:column;gap:8px}
+.fmt h3{margin:0}
+.fmtmeta{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 6px}
+.fmt .btn{align-self:flex-start;margin-top:auto}
+
+/* paper header and clock */
+.ctop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ptitle{margin:0}
+.pmeta{margin:4px 0 14px;font-size:calc(.88rem * var(--step))}
+.countdown{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:700;
+  font-size:calc(1.4rem * var(--step));background:var(--card);color:var(--ink);
+  border:2px solid var(--line-strong);border-radius:var(--r-pill);
+  padding:.25em 1em;min-height:var(--tap);display:inline-flex;align-items:center;
+  box-shadow:var(--shadow)}
+.countdown.low{color:var(--bad);border-color:var(--bad);background:var(--bad-bg)}
+
+/* question navigator */
+.qnav ul{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.qnavbtn{min-width:var(--tap);min-height:var(--tap);border-radius:var(--r-sm);
+  background:var(--card);color:var(--ink);border:2px solid var(--line);
+  font-family:var(--display);font-weight:600;font-size:calc(.95rem * var(--step));
+  box-shadow:var(--shadow);transition:transform .12s ease,border-color .12s ease}
+.qnavbtn:hover{transform:translateY(-2px);border-color:var(--band)}
+.qnavbtn.done{background:var(--good-bg);color:var(--good);border-color:var(--good)}
+.qnavbtn.on{background:var(--accent);color:var(--onaccent);border-color:var(--accent)}
+
+/* answer state on the paper */
+.opt.picked{border-color:var(--accent);background:var(--accent-soft)}
+.opt.picked .key{background:var(--accent);color:var(--onaccent)}
+.saved{font-size:calc(.85rem * var(--step));margin:10px 0 0;align-self:center}
+
+/* results and analytics */
+.analytics{margin-top:8px}
+.analytics h4{font-family:var(--display);font-weight:500;
+  font-size:calc(.95rem * var(--step));margin:18px 0 6px;color:var(--muted)}
+.secbars{list-style:none;margin:12px 0 0;padding:0}
+.analytics ul.pills{list-style:none;padding:0}
+.pill.weak{color:var(--bad);border-color:var(--bad);font-weight:600}
+.rtable{border-collapse:collapse;width:100%;font-size:calc(.9rem * var(--step))}
+.rtable th,.rtable td{text-align:left;padding:8px 10px;border-bottom:2px solid var(--line)}
+.rtable th{font-family:var(--display);font-weight:500;color:var(--muted)}
+.rtable .mono{font-family:var(--mono)}
+.rtable .good{color:var(--good);font-weight:700}
+.rtable .bad{color:var(--bad);font-weight:700}
+.reviewhead{margin-top:26px}
+.review{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.rq.ok{border-color:var(--good)}
+.rq.miss{border-color:var(--bad)}
+.rqtext{font-size:calc(1.1rem * var(--step))}
+.rline{margin:8px 0 6px}
+.rline .mark{font-weight:700;margin-right:.4em}
+.rline .good{color:var(--good)}
+.rline .bad{color:var(--bad)}
+
+/* history */
+.hlist{list-style:none;margin:18px 0 0;padding:0}
+.hscore{font-family:var(--mono);color:var(--muted)}
+.hscore.good{color:var(--good);font-weight:700}
+
+/* guides */
+.guidelist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.guide h3{margin-bottom:4px}
+.guidepts{margin:8px 0 0;padding-left:1.3em;display:grid;gap:6px}

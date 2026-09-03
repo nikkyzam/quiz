@@ -1181,6 +1181,56 @@ export const CHECKS = {
     return `${Object.keys(QUESTIONS).length} banks, ${total} questions, ${gradesWith.size} grades, all valid`;
   },
 
+  /* 3.1.2-3.1.4, 3.4.1-3.4.5 — every topic in Appendix A, core and advanced,
+     has authored or generated questions at practice, challenge and boss tier;
+     K-2 wording passes the reading-level rule; every topic maps to a standard. */
+  "curriculum-coverage": async () => {
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+    const { CURRICULUM } = await import("../app/shared/curriculum.mjs");
+    const { TEMPLATES, generate } = await import("../app/shared/generators.mjs");
+    const { TOPIC_STANDARDS } = await import("../app/shared/standards.mjs");
+    const { lintQuestion, runAll } = await import("../tools/lint-content.mjs");
+
+    const perGrade = {}, perStrand = {};
+    let topics = 0, questions = 0;
+    for (const [g, v] of Object.entries(CURRICULUM)) {
+      perGrade[g] = { topics: 0, questions: 0 };
+      for (const u of v.units) for (const t of u.topics) {
+        topics++; perGrade[g].topics++;
+        const bank = QUESTIONS[t.id] || [];
+        const generated = TEMPLATES[t.id] ? Array.from({ length: 12 }, (_, i) => ({ lvl: TEMPLATES[t.id].lvl, ...generate(t.id, i) })) : [];
+        const all = [...bank, ...generated];
+        assert(all.length >= 6, `${g}/${t.id} (${t.name}) has ${all.length} questions; every Appendix A topic needs at least 6`);
+        const tiers = new Set(all.map(q => q.lvl || 1));
+        assert(tiers.has(1) && tiers.has(2) && tiers.has(3),
+          `${g}/${t.id} lacks a tier: has ${[...tiers].sort().join(",")} (needs practice, challenge and boss)`);
+        assert(new Set(all.map(q => q.type)).size >= 2, `${g}/${t.id} uses a single question type`);
+        assert(TOPIC_STANDARDS[t.id]?.ccss?.length, `${g}/${t.id} has no standards mapping`);
+        questions += all.length; perGrade[g].questions += all.length;
+        if (u.track === "adv") {
+          const k = u.name.replace(/ Extended| Extensions?/g, "");
+          perStrand[k] = (perStrand[k] || 0) + 1;
+        }
+        if (["K", "1", "2"].includes(g))
+          for (const [i, q] of bank.entries()) {
+            const r = lintQuestion(q, `${t.id}#${i + 1}`, g, new Map());
+            const heavy = r.warnings.filter(w => /words is long|heavy vocabulary/.test(w));
+            assert(!heavy.length, `reading level: ${heavy[0]}`);
+          }
+      }
+    }
+    for (const strand of ["Number Theory", "Combinatorics", "Algebra", "Geometry", "Probability"])
+      assert(Object.keys(perStrand).some(k => k.includes(strand)), `no advanced ${strand} unit is covered`);
+
+    const lint = runAll();
+    const errs = lint.errors.filter(e => !e.startsWith("approval:"));
+    assert(errs.length === 0, `content lint errors: ${errs.slice(0, 3).join(" | ")}`);
+
+    return `${topics} topics across ${Object.keys(perGrade).length} grades all covered, ${questions} questions ` +
+           `(${Object.entries(perGrade).map(([g, v]) => `${g}:${v.questions}`).join(" ")}), ` +
+           `advanced strands ${Object.keys(perStrand).length}, lint clean`;
+  },
+
 
   /* 5.1 + 5.2 + 5.4 + 5.5 — points, badges, levels and streaks */
   "gamification": async () => {
@@ -1485,7 +1535,14 @@ export const CHECKS = {
       /* And it must not simply echo the symbol form. */
       const times = results.find(r => r.want === "times");
       assert(!times.got.includes("×"), "the multiplication sign was left in the spoken text");
-      return `${results.length} maths phrases spoken as words`;
+      /* Highlighting (3.2.9): the spoken word is tracked from the speech
+         engine's boundary events and marked in the rendered text. */
+      const { readFileSync } = await import("node:fs");
+      const src = readFileSync("app/web/src/components/ReadAloud.tsx", "utf8");
+      assert(/boundary/.test(src), "read-aloud does not listen for word boundary events");
+      assert(/<mark/.test(src), "read-aloud never marks the word being spoken");
+      assert(/charIndex/.test(src), "read-aloud does not map the boundary offset to a word");
+      return `${results.length} maths phrases spoken as words, spoken word highlighted from boundary events`;
     } finally {
       rmSync(entry, { force: true });
       rmSync("app/web/a11y/speak-probe.built.mjs", { force: true });

@@ -21,7 +21,7 @@ export const STRINGS = {
   en: {
     "app.name": "Math Quest",
     "nav.progress": "Progress", "nav.switch": "Switch", "nav.signout": "Sign out", "nav.back": "Back",
-    "nav.home": "Home", "nav.lessons": "Lessons", "nav.review": "Review", "nav.contest": "Contest Corner",
+    "nav.home": "Home", "nav.map": "Map", "nav.family": "Family", "nav.teacher": "Teacher", "nav.switch": "Switch", "nav.lessons": "Lessons", "nav.review": "Review", "nav.contest": "Contest Corner",
     "nav.puzzles": "Puzzles", "nav.proofs": "Proofs", "nav.games": "Games", "nav.story": "Story", "nav.settings": "Settings",
     "auth.signin": "Sign in", "auth.create": "Create account", "auth.email": "Email", "auth.password": "Password",
     "auth.name": "Your name", "auth.forgot": "Forgotten your password?", "auth.consent":
@@ -47,7 +47,7 @@ export const STRINGS = {
   es: {
     "app.name": "Math Quest",
     "nav.progress": "Progreso", "nav.switch": "Cambiar", "nav.signout": "Cerrar sesión", "nav.back": "Atrás",
-    "nav.home": "Inicio", "nav.lessons": "Lecciones", "nav.review": "Repaso", "nav.contest": "Rincón de concursos",
+    "nav.home": "Inicio", "nav.map": "Mapa", "nav.family": "Familia", "nav.teacher": "Docente", "nav.switch": "Cambiar", "nav.lessons": "Lecciones", "nav.review": "Repaso", "nav.contest": "Rincón de concursos",
     "nav.puzzles": "Acertijos", "nav.proofs": "Demostraciones", "nav.games": "Juegos", "nav.story": "Historia", "nav.settings": "Ajustes",
     "auth.signin": "Iniciar sesión", "auth.create": "Crear cuenta", "auth.email": "Correo", "auth.password": "Contraseña",
     "auth.name": "Tu nombre", "auth.forgot": "¿Olvidaste tu contraseña?", "auth.consent":
@@ -73,7 +73,7 @@ export const STRINGS = {
   ar: {
     "app.name": "Math Quest",
     "nav.progress": "التقدم", "nav.switch": "تبديل", "nav.signout": "تسجيل الخروج", "nav.back": "رجوع",
-    "nav.home": "الرئيسية", "nav.lessons": "الدروس", "nav.review": "مراجعة", "nav.contest": "ركن المسابقات",
+    "nav.home": "الرئيسية", "nav.map": "الخريطة", "nav.family": "العائلة", "nav.teacher": "المعلم", "nav.switch": "تبديل", "nav.lessons": "الدروس", "nav.review": "مراجعة", "nav.contest": "ركن المسابقات",
     "nav.puzzles": "ألغاز", "nav.proofs": "براهين", "nav.games": "ألعاب", "nav.story": "القصة", "nav.settings": "الإعدادات",
     "auth.signin": "تسجيل الدخول", "auth.create": "إنشاء حساب", "auth.email": "البريد الإلكتروني", "auth.password": "كلمة المرور",
     "auth.name": "اسمك", "auth.forgot": "هل نسيت كلمة المرور؟", "auth.consent":

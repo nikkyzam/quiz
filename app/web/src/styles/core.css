@@ -1,0 +1,49 @@
+/* ============================================================
+   Core play area: read-aloud highlighting (3.2.9), the plot /
+   graph input (3.2.2) and offline practice (10.6).
+   Colours come only from the tokens in styles.css.
+   ============================================================ */
+
+/* ---------- read-aloud word highlight ---------- */
+.ra-text .ra-word{border-radius:.25em;padding:0 .08em;margin:0 -.08em}
+.ra-text mark.ra-active{background:var(--accent-soft);color:var(--ink);
+  box-shadow:0 0 0 2px var(--accent-soft);outline:2px solid var(--accent);outline-offset:-1px}
+
+/* ---------- plot input ---------- */
+.plotbox{margin-top:16px}
+.plotsvg{display:block;width:min(360px,100%);height:auto;margin:0 auto;
+  background:var(--card);border:2px solid var(--line);border-radius:var(--r);
+  touch-action:none;cursor:crosshair;box-shadow:var(--shadow)}
+.plotsvg:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.plotsvg.done{cursor:default}
+.plotsvg .gl{stroke:var(--line);stroke-width:.05}
+.plotsvg .ax{stroke:var(--muted);stroke-width:.1}
+.plotsvg .tick{fill:var(--muted);font-family:var(--mono);font-weight:600;
+  stroke:var(--card);stroke-width:.14;paint-order:stroke fill;stroke-linejoin:round}
+.plotsvg .plot-ring{fill:none;stroke:var(--accent);stroke-width:.08;stroke-dasharray:.18 .12}
+.plotsvg .plot-cursor.placed .plot-ring{stroke-dasharray:none}
+.plotsvg .plot-cursor .pt{fill:var(--accent)}
+.plotsvg .plot-reveal .pt2{fill:var(--good);stroke:var(--card);stroke-width:.08}
+.plotin{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-top:14px}
+.plotfield{display:flex;flex-direction:column;gap:4px;flex:0 1 110px;
+  font-family:var(--mono);font-weight:700;color:var(--muted)}
+.plotfield .ansin{flex:0 0 auto;width:100%;min-width:0}
+.plothelp{font-size:calc(.85rem * var(--step));margin:8px 0 0}
+.opt.picked{border-color:var(--accent);background:var(--accent-soft)}
+
+/* ---------- offline ---------- */
+.offline-banner{margin:0 0 12px;padding:10px 14px;border-radius:var(--r);
+  background:var(--chip);color:var(--ink);border:2px dashed var(--muted);
+  font-size:calc(.92rem * var(--step));font-weight:600}
+.offline-banner b{font-family:var(--display)}
+.fb.pending{--figbg:var(--accent-soft);border-color:var(--accent);background:var(--accent-soft)}
+.fb.pending h3{color:var(--accent)}
+.tierwrap{display:grid;gap:6px}
+.offline-row{display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;
+  padding:0 4px;font-size:calc(.85rem * var(--step));color:var(--muted)}
+.offline-row .linkbtn{padding:6px 8px;min-height:var(--tap);display:inline-flex;align-items:center}
+.offline-saved{color:var(--good);font-weight:700}
+.sync-note{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 0;
+  padding:10px 14px;border-radius:var(--r);background:var(--accent-soft);color:var(--ink);
+  font-size:calc(.9rem * var(--step))}
+.sync-note .btn{min-height:var(--tap)}

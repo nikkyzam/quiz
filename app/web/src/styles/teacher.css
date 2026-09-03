@@ -1,0 +1,79 @@
+/* Teacher and admin consoles: tables, dense forms, hierarchy tree.
+   Plain professional surfaces; colours come only from the tokens in styles.css. */
+
+.tc .tabs{flex-wrap:wrap}
+.tc h2{margin-top:1em}
+.tc h3{margin-top:1.3em}
+.tc h4{font-family:var(--display);font-weight:500;font-size:calc(.98rem * var(--step));margin:0 0 .4em}
+.tc .card h2,.tc .card h3,.tc .card h4{margin-top:0}
+.tc code,.tc-code{font-family:var(--mono);font-size:.92em;background:var(--chip);color:var(--ink);
+  padding:.1em .45em;border-radius:var(--r-sm)}
+
+/* class list */
+.tc-list,.tc-cards,.tc-inline{list-style:none;margin:0 0 18px;padding:0}
+.tc-list li{margin-bottom:10px}
+.tc-classbtn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;text-align:left;
+  min-height:var(--tap);padding:14px 16px;background:var(--card);color:var(--ink);
+  border:2px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+  transition:transform .12s ease,border-color .12s ease}
+.tc-classbtn:hover{transform:translateY(-2px);border-color:var(--accent)}
+.tc-classname{font-family:var(--display);font-weight:600;font-size:calc(1.1rem * var(--step))}
+.tc-classmeta{color:var(--muted);font-size:calc(.86rem * var(--step))}
+.tc-cards>li{margin-bottom:11px}
+.tc-inline{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.tc-points{font-family:var(--mono);color:var(--band);font-weight:700}
+
+/* forms */
+.tc-form{margin:18px 0}
+.tc-form .btn{margin-top:4px}
+.tc-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.tc-row .field{flex:1 1 200px}
+.tc-narrow{max-width:16rem}
+.tc .field select,.tc .field textarea,.tc-select{width:100%;font-family:var(--body);
+  font-size:calc(1rem * var(--step));min-height:var(--tap);padding:8px calc(14px * var(--step));
+  border:2px solid var(--line-strong);border-radius:var(--r);background:var(--paper);color:var(--ink)}
+.tc .field select:focus,.tc .field textarea:focus,.tc-select:focus{border-color:var(--accent)}
+.tc .field textarea{resize:vertical;line-height:1.5;font-family:var(--mono);font-size:calc(.9rem * var(--step))}
+.tc .field input[type=file]{padding:10px calc(14px * var(--step));margin-bottom:8px;line-height:1.4}
+.tc .field input[type=date]{max-width:16rem}
+.tc-select{width:auto;min-width:10rem}
+.tc-fieldset{border:2px solid var(--line);border-radius:var(--r);padding:10px 14px 4px;margin:0 0 14px}
+.tc-fieldset legend{padding:0 6px}
+.tc-fieldset .checkline{margin-bottom:10px}
+.tc .rowbtns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.tc .rowbtns .btn{margin-top:0}
+.tc-wrap{flex-wrap:wrap}
+.tc-foot{font-size:calc(.8rem * var(--step));margin-top:16px}
+
+/* tables */
+.tc-table{width:100%;border-collapse:collapse;font-size:calc(.9rem * var(--step));
+  background:var(--card);border:2px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+.tc-table th,.tc-table td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+.tc-table thead th{font-family:var(--display);font-weight:600;font-size:calc(.74rem * var(--step));
+  color:var(--muted);text-transform:uppercase;letter-spacing:.06em;background:var(--accent-soft)}
+.tc-table tbody th{font-weight:700}
+.tc-table tbody tr:last-child td,.tc-table tbody tr:last-child th{border-bottom:0}
+.tc-num{text-align:right!important;font-variant-numeric:tabular-nums}
+.tc-nowrap{white-space:nowrap}
+.tc-break{overflow-wrap:anywhere}
+.tc-tall{max-height:28rem;overflow-y:auto}
+.tc .scroll{margin-bottom:8px}
+
+/* stats: five tiles wrap on narrow screens */
+.tc-stats{grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))}
+
+/* hierarchy tree and definition list */
+.tc-tree{list-style:none;margin:8px 0 0;padding:0}
+.tc-tree>li{padding:8px 0;border-top:1px solid var(--line)}
+.tc-tree ul{list-style:none;margin:6px 0 0;padding-left:18px;border-left:2px solid var(--line)}
+.tc-tree ul li{padding:5px 0 5px 10px}
+.tc-tree b{font-family:var(--display);font-weight:600;margin-right:6px}
+.tc-dl{margin:8px 0 0}
+.tc-dl div{display:grid;grid-template-columns:minmax(7rem,1fr) 3fr;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.tc-dl dt{font-family:var(--display);font-weight:600;color:var(--muted);font-size:calc(.82rem * var(--step))}
+.tc-dl dd{margin:0}
+
+@media (max-width:560px){
+  .tc-dl div{grid-template-columns:1fr}
+  .tc-select{width:100%}
+}

@@ -1,0 +1,100 @@
+/* Learner home: dual-track map, goals, streak, challenge, review, track picker,
+   and the big destination grid. Colours come only from the tokens in styles.css. */
+
+.hm-head{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.hm-head h1{margin:0;font-size:calc(1.9rem * var(--step))}
+.hm-level{display:inline-block;margin-top:4px;font-family:var(--mono);
+  font-size:calc(.8rem * var(--step));color:var(--muted)}
+.hm-gear{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+
+/* goal + streak side by side, stacking on narrow screens */
+.hm-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
+@media (max-width:560px){.hm-two{grid-template-columns:1fr}}
+.hm-box{background:var(--card);border:2px solid var(--line);border-radius:var(--r);
+  padding:calc(14px * var(--step));box-shadow:var(--shadow)}
+.hm-box h2{margin:0 0 6px;font-size:calc(1.05rem * var(--step))}
+.hm-big{font-family:var(--display);font-weight:600;font-size:calc(1.7rem * var(--step));
+  color:var(--band);line-height:1.1}
+.hm-big small{font-size:.5em;color:var(--muted);font-weight:500}
+.hm-meter{height:14px;background:var(--chip);border-radius:var(--r-pill);overflow:hidden;
+  margin:8px 0 6px;border:1px solid var(--line)}
+.hm-meter i{display:block;height:100%;border-radius:var(--r-pill);
+  background:linear-gradient(90deg,var(--band),var(--accent))}
+.hm-meter.met i{background:var(--good)}
+.hm-note{font-size:calc(.85rem * var(--step));color:var(--muted);margin:0}
+.hm-ok{color:var(--good);font-weight:700}
+
+/* challenge of the day */
+.hm-chal{border-color:var(--star);margin:14px 0}
+.hm-chal .eyebrow{color:var(--star)}
+.hm-q{font-family:var(--display);font-weight:500;font-size:calc(1.15rem * var(--step));margin:6px 0 4px}
+.hm-q.mono{font-family:var(--mono)}
+.hm-chal .opts{margin-top:12px}
+.hm-chal .inrow{margin-top:12px}
+.hm-chal .ansin{flex:1 1 160px;min-width:0;font-family:var(--mono);font-size:calc(1rem * var(--step));
+  padding:0 14px;min-height:var(--tap);border:2px solid var(--line-strong);border-radius:var(--r-sm);
+  background:var(--card);color:var(--ink)}
+.hm-chal .ansin:focus{border-color:var(--accent)}
+
+/* up next */
+.hm-next{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+/* dual-track map */
+.hm-mapbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+.hm-mapbar label{font-family:var(--display);font-weight:500}
+.hm-select{min-height:var(--tap);padding:0 12px;border:2px solid var(--line-strong);
+  border-radius:var(--r-sm);background:var(--card);color:var(--ink);
+  font-family:var(--body);font-size:calc(1rem * var(--step))}
+.hm-tracks{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:640px){.hm-tracks{grid-template-columns:1fr}}
+.hm-strand{background:var(--card);border:2px solid var(--line);border-radius:var(--r-lg);
+  padding:calc(14px * var(--step));box-shadow:var(--shadow)}
+.hm-strand.adv{border-style:dashed}
+.hm-strand h3{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  font-size:calc(1.05rem * var(--step));margin:0 0 4px}
+.hm-strand .hm-count{font-family:var(--mono);font-size:calc(.76rem * var(--step));color:var(--muted);font-weight:400}
+.hm-unit{margin:12px 0 0}
+.hm-unit h4{font-family:var(--display);font-weight:500;font-size:calc(.92rem * var(--step));
+  color:var(--muted);margin:0 0 6px}
+.hm-tlist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hm-topic{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+  text-align:left;min-height:var(--tap);padding:8px 12px;
+  background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:var(--r);
+  transition:transform .12s ease,border-color .12s ease}
+.hm-topic:hover:not(:disabled){transform:translateX(3px);border-color:var(--band)}
+.hm-topic:disabled{opacity:.55;cursor:default}
+.hm-topic .tname{font-weight:700}
+.hm-topic .pill{margin:0;flex:0 0 auto}
+
+/* review queue */
+.hm-review{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.hm-review .drow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0}
+.hm-review .drow > div{flex:1 1 200px;min-width:0}
+.hm-reason{display:inline-block;font-size:calc(.72rem * var(--step));font-weight:700;
+  padding:2px 8px;border-radius:var(--r-pill);background:var(--chip);color:var(--muted);margin-left:.5em;
+  vertical-align:middle}
+.hm-reason.decayed{background:var(--bad-bg);color:var(--bad)}
+.hm-reason.due{background:var(--good-bg);color:var(--good)}
+
+/* track picker */
+.hm-trackpick{display:grid;gap:10px;margin:8px 0}
+.hm-trackopt{display:block;width:100%;text-align:left;min-height:var(--tap);padding:10px 14px;
+  background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow)}
+.hm-trackopt[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.hm-trackopt b{font-family:var(--display);font-weight:600;display:block}
+.hm-trackopt span{display:block;color:var(--muted);font-size:calc(.86rem * var(--step))}
+.hm-trackopt:disabled{cursor:default}
+.hm-status{margin:6px 0 0;font-size:calc(.9rem * var(--step));color:var(--good);font-weight:600;min-height:1.2em}
+
+/* destination grid */
+.hm-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:520px){.hm-grid{grid-template-columns:repeat(2,1fr)}}
+.hm-go{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;
+  min-height:calc(var(--tap) * 1.8);padding:12px 8px;
+  background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);font-family:var(--display);font-weight:600;font-size:calc(.98rem * var(--step));
+  transition:transform .12s ease,box-shadow .12s ease}
+.hm-go:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--band)}
+.hm-go .ico{font-size:calc(1.7rem * var(--step));line-height:1}
+.hm-go small{font-weight:400;color:var(--muted);font-size:calc(.74rem * var(--step))}

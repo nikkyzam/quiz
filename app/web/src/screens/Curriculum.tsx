@@ -1,6 +1,8 @@
+import "../styles/core.css";
 import { useEffect, useState } from "react";
 import { api, type Grade, type Tier, type Learner, type ProgressRow } from "../api";
 import { Beast } from "../beasts";
+import { downloadPack, listPacks, removePack, subscribe, syncPending, useOnline, usePendingCount } from "../offline";
 
 type Cur = { curriculum: Record<string, Grade>; tiers: Tier[]; counts: Record<string, Record<string, number>> };
 const hasContent = (cur: Cur, id: string) =>
@@ -69,14 +71,56 @@ export function GradeMap({ gradeKey, cur, onBack, onOpen }: {
   );
 }
 
-export function TierPicker({ topicId, topicName, advanced, tiers, counts, threshold, learner, onBack, onStart, onDiagnostic, onMastery, onPractice }: {
+export function TierPicker({ topicId, topicName, advanced, tiers, counts, threshold, learner, onBack, onStart, onDiagnostic, onMastery, onPractice, packs }: {
   topicId: string; topicName: string; advanced: boolean;
   tiers: Tier[]; counts: any; threshold: number; learner: Learner;
   onBack: () => void; onStart: (tier: string) => void;
   onDiagnostic: () => void; onMastery: () => void; onPractice: () => void;
+  /* Tier ids already saved for offline; the loaded state for renders
+     where effects do not run (accessibility audit). */
+  packs?: string[];
 }) {
   const [rows, setRows] = useState<ProgressRow[]>([]);
   useEffect(() => { api.progress(learner.id).then(r => setRows(r.progress)).catch(() => {}); }, [learner.id]);
+
+  /* Offline packs (10.6): which tiers of this topic are saved on the device. */
+  const [saved, setSaved] = useState<string[]>(packs ?? []);
+  const [packBusy, setPackBusy] = useState<string | null>(null);
+  const [packMsg, setPackMsg] = useState("");
+  const online = useOnline();
+  const pending = usePendingCount();
+  const [syncBusy, setSyncBusy] = useState(false);
+  useEffect(() => {
+    const refresh = () => {
+      listPacks().then(ps => setSaved(ps.filter(p => p.topicId === topicId).map(p => p.tier))).catch(() => {});
+    };
+    refresh();
+    return subscribe(refresh);
+  }, [topicId]);
+  /* Anything queued while offline goes up as soon as this screen opens online. */
+  useEffect(() => { if (online && pending > 0 && !syncBusy) syncNow(); }, [online, pending]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function savePack(t: Tier) {
+    setPackBusy(t.id); setPackMsg("");
+    try { const p = await downloadPack(topicId, t.id); setPackMsg(`${t.name} saved offline: ${p.count} questions.`); }
+    catch { setPackMsg(online ? `Couldn't save ${t.name} for offline. Try again in a moment.` : "You're offline, so nothing new can be saved right now."); }
+    finally { setPackBusy(null); }
+  }
+  async function dropPack(t: Tier) {
+    setPackBusy(t.id); setPackMsg("");
+    try { await removePack(topicId, t.id); setPackMsg(`${t.name} removed from this device.`); }
+    finally { setPackBusy(null); }
+  }
+  async function syncNow() {
+    setSyncBusy(true);
+    try {
+      const r = await syncPending();
+      if (r.synced) { setPackMsg(`${r.synced} offline ${r.synced === 1 ? "round" : "rounds"} checked and saved.`);
+                      api.progress(learner.id).then(x => setRows(x.progress)).catch(() => {}); }
+      else if (r.failed) setPackMsg("Some offline rounds couldn't be checked. They'll be tried again.");
+    } catch { setPackMsg("Couldn't sync yet. It will be tried again when you're online."); }
+    finally { setSyncBusy(false); }
+  }
 
   return (
     <>
@@ -93,23 +137,54 @@ export function TierPicker({ topicId, topicName, advanced, tiers, counts, thresh
         Adaptive practice picks each question from how you are doing, and shows you
         what to look at again afterwards. Or choose a fixed tier below.
       </p>
+      {!online && (
+        <p className="offline-banner" role="status">
+          <b>Offline.</b> Tiers marked "Saved offline" can be played now; answers are checked when you're back online.
+        </p>
+      )}
       <div className="tierList">
         {tiers.map(t => {
           const n = counts[topicId]?.[t.id] || 0;
           if (!n) return null;
           const rec = rows.find(r => r.topic_id === topicId && r.tier === t.id);
+          const isSaved = saved.includes(t.id);
           return (
-            <button className="tier" key={t.id} onClick={() => onStart(t.id)}>
-              <span className="tierhead"><b>{t.name}</b><span className="tcount">{n} questions</span></span>
-              <span className="tierblurb">{t.blurb}</span>
-              {rec && <span className={"tierbest" + (rec.best_pct >= threshold ? " good" : "")}>
-                best {rec.best_score}/{rec.best_total} · {rec.best_pct}%
-                {rec.best_pct >= threshold ? " ★ mastered" : ""}
-              </span>}
-            </button>
+            <div className="tierwrap" key={t.id}>
+              <button className="tier" onClick={() => onStart(t.id)}>
+                <span className="tierhead"><b>{t.name}</b><span className="tcount">{n} questions</span></span>
+                <span className="tierblurb">{t.blurb}</span>
+                {rec && <span className={"tierbest" + (rec.best_pct >= threshold ? " good" : "")}>
+                  best {rec.best_score}/{rec.best_total} · {rec.best_pct}%
+                  {rec.best_pct >= threshold ? " ★ mastered" : ""}
+                </span>}
+              </button>
+              <div className="offline-row">
+                {isSaved ? (
+                  <>
+                    <span className="offline-saved">✓ Saved offline</span>
+                    <button type="button" className="linkbtn" disabled={packBusy === t.id}
+                            aria-label={`Remove ${t.name} from this device`} onClick={() => dropPack(t)}>Remove</button>
+                  </>
+                ) : (
+                  <button type="button" className="linkbtn" disabled={packBusy === t.id || !online}
+                          aria-label={`Download ${t.name} for offline`} onClick={() => savePack(t)}>
+                    {packBusy === t.id ? "Saving…" : "Download for offline"}
+                  </button>
+                )}
+              </div>
+            </div>
           );
         })}
       </div>
+      <p className="muted" role="status" aria-live="polite" style={{ fontSize: ".85rem", minHeight: "1.2em", margin: "8px 0 0" }}>{packMsg}</p>
+      {pending > 0 && (
+        <div className="sync-note" role="status">
+          <span>{pending} offline {pending === 1 ? "round is" : "rounds are"} waiting to be checked.</span>
+          <button type="button" className="btn ghost" disabled={!online || syncBusy} onClick={syncNow}>
+            {syncBusy ? "Checking…" : online ? "Check now" : "Waiting for a connection"}
+          </button>
+        </div>
+      )}
       <div className="rowbtns">
         <button className="btn" onClick={onMastery}>Take the mastery check →</button>
       </div>

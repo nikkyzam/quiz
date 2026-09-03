@@ -22,7 +22,7 @@ export const put = <T,>(p: string, body?: unknown) =>
   call<T>(p, { method: "PUT", body: JSON.stringify(body ?? {}) });
 export const del = <T,>(p: string) => call<T>(p, { method: "DELETE" });
 
-export type User = { id: string; email: string; name: string };
+export type User = { id: string; email: string; name: string; role?: string };
 export type Learner = { id: string; name: string; beast: string; stars?: number; topics?: number };
 export type Topic = { id: string; name: string };
 export type Unit = { name: string; track?: string; topics: Topic[] };

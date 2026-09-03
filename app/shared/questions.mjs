@@ -9,7 +9,10 @@ const SECS = {
   G:"Geometry & Measure",
   R:"Ratios & Rates",
   A:"Know the Plane", B:"Points & Quadrants", C:"Distance on the Grid",
-  D:"Reflections", E:"Rectangles & Word Problems", F:"Compare & Order", G:"Fractions & Decimals"
+  D:"Reflections", E:"Rectangles & Word Problems", F:"Compare & Order", G:"Fractions & Decimals",
+  /* Sections used by the K-8 banks beyond the original grade 6 set. */
+  L:"Algebra", S:"Statistics & Probability", T:"Number Theory", K:"Combinatorics",
+  P:"Proof & Logic", M:"Measurement & Data"
 };
 
 const ABCD = [["A",2,3],["B",-3,1],["C",-2,-4],["D",3,-2]];
@@ -17,8 +20,27 @@ const ABCD = [["A",2,3],["B",-3,1],["C",-2,-4],["D",3,-2]];
 import { K_BANKS } from "./banks/k.mjs";
 import { G12_BANKS } from "./banks/g1g2.mjs";
 import { G3_BANKS } from "./banks/g3.mjs";
+import { K2_MORE_BANKS } from "./banks/k2-more.mjs";
+import { K_MORE_BANKS } from "./banks/k-more.mjs";
+import { G1_MORE_BANKS } from "./banks/g1-more.mjs";
+import { G2_MORE_BANKS } from "./banks/g2-more.mjs";
+import { G3_MORE_BANKS } from "./banks/g3-more.mjs";
+import { G4_CORE_BANKS } from "./banks/g4-core.mjs";
+import { G4_ADV_BANKS } from "./banks/g4-adv.mjs";
+import { G5_CORE_BANKS } from "./banks/g5-core.mjs";
+import { G5_ADV_BANKS } from "./banks/g5-adv.mjs";
+import { G6_CORE_BANKS } from "./banks/g6-core.mjs";
+import { G6_ADV_BANKS } from "./banks/g6-adv.mjs";
+import { G7_CORE_BANKS } from "./banks/g7-core.mjs";
+import { G7_ADV_BANKS } from "./banks/g7-adv.mjs";
+import { G8_CORE_BANKS } from "./banks/g8-core.mjs";
+import { G8_ADV_BANKS } from "./banks/g8-adv.mjs";
 
-const QUESTIONS = { ...K_BANKS, ...G12_BANKS, ...G3_BANKS };
+const QUESTIONS = { ...K_BANKS, ...G12_BANKS, ...G3_BANKS, ...K2_MORE_BANKS,
+  ...K_MORE_BANKS, ...G1_MORE_BANKS, ...G2_MORE_BANKS, ...G3_MORE_BANKS,
+  ...G4_CORE_BANKS, ...G4_ADV_BANKS, ...G5_CORE_BANKS, ...G5_ADV_BANKS,
+  ...G6_CORE_BANKS, ...G6_ADV_BANKS, ...G7_CORE_BANKS, ...G7_ADV_BANKS,
+  ...G8_CORE_BANKS, ...G8_ADV_BANKS };
 
 QUESTIONS["g6-nscoord"] = [
 /* A — Know the Plane */

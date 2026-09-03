@@ -1,29 +1,35 @@
+import "../styles/core.css";
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner } from "../api";
 import { Grid, Beast, Confetti } from "../beasts";
-import { ReadAloud } from "../components/ReadAloud";
+import { ReadAloud, ReadAloudText } from "../components/ReadAloud";
 import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
+import { PlotInput, parsePt, type AnyQuestion } from "../components/PlotInput";
+import { isOnline, useOnline } from "../offline";
 
 type Summary = {
   score: number; total: number; pct: number; stars: number; hintsUsed: number;
   threshold: number; seconds: number;
   missed: { id: string; q: string; correctAnswer: string; explanation: string }[];
 };
+export type PracticeStart = { sessionId: string; question: Question; length: number };
 
 /* Adaptive practice: the server picks each question from how the session is
    going, and hands back every mistake at the end to review. */
-export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
+export function Practice({ learner, topicId, topicName, onExit, onRestart, initial }: {
   learner: Learner; topicId: string; topicName: string;
   onExit: () => void; onRestart: () => void;
+  /* Loaded state for renders where effects do not run (accessibility audit). */
+  initial?: PracticeStart;
 }) {
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [q, setQ] = useState<Question | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(initial?.sessionId ?? null);
+  const [q, setQ] = useState<AnyQuestion | null>(initial?.question ?? null);
   const [asked, setAsked] = useState(0);
-  const [len, setLen] = useState(10);
+  const [len, setLen] = useState(initial?.length ?? 10);
   const [score, setScore] = useState(0);
   const [typed, setTyped] = useState("");
   const [fb, setFb] = useState<{ correct: boolean; correctAnswer: string; explanation: string; figA: any } | null>(null);
-  const [pendingNext, setPendingNext] = useState<Question | null>(null);
+  const [pendingNext, setPendingNext] = useState<AnyQuestion | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [finished, setFinished] = useState(false);
   const [hints, setHints] = useState<string[]>([]);
@@ -31,12 +37,17 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
   const [cheer, setCheer] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const online = useOnline();
 
   useEffect(() => {
+    if (initial) return;
+    /* Adaptive practice is chosen question by question on the server, so
+       it needs a connection; saved tiers are the offline option. */
+    if (!isOnline()) { setError("Adaptive practice needs a connection. A tier you saved for offline can still be played."); return; }
     api.startPractice(learner.id, topicId)
       .then(r => { setSessionId(r.sessionId); setQ(r.question); setLen(r.length); })
       .catch(() => setError("Couldn't start practice."));
-  }, [learner.id, topicId]);
+  }, [learner.id, topicId, initial]);
 
   async function submit(answer: unknown) {
     if (!sessionId || fb || busy) return;
@@ -48,7 +59,7 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
       if (r.done && r.summary) setSummary(r.summary as Summary);
       else { setPendingNext(r.question!); setAsked(r.asked ?? asked + 1); setScore(r.score ?? score);
              setNudge(r.intervention ?? null); }
-    } catch { setError("Couldn't submit that answer."); }
+    } catch { setError(isOnline() ? "Couldn't submit that answer." : "You're offline, so that answer couldn't be checked."); }
     finally { setBusy(false); }
   }
 
@@ -68,7 +79,13 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
     setFb(null); setTyped(""); setHints([]);
   }
 
-  if (error) return <><button className="back" onClick={onExit}>← Leave</button><p className="err" role="alert">{error}</p></>;
+  const banner = !online ? (
+    <p className="offline-banner" role="status">
+      <b>Offline.</b> Answers can't be checked until you're connected again.
+    </p>
+  ) : null;
+
+  if (error) return <><button className="back" onClick={onExit}>← Leave</button>{banner}<p className="err" role="alert">{error}</p></>;
 
   if (summary && finished) {
     return (
@@ -110,10 +127,13 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
   if (!q) return <div className="loading" role="status">Setting up your practice…</div>;
 
   const starValue = hints.length === 0 ? 3 : hints.length === 1 ? 2 : 1;
+  const reveal = fb && q.type === "plot" ? parsePt(fb.correctAnswer) : undefined;
 
   return (
     <>
       <button className="back" onClick={onExit}>← Leave</button>
+      <h1 className="visually-hidden">{topicName}, adaptive practice</h1>
+      {banner}
       <div className="qtop">
         <div className="qcount">Question <b>{asked + 1}</b> / {len}</div>
         <div className="scorechip">score {score}</div>
@@ -130,7 +150,7 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
                  mood={fb ? (fb.correct ? "happy" : "oops") : hints.length ? "thinking" : "idle"} />
           <div className="sec">{q.secName}</div>
         </div>
-        <p className="qtext">{q.q}</p>
+        <ReadAloudText text={q.q} />
         <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
 
@@ -138,6 +158,9 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
           <OrderAnswer items={q.items!} disabled={!!fb} onSubmit={o => submit(o)} />
         ) : q.type === "multi" ? (
           <MultiAnswer opts={q.opts!} disabled={!!fb} onSubmit={p => submit(p)} />
+        ) : q.type === "plot" ? (
+          <PlotInput grid={q.grid ?? { min: -10, max: 10 }} disabled={!!fb} reveal={reveal}
+                     onSubmit={p => submit(p)} />
         ) : q.type === "mc" ? (
           <div className="opts">
             {q.opts!.map((o, i) => (

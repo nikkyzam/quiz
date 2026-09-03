@@ -6,7 +6,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -16,15 +16,23 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "9644a2d24b7f9ec2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
     "bank:k-countback": {
-      "hash": "cc24b07ba68c85b4",
-      "version": 1,
+      "hash": "092f72b20b9d343b",
+      "version": 2,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -34,6 +42,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "092f72b20b9d343b",
+          "version": 2,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -42,7 +58,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -52,6 +68,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "a13b9b99a8a1e575",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -60,7 +84,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -70,15 +94,23 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "b0a9e0a0095afdf5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
     "bank:k-evenodd": {
-      "hash": "8219ad701a95bfa4",
-      "version": 1,
+      "hash": "0302fc0c8dfea018",
+      "version": 2,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -88,6 +120,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "0302fc0c8dfea018",
+          "version": 2,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -96,7 +136,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -106,6 +146,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "87288d023e9b8aa3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -114,7 +162,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -124,6 +172,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "a1bdce96dc11c68b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -132,7 +188,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -142,6 +198,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "840f4e69032461ee",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -150,7 +214,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -160,6 +224,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "68c4796ce625cd99",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -168,7 +240,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -178,6 +250,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "4475bc48f496cd77",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -186,7 +266,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -196,6 +276,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "345239dbbfadadb1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -204,7 +292,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -214,6 +302,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "bf0f878060efd9dc",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -222,7 +318,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -232,6 +328,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "dbbdea3662f6c835",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -240,7 +344,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -250,6 +354,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "c673627e9af6533b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -258,7 +370,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -268,6 +380,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "120b523a04efa58d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -276,7 +396,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -286,6 +406,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "e1be2e5ed765c336",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -294,7 +422,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -304,6 +432,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "726c7b814c333809",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -312,7 +448,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -322,6 +458,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "e3f8bd110a85a03c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -330,7 +474,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -340,6 +484,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "17cd7dd9c1959b52",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -348,7 +500,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -358,6 +510,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "1314e906eb0758a2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -366,7 +526,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -376,6 +536,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "c5428b3110e91d80",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -384,7 +552,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -394,6 +562,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "f31eb0fc9d039cb6",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -402,7 +578,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -412,6 +588,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "8ce5df103b817855",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -420,7 +604,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -430,6 +614,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "1ae21bf31fcad5ee",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -438,7 +630,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -448,6 +640,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "49babdd0d943b130",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -456,7 +656,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -466,6 +666,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "343841d7fa463989",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -474,7 +682,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -484,6 +692,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "10b6387a7a746e0c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -492,7 +708,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -502,6 +718,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "996050a62b75cc5a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -510,7 +734,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -520,6 +744,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "babb2702ebb9252b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -528,7 +760,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -538,6 +770,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "9f92a6c73c37c56a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -546,7 +786,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -556,6 +796,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "fe1198b2da8319ed",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -564,7 +812,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -574,6 +822,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "413a79ba2aa32a77",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -582,7 +838,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -592,6 +848,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "1a38b712bc76d174",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -600,7 +864,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -610,6 +874,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "9c75c9fc8cdbfe30",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -618,7 +890,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -628,6 +900,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "c209dd4d15454bbf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -636,7 +916,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -646,6 +926,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "d7e7776976f777c0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -654,7 +942,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -664,6 +952,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "12de3df3521703c5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -672,7 +968,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -682,6 +978,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "fadeeaf3080f76d2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -690,7 +994,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -700,6 +1004,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "7490a378eba6a9ec",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -708,7 +1020,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -718,6 +1030,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "754b7e4c76a4c1e2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -726,7 +1046,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -736,6 +1056,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "910cc2657255e000",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -744,7 +1072,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -754,6 +1082,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "791c7ff933c55b6f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -762,7 +1098,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -772,6 +1108,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "3c320e1a7c6a9b0f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -780,7 +1124,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -790,6 +1134,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "5873ddc3e949a2e3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -798,7 +1150,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -808,6 +1160,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "a312996940f2e541",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -816,7 +1176,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -826,6 +1186,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "9f70368de2341d0a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -834,7 +1202,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -844,6 +1212,14 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "5e65424da3f4ac5c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     },
@@ -852,7 +1228,7 @@
       "version": 1,
       "by": "repository author",
       "role": "author",
-      "at": "2026-09-03T05:30:02.262Z",
+      "at": "2026-09-03T21:53:24.154Z",
       "note": "initial authoring pass; educator review pending (3.5.1)",
       "history": [
         {
@@ -862,6 +1238,5630 @@
           "role": "author",
           "at": "2026-09-03T05:30:02.262Z",
           "note": "initial authoring pass; educator review pending (3.5.1)"
+        },
+        {
+          "hash": "f571be94741ef6b1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-patterns": {
+      "hash": "901e1ec42ebaaa9a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "901e1ec42ebaaa9a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-logic": {
+      "hash": "98c47ba6077b0064",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "98c47ba6077b0064",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-compose": {
+      "hash": "14338476322928c7",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "14338476322928c7",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-combos": {
+      "hash": "574e0f7fb65fda82",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "574e0f7fb65fda82",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-sub20": {
+      "hash": "62a6538a9e4615d8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "62a6538a9e4615d8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-time": {
+      "hash": "10ae68411a32b53c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "10ae68411a32b53c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-length": {
+      "hash": "66db0170af256cf2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "66db0170af256cf2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-arrange": {
+      "hash": "537d1db7bfeb9879",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "537d1db7bfeb9879",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-add100": {
+      "hash": "f8eee1b8d656bb76",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f8eee1b8d656bb76",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-trees": {
+      "hash": "9f1495dc1501824f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9f1495dc1501824f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-missing": {
+      "hash": "eaabdaaba5f15e3d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "eaabdaaba5f15e3d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-perimeter": {
+      "hash": "9f7c15e071d486ac",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9f7c15e071d486ac",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-ordinal": {
+      "hash": "27e626818d72e3a5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "27e626818d72e3a5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-3d": {
+      "hash": "b7cea67e657c281c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b7cea67e657c281c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-combine": {
+      "hash": "82cb86eba59a82f4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "82cb86eba59a82f4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-compare": {
+      "hash": "79a4f9768028819c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "79a4f9768028819c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-sort": {
+      "hash": "506a23bc51af9cfd",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "506a23bc51af9cfd",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-picgraph": {
+      "hash": "f0c9441810ab106d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f0c9441810ab106d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-skip": {
+      "hash": "d6e2bbaf16ecddc4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d6e2bbaf16ecddc4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-half": {
+      "hash": "83f742d07c8cc6a9",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "83f742d07c8cc6a9",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-symmetry": {
+      "hash": "f6855c3d870e8ec8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f6855c3d870e8ec8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-blocks": {
+      "hash": "1672bd96b1ab9aba",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "1672bd96b1ab9aba",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-turns": {
+      "hash": "96b1a0ce1a27c8be",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "96b1a0ce1a27c8be",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-trees": {
+      "hash": "c02e4dc4f07041ef",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c02e4dc4f07041ef",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:k-games": {
+      "hash": "ca0871c715d0fe0f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ca0871c715d0fe0f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-equals": {
+      "hash": "dceb01b06e81f848",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "dceb01b06e81f848",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-wordprob": {
+      "hash": "90233750e09c897c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "90233750e09c897c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-props": {
+      "hash": "c58939a681448a26",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c58939a681448a26",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-compare2": {
+      "hash": "8aea3427fab31e02",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "8aea3427fab31e02",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-add100": {
+      "hash": "0a36a4db8e93262b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0a36a4db8e93262b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-tenmore": {
+      "hash": "2ab68bc1833c4304",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "2ab68bc1833c4304",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-graphs": {
+      "hash": "101472cf171d7b92",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "101472cf171d7b92",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-coins": {
+      "hash": "239c465dfbafc2d7",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "239c465dfbafc2d7",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-attrib": {
+      "hash": "95a5dd68ed738943",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "95a5dd68ed738943",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-compose": {
+      "hash": "04815dc623e13b97",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "04815dc623e13b97",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-shares": {
+      "hash": "64961e55e54b3561",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "64961e55e54b3561",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-evenodd": {
+      "hash": "fe089e6133a30cfc",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "fe089e6133a30cfc",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-factors": {
+      "hash": "6a42d50d8d4c3cd7",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "6a42d50d8d4c3cd7",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-div25": {
+      "hash": "14e332b11dde4031",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "14e332b11dde4031",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-machines": {
+      "hash": "d09fea25fb70de2d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d09fea25fb70de2d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-growing": {
+      "hash": "795b58c2072b340e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "795b58c2072b340e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-grid": {
+      "hash": "38d6b666cc005dec",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "38d6b666cc005dec",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-deduce": {
+      "hash": "efa961bd00c8b90c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "efa961bd00c8b90c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-twostep": {
+      "hash": "dd7e1639ee78e8b9",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "dd7e1639ee78e8b9",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g1-choose": {
+      "hash": "03e902b246e9acdf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "03e902b246e9acdf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-fluency": {
+      "hash": "7cb52c2376be27ea",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7cb52c2376be27ea",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-equalgrp": {
+      "hash": "86aac3379ae3d7d9",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "86aac3379ae3d7d9",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-compare3": {
+      "hash": "88955b0b807f8e54",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "88955b0b807f8e54",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-add1000": {
+      "hash": "a0299f0a9254c0db",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a0299f0a9254c0db",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-mental": {
+      "hash": "f50ae6369dee8c56",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f50ae6369dee8c56",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-rulers": {
+      "hash": "f958895aef4d896d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f958895aef4d896d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-estimate": {
+      "hash": "a7842da545709b0b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a7842da545709b0b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-time5": {
+      "hash": "fe0b573d2b7b3c26",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "fe0b573d2b7b3c26",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-money": {
+      "hash": "b105cb1a690631d1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b105cb1a690631d1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-lineplot": {
+      "hash": "a746787d5a5c03ca",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a746787d5a5c03ca",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-polygons": {
+      "hash": "7ba2cf59e3dd9615",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7ba2cf59e3dd9615",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-rowcol": {
+      "hash": "10915a85d1ea575f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "10915a85d1ea575f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-thirds": {
+      "hash": "54df3f560069949c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "54df3f560069949c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-prime20": {
+      "hash": "5891804e59c14af4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5891804e59c14af4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-divrules": {
+      "hash": "943a91ae23adb53a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "943a91ae23adb53a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-gcf": {
+      "hash": "012e8d1b7b137804",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "012e8d1b7b137804",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-repeated": {
+      "hash": "602555432980c315",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "602555432980c315",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-sharing": {
+      "hash": "e0925f1ea9f27148",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e0925f1ea9f27148",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-multprob": {
+      "hash": "0621e3bf098a444a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0621e3bf098a444a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-symbols": {
+      "hash": "e80bc0990de009b2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e80bc0990de009b2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-rule": {
+      "hash": "96b1da472adb699d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "96b1da472adb699d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-perm4": {
+      "hash": "6334650b50e3968f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "6334650b50e3968f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-permcomb": {
+      "hash": "927a507a8bcb8363",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "927a507a8bcb8363",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-symmetry": {
+      "hash": "bf5b2c6630ab7afb",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "bf5b2c6630ab7afb",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g2-tangram": {
+      "hash": "ca87be5c62656014",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ca87be5c62656014",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-div": {
+      "hash": "1118b942b77371d6",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "1118b942b77371d6",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-multprops": {
+      "hash": "70126feff0c6df01",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "70126feff0c6df01",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-twostep": {
+      "hash": "8df39f71c8eb6306",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "8df39f71c8eb6306",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-patterns": {
+      "hash": "f2db86f5527314d3",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f2db86f5527314d3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-round": {
+      "hash": "f66be5ce736e4539",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f66be5ce736e4539",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-add1000": {
+      "hash": "269fd2402379f117",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "269fd2402379f117",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-mult10": {
+      "hash": "37cb7d2f4b688b3c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "37cb7d2f4b688b3c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-fraccomp": {
+      "hash": "20ef7663fc3b720e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "20ef7663fc3b720e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-fraceq": {
+      "hash": "3d3af79fd033b7b3",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3d3af79fd033b7b3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-wholefrac": {
+      "hash": "b7fa4799db20fa58",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b7fa4799db20fa58",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-timemin": {
+      "hash": "91b7cc783c2dcf60",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "91b7cc783c2dcf60",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-volmass": {
+      "hash": "5070c37c4a01f7e0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5070c37c4a01f7e0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-scaled": {
+      "hash": "45d71a46519c428f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "45d71a46519c428f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-perimeter": {
+      "hash": "b78567660af530bb",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b78567660af530bb",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-quads": {
+      "hash": "591da2d08dc04fc0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "591da2d08dc04fc0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-equalarea": {
+      "hash": "66796d69fef1b1f8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "66796d69fef1b1f8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-areaperim": {
+      "hash": "60f4b648c5977330",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "60f4b648c5977330",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-primefact": {
+      "hash": "8434d5da7d7f6e4f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "8434d5da7d7f6e4f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-divrules": {
+      "hash": "4bb0bad22f5a3e47",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "4bb0bad22f5a3e47",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-lcm": {
+      "hash": "18c955b5d30c2dab",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "18c955b5d30c2dab",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-gcdlcm": {
+      "hash": "6ed0a9f3fad349ef",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "6ed0a9f3fad349ef",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-fracadd": {
+      "hash": "bc113ea28b007b32",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "bc113ea28b007b32",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-fracmultw": {
+      "hash": "2bb0abda7e9906ad",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "2bb0abda7e9906ad",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-benchmark": {
+      "hash": "d46dd2d022ba230f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d46dd2d022ba230f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-simpleeq": {
+      "hash": "42340fde4eabb096",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "42340fde4eabb096",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-varpat": {
+      "hash": "18f8ae0856cdeeb3",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "18f8ae0856cdeeb3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-evaluate": {
+      "hash": "8104e1852a87d963",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "8104e1852a87d963",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-syslist": {
+      "hash": "ee2a4170fffe7ba6",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ee2a4170fffe7ba6",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-multprin": {
+      "hash": "22fac8e95da9bbf2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "22fac8e95da9bbf2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-composite": {
+      "hash": "e76b679a21703bde",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e76b679a21703bde",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-volpack": {
+      "hash": "7e95edde9468e45c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7e95edde9468e45c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-angles": {
+      "hash": "ae2135025c47c61a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ae2135025c47c61a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g3-lines": {
+      "hash": "226f3570b7c35e53",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "226f3570b7c35e53",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-multcomp": {
+      "hash": "403d3a265655ced4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "403d3a265655ced4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-multistep": {
+      "hash": "e50d2a880033b6c6",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e50d2a880033b6c6",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-factorpair": {
+      "hash": "acbf6612e3b1a1cb",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "acbf6612e3b1a1cb",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-seq": {
+      "hash": "2a920cb535cb3b16",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "2a920cb535cb3b16",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-placemil": {
+      "hash": "7f48e11bbc500f97",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7f48e11bbc500f97",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-multidig": {
+      "hash": "fc08551637bfca7f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "fc08551637bfca7f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-divide": {
+      "hash": "29b41dd84592fb24",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "29b41dd84592fb24",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-fracadd": {
+      "hash": "0afb94041ade087e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0afb94041ade087e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-mixed": {
+      "hash": "bf988dec29ded98d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "bf988dec29ded98d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-fracmultw": {
+      "hash": "b82d2505503529d5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b82d2505503529d5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-decnot": {
+      "hash": "c842f889cbbb8880",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c842f889cbbb8880",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-deccomp": {
+      "hash": "3b6d65c4962b9140",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3b6d65c4962b9140",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-units": {
+      "hash": "be1c7cc4fed5fc45",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "be1c7cc4fed5fc45",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-areaform": {
+      "hash": "ad148e3389d66314",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ad148e3389d66314",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-lineplot": {
+      "hash": "20d3fa468b80170a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "20d3fa468b80170a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-protract": {
+      "hash": "e1b66c0b623284aa",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e1b66c0b623284aa",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-linesrays": {
+      "hash": "74a70512f5aec890",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "74a70512f5aec890",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-classify": {
+      "hash": "5fab7532b5ab0263",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5fab7532b5ab0263",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-symmetry": {
+      "hash": "97a9e516a721e42b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "97a9e516a721e42b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-primefact": {
+      "hash": "27b36e04185430fc",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "27b36e04185430fc",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-divrules": {
+      "hash": "1838ea00ea71127a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "1838ea00ea71127a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-clockmod": {
+      "hash": "3c3f99449636e9c9",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3c3f99449636e9c9",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-euclid": {
+      "hash": "919452b3d35b5e32",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "919452b3d35b5e32",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-evalexpr": {
+      "hash": "38cb458e765c60b5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "38cb458e765c60b5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-liketerms": {
+      "hash": "3d7356e9ba9ff51d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3d7356e9ba9ff51d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-onestep": {
+      "hash": "b2770133e1ee0244",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b2770133e1ee0244",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-inequal": {
+      "hash": "e9737dc34be2e6d8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e9737dc34be2e6d8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-writeeq": {
+      "hash": "a11f255ed2459779",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a11f255ed2459779",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-factorial": {
+      "hash": "ceca5d8398a9f7e2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ceca5d8398a9f7e2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-combin": {
+      "hash": "741ff41a307fc024",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "741ff41a307fc024",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-paths": {
+      "hash": "4e7d164188513035",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "4e7d164188513035",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-starsbars": {
+      "hash": "7ea789ccc48d5ae7",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7ea789ccc48d5ae7",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-tri-area": {
+      "hash": "6233e4f53e55e686",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "6233e4f53e55e686",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-para-area": {
+      "hash": "db197d394d05476c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "db197d394d05476c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-circle": {
+      "hash": "c5f696d0413d4fcd",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c5f696d0413d4fcd",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-nets": {
+      "hash": "d973696e0a0bbb07",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d973696e0a0bbb07",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-volprism": {
+      "hash": "dbddd42bee766796",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "dbddd42bee766796",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-exptheo": {
+      "hash": "f2d25dd465ddd8b9",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f2d25dd465ddd8b9",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-simple": {
+      "hash": "d77a9c5465ccbe31",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d77a9c5465ccbe31",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g4-compl": {
+      "hash": "022b064141b2fb32",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "022b064141b2fb32",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-express": {
+      "hash": "07cbcd5dccb17e9e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "07cbcd5dccb17e9e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-patterns": {
+      "hash": "c0ff295d4faa8447",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c0ff295d4faa8447",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-thousandth": {
+      "hash": "7e5300ecf1aa75fe",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7e5300ecf1aa75fe",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-decops": {
+      "hash": "08d7e9ede17f5e38",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "08d7e9ede17f5e38",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-twodigit": {
+      "hash": "70001ba769ab07d4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "70001ba769ab07d4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-unlike": {
+      "hash": "340e8d9b9f0da0f2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "340e8d9b9f0da0f2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-fracmult": {
+      "hash": "1654d028fad829e7",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "1654d028fad829e7",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-fracdiv": {
+      "hash": "28a6330aee3d4d5a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "28a6330aee3d4d5a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-fracword": {
+      "hash": "b5f6779d737d2eef",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b5f6779d737d2eef",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-convert": {
+      "hash": "e534dc1c715a01cf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e534dc1c715a01cf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-lineplot": {
+      "hash": "1d740552609f110f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "1d740552609f110f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-volume": {
+      "hash": "e060a68d2ce3114a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e060a68d2ce3114a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-coord": {
+      "hash": "5b008cdb0d8d1918",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5b008cdb0d8d1918",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-hierarchy": {
+      "hash": "fc770843302cd59b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "fc770843302cd59b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-modarith": {
+      "hash": "1082644aefdd59a4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "1082644aefdd59a4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-congru": {
+      "hash": "37611b60044d3ce0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "37611b60044d3ce0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-fermat": {
+      "hash": "ab9d44093f446985",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ab9d44093f446985",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-diophant": {
+      "hash": "136a5af30b622c66",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "136a5af30b622c66",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-bases": {
+      "hash": "e19e715f017661c4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e19e715f017661c4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-multistep": {
+      "hash": "3529a8e098642e3a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3529a8e098642e3a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-inequal": {
+      "hash": "0c0e145bffd1b845",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0c0e145bffd1b845",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-rateeq": {
+      "hash": "c797614e28ae65a5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c797614e28ae65a5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-formulas": {
+      "hash": "ac18334000f1a01f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ac18334000f1a01f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-functions": {
+      "hash": "834f3d2db14108e4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "834f3d2db14108e4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-pythag": {
+      "hash": "103693f8999d14d6",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "103693f8999d14d6",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-distance": {
+      "hash": "acff672aeca34d6f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "acff672aeca34d6f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-angletri": {
+      "hash": "e07a6fc91dd06e8b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e07a6fc91dd06e8b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-circarea": {
+      "hash": "c76dd3557ebd8751",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c76dd3557ebd8751",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-cylinder": {
+      "hash": "935488e0a115e082",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "935488e0a115e082",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-permrep": {
+      "hash": "7f676ea4c228bc66",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7f676ea4c228bc66",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-combrep": {
+      "hash": "0f207b3cbfff4c9a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0f207b3cbfff4c9a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-subsets": {
+      "hash": "d83afe5607fe626a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d83afe5607fe626a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-inclexcl": {
+      "hash": "b596a51697d9a8b1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b596a51697d9a8b1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-pascal": {
+      "hash": "96baa65386f765bf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "96baa65386f765bf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-compound": {
+      "hash": "3a4724c0623da484",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3a4724c0623da484",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-expected": {
+      "hash": "618a57516af02f92",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "618a57516af02f92",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-geoprob": {
+      "hash": "7348a888ab38845e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7348a888ab38845e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g5-condition": {
+      "hash": "077f2aad957ff335",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "077f2aad957ff335",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-unitconv": {
+      "hash": "9df970985a244b8f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9df970985a244b8f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-fracdiv": {
+      "hash": "132a1e6fbc3e9bbd",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "132a1e6fbc3e9bbd",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-decimals": {
+      "hash": "5649a5a0986dee2e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5649a5a0986dee2e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-exprexp": {
+      "hash": "736ff15816a2ca85",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "736ff15816a2ca85",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-equivexpr": {
+      "hash": "8adc2f21a2f2b4c9",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "8adc2f21a2f2b4c9",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-onevar": {
+      "hash": "5f35cd5eb656cf84",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5f35cd5eb656cf84",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-relation": {
+      "hash": "c70dd50ceb92e413",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c70dd50ceb92e413",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-polyarea": {
+      "hash": "c7daa39e1fc19da2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c7daa39e1fc19da2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-volfrac": {
+      "hash": "e31953584e09861f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e31953584e09861f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-coordpoly": {
+      "hash": "d36c9d9e7f974e00",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d36c9d9e7f974e00",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-netsurf": {
+      "hash": "588108443483b194",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "588108443483b194",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-statq": {
+      "hash": "d21f9cfa2eae572d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d21f9cfa2eae572d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-centervar": {
+      "hash": "31f7eb659cb28bf1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "31f7eb659cb28bf1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-displays": {
+      "hash": "9e2db54838f05a45",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9e2db54838f05a45",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-modexp": {
+      "hash": "451d1f39e1b5a2ba",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "451d1f39e1b5a2ba",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-crt": {
+      "hash": "21fb5442d4c8ed7a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "21fb5442d4c8ed7a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-diophant": {
+      "hash": "b2754c0f5f0f8859",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b2754c0f5f0f8859",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-basearith": {
+      "hash": "a565296725c5c8e1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a565296725c5c8e1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-contfrac": {
+      "hash": "72364a06f3019c52",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "72364a06f3019c52",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-perfect": {
+      "hash": "e942666e8b6a59fa",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e942666e8b6a59fa",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-bothsides": {
+      "hash": "a5518d3be24cda9c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a5518d3be24cda9c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-compound": {
+      "hash": "6e1a5950610cefc7",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "6e1a5950610cefc7",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-literal": {
+      "hash": "173ad4d15e9165c5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "173ad4d15e9165c5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-slope": {
+      "hash": "552654527ac46afc",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "552654527ac46afc",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-systems": {
+      "hash": "85087edac08f2620",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "85087edac08f2620",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-pythag": {
+      "hash": "3fc95311a4ee79ac",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3fc95311a4ee79ac",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-specialtri": {
+      "hash": "e7e601b46b7fd7ec",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e7e601b46b7fd7ec",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-apothem": {
+      "hash": "3e05cb861ca76750",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3e05cb861ca76750",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-solids": {
+      "hash": "b3d3605680533c6b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b3d3605680533c6b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-transvers": {
+      "hash": "60a2abafcf8b9c58",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "60a2abafcf8b9c58",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-transform": {
+      "hash": "0d234a6fbf554dcf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0d234a6fbf554dcf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-permcomb": {
+      "hash": "5f7e0d6c9df85115",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5f7e0d6c9df85115",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-binomial": {
+      "hash": "b1e56c2002c18778",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b1e56c2002c18778",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-symmetry": {
+      "hash": "7a8d6924fb42e01e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7a8d6924fb42e01e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-recursion": {
+      "hash": "42145b0e5ba8c7f0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "42145b0e5ba8c7f0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-catalan": {
+      "hash": "5fafac2b782048ef",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "5fafac2b782048ef",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-replace": {
+      "hash": "89de2adfe63967bd",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "89de2adfe63967bd",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-bayes": {
+      "hash": "e984042e316a0a69",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e984042e316a0a69",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-randvar": {
+      "hash": "7fa4cabfa606cccb",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7fa4cabfa606cccb",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g6-distrib": {
+      "hash": "70163111c8f581a0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "70163111c8f581a0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-unitfrac": {
+      "hash": "40c4b8c5724cbb31",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "40c4b8c5724cbb31",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-propor": {
+      "hash": "9b5e0ca846ddc15e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9b5e0ca846ddc15e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-percentapp": {
+      "hash": "4f64484292a7d3f7",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "4f64484292a7d3f7",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-ratops": {
+      "hash": "8676eaf924820fb4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "8676eaf924820fb4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-todecimal": {
+      "hash": "e484063f5bffc334",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e484063f5bffc334",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-expand": {
+      "hash": "97e15a761f9adf3c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "97e15a761f9adf3c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-multistep": {
+      "hash": "72479424c27bdabd",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "72479424c27bdabd",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-eqineq": {
+      "hash": "27d66d31a960f8f0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "27d66d31a960f8f0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-scaledraw": {
+      "hash": "30d4bdabfa74d03c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "30d4bdabfa74d03c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-construct": {
+      "hash": "f8664b0f087644cb",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f8664b0f087644cb",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-circles": {
+      "hash": "30f6811e6b60f0c2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "30f6811e6b60f0c2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-anglerel": {
+      "hash": "3013498c97add2b8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3013498c97add2b8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-solids": {
+      "hash": "f56ea5757d779fbf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f56ea5757d779fbf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-sampling": {
+      "hash": "1c1ed2413ee9143e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "1c1ed2413ee9143e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-probmodel": {
+      "hash": "f028e528d80c1dae",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f028e528d80c1dae",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-compound": {
+      "hash": "36c535ef3bbcfa22",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "36c535ef3bbcfa22",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-modpow": {
+      "hash": "c75a9ab17d914863",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c75a9ab17d914863",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-euler": {
+      "hash": "b2ae19d09df04733",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b2ae19d09df04733",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-triples": {
+      "hash": "0e68c783cddd5b52",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0e68c783cddd5b52",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-contfrac": {
+      "hash": "552fd58b24fd2faf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "552fd58b24fd2faf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-rsa": {
+      "hash": "e040bf78ca2b3138",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e040bf78ca2b3138",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-absval": {
+      "hash": "ff524c15a563b2e1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ff524c15a563b2e1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-systems": {
+      "hash": "f496f56e69aa11dc",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f496f56e69aa11dc",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-factorquad": {
+      "hash": "63d8481cdda96a8b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "63d8481cdda96a8b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-solvequad": {
+      "hash": "a4761144d89ed127",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a4761144d89ed127",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-graphquad": {
+      "hash": "182176258d3917ed",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "182176258d3917ed",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-exponen": {
+      "hash": "eec5425805f2a7c0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "eec5425805f2a7c0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-proofs": {
+      "hash": "42e1b8c757b0e9de",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "42e1b8c757b0e9de",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-centers": {
+      "hash": "753fa9cecd9af021",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "753fa9cecd9af021",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-circthm": {
+      "hash": "bb1033bdc5eac719",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "bb1033bdc5eac719",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-heron": {
+      "hash": "dddc2ab7b98fc5d8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "dddc2ab7b98fc5d8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-frustum": {
+      "hash": "7d97150bcecf0a11",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7d97150bcecf0a11",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-coordgeo": {
+      "hash": "61e4cf7538119caa",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "61e4cf7538119caa",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-inclexcl3": {
+      "hash": "c267e83098f5e44a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c267e83098f5e44a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-genfunc": {
+      "hash": "a0ae2c6b7eec4dbd",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a0ae2c6b7eec4dbd",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-partitions": {
+      "hash": "0fe4075f52ebee54",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0fe4075f52ebee54",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-graphtheo": {
+      "hash": "66371bf72e76432a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "66371bf72e76432a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-ramsey": {
+      "hash": "2610e82fb0e4b0a5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "2610e82fb0e4b0a5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-bayes": {
+      "hash": "124b7b976ca5d303",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "124b7b976ca5d303",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-joint": {
+      "hash": "22fd8fe038a3182f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "22fd8fe038a3182f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-variance": {
+      "hash": "33bd5bbf254edfd8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "33bd5bbf254edfd8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-distrib": {
+      "hash": "f7bd0d476edb2dfa",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f7bd0d476edb2dfa",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g7-markov": {
+      "hash": "f0c66ab1d69ded14",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f0c66ab1d69ded14",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-irrational": {
+      "hash": "3f6438ac3ac0536e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3f6438ac3ac0536e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-radicals": {
+      "hash": "c003a8a8b9f1bc4d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c003a8a8b9f1bc4d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-scinot": {
+      "hash": "c93ee72a6ad79a6b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c93ee72a6ad79a6b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-propgraph": {
+      "hash": "eb16e167b1cf2ad1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "eb16e167b1cf2ad1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-linear": {
+      "hash": "4f5ccf537a21609a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "4f5ccf537a21609a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-systems": {
+      "hash": "96d8f2561835add0",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "96d8f2561835add0",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-funcdef": {
+      "hash": "01803a5972316651",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "01803a5972316651",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-funccomp": {
+      "hash": "e2cd298af8da8cda",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e2cd298af8da8cda",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-funcmodel": {
+      "hash": "e304c4b17974604b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "e304c4b17974604b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-funcgraph": {
+      "hash": "8621c16128a235b8",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "8621c16128a235b8",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-transform": {
+      "hash": "9d4c84540df93750",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9d4c84540df93750",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-dilations": {
+      "hash": "a752c33a86ddabc1",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a752c33a86ddabc1",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-angleAA": {
+      "hash": "4eb36bf4f4296d39",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "4eb36bf4f4296d39",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-pythag": {
+      "hash": "9fca43b4a2e88faf",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9fca43b4a2e88faf",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-solids": {
+      "hash": "6e2ac9b33790bf6a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "6e2ac9b33790bf6a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-scatter": {
+      "hash": "37e1db6a2fdfea73",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "37e1db6a2fdfea73",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-fitline": {
+      "hash": "3146b2ec4a07ae87",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "3146b2ec4a07ae87",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-twoway": {
+      "hash": "15a63bf091fcb549",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "15a63bf091fcb549",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-modfull": {
+      "hash": "4022c70231d8f43b",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "4022c70231d8f43b",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-quadres": {
+      "hash": "c579ea44e8b55346",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c579ea44e8b55346",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-pell": {
+      "hash": "84e28934d6a2f1b4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "84e28934d6a2f1b4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-flt": {
+      "hash": "7956dda0f4204886",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7956dda0f4204886",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-primality": {
+      "hash": "08fba3c240ea1ace",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "08fba3c240ea1ace",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-rsa": {
+      "hash": "73e1fc31061a8191",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "73e1fc31061a8191",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-polynom": {
+      "hash": "ecb8c80a7c49d3dc",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ecb8c80a7c49d3dc",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-rational": {
+      "hash": "045dd563d43305fb",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "045dd563d43305fb",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-radicaleq": {
+      "hash": "7c0253dab0202d9d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "7c0253dab0202d9d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-vieta": {
+      "hash": "c093d781645a47f4",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "c093d781645a47f4",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-nonlinear": {
+      "hash": "02908c2da54cc912",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "02908c2da54cc912",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-inequal": {
+      "hash": "9f0b50c1b9e451c5",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9f0b50c1b9e451c5",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-series": {
+      "hash": "ca585bddf500aaab",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ca585bddf500aaab",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-complex": {
+      "hash": "f220ef94c6f0c849",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f220ef94c6f0c849",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-ceva": {
+      "hash": "ea40a4b4e4046d7a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ea40a4b4e4046d7a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-power": {
+      "hash": "a5fd547af3fe0b9a",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a5fd547af3fe0b9a",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-trig": {
+      "hash": "54dca24dcf340c30",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "54dca24dcf340c30",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-euler": {
+      "hash": "0f55f656640a7ee3",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "0f55f656640a7ee3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-vectors": {
+      "hash": "864714ac73d80ec6",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "864714ac73d80ec6",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-noneuclid": {
+      "hash": "03f96b17aef1ae60",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "03f96b17aef1ae60",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-genfunc": {
+      "hash": "78e31a591d2e089d",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "78e31a591d2e089d",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-polya": {
+      "hash": "a0d11b3c43cb174c",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a0d11b3c43cb174c",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-planar": {
+      "hash": "9aaac0526ca475d2",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "9aaac0526ca475d2",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-ramsey": {
+      "hash": "f9608558072a051f",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "f9608558072a051f",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-designs": {
+      "hash": "ecf5adebb62689ce",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "ecf5adebb62689ce",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-pgf": {
+      "hash": "d1ad0e2d2b07c768",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "d1ad0e2d2b07c768",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-randwalk": {
+      "hash": "17cacd3923f61cf3",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "17cacd3923f61cf3",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-continuous": {
+      "hash": "a816404561be6a25",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "a816404561be6a25",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-clt": {
+      "hash": "643d7df6b7c8cd48",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "643d7df6b7c8cd48",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
+        }
+      ]
+    },
+    "bank:g8-entropy": {
+      "hash": "b87f6c4c20e1fb2e",
+      "version": 1,
+      "by": "repository author",
+      "role": "author",
+      "at": "2026-09-03T21:53:24.154Z",
+      "note": "",
+      "history": [
+        {
+          "hash": "b87f6c4c20e1fb2e",
+          "version": 1,
+          "by": "repository author",
+          "role": "author",
+          "at": "2026-09-03T21:53:24.154Z",
+          "note": ""
         }
       ]
     }

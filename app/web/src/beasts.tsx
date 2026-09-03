@@ -11,8 +11,8 @@ export const BEASTS: Record<string, { name: string; hue: string; dark: string; h
 
 export type Mood = "idle" | "happy" | "oops" | "thinking";
 
-export function Beast({ kind, size = 48, mood = "idle", still = false }: {
-  kind: string; size?: number; mood?: Mood; still?: boolean;
+export function Beast({ kind, size = 48, mood = "idle", still = false, gear }: {
+  kind: string; size?: number; mood?: Mood; still?: boolean; gear?: string[];
 }) {
   const b = BEASTS[kind] || BEASTS.pip;
 
@@ -59,10 +59,105 @@ export function Beast({ kind, size = 48, mood = "idle", still = false }: {
           </>
         )}
         <path d={mouth} stroke="#2B1B3D" strokeWidth="4" fill="none" strokeLinecap="round" />
+        {gear && gear.length > 0 && <GearLayer gear={gear} eyes={ex} pupilY={pupilY} />}
       </svg>
     </span>
   );
 }
+
+/* Avatar accessories (spec 5.3): small original shapes layered on the
+   monster. Purely decorative — the wardrobe names each item in text — so
+   the whole layer is hidden from assistive technology. Illustration colours
+   are fixed on purpose, like the monsters' own hues. */
+const GEAR_IDS = ["cap", "crown", "wizard", "laurel", "halo", "glasses", "monocle", "stars",
+  "pencil", "trophy", "hammer", "compass", "sparkles", "numbers", "flames"];
+
+function starPoints(cx: number, cy: number, r: number) {
+  return Array.from({ length: 10 }, (_, i) => {
+    const a = (-90 + i * 36) * Math.PI / 180, rr = i % 2 ? r * 0.45 : r;
+    return `${(cx + rr * Math.cos(a)).toFixed(1)},${(cy + rr * Math.sin(a)).toFixed(1)}`;
+  }).join(" ");
+}
+const sparkle = (x: number, y: number, r: number) =>
+  `M${x} ${y - r} L${x + r * .3} ${y - r * .3} L${x + r} ${y} L${x + r * .3} ${y + r * .3} L${x} ${y + r} L${x - r * .3} ${y + r * .3} L${x - r} ${y} L${x - r * .3} ${y - r * .3} Z`;
+
+function GearLayer({ gear, eyes, pupilY }: { gear: string[]; eyes: number[]; pupilY: number }) {
+  const gold = "#E8C14A", ink = "#2B1B3D", violet = "#8B6BF0", teal = "#2FB59A", orange = "#F2913B", rose = "#EF6F8E";
+  const has = (id: string) => gear.includes(id);
+  const last = eyes[eyes.length - 1];
+  return (
+    <g aria-hidden="true" className="gear">
+      {/* hats */}
+      {has("cap") && <>
+        <path d="M30 27 Q50 6 70 27 Z" fill={teal} />
+        <path d="M68 25 L90 27 L88 32 L68 30 Z" fill={teal} />
+        <rect x="28" y="24" width="52" height="5" rx="2.5" fill={ink} opacity=".75" />
+      </>}
+      {has("crown") && <>
+        <path d="M30 27 L33 10 L42 20 L50 5 L58 20 L67 10 L70 27 Z" fill={gold} stroke={ink} strokeWidth="2" strokeLinejoin="round" />
+        <circle cx="33" cy="10" r="2.6" fill={rose} /><circle cx="50" cy="5" r="2.6" fill={rose} /><circle cx="67" cy="10" r="2.6" fill={rose} />
+      </>}
+      {has("wizard") && <>
+        <path d="M34 27 L54 1 L68 27 Z" fill={violet} stroke={ink} strokeWidth="2" strokeLinejoin="round" />
+        <ellipse cx="51" cy="27" rx="23" ry="4" fill={violet} stroke={ink} strokeWidth="2" />
+        <polygon points={starPoints(56, 15, 4)} fill={gold} />
+      </>}
+      {has("laurel") && <>
+        <path d="M28 25 Q34 10 50 8 Q66 10 72 25" fill="none" stroke={teal} strokeWidth="3" strokeLinecap="round" />
+        {[[32, 19, -50], [39, 12, -25], [61, 12, 25], [68, 19, 50]].map(([x, y, a]) =>
+          <ellipse key={x} cx={x} cy={y} rx="5" ry="2.6" fill={teal} transform={`rotate(${a} ${x} ${y})`} />)}
+      </>}
+      {has("halo") && <ellipse cx="50" cy="7" rx="18" ry="5" fill="none" stroke={gold} strokeWidth="3" />}
+      {/* eyes */}
+      {has("glasses") && <>
+        {eyes.map(x => <circle key={x} cx={x} cy="54" r="10.5" fill="none" stroke={ink} strokeWidth="2.5" />)}
+        {eyes.slice(1).map((x, i) => <line key={x} x1={eyes[i] + 10.5} y1="54" x2={x - 10.5} y2="54" stroke={ink} strokeWidth="2.5" />)}
+        <line x1={eyes[0] - 10.5} y1="54" x2="16" y2="50" stroke={ink} strokeWidth="2.5" />
+        <line x1={last + 10.5} y1="54" x2="84" y2="50" stroke={ink} strokeWidth="2.5" />
+      </>}
+      {has("monocle") && <>
+        <circle cx={last} cy="54" r="10.5" fill="none" stroke={gold} strokeWidth="2.5" />
+        <path d={`M${last + 8} 61 Q${last + 16} 70 ${last + 12} 84`} fill="none" stroke={gold} strokeWidth="1.8" strokeDasharray="2 2" />
+      </>}
+      {has("stars") && eyes.map(x => <polygon key={x} points={starPoints(x, pupilY, 4.6)} fill={gold} />)}
+      {/* held */}
+      {has("pencil") && <g transform="rotate(-35 90 70)">
+        <rect x="87" y="50" width="6" height="32" rx="1" fill={gold} />
+        <rect x="87" y="50" width="6" height="4" fill={rose} />
+        <path d="M87 82 L90 90 L93 82 Z" fill="#F6E7C8" />
+        <path d="M89 87 L90 90 L91 87 Z" fill={ink} />
+      </g>}
+      {has("trophy") && <>
+        <path d="M82 60 H96 V70 A7 7 0 0 1 82 70 Z" fill={gold} stroke={ink} strokeWidth="1.5" />
+        <path d="M82 62 Q77 66 82 70 M96 62 Q100 66 96 70" fill="none" stroke={gold} strokeWidth="2.5" />
+        <rect x="87" y="77" width="4" height="5" fill={gold} />
+        <rect x="83" y="82" width="12" height="4" rx="1" fill={ink} />
+      </>}
+      {has("hammer") && <>
+        <rect x="88" y="60" width="5" height="30" rx="2" fill="#B0703A" />
+        <rect x="80" y="54" width="20" height="10" rx="2" fill={ink} />
+      </>}
+      {has("compass") && <>
+        <circle cx="90" cy="72" r="8.5" fill="#fff" stroke={ink} strokeWidth="2" />
+        <path d="M90 65 L92 72 L90 79 L88 72 Z" fill={rose} />
+        <path d="M90 72 L92 72 L90 79 L88 72 Z" fill={ink} />
+        <circle cx="90" cy="72" r="1.4" fill={ink} />
+      </>}
+      {/* trails */}
+      {has("sparkles") && [[9, 58, 5], [13, 76, 4], [6, 92, 5]].map(([x, y, r]) =>
+        <path key={x} d={sparkle(x, y, r)} fill={gold} />)}
+      {has("numbers") && [[5, 63, "2"], [10, 81, "7"], [3, 97, "3"]].map(([x, y, t]) =>
+        <text key={String(x)} x={x} y={y} fontSize="10" fontWeight="700" fontFamily="monospace" fill={violet}>{t}</text>)}
+      {has("flames") && <>
+        <path d="M22 100 Q23 88 30 90 Q31 82 36 88 Q41 84 42 100 Z" fill={orange} />
+        <path d="M27 100 Q30 92 34 94 Q36 90 37 100 Z" fill={gold} />
+        <path d="M58 100 Q60 90 66 92 Q68 86 72 90 Q77 88 78 100 Z" fill={orange} />
+        <path d="M63 100 Q66 93 69 95 Q71 91 73 100 Z" fill={gold} />
+      </>}
+    </g>
+  );
+}
+export { GEAR_IDS };
 
 /* A short burst of confetti. Drawn here rather than pulled from a library:
    a dozen divs is cheaper than a dependency, and it respects reduced motion

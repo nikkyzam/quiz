@@ -1,0 +1,94 @@
+/* Authoring tool (spec 8.1, 8.5, 3.5.5). Professional layout for teachers and
+   admins; every colour comes from the shared tokens in styles.css. */
+
+.au-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.au-head h1{margin:0}
+.au-tabs{flex-wrap:wrap}
+
+/* drafts list */
+.au-list{list-style:none;margin:0;padding:0}
+.au-list .drow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.au-list .dsub{grid-column:1 / -1}
+.au-list .pills{grid-column:1 / -1;margin-top:6px}
+.au-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+.au-toolbar .checkline{margin-left:auto}
+
+/* status pills reuse .pill; state colours are meaning colours only */
+.pill.st-draft{color:var(--muted)}
+.pill.st-submitted{color:var(--star);border-color:var(--star);font-weight:600}
+.pill.st-approved{color:var(--good);border-color:var(--good);font-weight:600}
+.pill.st-changes_requested,.pill.st-changed,.pill.st-unapproved{color:var(--bad);border-color:var(--bad);font-weight:600}
+
+/* editor: form on the left, checks and preview on the right; stacks on phones */
+.au-editor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.au-editor{grid-template-columns:1fr}}
+.au-editor .card{padding:calc(16px * var(--step))}
+.au-editor h2{margin-top:0}
+.au-editor h3{margin-top:14px}
+.au-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.au-row{grid-template-columns:1fr}}
+
+.field textarea,.field select{width:100%;font-family:var(--body);font-size:calc(1rem * var(--step));
+  min-height:var(--tap);padding:10px calc(14px * var(--step));border:2px solid var(--line-strong);
+  border-radius:var(--r);background:var(--paper);color:var(--ink)}
+.field textarea{resize:vertical;line-height:1.45}
+.field textarea:focus,.field select:focus{border-color:var(--accent)}
+.field textarea.mono{font-family:var(--mono)}
+
+/* option and item rows: text, correct mark, remove */
+.au-opts{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.au-opt{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;
+  background:var(--card);border:2px solid var(--line);border-radius:var(--r);padding:8px 10px}
+.au-opt.correct{border-color:var(--good);background:var(--good-bg)}
+.au-opt .key{display:grid;place-items:center;width:1.9em;height:1.9em;border-radius:50%;
+  background:var(--chip);color:var(--accent);font-family:var(--display);font-weight:600;font-size:calc(.85rem * var(--step))}
+.au-opt input[type=text],.au-opt input[type=number]{width:100%;font-family:var(--body);font-size:calc(1rem * var(--step));
+  min-height:var(--tap);padding:0 12px;border:2px solid var(--line-strong);border-radius:var(--r-sm);
+  background:var(--paper);color:var(--ink)}
+.au-opt .checkline{margin:0;white-space:nowrap}
+.au-opt .checkline input{width:24px;height:24px;accent-color:var(--good)}
+.au-optbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.au-small{min-height:var(--tap);padding:0 1em;border-radius:var(--r-pill);background:var(--card);color:var(--accent);
+  border:2px solid var(--line-strong);font-family:var(--display);font-weight:600;font-size:calc(.9rem * var(--step))}
+.au-small:hover:not(:disabled){border-color:var(--accent)}
+.au-small:disabled{opacity:.5;cursor:default}
+.au-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+
+/* lint panel */
+.au-lint{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.au-lint li{border-radius:var(--r-sm);padding:8px 12px;font-size:calc(.92rem * var(--step));border:2px solid var(--line)}
+.au-lint li.error{border-color:var(--bad);background:var(--bad-bg);color:var(--ink)}
+.au-lint li.warning{border-color:var(--star);background:color-mix(in srgb, var(--star) 12%, var(--card))}
+.au-lint li b{font-family:var(--display);font-weight:600;margin-right:.4em}
+.au-lint li.error b{color:var(--bad)} .au-lint li.warning b{color:var(--star)}
+.au-clean{color:var(--good);font-weight:700;margin:0}
+
+/* preview renders the learner card inside the editor */
+.au-preview{border:2px dashed var(--line-strong);border-radius:var(--r-lg);padding:calc(14px * var(--step));background:var(--paper)}
+.au-preview .opts{margin-top:12px}
+
+/* export */
+.au-pre{background:var(--paper);border:2px solid var(--line);border-radius:var(--r);padding:12px 14px;
+  font-family:var(--mono);font-size:calc(.82rem * var(--step));line-height:1.5;overflow-x:auto;
+  white-space:pre;margin:8px 0 0;color:var(--ink)}
+
+/* review */
+.au-review{border:2px solid var(--star);border-radius:var(--r-lg);padding:calc(14px * var(--step));
+  background:color-mix(in srgb, var(--star) 10%, var(--card));margin-top:16px}
+.au-review h3{margin-top:0}
+.au-note{border:2px solid var(--line);border-radius:var(--r);padding:10px 12px;background:var(--paper);margin-top:8px;
+  font-size:calc(.92rem * var(--step))}
+
+/* assets and approvals */
+.au-table{width:100%;border-collapse:collapse;font-size:calc(.9rem * var(--step));background:var(--card);
+  border:2px solid var(--line);border-radius:var(--r);overflow:hidden}
+.au-table th,.au-table td{text-align:left;padding:10px 12px;border-bottom:2px solid var(--line);vertical-align:top}
+.au-table th{font-family:var(--display);font-weight:600;color:var(--muted);font-size:calc(.8rem * var(--step));
+  text-transform:uppercase;letter-spacing:.06em;background:var(--chip)}
+.au-table tr:last-child td{border-bottom:0}
+.au-table code,.au-hash{font-family:var(--mono);font-size:calc(.8rem * var(--step));color:var(--muted)}
+.au-asset{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start}
+.au-asset .pills{grid-column:1 / -1;margin-top:6px}
+.au-lic{font-size:calc(.85rem * var(--step));color:var(--muted)}
+.au-lic a{color:var(--accent)}
+.au-summary{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:0 0 14px}
