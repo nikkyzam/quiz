@@ -15,7 +15,7 @@
 import crypto from "node:crypto";
 import { db, now } from "./db.js";
 import { getSetting, setSetting } from "./policy.js";
-import { createUser, createSession, findUserByEmail } from "./auth.js";
+import { createUser, createSession, findUserByEmail, createLearner } from "./auth.js";
 
 const b64u = b => Buffer.from(b).toString("base64url");
 const fromB64u = s => Buffer.from(String(s), "base64url");
@@ -126,9 +126,7 @@ export async function completeLaunch({ id_token, state }, { fetchImpl = fetch } 
                               role: instructor ? "teacher" : "parent", coppaConsent: true });
     userId = user.id;
     db.prepare("INSERT INTO lti_links (platform_id, subject, user_id, created_at) VALUES (?,?,?,?)").run(platform.id, claims.sub, userId, now());
-    if (!instructor)
-      db.prepare("INSERT INTO learners (id, user_id, name, beast, track, created_at) VALUES (?,?,?,?,?,?)")
-        .run(crypto.randomUUID(), userId, display, "vex", "core", now());
+    if (!instructor) createLearner({ id: crypto.randomUUID(), userId, name: display });
   }
 
   /* Bind the LMS context to a class. An instructor creates it; a learner

@@ -17,8 +17,12 @@ COPY app/server ./app/server
 COPY app/shared ./app/shared
 COPY --from=web /build/app/web/dist ./app/web/dist
 
-# The database lives on a mounted volume so it survives redeploys.
+# The database lives on a mounted volume so it survives redeploys. Personal
+# data inside it is encrypted under DATA_KEY, which must be supplied as a
+# secret at deploy time (the server refuses to start in production without
+# it); backups are sealed under the same key.
 ENV DB_FILE=/data/mathquest.db
+ENV BACKUP_ENCRYPT=1
 VOLUME /data
 EXPOSE 8080
 ENV PORT=8080

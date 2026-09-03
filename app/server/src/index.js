@@ -1,7 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import { attachUser } from "./auth.js";
-import { securityHeaders } from "./security.js";
+import { securityHeaders, rateLimit } from "./security.js";
 import { api } from "./routes.js";
 import { backup } from "./backup.js";
 
@@ -11,6 +11,11 @@ const PORT = process.env.PORT || 4000;
 app.set("trust proxy", 1);          // correct req.ip behind a proxy
 app.disable("x-powered-by");
 app.use(securityHeaders);
+/* Abuse limit per address across the whole API (11.6): generous enough for a
+   classroom behind one NAT, low enough that a single client cannot flood the
+   process. Login and registration keep their own stricter limits. */
+const globalLimit = Number(process.env.GLOBAL_LIMIT_PER_MINUTE || 1200);
+app.use("/api", rateLimit({ windowMs: 60_000, max: globalLimit, key: req => `all:${req.ip}` }));
 app.use(express.json({ limit: "64kb" }));
 app.use(cookieParser());
 app.use(attachUser);
@@ -54,6 +59,19 @@ app.use((err, req, res, _next) => {
 });
 
 const server = app.listen(PORT, () => console.log(`API listening on http://localhost:${PORT}`));
+/* Slow-client protection (11.6): a connection that will not finish its headers
+   or body promptly is dropped rather than left holding a slot. */
+server.headersTimeout = 15_000;
+server.requestTimeout = 30_000;
+server.keepAliveTimeout = 5_000;
+server.maxHeadersCount = 100;
+
+/* OIDC providers declared in the environment (11.6). */
+try {
+  const { loadFromEnv } = await import("./oidc.js");
+  const n = loadFromEnv();
+  if (n) console.log(`OIDC providers loaded: ${n}`);
+} catch (e) { console.error("[oidc]", e.message); }
 
 /* ---------- scheduled backups ----------
    A backup nobody remembers to take is not a backup. Off by default so tests

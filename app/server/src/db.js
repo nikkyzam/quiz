@@ -1,11 +1,14 @@
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
+import { initKeys, wrapDatabase, rekey } from "./crypto.js";
 
 const FILE = process.env.DB_FILE || "./data/mathquest.db";
 
 if (FILE !== ":memory:") mkdirSync(dirname(FILE), { recursive: true });
-export const db = new DatabaseSync(FILE);
+/* Personal data is encrypted at rest (10.3); reads decrypt transparently. */
+initKeys({ dbFile: FILE });
+export const db = wrapDatabase(new DatabaseSync(FILE));
 
 db.exec("PRAGMA journal_mode = WAL");
 db.exec("PRAGMA foreign_keys = ON");
@@ -430,6 +433,38 @@ CREATE TABLE IF NOT EXISTS user_prefs (
   updated_at    TEXT NOT NULL
 );
 
+-- OpenID Connect sign-in (spec 11.6, 9.1): providers, in-flight states, links.
+CREATE TABLE IF NOT EXISTS oidc_providers (
+  id            TEXT PRIMARY KEY,
+  name          TEXT NOT NULL,
+  issuer        TEXT NOT NULL,
+  client_id     TEXT NOT NULL,
+  client_secret TEXT NOT NULL,
+  auth_url      TEXT NOT NULL,
+  token_url     TEXT NOT NULL,
+  jwks_url      TEXT NOT NULL,
+  scopes        TEXT NOT NULL,
+  default_role  TEXT NOT NULL DEFAULT 'parent',
+  email_domain  TEXT,
+  created_at    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS oidc_states (
+  state        TEXT PRIMARY KEY,
+  provider_id  TEXT NOT NULL,
+  nonce        TEXT NOT NULL,
+  verifier     TEXT NOT NULL,
+  redirect_uri TEXT NOT NULL,
+  created_at   TEXT NOT NULL,
+  expires_at   TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS oidc_links (
+  provider_id TEXT NOT NULL,
+  subject     TEXT NOT NULL,
+  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at  TEXT NOT NULL,
+  PRIMARY KEY (provider_id, subject)
+);
+
 -- Bandit posteriors for difficulty selection (spec 6.3): one Beta(successes+1,
 -- failures+1) per learner, topic and tier.
 CREATE TABLE IF NOT EXISTS bandit_arms (
@@ -485,9 +520,16 @@ export function migrate() {
   if (addColumn("runs", "client_id", "TEXT")) applied.push("runs.client_id");
   // 4.4.1: users belong to a school
   if (addColumn("users", "school_id", "TEXT")) applied.push("users.school_id");
+  // 10.3: blind index for encrypted email lookups
+  if (addColumn("users", "email_hash", "TEXT")) applied.push("users.email_hash");
+  db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_hash ON users(email_hash)");
   return applied;
 }
 
 const appliedMigrations = migrate();
+/* Any personal data still in clear (a database from before encryption) is
+   encrypted on boot, and the blind index filled in. */
+const encryptedRows = rekey(db);
+if (encryptedRows && process.env.NODE_ENV !== "test") console.log(`encrypted ${encryptedRows} rows of personal data at rest`);
 if (appliedMigrations.length && process.env.NODE_ENV !== "test")
   console.log("migrations applied:", appliedMigrations.join(", "));

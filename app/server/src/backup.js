@@ -4,23 +4,36 @@
    keeps running, so a backup never captures a half-written transaction. */
 
 import { db } from "./db.js";
-import { mkdirSync, readdirSync, statSync, unlinkSync } from "node:fs";
+import { mkdirSync, readdirSync, statSync, unlinkSync, copyFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { encryptFile, decryptFile } from "./crypto.js";
 
-export function backup(dir = "./data/backups", keep = 7) {
+/* With BACKUP_ENCRYPT=1 (the production default in the Dockerfile) the
+   snapshot is sealed under the data key: personal data inside is already
+   ciphertext, and the file as a whole is useless without DATA_KEY (10.3). */
+export function backup(dir = "./data/backups", keep = 7, { encrypt = process.env.BACKUP_ENCRYPT === "1" } = {}) {
   mkdirSync(dir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   /* Absolute, so a caller with a different working directory can find it. */
   const file = resolve(join(dir, `mathquest-${stamp}.db`));
   db.exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
+  let out = file;
+  if (encrypt) { out = file + ".enc"; encryptFile(file, out); unlinkSync(file); }
   prune(dir, keep);
-  return { file, at: new Date().toISOString() };
+  return { file: out, encrypted: encrypt, at: new Date().toISOString() };
+}
+
+/* Turn a snapshot (sealed or not) back into a plain SQLite file. */
+export function restoreFile(src, dst) {
+  if (src.endsWith(".enc")) return decryptFile(src, dst);
+  copyFileSync(src, dst);
+  return dst;
 }
 
 /* Keep the most recent N, so a scheduled backup cannot fill the disk. */
 export function prune(dir, keep) {
   let files;
-  try { files = readdirSync(dir).filter(f => f.endsWith(".db")); } catch { return []; }
+  try { files = readdirSync(dir).filter(f => f.endsWith(".db") || f.endsWith(".db.enc")); } catch { return []; }
   const sorted = files
     .map(f => ({ f, t: statSync(join(dir, f)).mtimeMs }))
     .sort((a, b) => b.t - a.t);

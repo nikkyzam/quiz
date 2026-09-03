@@ -2,7 +2,7 @@ import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
 import {
-  createUser, findUserByEmail, verifyPassword,
+  createUser, findUserByEmail, verifyPassword, createLearner,
   createSession, destroySession, requireAuth,
   createResetToken, consumeResetToken, setPassword
 } from "./auth.js";
@@ -33,6 +33,7 @@ import { teacher as teacherRoutes, percentileFor } from "./routes-teacher.js";
 import { admin as adminRoutes } from "./routes-admin.js";
 import { student as studentRoutes } from "./routes-student.js";
 import { integrations as integrationRoutes } from "./routes-integrations.js";
+import { securityRoutes } from "./routes-security.js";
 import * as webhooks from "./webhooks.js";
 import { track } from "./analytics.js";
 import { LOCALES } from "../../shared/i18n.mjs";
@@ -46,6 +47,7 @@ api.use(teacherRoutes);
 api.use(adminRoutes);
 api.use(studentRoutes);
 api.use(integrationRoutes);
+api.use(securityRoutes);
 
 
 
@@ -195,10 +197,9 @@ api.post("/learners", requireAuth, (req, res) => {
   if (track !== undefined && !validTrack(track)) return res.status(400).json({ error: "unknown_track" });
   const id = randomUUID();
   const tr = validTrack(track) ? track : "core";
-  db.prepare("INSERT INTO learners (id, user_id, name, beast, track, created_at) VALUES (?,?,?,?,?,?)")
-    .run(id, req.user.id, String(name).trim().slice(0, 40), beast || "vex", tr, now());
+  const learner = createLearner({ id, userId: req.user.id, name, beast: beast || "vex", track: tr });
   audit(req.user.id, "learner.created", id, req);
-  res.json({ learner: { id, name: String(name).trim(), beast: beast || "vex", track: tr } });
+  res.json({ learner });
 });
 
 /* What the evidence suggests, so a parent choosing a track is not guessing. */
@@ -944,7 +945,7 @@ api.get("/classes/:id/progress", requireAuth, requireTeacher, (req, res) => {
   if (!cls) return res.status(403).json({ error: "not_your_class" });
 
   const members = db.prepare(`SELECT l.id, l.name FROM class_members m
-    JOIN learners l ON l.id = m.learner_id WHERE m.class_id=? ORDER BY l.name`).all(cls.id);
+    JOIN learners l ON l.id = m.learner_id WHERE m.class_id=?`).all(cls.id).sort((a, b) => a.name.localeCompare(b.name));
   const assignments = db.prepare("SELECT * FROM assignments WHERE class_id=?").all(cls.id);
 
   const groupOf = {};
@@ -1334,7 +1335,10 @@ function daysLeftThisWeek() {
    a PDF — no binary PDF library, and no dependency to keep patched. */
 function toCsv(rows, columns) {
   const esc = v => {
-    const s = v === null || v === undefined ? "" : String(v);
+    let s = v === null || v === undefined ? "" : String(v);
+    /* A cell starting with = + - @ would run as a formula in a spreadsheet;
+       a leading apostrophe makes it text (CSV injection). */
+    if (/^[=+\-@]/.test(s)) s = "'" + s;
     return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
   return [columns.join(","), ...rows.map(r => columns.map(c => esc(r[c])).join(","))].join("\n");

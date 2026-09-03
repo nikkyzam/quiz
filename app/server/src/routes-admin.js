@@ -5,7 +5,7 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
-import { requireAuth } from "./auth.js";
+import { requireAuth, findUserByEmail } from "./auth.js";
 import { audit, requireRole } from "./security.js";
 import { getSetting, setSetting, validThreshold } from "./policy.js";
 import { MASTERY } from "./helpers.js";
@@ -39,7 +39,7 @@ admin.post("/admin/schools", requireAuth, requireAdmin, (req, res) => {
    needs to browse a list of people. */
 admin.put("/admin/users/school", requireAuth, requireAdmin, (req, res) => {
   const { email, schoolId } = req.body || {};
-  const user = db.prepare("SELECT id, role FROM users WHERE email=?").get(String(email || "").toLowerCase());
+  const user = findUserByEmail(String(email || ""));
   if (!user) return res.status(404).json({ error: "unknown_user" });
   if (schoolId && !db.prepare("SELECT 1 FROM schools WHERE id=?").get(schoolId)) return res.status(404).json({ error: "unknown_school" });
   db.prepare("UPDATE users SET school_id=? WHERE id=?").run(schoolId || null, user.id);

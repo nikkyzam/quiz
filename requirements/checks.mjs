@@ -608,7 +608,14 @@ export const CHECKS = {
       assert(cols.has("role"), "migration did not add users.role");
       assert(cols.has("coppa_consent_at"), "migration did not add users.coppa_consent_at");
       const row = db.prepare("SELECT * FROM users WHERE id = ?").get("legacy-1");
-      assert(row && row.name === "Legacy User", "existing user row was lost during migration");
+      assert(row, "existing user row was lost during migration");
+      /* Personal data from before encryption at rest (10.3) is encrypted on
+         first boot: the raw row must now be ciphertext, and it must still
+         decrypt to what was there, with the blind index filled in. */
+      const { decrypt, blindIndex, isEncrypted } = await import("../app/server/src/crypto.js");
+      assert(isEncrypted(row.name) && isEncrypted(row.email), "legacy personal data was left in clear");
+      assert(decrypt(row.name) === "Legacy User" && decrypt(row.email) === "legacy@b.com", "encrypted legacy row does not decrypt to the original");
+      assert(row.email_hash === blindIndex("legacy@b.com"), "blind index not filled for the legacy row");
       assert(row.role === "parent", `existing user got role "${row.role}", expected the default`);
 
       /* And the app must actually serve requests against the upgraded file. */
@@ -2335,7 +2342,8 @@ export const CHECKS = {
     rmSync("app/server/" + dbFile.replace("./", ""), { force: true });
     const srv = spawn("node", ["src/index.js"], {
       cwd: "app/server",
-      env: { ...process.env, NODE_ENV: "production", PORT: String(port), DB_FILE: dbFile },
+      env: { ...process.env, NODE_ENV: "production", PORT: String(port), DB_FILE: dbFile,
+             DATA_KEY: Buffer.alloc(32, 7).toString("base64") },
       stdio: "ignore"
     });
     try {
@@ -3631,6 +3639,207 @@ export const CHECKS = {
       return `signed webhooks with retry, GraphQL, LTI 1.3 launch verified against JWKS, SMTP + Web Push (decrypted by subscriber), tutor via provider with redaction/safety/fallback, analytics aggregates, OneRoster CSV + REST`;
     } finally {
       for (const s of servers) { try { s.close(); s.closeAllConnections?.(); } catch {} }
+    }
+  },
+
+
+  /* 10.3 + 11.6 + 13.9 — security depth: personal data encrypted at rest with
+     key rotation, production refusing to start without a key, a global abuse
+     limit and slow-client timeouts, OpenID Connect sign-in with PKCE against
+     a mock provider, retention deletion, and an automated penetration test
+     proven against a vulnerable stand-in before it is run against the real
+     server. */
+  "security-depth": async () => {
+    const http = await import("node:http");
+    const cryptoMod = await import("node:crypto");
+    const { spawn } = await import("node:child_process");
+    const { rmSync } = await import("node:fs");
+    const { DatabaseSync } = await import("node:sqlite");
+    const { runSuite, PROBES } = await import("../tools/pentest.mjs");
+    const { isEncrypted, keyIdOf } = await import("../app/server/src/crypto.js");
+    const servers = [];
+    const listen = (srv, port) => new Promise(r => { srv.listen(port, "127.0.0.1", () => r()); servers.push(srv); });
+    const readBody = req => new Promise(r => { const c = []; req.on("data", d => c.push(d)); req.on("end", () => r(Buffer.concat(c).toString())); });
+    const keyA = Buffer.alloc(32, 1).toString("base64"), keyB = Buffer.alloc(32, 2).toString("base64");
+    const kidOf = k => cryptoMod.createHash("sha256").update(Buffer.from(k, "base64")).digest("hex").slice(0, 8);
+    const secDb = "./data/seccheck.db";
+    const boot = async (env, port) => {
+      const srv = spawn("node", ["src/index.js"], { cwd: "app/server", stdio: ["ignore", "ignore", "pipe"],
+        env: { ...process.env, PORT: String(port), DB_FILE: secDb, JOBS_INTERVAL_MS: "0", REGISTER_LIMIT_PER_HOUR: "1000", ADMIN_EMAILS: "boss@b.com", ...env } });
+      let stderr = ""; srv.stderr.on("data", d => { stderr += d; });
+      let up = false;
+      for (let i = 0; i < 50 && !up && srv.exitCode === null; i++) {
+        try { up = (await fetch(`http://localhost:${port}/health`)).ok; } catch {}
+        if (!up) await new Promise(r => setTimeout(r, 120));
+      }
+      return { srv, up, stderr: () => stderr, kill: () => new Promise(r => { if (srv.exitCode !== null) return r(); srv.once("exit", r); srv.kill(); }) };
+    };
+    const kid = "app/server/" + secDb.replace("./", "");
+    for (const f of [kid, kid + "-wal", kid + "-shm"]) rmSync(f, { force: true });
+    let running = null;
+    try {
+      /* ---- encryption at rest on a server with an explicit key ---- */
+      const port = 4189;
+      running = await boot({ DATA_KEY: keyA, GLOBAL_LIMIT_PER_MINUTE: "60" }, port);
+      assert(running.up, "server with DATA_KEY did not boot: " + running.stderr());
+      const c = (() => { let cookie = ""; return async (path, opts = {}) => {
+        const res = await fetch(`http://localhost:${port}/api` + path, { ...opts, headers: { "Content-Type": "application/json", ...(cookie ? { cookie } : {}), ...(opts.headers || {}) } });
+        const sc = res.headers.getSetCookie?.() || []; if (sc.length) cookie = sc.map(x => x.split(";")[0]).join("; ");
+        return { status: res.status, headers: res.headers, body: await res.json().catch(() => ({})) }; }; })();
+      const reg = await c("/auth/register", { method: "POST", body: JSON.stringify({ email: "enc@b.com", password: "a-long-enough-pass", name: "Encrypted Parent", coppaConsent: true }) });
+      assert(reg.status === 200, "registration failed on the key server");
+      const kidL = (await c("/learners", { method: "POST", body: JSON.stringify({ name: "Secret Child" }) })).body.learner;
+      let raw = new DatabaseSync(kid);
+      let u = raw.prepare("SELECT email, name, email_hash FROM users").get();
+      let l = raw.prepare("SELECT name FROM learners").get();
+      assert(isEncrypted(u.email) && isEncrypted(u.name) && isEncrypted(l.name), "personal data is stored in clear");
+      assert(!JSON.stringify([u, l]).includes("Secret Child") && !JSON.stringify([u, l]).includes("enc@b.com"), "plaintext leaked into the row");
+      assert(u.email_hash && u.email_hash.length === 64, "no blind index for the email");
+      assert(keyIdOf(u.email) === kidOf(keyA), "ciphertext not made with DATA_KEY");
+      raw.close();
+      assert((await c("/learners")).body.learners[0].name === "Secret Child", "decrypt on read failed");
+      const rawSql = new DatabaseSync(kid);
+      assert(!rawSql.prepare("SELECT 1 FROM users WHERE email=?").get("enc@b.com"), "email is findable in clear in the database");
+      rawSql.close();
+
+      /* ---- global abuse limit (11.6) ---- */
+      let limited = null;
+      for (let i = 0; i < 80 && !limited; i++) { const r = await fetch(`http://localhost:${port}/api/curriculum`); if (r.status === 429) limited = r; }
+      assert(limited, "80 rapid requests were never throttled by the global limit");
+      assert(limited.headers.get("retry-after") && limited.headers.get("ratelimit-limit") === "60", "429 lacks RateLimit/Retry-After headers");
+
+      /* ---- rotation: new key, old key still readable, rekey rewrites ---- */
+      await running.kill();
+      running = await boot({ DATA_KEY: keyB, DATA_KEY_PREVIOUS: keyA, GLOBAL_LIMIT_PER_MINUTE: "100000" }, port);
+      assert(running.up, "server did not boot after rotation: " + running.stderr());
+      const login = await c("/auth/login", { method: "POST", body: JSON.stringify({ email: "enc@b.com", password: "a-long-enough-pass" }) });
+      assert(login.status === 200 && login.body.user.name === "Encrypted Parent", "login by blind index failed after key rotation");
+      assert((await c("/learners")).body.learners[0].name === "Secret Child", "old-key ciphertext not readable with DATA_KEY_PREVIOUS");
+      const admin = (() => { let cookie = ""; return async (path, opts = {}) => {
+        const res = await fetch(`http://localhost:${port}/api` + path, { ...opts, headers: { "Content-Type": "application/json", ...(cookie ? { cookie } : {}) } });
+        const sc = res.headers.getSetCookie?.() || []; if (sc.length) cookie = sc.map(x => x.split(";")[0]).join("; ");
+        return { status: res.status, body: await res.json().catch(() => ({})) }; }; })();
+      await admin("/auth/register", { method: "POST", body: JSON.stringify({ email: "boss@b.com", password: "a-long-enough-pass", name: "Boss", coppaConsent: true }) });
+      let keys = (await admin("/admin/keys")).body;
+      assert(keys.currentKeyId === kidOf(keyB) && keys.byKey[kidOf(keyA)] >= 3 && keys.plaintext === 0, `key report before rekey: ${JSON.stringify(keys)}`);
+      const rk = (await admin("/admin/jobs/rekey", { method: "POST" })).body.result;
+      assert(rk.rewritten >= 2 && !rk.byKey[kidOf(keyA)] && rk.byKey[kidOf(keyB)] >= 5, `rekey did not rewrite rows: ${JSON.stringify(rk)}`);
+      assert((await c("/learners")).body.learners[0].name === "Secret Child", "data unreadable after rekey");
+      assert((await c("/admin/keys")).status === 403, "a parent read the key report");
+      await running.kill();
+      running = await boot({ DATA_KEY: keyB }, port);        // previous key gone
+      assert(running.up && (await c("/auth/login", { method: "POST", body: JSON.stringify({ email: "enc@b.com", password: "a-long-enough-pass" }) })).status === 200,
+        "after rekey the old key is still needed");
+      await running.kill(); running = null;
+
+      /* ---- production refuses to run without a key ---- */
+      const prod = await boot({ NODE_ENV: "production" }, 4190);
+      assert(!prod.up && prod.srv.exitCode !== 0 && /DATA_KEY is required/.test(prod.stderr()), "production started without DATA_KEY");
+
+      /* ---- OIDC with PKCE against a mock provider (11.6, 9.1) ---- */
+      const pk = cryptoMod.generateKeyPairSync("rsa", { modulusLength: 2048 });
+      const jwk = { ...pk.publicKey.export({ format: "jwk" }), kid: "ok1", alg: "RS256", use: "sig" };
+      const tokenCalls = [];
+      let nextEmail = "teacher@school.test";
+      await listen(http.createServer(async (req, res) => {
+        const json = (o, code = 200) => { res.writeHead(code, { "Content-Type": "application/json" }); res.end(JSON.stringify(o)); };
+        if (req.url === "/jwks") return json({ keys: [jwk] });
+        if (req.url === "/token") {
+          const form = Object.fromEntries(new URLSearchParams(await readBody(req)));
+          tokenCalls.push(form);
+          const expect = tokenCalls.challenge;
+          const got = cryptoMod.createHash("sha256").update(form.code_verifier || "").digest("base64url");
+          if (form.client_secret !== "s3cret" || form.code !== "code-xyz" || got !== expect) return json({ error: "invalid_grant" }, 400);
+          const b64u = o => Buffer.from(JSON.stringify(o)).toString("base64url");
+          const nowSec = Math.floor(Date.now() / 1000);
+          const data = `${b64u({ alg: "RS256", typ: "JWT", kid: "ok1" })}.${b64u({ iss: "https://idp.test", aud: "bf-client", sub: "subj-" + nextEmail, exp: nowSec + 300, iat: nowSec,
+            nonce: tokenCalls.nonce, email: nextEmail, email_verified: true, name: "Ms Teacher" })}`;
+          return json({ access_token: "at", id_token: `${data}.${cryptoMod.sign("sha256", Buffer.from(data), pk.privateKey).toString("base64url")}` });
+        }
+        res.writeHead(404); res.end();
+      }), 4132);
+      const a = client();
+      if ((await post(a, "/auth/register", { coppaConsent: true, email: "boss@b.com", password: "a-long-enough-pass", name: "Boss" })).status === 409)
+        await post(a, "/auth/login", { email: "boss@b.com", password: "a-long-enough-pass" });
+      const prov = await post(a, "/admin/oidc/providers", { id: "mock", name: "Mock IdP", issuer: "https://idp.test", clientId: "bf-client", clientSecret: "s3cret",
+        authUrl: "http://127.0.0.1:4132/auth", tokenUrl: "http://127.0.0.1:4132/token", jwksUrl: "http://127.0.0.1:4132/jwks", defaultRole: "teacher", emailDomain: "school.test" });
+      assert(prov.status === 200, "OIDC provider not registered");
+      assert((await client()("/auth/oidc/providers")).body.providers.some(p => p.id === "mock" && !p.clientSecret), "provider list missing or leaks the secret");
+      const start = await fetch(BASE + "/api/auth/oidc/mock/start", { redirect: "manual" });
+      assert(start.status === 302, "OIDC start did not redirect");
+      const au = new URL(start.headers.get("location"));
+      assert(au.origin === "http://127.0.0.1:4132" && au.searchParams.get("code_challenge_method") === "S256" && au.searchParams.get("code_challenge") && au.searchParams.get("nonce"),
+        "authorization request lacks PKCE or nonce");
+      tokenCalls.challenge = au.searchParams.get("code_challenge"); tokenCalls.nonce = au.searchParams.get("nonce");
+      const cb = await fetch(BASE + `/api/auth/oidc/mock/callback?code=code-xyz&state=${encodeURIComponent(au.searchParams.get("state"))}`, { redirect: "manual" });
+      assert(cb.status === 302, `OIDC callback failed: ${cb.status} ${await cb.text()}`);
+      assert(tokenCalls.length === 1 && tokenCalls[0].code_verifier, "token exchange did not carry the PKCE verifier");
+      const sid = (cb.headers.getSetCookie?.() || []).map(x => x.split(";")[0]).join("; ");
+      const me = await (await fetch(BASE + "/api/auth/me", { headers: { cookie: sid } })).json();
+      assert(me.user?.email === "teacher@school.test" && me.user.role === "teacher", `OIDC user not provisioned as configured: ${JSON.stringify(me)}`);
+      assert((await fetch(BASE + `/api/auth/oidc/mock/callback?code=code-xyz&state=${encodeURIComponent(au.searchParams.get("state"))}`, { redirect: "manual" })).status === 401, "OIDC state replayed");
+      nextEmail = "outsider@elsewhere.test";
+      const s2 = new URL((await fetch(BASE + "/api/auth/oidc/mock/start", { redirect: "manual" })).headers.get("location"));
+      tokenCalls.challenge = s2.searchParams.get("code_challenge"); tokenCalls.nonce = s2.searchParams.get("nonce");
+      const denied = await fetch(BASE + `/api/auth/oidc/mock/callback?code=code-xyz&state=${encodeURIComponent(s2.searchParams.get("state"))}`, { redirect: "manual" });
+      assert(denied.status === 401, "an email outside the allowed domain signed in");
+
+      /* ---- retention deletion (10.3) ---- */
+      const dbx = new DatabaseSync("app/server/data/verify.db");
+      const old = new Date(Date.now() - 400 * 86400000).toISOString();
+      dbx.prepare("INSERT INTO users (id, email, email_hash, pass_hash, pass_salt, name, role, created_at) VALUES (?,?,?,?,?,?,?,?)")
+        .run("stale-user", "enc:v1:x", "stalehash", "h", "s", "enc:v1:y", "parent", old);
+      dbx.prepare("INSERT INTO audit_log (id, user_id, action, at) VALUES (?,?,?,?)").run("old-audit", "stale-user", "auth.login", old);
+      dbx.prepare("INSERT INTO analytics_events (id, kind, at) VALUES (?,?,?)").run("old-event", "answer", old);
+      const before = (await post(a, "/admin/jobs/retention")).body.result;
+      assert(before.skipped === true, "retention ran with no window configured");
+      assert((await a("/admin/settings", { method: "PUT", body: JSON.stringify({ retentionDays: 10 }) })).status === 400, "a 10-day retention window was accepted");
+      await a("/admin/settings", { method: "PUT", body: JSON.stringify({ retentionDays: 365 }) });
+      const swept = (await post(a, "/admin/jobs/retention")).body.result;
+      assert(swept.auditDeleted >= 1 && swept.eventsDeleted >= 1 && swept.accountsErased >= 1, `retention sweep did nothing: ${JSON.stringify(swept)}`);
+      assert(!dbx.prepare("SELECT 1 FROM users WHERE id='stale-user'").get() && !dbx.prepare("SELECT 1 FROM audit_log WHERE id='old-audit'").get(), "stale data survived the sweep");
+      assert(dbx.prepare("SELECT COUNT(*) c FROM users").get().c > 1, "the sweep erased active accounts");
+      await a("/admin/settings", { method: "PUT", body: JSON.stringify({ retentionDays: null }) });
+
+      /* ---- automated penetration test (13.9): every probe fires on a
+             vulnerable stand-in, and none finds anything critical here ---- */
+      const vulnPort = 4133;
+      await listen(http.createServer(async (req, res) => {
+        const url = req.url, body = await readBody(req);
+        const send = (code, text, headers = {}) => { res.writeHead(code, headers); res.end(text); };
+        if (/\.\.|%2e%2e/i.test(url)) return send(200, "root:x:0:0:root:/root:/bin/bash");
+        if (url === "/health") return send(200, "ok", { "x-powered-by": "Express", "content-type": "text/plain" });
+        if (url === "/api/auth/register") return send(200, JSON.stringify({ user: {} }), { "set-cookie": "sid=abc; Path=/" });
+        if (url === "/api/auth/login") return send(401, JSON.stringify({ error: "unknown_email" }));
+        if (url === "/api/learners" && req.method === "POST") { if (/OR 1=1|DROP TABLE|UNION SELECT/.test(body)) return send(500, "boom"); return send(200, JSON.stringify({ learner: { id: "L1", name: body } })); }
+        if (/^\/api\/topics\//.test(url) && /%27|%22|;|%3B/i.test(url)) return send(500, "SQLITE_ERROR: syntax error");
+        if (/^\/api\/topics\/.*questions$/.test(url)) return send(200, JSON.stringify({ questions: [{ q: "x", ans: 4, expl: "y" }] }));
+        if (/^\/api\/topics\//.test(url)) return send(500, "SQLITE_ERROR: syntax error");
+        if (/^\/api\/learners\/[^/]+\/report\.html/.test(url)) return send(200, `<h1>${decodeURIComponent('<img src=x onerror="alert(1)">')}</h1>`, { "content-type": "text/html" });
+        if (/^\/api\/learners\/[^/]+\/report\.csv/.test(url)) return send(200, "topic,pct\n=cmd|' /C calc'!A0,1");
+        if (/^\/api\/learners\//.test(url)) return send(200, JSON.stringify({ progress: [] }));
+        if (url === "/api/answer") { if (body.length > 100000 || body.startsWith("{not")) return send(500, "TypeError at /srv/app.js:12:3"); return send(200, "{}"); }
+        if (url.startsWith("/api/lti/login")) return send(302, "", { location: "https://evil.test/phish" });
+        if (url === "/api/auth/me") return send(200, JSON.stringify({ user: { role: "admin" } }));
+        if (req.method === "POST") return send(200, JSON.stringify({ ok: true }));
+        return send(200, "Cannot GET " + url + "\n    at /srv/app.js:1:1");
+      }), vulnPort);
+      const vuln = await runSuite(`http://127.0.0.1:${vulnPort}`);
+      const fired = new Set(vuln.findings.map(f => f.probe));
+      for (const name of Object.keys(PROBES)) {
+        const key = { bruteForce: "brute-force" }[name] || name;
+        assert(fired.has(key), `probe "${name}" found nothing on a server built to fail it`);
+      }
+      assert(vuln.counts.critical >= 5, `stand-in only produced ${vuln.counts.critical} critical findings`);
+      const real = await runSuite(BASE);
+      assert(real.counts.critical === 0 && real.counts.high === 0,
+        `penetration test found ${real.counts.critical} critical / ${real.counts.high} high:\n    ` + real.findings.filter(f => /critical|high/.test(f.severity)).map(f => `${f.probe}: ${f.detail}`).join("\n    "));
+
+      return `PII encrypted at rest (rotated ${kidOf(keyA)}→${kidOf(keyB)}, rekeyed, prod needs a key), global limit + timeouts, OIDC+PKCE via mock IdP, retention swept ${swept.accountsErased} account, pentest: ${Object.keys(PROBES).length} probes fire on stand-in, ${real.findings.length} low/medium findings here, 0 critical/high`;
+    } finally {
+      if (running) await running.kill();
+      for (const s of servers) { try { s.close(); s.closeAllConnections?.(); } catch {} }
+      for (const f of [kid, kid + "-wal", kid + "-shm"]) rmSync(f, { force: true });
     }
   },
 

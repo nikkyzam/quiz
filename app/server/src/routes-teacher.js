@@ -6,7 +6,8 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
-import { requireAuth } from "./auth.js";
+import { requireAuth, createLearner } from "./auth.js";
+import { encrypt } from "./crypto.js";
 import { audit, requireRole } from "./security.js";
 import * as bkt from "./bkt.js";
 import * as rewards from "./rewards.js";
@@ -76,12 +77,12 @@ teacher.post("/classes/:id/roster/import", requireAuth, requireTeacher, (req, re
     const existing = r.externalId
       ? db.prepare("SELECT id, claim_code FROM roster_entries WHERE class_id=? AND external_id=?").get(cls.id, r.externalId) : null;
     if (existing) {
-      db.prepare("UPDATE roster_entries SET name=?, guardian_email=? WHERE id=?").run(r.name, r.guardianEmail, existing.id);
+      db.prepare("UPDATE roster_entries SET name=?, guardian_email=? WHERE id=?").run(encrypt(r.name), encrypt(r.guardianEmail), existing.id);
       entries.push({ id: existing.id, name: r.name, claimCode: existing.claim_code, updated: true });
       continue;
     }
     const id = randomUUID(), code = claimCode();
-    ins.run(id, cls.id, r.name, r.externalId, r.guardianEmail, code, now());
+    ins.run(id, cls.id, encrypt(r.name), r.externalId, encrypt(r.guardianEmail), code, now());
     entries.push({ id, name: r.name, claimCode: code, updated: false });
   }
   audit(req.user.id, "roster.imported", `${cls.id}:${entries.length}`, req);
@@ -92,7 +93,7 @@ teacher.get("/classes/:id/roster", requireAuth, requireTeacher, (req, res) => {
   const cls = ownClass(req, req.params.id);
   if (!cls) return res.status(403).json({ error: "not_your_class" });
   const rows = db.prepare(`SELECT r.*, l.name learner_name FROM roster_entries r LEFT JOIN learners l ON l.id=r.learner_id
-                           WHERE r.class_id=? ORDER BY r.name`).all(cls.id);
+                           WHERE r.class_id=?`).all(cls.id).sort((x, y) => x.name.localeCompare(y.name));
   res.json({ roster: rows.map(r => ({ id: r.id, name: r.name, externalId: r.external_id, guardianEmail: r.guardian_email,
     claimCode: r.claimed_at ? null : r.claim_code, claimed: !!r.claimed_at, learnerName: r.learner_name })) });
 });
@@ -108,8 +109,7 @@ teacher.post("/classes/claim", requireAuth, (req, res) => {
   if (lid) { if (!ownLearner(req, lid)) return res.status(403).json({ error: "not_your_learner" }); }
   else {
     lid = randomUUID();
-    db.prepare("INSERT INTO learners (id, user_id, name, beast, track, created_at) VALUES (?,?,?,?,?,?)")
-      .run(lid, req.user.id, entry.name, beast || "vex", "core", now());
+    createLearner({ id: lid, userId: req.user.id, name: entry.name, beast: beast || "vex" });
   }
   db.prepare("UPDATE roster_entries SET learner_id=?, claimed_at=? WHERE id=?").run(lid, now(), entry.id);
   db.prepare("INSERT OR IGNORE INTO class_members (class_id, learner_id, joined_at) VALUES (?,?,?)").run(entry.class_id, lid, now());
@@ -230,7 +230,7 @@ teacher.get("/classes/:id/gifted.csv", requireAuth, requireTeacher, (req, res) =
   if (!cls) return res.status(403).json({ error: "not_your_class" });
   const rows = giftedRows(cls);
   const cols = ["name", "track", "advancedMastered", "coreMastered", "knownSkills", "contestBest", "contestPercentile", "level", "indicator", "recommendation"];
-  const esc = v => { const s = v == null ? "" : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const esc = v => { let s = v == null ? "" : String(v); if (/^[=+\-@]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   audit(req.user.id, "class.gifted.csv", cls.id, req);
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
   res.setHeader("Content-Disposition", 'attachment; filename="gifted-report.csv"');

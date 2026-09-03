@@ -1,5 +1,6 @@
 import { randomBytes, scryptSync, timingSafeEqual, randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
+import { encrypt, blindIndex } from "./crypto.js";
 
 /* scrypt is a deliberate choice: it is memory-hard, ships with Node, and needs
    no native build. Params are the Node defaults with a raised cost factor. */
@@ -51,14 +52,24 @@ export function destroySession(sid) {
 export function createUser({ email, password, name, role = "parent", coppaConsent = false }) {
   const { hash, salt } = hashPassword(password);
   const id = randomUUID();
-  db.prepare(`INSERT INTO users (id, email, pass_hash, pass_salt, name, role, coppa_consent_at, created_at)
-              VALUES (?,?,?,?,?,?,?,?)`)
-    .run(id, email.toLowerCase(), hash, salt, name, role, coppaConsent ? now() : null, now());
+  /* Email and name are stored encrypted (10.3); the blind index makes the
+     address findable without storing it. */
+  db.prepare(`INSERT INTO users (id, email, email_hash, pass_hash, pass_salt, name, role, coppa_consent_at, created_at)
+              VALUES (?,?,?,?,?,?,?,?,?)`)
+    .run(id, encrypt(email.toLowerCase()), blindIndex(email), hash, salt, encrypt(name), role, coppaConsent ? now() : null, now());
   return { id, email: email.toLowerCase(), name, role };
 }
 
 export function findUserByEmail(email) {
-  return db.prepare("SELECT * FROM users WHERE email = ?").get(String(email).toLowerCase());
+  return db.prepare("SELECT * FROM users WHERE email_hash = ?").get(blindIndex(email));
+}
+
+/* Every place a learner is created goes through here so the name is
+   encrypted at rest (10.3). */
+export function createLearner({ id, userId, name, beast = "vex", track = "core" }) {
+  db.prepare("INSERT INTO learners (id, user_id, name, beast, track, created_at) VALUES (?,?,?,?,?,?)")
+    .run(id, userId, encrypt(String(name).trim().slice(0, 40)), beast, track, now());
+  return { id, name: String(name).trim().slice(0, 40), beast, track };
 }
 
 /* Express middleware */

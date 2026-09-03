@@ -5,7 +5,8 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
-import { requireAuth } from "./auth.js";
+import { requireAuth, findUserByEmail } from "./auth.js";
+import { encrypt } from "./crypto.js";
 import { audit, requireRole, rateLimit } from "./security.js";
 import * as webhooks from "./webhooks.js";
 import { execute as graphqlExecute } from "./graphql.js";
@@ -131,6 +132,7 @@ integrations.post("/admin/jobs/:job", requireAuth, requireAdmin, async (req, res
     else if (job === "weekly-summary") r = jobs.weeklySummaries({ force: req.body?.force === true });
     else if (job === "analytics") r = analytics.aggregateDay(req.body?.day || undefined);
     else if (job === "retention") r = jobs.retentionSweep();
+    else if (job === "rekey") { const { rekey, keyReport } = await import("./crypto.js"); r = { rewritten: rekey(db, { all: true }), ...keyReport(db) }; }
     else return res.status(404).json({ error: "unknown_job" });
     audit(req.user.id, "admin.job", job, req);
     res.json({ job, result: r });
@@ -159,9 +161,9 @@ function provisionRoster(teacherId, { classes, users, enrollments }) {
       if (!u) continue;
       const name = [u.givenName, u.familyName].filter(Boolean).join(" ").slice(0, 40) || u.username || u.sourcedId;
       const existing = db.prepare("SELECT id FROM roster_entries WHERE class_id=? AND external_id=?").get(classId, u.sourcedId);
-      if (existing) db.prepare("UPDATE roster_entries SET name=? WHERE id=?").run(name, existing.id);
+      if (existing) db.prepare("UPDATE roster_entries SET name=? WHERE id=?").run(encrypt(name), existing.id);
       else db.prepare("INSERT INTO roster_entries (id, class_id, name, external_id, guardian_email, claim_code, created_at) VALUES (?,?,?,?,?,?,?)")
-        .run(randomUUID(), classId, name, u.sourcedId, null, randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase(), now());
+        .run(randomUUID(), classId, encrypt(name), u.sourcedId, null, randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase(), now());
       students++;
     }
     made.push({ classId, name: cls.title, students });
@@ -209,8 +211,8 @@ export async function oneRosterSync({ baseUrl, clientId, clientSecret, fetchImpl
 
 integrations.post("/admin/oneroster/sync", requireAuth, requireAdmin, async (req, res) => {
   const { baseUrl, clientId, clientSecret, teacherEmail } = req.body || {};
-  const teacher = db.prepare("SELECT id FROM users WHERE email=? AND role IN ('teacher','admin')").get(String(teacherEmail || "").toLowerCase());
-  if (!teacher) return res.status(404).json({ error: "unknown_teacher" });
+  const teacher = findUserByEmail(String(teacherEmail || ""));
+  if (!teacher || !["teacher", "admin"].includes(teacher.role)) return res.status(404).json({ error: "unknown_teacher" });
   try {
     const bundle = await oneRosterSync({ baseUrl: String(baseUrl).replace(/\/$/, ""), clientId, clientSecret });
     const made = provisionRoster(teacher.id, bundle);
