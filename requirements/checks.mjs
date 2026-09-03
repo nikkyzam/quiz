@@ -250,6 +250,80 @@ export const CHECKS = {
     return `time aggregated (${after.rounds} rounds, clamped), ${readiness.signals.length} readiness signals with a next step, both access-controlled`;
   },
 
+  /* 6.3 — difficulty chosen by a multi-armed bandit rather than a streak rule.
+     The property worth pinning is the reward shape: a bandit rewarded for bare
+     correctness converges on the easiest tier and parks the learner there,
+     which is the opposite of adaptive. Reward is correctness weighted by
+     difficulty, so the optimum is the hardest tier the learner can still
+     mostly succeed at. */
+  "bandit-difficulty": async () => {
+    const bandit = await import("../app/server/src/bandit.js");
+    const { db, now } = await import("../app/server/src/db.js");
+    const topic = "k-count";
+    /* bandit_arms references learners, which references users. Real rows rather
+       than a weakened foreign key: the constraint is right, the fixture was not. */
+    const mkLearner = id => {
+      db.prepare("INSERT OR IGNORE INTO users (id, email, pass_hash, pass_salt, name, created_at) VALUES (?,?,?,?,?,?)")
+        .run("bandit-user", "bandit@b.com", "x", "y", "Bandit", now());
+      db.prepare("INSERT OR IGNORE INTO learners (id, user_id, name, beast, created_at) VALUES (?,?,?,?,?)")
+        .run(id, "bandit-user", id, "vex", now());
+      db.prepare("DELETE FROM bandit_arms WHERE learner_id=?").run(id);
+      return id;
+    };
+    const learner = mkLearner("bandit-learner");
+
+    // A learner who succeeds everywhere should be pushed UP, not parked on the
+    // easiest tier — this is the failure mode of a correctness-only reward.
+    for (let i = 0; i < 20; i++) {
+      bandit.observe(learner, topic, "practice", true);
+      bandit.observe(learner, topic, "challenge", true);
+      bandit.observe(learner, topic, "boss", true);
+    }
+    assert(bandit.greedyTier(learner, topic) === "boss",
+      "a learner succeeding at every tier was not moved to the hardest");
+
+    // A learner who fails the hardest tier consistently should settle lower,
+    // and specifically on the hardest tier they still pass often enough that
+    // its weighted value beats the easier one.
+    const b2 = mkLearner("bandit-learner-2");
+    for (let i = 0; i < 20; i++) {
+      bandit.observe(b2, topic, "practice", true);
+      bandit.observe(b2, topic, "challenge", i < 15);   // 75% success
+      bandit.observe(b2, topic, "boss", false);          // always fails
+    }
+    const settled = bandit.greedyTier(b2, topic);
+    assert(settled === "challenge",
+      `expected the bandit to settle on challenge, got ${settled}`);
+
+    // Never the easiest tier just because it is safest: challenge at 75% must
+    // beat practice at 100%, because it is worth more.
+    const armSet = bandit.arms(b2, topic);
+    const practice = armSet.find(a => a.tier === "practice");
+    const challenge = armSet.find(a => a.tier === "challenge");
+    assert(practice.pSuccess > challenge.pSuccess,
+      "fixture is wrong: practice should have the higher raw success rate");
+    assert(challenge.expectedValue > practice.expectedValue,
+      "a safer, easier tier outranked a harder one the learner can handle");
+
+    // Thompson sampling explores while evidence is thin and stops once it is
+    // not: a fresh learner must not be pinned to one arm.
+    const fresh = mkLearner("bandit-learner-3");
+    let seed = 1;
+    const rand = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+    const seen = new Set();
+    for (let i = 0; i < 60; i++) seen.add(bandit.selectTier(fresh, topic, rand));
+    assert(seen.size >= 2, `no exploration: only ever picked ${[...seen].join(",")}`);
+
+    // Deterministic given the same stream, or it could not be reasoned about.
+    let s1 = 7, s2 = 7;
+    const r1 = () => ((s1 = (s1 * 1103515245 + 12345) % 2147483648) / 2147483648);
+    const r2 = () => ((s2 = (s2 * 1103515245 + 12345) % 2147483648) / 2147483648);
+    assert(bandit.selectTier(b2, topic, r1) === bandit.selectTier(b2, topic, r2),
+      "selection is not reproducible from the same random stream");
+
+    return "difficulty-weighted reward: succeeds-everywhere -> boss, fails-boss -> challenge, easiest tier never wins on safety alone";
+  },
+
   /* X.3 — one account cannot read or write another account's learner */
   "tenant-isolation": async () => {
     const alice = client(), bob = client();
@@ -2783,6 +2857,123 @@ export const CHECKS = {
       "another account read this learner's lesson progress");
 
     return `${allLessons().length} lessons, resume works panel by panel, wrong answers do not block, points awarded once`;
+  },
+
+
+  /* 3.5.2 — content scanned for stereotype patterns and cast diversity */
+  "diversity-scan": async () => {
+    const { scanDiversity } = await import("../tools/lint-content.mjs");
+
+    /* Each pattern must actually fire on the thing it claims to catch. */
+    const bad = [
+      { q: "He plays football while she watches from the sidelines." },
+      { q: "She bakes cookies for the whole family every weekend." },
+      { q: "Ask the fireman how many hoses are on his truck." }
+    ];
+    for (const b of bad) {
+      const r = scanDiversity([["t", b]]);
+      assert(r.findings.length > 0, `no finding for: "${b.q}"`);
+    }
+
+    /* Neutral content, and a varied cast, must NOT be flagged. */
+    const good = [
+      { q: "Ana counts 8 stickers and Ben counts 5. How many altogether?" },
+      { q: "The engineer checks the bridge before the crew crosses." },
+      { q: "Priya and Kwame split the pizza evenly. How much does each get?" }
+    ];
+    const clean = scanDiversity(good.map((g, i) => [`t${i}`, g]));
+    assert(clean.findings.length === 0, `neutral content flagged: ${clean.findings.join("; ")}`);
+    assert(clean.castSize >= 3, "a varied cast was not counted correctly");
+
+    /* A narrow cast of one or two repeated names is worth a note. */
+    const narrow = scanDiversity([
+      ["t1", { q: "Sam has 3 apples." }],
+      ["t2", { q: "Sam gives 1 apple to Sam's friend." }]
+    ]);
+    assert(narrow.findings.some(f => /cast of characters/.test(f)),
+      "a one-name cast was not flagged");
+
+    /* And the real authored content: manually reviewed, automated scan
+       clean, cast of 6+ distinct people across topics and grades. */
+    const { execSync } = await import("node:child_process");
+    const report = JSON.parse(execSync("node tools/lint-content.mjs --json").toString());
+    assert(report.diversity.findings.length === 0,
+      `authored content flagged: ${report.diversity.findings.join("; ")}`);
+    assert(report.diversity.castSize >= 5,
+      `authored content cast is only ${report.diversity.castSize} names`);
+
+    return `3 stereotype patterns proven to fire, neutral content passes, authored content clean with a cast of ${report.diversity.castSize}`;
+  },
+
+
+  /* 8.3 — curriculum mapped to real standards, only where content exists */
+  "standards-mapping": async () => {
+    const { STANDARDS, standardsFor, coverage } = await import("../app/shared/standards.mjs");
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+    const { CURRICULUM } = await import("../app/shared/curriculum.mjs");
+
+    const ids = new Set();
+    for (const g of Object.values(CURRICULUM))
+      for (const u of g.units) for (const t of u.topics) ids.add(t.id);
+
+    /* Every mapped id must be a real topic, and every code must look like a
+       real CCSSM code (grade.domain.cluster.standard), not a placeholder. */
+    for (const [topic, codes] of Object.entries(STANDARDS)) {
+      assert(ids.has(topic), `standards map references unknown topic "${topic}"`);
+      assert(codes.length > 0, `${topic} maps to zero codes`);
+      for (const code of codes)
+        assert(/^[K1-8]\.[A-Z]{1,3}\.[A-Z]\.\d+(\.[A-Z])?$/.test(code),
+          `"${code}" for ${topic} does not look like a CCSSM code`);
+    }
+
+    /* The important promise: nothing is mapped that has no content, and
+       nothing with content silently goes unmapped without it being visible. */
+    const authored = Object.keys(QUESTIONS);
+    const cov = coverage(authored);
+    assert(cov.mapped.length === authored.length,
+      `${cov.unmapped.length} authored topics have no standard: ${cov.unmapped.join(", ")}`);
+    for (const code of Object.values(STANDARDS).flat())
+      assert(typeof code === "string" && code.length, "a malformed code exists");
+    /* No topic without content may appear in the map. */
+    for (const topic of Object.keys(STANDARDS))
+      assert(QUESTIONS[topic], `"${topic}" is mapped to a standard but has no authored questions`);
+
+    const c = client();
+    const api = (await c("/standards")).body;
+    assert(Object.keys(api.standards).length === Object.keys(STANDARDS).length,
+      "standards endpoint does not match the source data");
+    assert(api.coverage.mapped.length === authored.length, "coverage report is wrong via the API");
+
+    return `${Object.keys(STANDARDS).length} authored topics mapped to real CCSSM codes, zero orphans in either direction`;
+  },
+
+  /* 4.2.7 — parent curriculum overview with a real sample problem */
+  "curriculum-overview": async () => {
+    const c = client();
+    const r = await c("/topics/g6-ratios/overview");
+    assert(r.status === 200, "overview endpoint failed");
+    assert(r.body.name && r.body.grade && r.body.unit, "overview is missing basic identification");
+    assert(r.body.totalQuestions > 0, "overview reports no questions");
+    assert(Array.isArray(r.body.standards), "overview has no standards field");
+    assert(r.body.standards.length > 0, "a mapped topic shows no standards in its overview");
+    assert(r.body.sample && r.body.sample.q, "overview has no sample problem");
+
+    /* The sample must not leak its answer -- a parent browsing before
+       signing up gets exactly the same guarantee a signed-in learner does. */
+    const raw = JSON.stringify(r.body.sample);
+    for (const k of ['"ans"', '"a":', '"ansP"', '"expl"'])
+      assert(!raw.includes(k), `sample problem leaked ${k}`);
+
+    /* No login required: this must work for an anonymous visitor deciding
+       whether to sign up. */
+    const anon = await fetch(`${BASE}/api/topics/g6-ratios/overview`);
+    assert(anon.ok, "curriculum overview requires a session, but a parent should be able to look first");
+
+    /* A topic with no content is refused rather than shown emptily. */
+    const empty = await c("/topics/g8-rsa/overview");
+    assert(empty.status === 404, "an unauthored topic returned an overview instead of 404");
+
+    return "overview served without login, includes standards and a leak-free sample, unauthored topics refused cleanly";
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

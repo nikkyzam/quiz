@@ -9,6 +9,7 @@ import {
 import { rateLimit, audit, auditTrail } from "./security.js";
 import * as diag from "./diagnostic.js";
 import * as spacing from "./spacing.js";
+import * as bandit from "./bandit.js";
 import { PREREQS, prereqsOf, allPrereqs, unlockedBy } from "../../shared/prereqs.mjs";
 import { classify, summarise as summariseErrors, CATEGORIES } from "./errors.js";
 import { CONTEST_FORMATS, isExpired, scorePaper } from "./contest.js";
@@ -18,6 +19,7 @@ import * as bkt from "./bkt.js";
 import { PROOFS, publicProof, checkProof, proofsForTopic, allProofs, PROOF_KINDS } from "../../shared/proofs.mjs";
 import { PUZZLES, publicPuzzle, checkPuzzle, puzzleById } from "../../shared/puzzles.mjs";
 import { LESSONS, publicLesson, checkPanel, lessonForTopic, allLessons } from "../../shared/lessons.mjs";
+import { STANDARDS, standardsFor, coverage } from "../../shared/standards.mjs";
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
@@ -370,6 +372,11 @@ function ownLearner(req, id) {
 }
 
 /* ---------------- curriculum ---------------- */
+api.get("/standards", (_req, res) => {
+  const authored = Object.keys(QUESTIONS);
+  res.json({ standards: STANDARDS, coverage: coverage(authored) });
+});
+
 api.get("/curriculum", (_req, res) => {
   const thresholds = {};
   for (const id of TOPIC_TRACK.keys()) thresholds[id] = thresholdOf(id);
@@ -380,7 +387,27 @@ api.get("/curriculum", (_req, res) => {
       counts[t][tr.id] = QUESTIONS[t].filter(q => tierOf(q) === tr.id).length;
     });
   });
-  res.json({ curriculum: CURRICULUM, tiers: TIERS, counts, thresholds, mastery: MASTERY });
+  const standards = {};
+  for (const id of Object.keys(QUESTIONS)) standards[id] = standardsFor(id);
+  res.json({ curriculum: CURRICULUM, tiers: TIERS, counts, thresholds, mastery: MASTERY, standards });
+});
+
+/* Parent-facing overview: what a topic covers, a sample problem to see the
+   style, and the standard it maps to if any (spec 4.2.7). No login required
+   -- a parent deciding whether to sign up should be able to look first. */
+api.get("/topics/:id/overview", (req, res) => {
+  const id = req.params.id;
+  const bank = QUESTIONS[id];
+  if (!bank) return res.status(404).json({ error: "no_content" });
+  const meta = TOPIC_NAME.get(id) || {};
+  const sampleIdx = bank.findIndex(q => (q.lvl || 1) === 1) ;
+  const sample = bank[sampleIdx >= 0 ? sampleIdx : 0];
+  res.json({
+    topicId: id, name: meta.name, grade: meta.grade, unit: meta.unit,
+    track: trackOf(id), standards: standardsFor(id),
+    totalQuestions: bank.length,
+    sample: { q: sample.q, type: sample.type, secName: SECS[sample.sec] || "Problem" }
+  });
 });
 
 api.get("/topics/:topicId/:tier/questions", (req, res) => {
@@ -745,9 +772,12 @@ api.post("/practice/answer", requireAuth, (req, res) => {
      recorded with a higher guess rate rather than counted as clean success. */
   bkt.observe(sess.learnerId, sess.topicId, ok,
     bkt.paramsFor({ optionCount: q.type === "mc" ? (q.opts || []).length : 0 }));
+  /* 6.3 — the bandit sees the outcome at the tier that produced it. Recorded
+     before the next tier is chosen, so the choice reflects this answer. */
+  bandit.observe(sess.learnerId, sess.topicId, diag.TIER_ORDER[sess.tierIdx], ok);
+
   if (ok) {
     sess.score++; sess.streakRight++; sess.streakWrong = 0;
-    if (sess.streakRight >= 2 && sess.tierIdx < diag.TIER_ORDER.length - 1) { sess.tierIdx++; sess.streakRight = 0; }
   } else {
     const category = classify(q, answer);
     sess.missed.push({ id: `${sess.topicId}:${idx}`, q: q.q, correctAnswer,
@@ -755,8 +785,14 @@ api.post("/practice/answer", requireAuth, (req, res) => {
     db.prepare("INSERT INTO mistakes (id, learner_id, topic_id, question_id, category, at) VALUES (?,?,?,?,?,?)")
       .run(randomUUID(), sess.learnerId, sess.topicId, `${sess.topicId}:${idx}`, category, now());
     sess.streakWrong++; sess.streakRight = 0;
-    if (sess.streakWrong >= 2 && sess.tierIdx > 0) { sess.tierIdx--; sess.streakWrong = 0; }
   }
+
+  /* Difficulty now comes from the bandit rather than a two-in-a-row rule.
+     The streak counters are kept because the session summary reports them, but
+     they no longer decide anything. */
+  const chosen = bandit.selectTier(sess.learnerId, sess.topicId, sess.rand);
+  const chosenIdx = diag.TIER_ORDER.indexOf(chosen);
+  if (chosenIdx >= 0) sess.tierIdx = chosenIdx;
 
   /* Intervention triggers (spec 6.5), decided server-side from the session
      so the client cannot suppress them. */

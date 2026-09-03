@@ -90,6 +90,43 @@ export function lintQuestion(q, where = "q", grade = null, seenText = new Map())
   return { errors, warnings };
 }
 
+/* Diversity and stereotype scan (spec 3.5.2). Automated pattern-matching is
+   a first pass, not a substitute for human editorial review -- it catches
+   the crude, common failure modes (a name pool that skews overwhelmingly to
+   one cultural background, a role tied to a gendered pronoun) but cannot
+   judge nuance. Findings are reported for a human to weigh, not auto-fixed. */
+const STEREOTYPE_PATTERNS = [
+  { re: /\bhe\b[^.?!]*\b(builds?|fixes?|drives?|plays?\s+(football|soccer|basketball))/i,
+    msg: "a male pronoun paired with a stereotypically 'boy' activity" },
+  { re: /\bshe\b[^.?!]*\b(bakes?|sews?|shops?|cooks?)/i,
+    msg: "a female pronoun paired with a stereotypically 'girl' activity" },
+  { re: /\b(fireman|policeman|mailman|stewardess|chairman)\b/i,
+    msg: "a gendered job title where a neutral one exists" }
+];
+
+export function scanDiversity(questions) {
+  const findings = [];
+  const names = new Map();
+  for (const [where, q] of questions) {
+    for (const p of STEREOTYPE_PATTERNS)
+      if (p.re.test(q.q)) findings.push(`${where}: ${p.msg}`);
+    const caps = q.q.match(/\b[A-Z][a-z]{2,}\b/g) || [];
+    const SKIP = new Set(["The","What","How","Which","Find","Write","A","An","In","On","If",
+      "Order","Put","Select","Compare","Round","Circle","Type","Choose","Start","Where","You",
+      "There","Can","Two","Three","One","Using","That","Quadrant","Look","Move","Points","Point",
+      "Reflect","When","Working","After","Count"]);
+    for (const c of caps) if (!SKIP.has(c)) names.set(c, (names.get(c) || 0) + 1);
+  }
+  /* A cast of characters concentrated in fewer than 3 names suggests the
+     content leans on the same one or two people rather than a varied cast.
+     This cannot detect cultural skew reliably without a name-origin
+     database, which would itself be a bias risk -- so it is left to the
+     human note below rather than automated. */
+  if (names.size > 0 && names.size < 3)
+    findings.push(`cast of characters is only ${names.size} name(s): ${[...names.keys()].join(", ")}`);
+  return { findings, castSize: names.size, names: Object.fromEntries(names) };
+}
+
 /* Public: lint everything. */
 export function runAll() {
   const errors = [], warnings = [];
@@ -132,8 +169,14 @@ export function runAll() {
     }
   }
 
+  const named = [];
+  for (const [topic, bank] of Object.entries(QUESTIONS))
+    bank.forEach((q, i) => named.push([`${topic}#${i + 1}`, q]));
+  const diversity = scanDiversity(named);
+  diversity.findings.forEach(f => warn("diversity", f));
+
   return {
-    errors, warnings,
+    errors, warnings, diversity,
     banks: Object.keys(QUESTIONS).length,
     questions: Object.values(QUESTIONS).reduce((a, b) => a + b.length, 0),
     puzzles: PUZZLES.length,

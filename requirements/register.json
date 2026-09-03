@@ -227,8 +227,10 @@
       "id": "3.5.2",
       "section": "Content quality",
       "title": "Reviewed for diversity, inclusivity, absence of stereotypes",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:diversity-scan",
+      "notes": "Automated scan for the crude, common failure modes: gendered activity stereotypes and a suspiciously narrow cast of names. Verified to fire on deliberately stereotyped text and stay silent on neutral content. All 198 authored questions manually reviewed and scan clean, with a cast of 8 named characters across genders. This is a first-pass tool, not a substitute for human editorial review, and says so in its own comment - pattern matching cannot judge nuance or catch subtler bias."
     },
     {
       "id": "3.5.3",
@@ -405,8 +407,10 @@
       "id": "4.2.7",
       "section": "Parent portal",
       "title": "Curriculum overview with sample problems",
-      "status": "todo",
-      "priority": 2
+      "status": "done",
+      "priority": 2,
+      "evidence": "check:curriculum-overview",
+      "notes": "Per-topic overview with a real sample problem, verified to never leak its answer, reachable without signing in so a parent can look before committing. Shows the standard it maps to when one exists."
     },
     {
       "id": "4.3.1",
@@ -585,7 +589,7 @@
       "title": "BKT/DKT mastery updates and bandit difficulty selection",
       "status": "partial",
       "priority": 1,
-      "notes": "Bayesian Knowledge Tracing implemented and verified: P(known) updated per answer with slip and guess terms, guess rate scaled to the number of options, and mastery requiring both confidence and enough observations so a lucky answer cannot declare it. Estimates feed the readiness recommendation. NOT done: Deep Knowledge Tracing, per-skill parameter fitting from real data, and multi-armed bandit question selection - difficulty still steps by streak.",
+      "notes": "Bayesian Knowledge Tracing implemented and verified: P(known) updated per answer with slip and guess terms, guess rate scaled to the number of options, and mastery requiring both confidence and enough observations so a lucky answer cannot declare it. Difficulty selection is now a Thompson-sampling bandit over the three tiers (check:bandit-difficulty), rewarded by correctness WEIGHTED BY DIFFICULTY \u2014 a correctness-only reward converges on the easiest tier and parks the learner there, which is the opposite of adaptive. The two-in-a-row streak rule it replaced is gone. NOT done: Deep Knowledge Tracing, and fitting per-skill BKT parameters from real data - both need a corpus of real learner answers that does not exist yet.",
       "evidence": "check:knowledge-tracing"
     },
     {
@@ -683,8 +687,10 @@
       "id": "8.3",
       "section": "CMS",
       "title": "Curriculum mapping to standards",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:standards-mapping",
+      "notes": "All 16 authored topics mapped to real Common Core State Standards codes, each checked against the actual CCSSM structure rather than guessed from the topic name. Deliberately does NOT map the other 312 topics - claiming standards alignment for content that does not exist would be worse than no mapping. Coverage grows as content is authored."
     },
     {
       "id": "8.4",
