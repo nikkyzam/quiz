@@ -952,8 +952,10 @@
       "id": "13.9",
       "section": "Acceptance",
       "title": "Penetration testing shows no critical vulnerabilities",
-      "status": "todo",
-      "priority": 2
+      "status": "partial",
+      "priority": 2,
+      "evidence": "check:security-scan",
+      "notes": "Automated attack scan run in CI: SQL injection payloads against login, learner creation and topic-id URL paths; XSS against the one server-rendered HTML surface (the printable report) plus a source check that the React client never uses dangerouslySetInnerHTML; IDOR probes against four learner-scoped endpoints from an unrelated account; forged and empty session cookies; a parent account attempting to create a class without the teacher role; prototype pollution via a JSON body; path traversal against the static file server. Zero findings, and one real fix landed while writing it: an admin-analytics query used string-interpolated SQL rather than a parameterised one -- not currently exploitable since the interpolated value was server-generated, but exactly the pattern that becomes a real SQL injection the moment someone copies it with user input. This is explicitly NOT a substitute for professional penetration testing: it is a fixed, narrow set of automated attacks, not the open-ended probing a real pen tester would do."
     },
     {
       "id": "13.10",

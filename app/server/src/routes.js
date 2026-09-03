@@ -1112,7 +1112,11 @@ api.get("/admin/overview", requireAuth, requireAdmin, (req, res) => {
   const classes = one("SELECT COUNT(*) c FROM classes").c;
   const runs = one("SELECT COUNT(*) c FROM runs").c;
   const since = new Date(Date.now() - 7 * 86400000).toISOString();
-  const activeLearners = one(`SELECT COUNT(DISTINCT learner_id) c FROM runs WHERE finished_at >= '${since}'`).c;
+  /* Parameterized even though `since` is server-generated, not user input:
+     string-interpolated SQL is the pattern that becomes exploitable the
+     moment someone later copies it and feeds it a request value. */
+  const activeLearners = db.prepare(
+    "SELECT COUNT(DISTINCT learner_id) c FROM runs WHERE finished_at >= ?").get(since).c;
 
   /* Attainment distribution, so a district can see the shape rather than
      individual results. */
