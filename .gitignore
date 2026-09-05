@@ -4,3 +4,6 @@ app/web/a11y/render.mjs
 app/web/dist/
 dist/
 node_modules/
+infra/.terraform/
+*.tfstate
+*.tfstate.*
