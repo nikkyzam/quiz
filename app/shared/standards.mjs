@@ -84,6 +84,11 @@ export const STANDARDS = {
   "g4-linesrays": ["4.G.A.1"],
   "g4-classify": ["4.G.A.2"],
   "g4-symmetry": ["4.G.A.3"],
+  "g4-seq":      ["4.OA.C.5"],
+  "g4-fracmultw": ["4.NF.B.4"],
+  "g4-units":    ["4.MD.A.1", "4.MD.A.2"],
+  "g4-lineplot": ["4.MD.B.4"],
+  "g4-protract": ["4.MD.C.5", "4.MD.C.6"],
 
   "g5-express":  ["5.OA.A.1", "5.OA.A.2"],
   "g5-decops":   ["5.NBT.B.7"],

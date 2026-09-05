@@ -284,5 +284,93 @@ export const G4_BANKS = {
 {lvl:3,sec:"G",type:"mc",q:"A shape has exactly 1 line of symmetry. Which is it most likely to be?",
  opts:["An isosceles triangle that is not equilateral","A square with 4 equal sides","A regular hexagon shape","A perfectly round circle"],a:0,
  expl:"An isosceles (non-equilateral) triangle folds evenly only down its single line from the peak to the base's midpoint."}
+],
+
+"g4-seq": [
+{sec:"N",type:"in",q:"What is the next number: 2, 5, 8, 11, ___?",ans:14,expl:"The rule is 'add 3', so 11 + 3 = 14."},
+{sec:"N",type:"mc",q:"What is the RULE for 3, 9, 27, 81?",opts:["Multiply by 3","Add 6","Add 3","Multiply by 9"],a:0,
+ expl:"Each number is 3 times the one before it."},
+{sec:"N",type:"in",q:"A pattern starts at 5 and the rule is 'add 6'. What is the 4th number?",ans:23,
+ hint:"List them: 5, 11, 17, 23.",expl:"5, 11, 17, 23 — the 4th number is 23."},
+{sec:"N",type:"mc",q:"Which rule matches the shape pattern: square, pentagon, hexagon, ...?",
+ opts:["Add one side each time","Add one color each time","Remove a side each time","No pattern"],a:0,
+ expl:"4 sides, then 5, then 6 — each shape gains one more side."},
+{sec:"N",type:"in",q:"What is the next number: 100, 90, 80, 70, ___?",ans:60,expl:"The rule is 'subtract 10', so 70 − 10 = 60."},
+{lvl:2,sec:"N",type:"in",q:"A pattern is 2, 6, 18, 54, ___. What is next?",ans:162,expl:"The rule is 'multiply by 3': 54 × 3 = 162."},
+{lvl:2,sec:"N",type:"mc",q:"Which rule describes 1, 3, 6, 10, 15?",
+ opts:["Add one more than the last add (add 2, then 3, then 4...)","Multiply by 2 each time","Subtract 1 each time","Add the same number each time"],a:0,
+ expl:"The gaps grow: +2, +3, +4, +5 — each add is one bigger than the last."},
+{lvl:3,sec:"N",type:"in",q:"A pattern follows 'double, then add 1': 2, 5, 11, 23, ___. What is next?",ans:47,
+ expl:"23 × 2 = 46, then 46 + 1 = 47."}
+],
+
+"g4-fracmultw": [
+{sec:"F",type:"in",q:"3 × 1/4 = ? Type just the numerator (the denominator stays 4).",ans:3,
+ expl:"3 × 1/4 = 3/4, so the numerator is 3."},
+{sec:"F",type:"mc",q:"2/3 × 4 = ?",mono:true,opts:["8/3","6/3","2/12","4/3"],a:0,
+ expl:"Multiply the numerator by the whole number: 2 × 4 = 8, so 8/3."},
+{sec:"F",type:"in",q:"5 × 2/5 = ?",ans:2,expl:"5 × 2/5 = 10/5 = 2."},
+{sec:"F",type:"mc",q:"Which expression equals 3/8 × 2?",mono:true,opts:["6/8","3/16","5/8","2/8"],a:0,
+ expl:"3 × 2 = 6, so 3/8 × 2 = 6/8."},
+{sec:"F",type:"in",q:"4 × 3/4 = ?",ans:3,expl:"4 × 3/4 = 12/4 = 3."},
+{lvl:2,sec:"F",type:"mc",q:"A recipe needs 3/4 cup of sugar per batch. How much sugar for 5 batches?",mono:true,
+ opts:["15/4 cups","8/4 cups","15/20 cups","3/20 cups"],a:0,expl:"3/4 × 5 = 15/4 cups."},
+{lvl:2,sec:"F",type:"in",q:"6 × 5/6 = ?",ans:5,expl:"6 × 5/6 = 30/6 = 5."},
+{lvl:3,sec:"F",type:"in",q:"A runner covers 2/3 mile each lap. After 9 laps, how many miles total?",ans:6,
+ expl:"2/3 × 9 = 18/3 = 6 miles."}
+],
+
+"g4-units": [
+{sec:"M",type:"in",q:"How many inches are in 2 feet? (12 in = 1 ft)",ans:24,expl:"2 × 12 = 24 inches."},
+{sec:"M",type:"in",q:"How many minutes are in 2 hours?",ans:120,expl:"2 × 60 = 120 minutes."},
+{sec:"M",type:"mc",q:"Which is bigger, a meter or a centimeter?",
+ opts:["A meter","A centimeter","They are equal","Cannot tell"],a:0,
+ expl:"A meter is 100 centimeters — much bigger than one centimeter."},
+{sec:"M",type:"in",q:"How many ounces are in 3 pounds? (16 oz = 1 lb)",ans:48,expl:"3 × 16 = 48 ounces."},
+{sec:"M",type:"in",q:"How many seconds are in 3 minutes?",ans:180,expl:"3 × 60 = 180 seconds."},
+{lvl:2,sec:"M",type:"in",q:"A ribbon is 3 feet long. How many inches is that?",ans:36,expl:"3 × 12 = 36 inches."},
+{lvl:2,sec:"M",type:"in",q:"A recipe takes 2 hours and 15 minutes. How many minutes total?",ans:135,
+ expl:"2 × 60 = 120, plus 15 more = 135 minutes."},
+{lvl:3,sec:"M",type:"in",q:"A race is 5000 meters. How many kilometers is that? (1000 m = 1 km)",ans:5,
+ expl:"5000 ÷ 1000 = 5 kilometers."}
+],
+
+"g4-lineplot": [
+{sec:"M",type:"in",q:"A line plot shows: 2 X's at 1/4 inch, 3 X's at 1/2 inch, 1 X at 3/4 inch. How many data points in total?",
+ ans:6,expl:"2 + 3 + 1 = 6 data points."},
+{sec:"M",type:"in",q:"Using that plot, what is the total length of the three 1/2-inch measurements added together? Type as a decimal.",
+ ans:1.5,expl:"3 × 0.5 = 1.5 inches."},
+{sec:"M",type:"mc",q:"On a line plot with fraction measurements, each X on the line usually represents ___.",
+ opts:["a fraction of a unit, like 1/4 inch","a whole mile","a whole day","nothing measurable"],a:0,
+ expl:"Each X marks one measurement, often to the nearest fraction of an inch."},
+{sec:"M",type:"in",q:"A line plot has 4 X's at 1/2 inch and 2 X's at 1 inch. What is the TOTAL length in inches? Type as a decimal.",
+ ans:4,expl:"4 × 0.5 = 2, and 2 × 1 = 2. Together: 2 + 2 = 4 inches."},
+{sec:"M",type:"mc",q:"Which fraction is the smallest measurement typically marked on a ruler line plot?",mono:true,
+ opts:["1/8 inch","1 inch","1/2 inch","2 inches"],a:0,expl:"1/8 inch is the finest, smallest division listed."},
+{lvl:2,sec:"M",type:"in",q:"A line plot: 3 X's at 1/4 inch, 2 X's at 3/4 inch. What is the total length in inches? Type as a decimal.",
+ ans:2.25,expl:"3 × 0.25 = 0.75, and 2 × 0.75 = 1.5. Together: 0.75 + 1.5 = 2.25 inches."},
+{lvl:2,sec:"M",type:"in",q:"Using that same plot (3 X's at 1/4 inch, 2 X's at 3/4 inch), how many data points are there in total?",
+ ans:5,expl:"3 + 2 = 5 data points."},
+{lvl:3,sec:"M",type:"in",q:"A line plot has data points at 1/4, 1/4, 1/2, 3/4, 3/4, 3/4 inch. What is the total length in inches? Type as a decimal.",
+ ans:3.25,expl:"0.25 + 0.25 + 0.5 + 0.75 + 0.75 + 0.75 = 3.25 inches."}
+],
+
+"g4-protract": [
+{sec:"G",type:"mc",q:"An angle measures 45°. What type of angle is it?",
+ opts:["Acute","Right","Obtuse","Straight"],a:0,expl:"An angle under 90° is acute."},
+{sec:"G",type:"in",q:"Two angles together make a straight line (180°). One angle is 110°. What is the other?",
+ ans:70,expl:"180 − 110 = 70°."},
+{sec:"G",type:"mc",q:"Which angle measure is OBTUSE?",mono:true,opts:["120°","45°","90°","30°"],a:0,
+ expl:"An obtuse angle is more than 90° and less than 180°: 120° fits."},
+{sec:"G",type:"in",q:"An angle of 35° and an angle of 55° are placed together with no overlap. What is their combined measure?",
+ ans:90,expl:"35 + 55 = 90°."},
+{sec:"G",type:"mc",q:"A right angle measures exactly ___.",opts:["90°","180°","45°","360°"],a:0,
+ expl:"A right angle is always exactly 90°."},
+{lvl:2,sec:"G",type:"in",q:"Two angles combine to make a right angle (90°). One is 34°. What is the other?",
+ ans:56,expl:"90 − 34 = 56°."},
+{lvl:2,sec:"G",type:"mc",q:"An angle measures 150°. What type of angle is it?",
+ opts:["Obtuse","Acute","Right","Straight"],a:0,expl:"150° is more than 90° and less than 180° — obtuse."},
+{lvl:3,sec:"G",type:"in",q:"Three angles around a point add up to 360°. Two of them are 110° and 140°. What is the third?",
+ ans:110,expl:"360 − 110 − 140 = 110°."}
 ]
 };

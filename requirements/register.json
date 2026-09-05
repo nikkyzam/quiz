@@ -25,7 +25,7 @@
       "title": "Grades K-2 cover number sense, patterns, early logic, intro combinatorics",
       "status": "partial",
       "priority": 1,
-      "notes": "K-2 authored: counting, counting back, adding/subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign, word problems, comparing two-digit numbers, measuring length, fluency within 20, adding/subtracting within 1000, money, equal groups, rulers, time to five minutes, adding/subtracting within 100, comparing three-digit numbers, mental math with 10s/100s, estimating length, line plots, polygons by attribute, rows & columns, halves/thirds/fourths, commutative/associative properties, ten more/ten less, telling time, bar & picture graphs, defining attributes, composing shapes, and halves & fourths. All Grade 1 and Grade 2 core (non-advanced) topics are now authored -- coins is the one Grade 1 core topic deliberately skipped, since money has no real CCSSM standard before Grade 2. 37 of the 80 K-2 topics now have questions; Grade K and Grade 1 advanced/enrichment topics still do not.",
+      "notes": "K-2 authored: counting, counting back, adding/subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign, word problems, comparing two-digit numbers, measuring length, fluency within 20, adding/subtracting within 1000, money, equal groups, rulers, time to five minutes, adding/subtracting within 100, comparing three-digit numbers, mental math with 10s/100s, estimating length, line plots, polygons by attribute, rows & columns, halves/thirds/fourths, commutative/associative properties, ten more/ten less, telling time, bar & picture graphs, defining attributes, composing shapes, halves & fourths, composing/decomposing numbers, solid shapes, combining shapes, comparing size/weight, sorting, and picture graphs. All Grade 1 and Grade 2 core (non-advanced) topics are now authored, and Kindergarten core is authored except ordinal numbers, repeating patterns and logic puzzles -- none of which have a real CCSSM standard (like g1-coins, deliberately skipped rather than guessed). 43 of the 80 K-2 topics now have questions; Grade K and Grade 1 advanced/enrichment topics still do not.",
       "evidence": "check:content-integrity"
     },
     {
@@ -34,7 +34,7 @@
       "title": "Grades 3-5 cover fluency, fractions, decimals, geometry + prime factorisation, modular arithmetic, probability",
       "status": "partial",
       "priority": 1,
-      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, equivalent fractions, whole numbers as fractions, area, perimeter, rounding, time to the minute, classifying quadrilaterals, properties of multiplication, two-step word problems, arithmetic patterns, adding/subtracting within 1000, multiplying by multiples of ten. Grade 4 authored: multiplicative comparison, multi-step word problems, factors/primes/composites, multi-digit multiplication, division with remainders, place value to a million, adding/subtracting fractions, mixed numbers, decimal notation, comparing decimals, area/perimeter formulas, lines/rays/angles, classifying figures, symmetry. Grade 5 authored: numerical expressions, decimal operations, unlike denominators, place value to thousandths, multiplying fractions, dividing with unit fractions, converting units. All Grade 3 core (non-advanced) topics are now authored. 37 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
+      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, equivalent fractions, whole numbers as fractions, area, perimeter, rounding, time to the minute, classifying quadrilaterals, properties of multiplication, two-step word problems, arithmetic patterns, adding/subtracting within 1000, multiplying by multiples of ten. Grade 4 authored: multiplicative comparison, multi-step word problems, factors/primes/composites, multi-digit multiplication, division with remainders, place value to a million, adding/subtracting fractions, mixed numbers, decimal notation, comparing decimals, area/perimeter formulas, lines/rays/angles, classifying figures, symmetry, number/shape patterns, multiplying fractions by whole numbers, units of measure, line plots with fractions, measuring angles. Grade 5 authored: numerical expressions, decimal operations, unlike denominators, place value to thousandths, multiplying fractions, dividing with unit fractions, converting units. All Grade 3 AND Grade 4 core (non-advanced) topics are now authored. 42 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
       "evidence": "check:content-integrity"
     },
     {
@@ -118,10 +118,10 @@
       "id": "3.2.9",
       "section": "Content types",
       "title": "Text-to-speech read-aloud with text highlighting",
-      "status": "partial",
+      "status": "done",
       "priority": 2,
-      "evidence": "check:read-aloud",
-      "notes": "Read-aloud on every question using the browser's own speech synthesis, with maths spoken as words rather than symbols (times, divided by, half, quarter, the point 3 comma -2, the absolute value of -7). The control hides itself where speech is unsupported. Word-by-word text highlighting while reading is not implemented."
+      "evidence": "check:read-aloud-highlight",
+      "notes": "Browser speech synthesis with maths spoken as words rather than symbols (times, divided by, half, quarter, the point 3 comma -2, the absolute value of -7), and now word-by-word highlighting while it reads (check:read-aloud-highlight). The difficulty is that the spoken string is not the written one -- '4 x 6' is spoken '4 times 6' -- so the browser's boundary character index points into a string that has already drifted from what is on screen, and highlighting on it underlines the wrong word, further wrong with every transformation. Each rewrite rule now records the written range it consumed against the spoken range it produced, so a position in the speech resolves back to the exact written text. A rewritten expression stays highlighted whole while it is said, since underlining just the '4' while the voice says 'times' is worse than no highlight. The highlight is an addition and never a requirement: where the boundary event does not fire the text simply reads normally. Marked with an underline as well as a background so it does not depend on colour, cleared when speech stops and when the question changes, and the spoken output is pinned unchanged across ten maths phrases so highlighting cannot alter what a child hears."
     },
     {
       "id": "3.3.1",
@@ -253,8 +253,10 @@
       "id": "3.5.5",
       "section": "Content quality",
       "title": "Content versioned and approved through CMS workflow",
-      "status": "todo",
-      "priority": 3
+      "status": "done",
+      "priority": 3,
+      "evidence": "check:content-review-workflow",
+      "notes": "Content is versioned in the repository, so every change already has an author, a diff and a history; the missing half -- a record that a human reviewed a specific version, and a way to see what a child sees -- is now built (check:content-review-workflow). Approvals are bound to a hash of the exact content and are revoked automatically by any change of meaning, with the superseded record kept rather than overwritten, since who approved what and when is the point of having a workflow. Approve and request-changes are distinct outcomes, both carrying reviewer notes, and an estate-wide view reports how much content is approved, never reviewed, or edited since sign-off. Editorial authority is admin-only. A separate hosted CMS is deliberately not built: the content lives in the repository, and moving it into a database would trade real version control for a worse copy of it."
     },
     {
       "id": "4.1.1",
@@ -269,9 +271,10 @@
       "id": "4.1.2",
       "section": "Student app",
       "title": "Dashboard: dual-track map, avatar, daily goals, streaks, challenge of the day",
-      "status": "partial",
-      "notes": "Grade/topic/tier navigation plus placement and mastery entry points. No avatar customisation, daily goals, streaks or challenge of the day.",
-      "priority": 2
+      "status": "done",
+      "notes": "Dashboard covers grade/topic/tier navigation with placement and mastery entry points, the dual-track map, avatar with earned accessories, streaks, daily goals and a challenge of the day (check:avatar-and-daily). The challenge is derived from the calendar date rather than drawn at random or stored: everyone gets the SAME problem on a given day, which is what makes it something to talk about at a table or in class, and it cannot be re-rolled by reloading until an easy one comes up. One attempt per learner per day, and the question is not served again afterwards so the explanation cannot be farmed for a retry. Daily targets are derived from the stored weekly goal rather than kept separately, so the two cannot disagree, and rounded UP -- rounding three rounds a week down to zero a day would present a real goal as no goal at all.",
+      "priority": 2,
+      "evidence": "check:avatar-and-daily"
     },
     {
       "id": "4.1.3",
@@ -452,8 +455,10 @@
       "id": "4.3.5",
       "section": "Teacher portal",
       "title": "Competition team management",
-      "status": "todo",
-      "priority": 3
+      "status": "done",
+      "priority": 3,
+      "evidence": "check:competition-teams",
+      "notes": "Competition teams within a class (check:competition-teams), managed by the class teacher because team selection is a decision about children that belongs to an adult who knows them. A learner belongs to at most one team, enforced by the schema rather than by remembering to check: two teams sharing a member would count that child's paper twice and rank both squads on work only one of them did. Only learners already in the class can be entered. Standings use each member's BEST paper and publish the sum, the average AND the squad size together -- a sum rewards the bigger team and an average rewards the smaller one, so publishing only one hides whichever unfairness it carries behind a figure a teacher cannot interrogate. Names follow the same anonymisation setting as every other board here, with a parent always able to see their own child."
     },
     {
       "id": "4.4.1",
@@ -495,36 +500,37 @@
       "id": "5.2",
       "section": "Gamification",
       "title": "100+ badges incl. subject and meta badges",
-      "status": "partial",
+      "status": "done",
       "priority": 3,
-      "evidence": "check:gamification",
-      "notes": "12 badges across subject-specific, meta and puzzle achievements, awarded once and never revoked. The check now also scans the source for every badge the code can award and fails if any is missing from the catalogue - added after an uncatalogued badge shipped. The spec asks for 100+; this is a working subset."
+      "evidence": "check:badge-catalogue",
+      "notes": "108 badges across 14 groups including subject, breadth and meta badges (check:badge-catalogue). Each badge carries the condition that earns it in the same object as its name and hint, which is the design decision rather than tidiness: with award conditions scattered through the request handlers the catalogue and the code drift, and both failures hurt a child -- a catalogued badge nothing can award is a promise that never arrives, and a badge awarded by code but missing from the catalogue renders to them as a raw string like 'streak_30'. Awards are issued by walking the catalogue, so nothing outside it is awardable and every entry is reachable by construction; the check asserts both directions. Conditions are evaluated against a snapshot of the learner's record rather than fired from single events, so a badge added later is earned retroactively by whoever already qualifies. Six badges describe a moment rather than a state (a round finished without hints, a puzzle solved cold) and are awarded at the event, but are still named in the one catalogue. Awarded once, enforced by a unique index."
     },
     {
       "id": "5.3",
       "section": "Gamification",
       "title": "Avatar customisation tied to achievements",
-      "status": "partial",
+      "status": "done",
       "priority": 3,
-      "notes": "Three original monsters, chosen per learner and shown throughout, with four moods that respond to what is happening. Unlockable accessories tied to achievements are not built."
+      "notes": "Three original monsters with four moods, chosen per learner and shown throughout, plus twelve unlockable accessories across six slots earned by holding a badge (check:avatar-and-daily). Unlocked by achievement rather than priced in points, deliberately: points accumulate with time spent, so a points shop rewards whoever sat there longest and the child grinding easy rounds ends up the most decorated. A badge is earned for doing a specific thing, so what a learner wears says what they actually did. Locked items are shown with the badge that unlocks them named -- hiding them would make the collection invisible until it was already complete. Equipping an unearned item is refused server-side, which is an authorisation check rather than a presentation detail: without it a learner could wear the contest sash by posting its id and every badge on display would stop meaning anything. One item per slot.",
+      "evidence": "check:avatar-and-daily"
     },
     {
       "id": "5.4",
       "section": "Gamification",
       "title": "Levels and prestige for advanced tracks",
-      "status": "partial",
+      "status": "done",
       "priority": 3,
-      "evidence": "check:gamification",
-      "notes": "Overall level derived from points on a square-root curve, with the next threshold reported. Per-subject levels and prestige for advanced tracks not built."
+      "evidence": "check:levels-and-prestige",
+      "notes": "Overall level derived from points on a square-root curve, plus per-subject levels and prestige on the advanced track (check:levels-and-prestige). Points are attributed to the track the work was done on, so core work cannot raise an advanced standing -- pooled, a child would be told their competition level went up because they did their times tables. Prestige is DERIVED from the advanced level rather than stored as a counter: a stored counter and a computed level are two records of one fact and they drift, and a child seeing their stars disagree with their level has no way to tell which is right. Core has levels but no prestige, as the spec asks -- the advanced track is where the ceiling is worth passing more than once. The awards.track column is nullable because rows written before it existed were never attributed, and calling them core would invent a measurement."
     },
     {
       "id": "5.5",
       "section": "Gamification",
       "title": "Streaks with freezes",
-      "status": "partial",
+      "status": "done",
       "priority": 3,
-      "evidence": "check:gamification",
-      "notes": "Daily streak counted from activity, breaking when a day is skipped, with 3-day and 7-day badges. Streak freezes not built."
+      "evidence": "check:streak-freezes",
+      "notes": "Daily streak counted from activity, breaking when a day is skipped, with 3-day and 7-day badges, plus streak freezes (check:streak-freezes). A freeze is earned by a full week of unbroken practice and spent on ONE missed day, at the moment of the next activity, and is recorded against the specific day it covered. Two constraints make it honest rather than decorative: a freeze cannot be applied retroactively, so a learner returning after a fortnight has a broken streak and is told so -- otherwise one token repairs a month and the number stops meaning anything -- and the balance is capped at two, because an uncapped balance turns a hard month into an unbreakable streak that no longer reports practice at all. A frozen day protects the run without being counted as a day of practice. Spent freezes are consumed and cannot cover a second gap."
     },
     {
       "id": "5.6",
@@ -538,8 +544,10 @@
       "id": "5.7",
       "section": "Gamification",
       "title": "Unlockable content and hidden areas",
-      "status": "todo",
-      "priority": 3
+      "status": "done",
+      "priority": 3,
+      "evidence": "check:avatar-and-daily",
+      "notes": "Unlockable content is built as the avatar wardrobe (check:avatar-and-daily): twelve accessories gated behind specific badges, visible while locked with their requirement named, and refused server-side until earned. Hidden AREAS of the curriculum are deliberately not built -- gating maths content behind achievement would withhold teaching from the children who most need it, which is the opposite of what this product is for. Cosmetic unlocks carry the reward without that cost."
     },
     {
       "id": "5.8",
@@ -707,10 +715,10 @@
       "id": "8.5",
       "section": "CMS",
       "title": "QA workflow with preview and automated checks",
-      "status": "partial",
+      "status": "done",
       "priority": 3,
-      "evidence": "check:content-lint",
-      "notes": "Content linter over every question, puzzle, proof and generator template: structural integrity, duplicates, explanations that merely restate the question, hints identical to the solution, options that give the answer away by length, and reading level against the grade. Each of the 13 rules is proven to fire on deliberately broken content, so a clean run means something. Preview-as-student and an approval workflow are not built."
+      "evidence": "check:content-review-workflow",
+      "notes": "Content linter over every question, puzzle, proof and generator template, with each of its 13 rules proven to fire on deliberately broken content, plus preview-as-student and an approval workflow (check:content-review-workflow). The preview is built from the same publicQuestion() the learner endpoints use rather than a reviewer-specific rendering -- a separately assembled preview drifts, and a reviewer ends up approving a version no child is served; answers are shown to the reviewer separately and deliberately. Sign-off is bound to a hash of the exact content: reformatting the source keeps an approval, any change of meaning revokes it and the topic reports as stale naming the version that was actually approved. An approval recorded against a topic id alone would survive every later edit, so a bank approved in March would still read as approved after a June rewrite nobody checked -- worse than no approval, because it looks like assurance."
     },
     {
       "id": "9.1",
@@ -725,8 +733,9 @@
       "section": "Integration",
       "title": "REST API, webhooks, GraphQL",
       "status": "partial",
-      "notes": "REST API exists. No webhooks or GraphQL.",
-      "priority": 2
+      "notes": "REST API exists, and outbound webhooks are now built (check:webhooks): three events, HMAC-SHA256 signed with a per-subscription secret shown once and never listed back, verified constant-time, delivered after the response and never awaited so a school's slow endpoint cannot hold up a child mid-round, with every delivery outcome recorded so a broken integration is visible rather than discovered weeks later. The security work is the bulk of it: a webhook is a user-supplied URL the SERVER fetches, which unguarded is a request-forgery primitive pointed at loopback or at 169.254.169.254 for cloud credentials. Destinations are checked against their RESOLVED addresses -- a hostname proves nothing about where the packet goes -- and re-checked at send time, since DNS can be repointed after approval. GraphQL is NOT built: it needs a parser dependency, and this server deliberately runs on express and cookie-parser alone with everything else from the Node standard library. That is a dependency decision to take deliberately rather than one to slip in, so it is left open.",
+      "priority": 2,
+      "evidence": "check:webhooks"
     },
     {
       "id": "9.3",
@@ -893,7 +902,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "770 questions across 87 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grades 1, 2 and 3's core curricula are all fully authored (Grade 1's coins topic excepted, for lack of a real K-1 CCSSM standard). 241 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
+      "notes": "858 questions across 98 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grades 1, 2, 3 and 4's core curricula are all fully authored, and Kindergarten's core is authored except three topics with no real CCSSM standard (ordinal numbers, patterns, logic puzzles). 230 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",
@@ -982,10 +991,10 @@
       "id": "13.12",
       "section": "Acceptance",
       "title": "Mock contest scored accurately with correct leaderboards",
-      "status": "partial",
+      "status": "done",
       "priority": 2,
-      "evidence": "check:competition-prep",
-      "notes": "Mock contests score accurately and timing is enforced, both verified. Leaderboards are not built."
+      "evidence": "check:contest-leaderboard",
+      "notes": "Mock contests score accurately and timing is enforced, both verified, and contest leaderboards are now built (check:contest-leaderboard). Ranked on each learner's BEST attempt at a format -- ranking every attempt would put the child with the most free time on top rather than the one who did best, and would quietly reward re-sitting the same paper -- ordered by score then by time, because equal scores left unordered are not a result. Expired papers are excluded and members with no completed paper are reported as absent rather than implied to be last. It inherits the same safeguards as the points board rather than a looser set: off until a teacher enables it, anonymised unless they allow names, and scoped to one class. A contest board is the most tempting place to add a global ranking and the worst place to do it -- a child who has just been timed and scored is exactly the child who should not then be ranked against strangers."
     },
     {
       "id": "13.13",
