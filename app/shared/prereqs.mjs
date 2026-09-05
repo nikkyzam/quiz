@@ -23,9 +23,11 @@ export const PREREQS = {
   "k-trees":      ["k-combos"],
   "k-symmetry":   ["k-2d"],
   "k-combine":    ["k-2d"],
+  "k-3d":         ["k-2d"],
   "k-turns":      ["k-symmetry"],
   "k-blocks":     ["k-2d", "k-patterns"],
   "k-games":      ["k-count", "k-logic"],
+  "k-compare":    ["k-count"],
   "k-picgraph":   ["k-sort"],
 
   /* ---- grade 1 ---- */

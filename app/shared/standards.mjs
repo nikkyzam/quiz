@@ -13,6 +13,12 @@ export const STANDARDS = {
   "k-sub10":     ["K.OA.A.1", "K.OA.A.2"],
   "k-evenodd":   ["K.CC.B.4"],
   "k-2d":        ["K.G.A.2", "K.G.B.4"],
+  "k-compose":   ["K.OA.A.3", "K.OA.A.4"],
+  "k-3d":        ["K.G.A.2", "K.G.A.3"],
+  "k-combine":   ["K.G.B.6"],
+  "k-compare":   ["K.MD.A.2"],
+  "k-sort":      ["K.MD.B.3"],
+  "k-picgraph":  ["K.MD.B.3"],
 
   "g1-add20":    ["1.OA.A.1", "1.OA.C.6"],
   "g1-tensones": ["1.NBT.B.2"],
