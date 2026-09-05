@@ -3,7 +3,7 @@ import { api, type Question, type Learner } from "../api";
 import { Grid, Beast } from "../beasts";
 
 import { ReadAloud } from "../components/ReadAloud";
-import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
+import { OrderAnswer, MultiAnswer, PlotAnswer } from "../components/AnswerInput";
 
 /* Mastery check: no hints, one pass through, marked by the server. */
 export function MasteryCheck({ learner, topicId, topicName, onExit }: {
@@ -89,7 +89,9 @@ export function MasteryCheck({ learner, topicId, topicName, onExit }: {
         <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
         <p className="muted" style={{ fontSize: ".85rem" }}>No hints during a mastery check.</p>
-        {q.type === "order" ? (
+        {q.type === "plot" ? (
+          <PlotAnswer plot={q.plot!} disabled={busy} onSubmit={p => record(p)} />
+        ) : q.type === "order" ? (
           <OrderAnswer items={q.items!} disabled={busy} onSubmit={o => record(o)} />
         ) : q.type === "multi" ? (
           <MultiAnswer opts={q.opts!} disabled={busy} onSubmit={p => record(p)} />

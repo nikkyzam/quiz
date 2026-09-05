@@ -4,7 +4,7 @@ import { Grid, Beast } from "../beasts";
 
 const fbMood = (fb: any) => fb ? (fb.correct ? "happy" as const : "oops" as const) : "idle" as const;
 import { ReadAloud } from "../components/ReadAloud";
-import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
+import { OrderAnswer, MultiAnswer, PlotAnswer } from "../components/AnswerInput";
 
 type Feedback = { correct: boolean; correctAnswer: string; explanation: string; figA: any };
 
@@ -113,7 +113,9 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
         <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
 
-        {q.type === "order" ? (
+        {q.type === "plot" ? (
+          <PlotAnswer plot={q.plot!} disabled={!!fb} onSubmit={p => submit(p)} />
+        ) : q.type === "order" ? (
           <OrderAnswer items={q.items!} disabled={!!fb} onSubmit={o => submit(o)} />
         ) : q.type === "multi" ? (
           <MultiAnswer opts={q.opts!} disabled={!!fb} onSubmit={p => submit(p)} />

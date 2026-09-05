@@ -23,6 +23,7 @@ import { STANDARDS, standardsFor, coverage } from "../../shared/standards.mjs";
 import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
+import * as units_ from "./units.js";
 
 export const api = Router();
 
@@ -56,7 +57,18 @@ function publicQuestion(topicId, idx) {
     items: q.type === "order" ? shuffled(q.items) : undefined,
     mono: q.mono || false,
     hint: q.hint || null,
-    fig: q.fig || null
+    fig: q.fig || null,
+    /* The grid a plot question is answered on: its extent and how many points
+       to place. `ansPlot` and `plotRule` stay server-side — this object is
+       built field by field rather than spread, so the answer cannot arrive
+       here by someone adding a field to the question later. */
+    plot: q.type === "plot"
+      ? {
+          xMin: q.plot?.xMin ?? -5, xMax: q.plot?.xMax ?? 5,
+          yMin: q.plot?.yMin ?? -5, yMax: q.plot?.yMax ?? 5,
+          need: q.plotRule?.need ?? (q.ansPlot ? q.ansPlot.length : 1)
+        }
+      : undefined
   };
 }
 
@@ -139,6 +151,63 @@ function gradeAnswer(q, raw) {
       Math.abs(parseFloat(p[0]) - q.ansP[0]) < 1e-9 &&
       Math.abs(parseFloat(p[1]) - q.ansP[1]) < 1e-9;
     return { ok, correctAnswer: `(${q.ansP[0]}, ${q.ansP[1]})`, credit: ok ? 1 : 0 };
+  }
+  /* Points plotted on a grid (spec 3.2.2).
+
+     Two modes, and the second is the reason the type earns its place. With
+     `ansPlot` the answer is a specific set of points, marked without regard
+     to the order they were placed in — the plane does not care which corner
+     of the rectangle the child clicked first. With `plotRule` the answer is
+     any set of points satisfying a relation, so "plot two points on
+     y = 2x + 1" has infinitely many correct answers and cannot be marked by
+     comparing against a stored one at all. That is a question a text box
+     cannot ask.
+
+     Partial credit follows the same shape as select-all: points on target
+     count for, points off target count against, so covering the grid in
+     points scores nothing. */
+  if (q.type === "plot") {
+    const got = (Array.isArray(raw) ? raw : [])
+      .filter(p => Array.isArray(p) && p.length === 2)
+      .map(p => [Number(p[0]), Number(p[1])])
+      .filter(p => Number.isFinite(p[0]) && Number.isFinite(p[1]));
+    /* Placing the same point twice is one point, not two — otherwise a
+       learner could satisfy "plot two points on the line" with one. */
+    const unique = got.filter((p, i) =>
+      got.findIndex(o => Math.abs(o[0] - p[0]) < 1e-9 && Math.abs(o[1] - p[1]) < 1e-9) === i);
+
+    if (q.plotRule) {
+      const { m, c, need } = q.plotRule;
+      const wanted = need || 2;
+      const onLine = unique.filter(p => Math.abs(p[1] - (m * p[0] + c)) < 1e-9);
+      const ok = unique.length === wanted && onLine.length === wanted;
+      const credit = wanted ? Math.max(0, (onLine.length - (unique.length - onLine.length)) / wanted) : 0;
+      const sign = c === 0 ? "" : c > 0 ? ` + ${c}` : ` − ${Math.abs(c)}`;
+      return {
+        ok,
+        correctAnswer: `any ${wanted} different points on y = ${m}x${sign} — for example (0, ${c}) and (1, ${m + c})`,
+        credit: Math.min(1, credit),
+        creditDetail: `${onLine.length} of ${wanted} on the line`
+      };
+    }
+
+    const want = q.ansPlot || [];
+    const claimed = new Set();
+    let hits = 0;
+    for (const p of unique) {
+      const i = want.findIndex((w, wi) =>
+        !claimed.has(wi) && Math.abs(w[0] - p[0]) < 1e-9 && Math.abs(w[1] - p[1]) < 1e-9);
+      if (i >= 0) { claimed.add(i); hits++; }
+    }
+    const strays = unique.length - hits;
+    const ok = hits === want.length && strays === 0;
+    const credit = want.length ? Math.max(0, (hits - strays) / want.length) : 0;
+    return {
+      ok,
+      correctAnswer: want.map(p => `(${p[0]}, ${p[1]})`).join(", "),
+      credit: Math.min(1, credit),
+      creditDetail: `${hits} of ${want.length} placed correctly${strays ? `, ${strays} in the wrong place` : ""}`
+    };
   }
   const n = parseFloat(String(raw).replace(/−/g, "-").replace(/[^0-9.\-]/g, ""));
   const numOk = !isNaN(n) && Math.abs(n - q.ans) < 1e-9;
@@ -458,7 +527,7 @@ api.post("/diagnostic/start", requireAuth, (req, res) => {
   for (const t of diag.TIER_ORDER)
     questionsByTier[t] = bank.map((q, i) => ({ q, i })).filter(o => tierOf(o.q) === t).map(o => o.i);
 
-  const id = diag.makeDiagnostic({ questionsByTier, topicId, learnerId });
+  const id = diag.makeDiagnostic({ questionsByTier, bank, topicId, learnerId });
   const sess = diag.getSession(id);
   const first = diag.nextQuestion(sess);
   if (!first) { diag.endSession(id); return res.status(404).json({ error: "empty_topic" }); }
@@ -620,6 +689,125 @@ api.post("/mastery/submit", requireAuth, (req, res) => {
   checkSessions.delete(checkId);
   audit(req.user.id, "mastery.submitted", `${sess.topicId}:${pct}%`, req);
   res.json({ score, total, pct, threshold, passed, detail, reward });
+});
+
+/* ---------------- unit tests (spec 7.2) ----------------
+   Summative assessment across a whole unit rather than one topic. Sessions
+   are held server-side for the same reason mastery checks are: the client
+   must not be able to choose its own questions or report its own score. */
+const unitSessions = new Map();
+
+api.get("/learners/:id/units", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const learner = db.prepare("SELECT track FROM learners WHERE id = ?").get(req.params.id);
+  if (!learner) return res.status(404).json({ error: "unknown_learner" });
+  const units = units_.testableUnits(learner.track).map(u => ({
+    key: u.key, grade: u.grade, name: u.name, track: u.track,
+    topics: u.topics, questionCount: u.size
+  }));
+  res.json({ units });
+});
+
+api.post("/unit-test/start", requireAuth, (req, res) => {
+  const { learnerId, unitKey } = req.body || {};
+  if (!ownLearner(req, learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  const unit = units_.findUnit(unitKey);
+  if (!unit) return res.status(404).json({ error: "unknown_unit" });
+
+  /* Refused by name rather than served in a degraded form: a unit with one
+     authored topic would produce a "unit test" that is a mastery check, and
+     the result would then be recorded as unit-level evidence it is not. */
+  if (!unit.testable)
+    return res.status(409).json({
+      error: "unit_not_testable",
+      message: `${unit.name} has questions for ${unit.authoredCount} of its ${unit.topicCount} topics; a unit test needs at least ${units_.MIN_TOPICS}.`
+    });
+
+  const picked = units_.drawQuestions(unit);
+  const id = randomUUID();
+  unitSessions.set(id, {
+    learnerId, unitKey: unit.key,
+    ids: picked.map(p => `${p.topicId}:${p.idx}`),
+    startedAt: Date.now()
+  });
+  audit(req.user.id, "unitTest.started", unit.key, req);
+  res.json({
+    testId: id,
+    unit: { key: unit.key, name: unit.name, grade: unit.grade },
+    threshold: MASTERY[unit.track === "adv" ? "adv" : "core"],
+    questions: picked.map(p => publicQuestion(p.topicId, p.idx))
+  });
+});
+
+api.post("/unit-test/submit", requireAuth, (req, res) => {
+  const { testId, answers } = req.body || {};
+  const sess = unitSessions.get(testId);
+  if (!sess) return res.status(404).json({ error: "unknown_test" });
+  if (!ownLearner(req, sess.learnerId)) return res.status(403).json({ error: "not_your_learner" });
+  if (!answers || typeof answers !== "object") return res.status(400).json({ error: "missing_answers" });
+
+  const unit = units_.findUnit(sess.unitKey);
+  let score = 0;
+  const results = [];
+  const detail = sess.ids.map(qid => {
+    const [topicId, idx] = qid.split(":");
+    const q = QUESTIONS[topicId][Number(idx)];
+    const { ok, correctAnswer } = gradeAnswer(q, answers[qid]);
+    if (ok) score++;
+    results.push({ topicId, correct: ok });
+
+    /* Evidence is per topic, so it is credited per topic — a unit test tells
+       the knowledge model about each topic it touched, not about the unit as
+       an undifferentiated whole. */
+    bkt.observe(sess.learnerId, topicId, ok,
+      bkt.paramsFor({ optionCount: q.type === "mc" ? (q.opts || []).length : 0 }));
+    let category = null;
+    if (!ok) {
+      category = classify(q, answers[qid]);
+      db.prepare("INSERT INTO mistakes (id, learner_id, topic_id, question_id, category, at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), sess.learnerId, topicId, qid, category, now());
+    }
+    return { id: qid, topicId, correct: ok, correctAnswer, explanation: q.expl,
+             category, categoryLabel: category ? CATEGORIES[category] : null };
+  });
+
+  const total = sess.ids.length;
+  const pct = Math.round((score / total) * 100);
+  const threshold = MASTERY[unit.track === "adv" ? "adv" : "core"];
+  const passed = pct >= threshold;
+  const parts = units_.breakdown(results, unit);
+  const ts = now();
+
+  db.prepare(`INSERT INTO unit_tests (id, learner_id, unit_key, unit_name, score, total, pct,
+                                      threshold, passed, breakdown, seconds, finished_at)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`)
+    .run(randomUUID(), sess.learnerId, unit.key, unit.name, score, total, pct,
+         threshold, passed ? 1 : 0, JSON.stringify(parts), elapsedSeconds(sess), ts);
+
+  unitSessions.delete(testId);
+  audit(req.user.id, "unitTest.submitted", `${unit.key}:${pct}%`, req);
+  res.json({
+    unit: { key: unit.key, name: unit.name },
+    score, total, pct, threshold, passed,
+    breakdown: parts,
+    weakest: parts.length ? parts[0] : null,
+    detail
+  });
+});
+
+api.get("/learners/:id/unit-tests", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const rows = db.prepare(`SELECT unit_key, unit_name, score, total, pct, threshold, passed, breakdown, finished_at
+                           FROM unit_tests WHERE learner_id = ? ORDER BY finished_at DESC LIMIT 50`)
+    .all(req.params.id);
+  res.json({
+    tests: rows.map(r => ({
+      unitKey: r.unit_key, unitName: r.unit_name,
+      score: r.score, total: r.total, pct: r.pct,
+      threshold: r.threshold, passed: !!r.passed,
+      breakdown: JSON.parse(r.breakdown), finishedAt: r.finished_at
+    }))
+  });
 });
 
 /* Grading happens here, never in the browser. */

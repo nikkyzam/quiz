@@ -27,9 +27,12 @@ export type Grade = { label: string; beast: string; units: Unit[] };
 export type Tier = { id: string; name: string; blurb: string };
 export type Question = {
   id: string; sec: string; secName: string;
-  type: "mc" | "in" | "pair" | "order" | "multi";
+  type: "mc" | "in" | "pair" | "order" | "multi" | "plot";
   q: string; opts?: string[]; items?: string[];
   mono: boolean; hint: string | null; fig: any;
+  /* Present only on plot questions: the grid to answer on. The answer
+     itself never appears here — the server keeps it. */
+  plot?: { xMin: number; xMax: number; yMin: number; yMax: number; need: number };
 };
 export type ProgressRow = {
   topic_id: string; tier: string; best_score: number; best_total: number;

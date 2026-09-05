@@ -25,7 +25,7 @@
       "title": "Grades K-2 cover number sense, patterns, early logic, intro combinatorics",
       "status": "partial",
       "priority": 1,
-      "notes": "K-2 authored: counting, counting back, adding and subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000. Remaining K-2 topics still have no questions.",
+      "notes": "K-2 authored: counting, counting back, adding and subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign and balance, word problems with unknowns, comparing two-digit numbers, measuring length, fluency within 20, adding and subtracting within 1000, and money problems. 18 of the 80 K-2 topics now have questions; the rest still do not.",
       "evidence": "check:content-integrity"
     },
     {
@@ -34,7 +34,7 @@
       "title": "Grades 3-5 cover fluency, fractions, decimals, geometry + prime factorisation, modular arithmetic, probability",
       "status": "partial",
       "priority": 1,
-      "notes": "Grade 3 authored: multiplication, fractions as numbers, area. Grades 4-5 have no questions yet.",
+      "notes": "Grade 3 authored: multiplication, fractions as numbers, area. Grade 4 authored: multiplication as comparison, place value to a million, adding and subtracting fractions, area and perimeter formulas. Grade 5 authored: numerical expressions, decimal operations, unlike denominators. 10 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
       "evidence": "check:content-integrity"
     },
     {
@@ -42,7 +42,7 @@
       "section": "Curriculum",
       "title": "Grades 6-8 cover ratios, algebra, geometry, statistics + full modular arithmetic, quadratics, graph theory, proof",
       "status": "partial",
-      "notes": "Map covers ratios, algebra, geometry, statistics plus modular arithmetic, quadratics, graph theory and proof for 6-8. Only g6-nscoord and g6-ratios authored.",
+      "notes": "Map covers ratios, algebra, geometry, statistics plus modular arithmetic, quadratics, graph theory and proof for 6-8. g6-nscoord, g6-ratios and g6-percent authored; grades 7-8 still have no questions.",
       "priority": 1
     },
     {
@@ -59,9 +59,9 @@
       "section": "Content types",
       "title": "Practice problems: varied types, immediate feedback, hints, full solutions",
       "status": "partial",
-      "notes": "Five question types authored and graded server-side. Graph/plot input and dynamic geometry still missing.",
+      "notes": "Six question types authored and graded server-side, now including graph/plot input (check:plot-input): the child places points on a coordinate grid rather than typing coordinates, marked order-independently because the plane has no order. Two marking modes — a stored set of points, and a rule, so \"plot any two points on y = 2x + 1\" has infinitely many correct answers and is marked by predicate rather than comparison. Partial credit follows select-all: points on target count for, points off target count against, so covering the grid scores nothing. The grid is operable by keyboard as well as pointer (arrow keys move, Enter places) and announces placements through a live region, because plotting is the skill being assessed and a click-only control would leave some children unable to answer at all. Content also covered by check:content-integrity. Still missing: dynamic geometry — draggable, constraint-preserving figures — which is a substantially larger interactive build and is not started.",
       "priority": 1,
-      "evidence": "check:content-integrity"
+      "evidence": "check:plot-input"
     },
     {
       "id": "3.2.3",
@@ -70,7 +70,7 @@
       "status": "done",
       "priority": 2,
       "evidence": "check:generated-problems",
-      "notes": "Seeded templates for five topics give unlimited fresh variants. The seed travels in the question id, so the server can rebuild and mark the exact problem later without storing it \u2014 which also means a review item shows the identical question. Grading, hints and error analysis all work unchanged on generated questions."
+      "notes": "Seeded templates for five topics give unlimited fresh variants. The seed travels in the question id, so the server can rebuild and mark the exact problem later without storing it — which also means a review item shows the identical question. Grading, hints and error analysis all work unchanged on generated questions."
     },
     {
       "id": "3.2.4",
@@ -367,7 +367,7 @@
       "status": "done",
       "priority": 1,
       "evidence": "check:curriculum-track",
-      "notes": "Core, enrichment and competition, stored per learner and settable at creation or later. The setting decides which units the child's curriculum endpoint returns \u2014 core learners are not shown advanced material at all \u2014 so it changes what they are offered rather than labelling the record. An unrecognised track is refused rather than coerced to core."
+      "notes": "Core, enrichment and competition, stored per learner and settable at creation or later. The setting decides which units the child's curriculum endpoint returns — core learners are not shown advanced material at all — so it changes what they are offered rather than labelling the record. An unrecognised track is refused rather than coerced to core."
     },
     {
       "id": "4.2.3",
@@ -471,7 +471,7 @@
       "status": "done",
       "priority": 3,
       "evidence": "check:admin-portal",
-      "notes": "Aggregate analytics: user and learner counts, active learners in the last seven days, attainment distribution across four bands, and the ten hardest topics by average score. Verified to contain no learner name or parent email \u2014 administrators see shape, not individual children's work."
+      "notes": "Aggregate analytics: user and learner counts, active learners in the last seven days, attainment distribution across four bands, and the ten hardest topics by average score. Verified to contain no learner name or parent email — administrators see shape, not individual children's work."
     },
     {
       "id": "4.4.3",
@@ -570,9 +570,10 @@
       "id": "6.1",
       "section": "Adaptive engine",
       "title": "Adaptive diagnostic using IRT/BKT producing a skill map",
-      "status": "partial",
+      "status": "done",
       "priority": 1,
-      "notes": "Adaptive diagnostic with a skill map, and BKT now tracks per-skill knowledge (check:knowledge-tracing). Item Response Theory is still not implemented, and the diagnostic itself still uses the streak rule rather than the model."
+      "notes": "Three-parameter logistic IRT (app/server/src/irt.js) drives the diagnostic: ability is re-estimated after every answer, the next question is the one carrying most information at that ability, and placement follows the measured ability rather than the raw percentage. Guessing is discounted per question type, so a correct four-option answer counts for less than a correct free-input one. Estimation is expected-a-posteriori rather than maximum likelihood, which diverges on the all-correct and all-wrong patterns that a 12-question diagnostic produces routinely. BKT tracks per-skill knowledge (check:knowledge-tracing) and the skill map is produced and stored. Remaining refinement, not a gap in the requirement: item difficulty and discrimination are cold-start priors taken from the authored tier, not fitted from real response data — fitting them needs the learner corpus that 13.2 is blocked on.",
+      "evidence": "check:irt-adaptive"
     },
     {
       "id": "6.2",
@@ -589,7 +590,7 @@
       "title": "BKT/DKT mastery updates and bandit difficulty selection",
       "status": "partial",
       "priority": 1,
-      "notes": "Bayesian Knowledge Tracing implemented and verified: P(known) updated per answer with slip and guess terms, guess rate scaled to the number of options, and mastery requiring both confidence and enough observations so a lucky answer cannot declare it. Difficulty selection is now a Thompson-sampling bandit over the three tiers (check:bandit-difficulty), rewarded by correctness WEIGHTED BY DIFFICULTY \u2014 a correctness-only reward converges on the easiest tier and parks the learner there, which is the opposite of adaptive. The two-in-a-row streak rule it replaced is gone. NOT done: Deep Knowledge Tracing, and fitting per-skill BKT parameters from real data - both need a corpus of real learner answers that does not exist yet.",
+      "notes": "Bayesian Knowledge Tracing implemented and verified: P(known) updated per answer with slip and guess terms, guess rate scaled to the number of options, and mastery requiring both confidence and enough observations so a lucky answer cannot declare it. Difficulty selection is now a Thompson-sampling bandit over the three tiers (check:bandit-difficulty), rewarded by correctness WEIGHTED BY DIFFICULTY — a correctness-only reward converges on the easiest tier and parks the learner there, which is the opposite of adaptive. The two-in-a-row streak rule it replaced is gone. NOT done: Deep Knowledge Tracing, and fitting per-skill BKT parameters from real data - both need a corpus of real learner answers that does not exist yet.",
       "evidence": "check:knowledge-tracing"
     },
     {
@@ -632,7 +633,8 @@
       "title": "Summative mastery checks and unit tests",
       "status": "partial",
       "priority": 1,
-      "notes": "Chapter-level mastery checks implemented and verified. Unit tests across several topics, and AI-graded open-ended items, not built."
+      "notes": "Chapter-level mastery checks and unit tests both implemented and verified (check:unit-tests). A unit test spans every authored topic in a unit, drawn equally from each and capped by the smallest bank so the score is not weighted by how many questions each topic happens to have; it is marked server-side, reports a per-topic breakdown naming the weakest topic, credits knowledge tracing per topic, and is stored in its own table so a unit key never appears where a topic id is expected. Units with fewer than two authored topics are refused by name rather than served as a mastery check under another label. Still open: AI-graded open-ended responses, which need the LLM provider account that 4.1.11 is blocked on — kept partial for that reason alone.",
+      "evidence": "check:unit-tests"
     },
     {
       "id": "7.3",
@@ -889,7 +891,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "198 questions across 16 topics in 5 grades (K, 1, 2, 3, 6), every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. 312 of 328 topics still have no content, and standards alignment tagging is not started."
+      "notes": "317 questions across 31 topics in 7 grades (K, 1, 2, 3, 4, 5, 6), every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 297 of 328 topics still have no content -- grades 7-8 not started (0 of 134), and most K-6 advanced/enrichment topics remain unauthored."
     },
     {
       "id": "13.2",

@@ -82,6 +82,33 @@ const post = (c, p, b) => c(p, { method: "POST", body: JSON.stringify(b) });
 
 const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
 
+/* The correct answer to a bank question, in the shape the grader expects.
+
+   Read from the bank rather than replayed from what /answer returns. That
+   endpoint's `correctAnswer` is written for a child to read — ordering comes
+   back as "a  →  b  →  c" and a plot as "(3, −2)" — so feeding it back does
+   not grade as correct, and a checker built on it silently marks known-good
+   answers wrong. Adding a question type used to break several checks at once
+   for exactly that reason; adding the type here fixes all of them together. */
+let _bank = null;
+async function correctAnswerFor(qid) {
+  _bank ||= (await import("../app/shared/questions.mjs")).QUESTIONS;
+  const [topicId, idxRaw] = String(qid).split(":");
+  const q = _bank[topicId]?.[Number(idxRaw)];
+  if (!q) return null;
+  switch (q.type) {
+    case "mc": return q.a;
+    case "order": return q.ansOrder;
+    case "multi": return q.aMulti;
+    case "pair": return q.ansP;
+    case "plot": return q.plotRule
+      ? Array.from({ length: q.plotRule.need || 2 },
+                   (_, i) => [i, q.plotRule.m * i + q.plotRule.c])
+      : q.ansPlot;
+    default: return q.ans;
+  }
+}
+
 export const CHECKS = {
   /* X.2 — passwords hashed, session cookie is httpOnly, bad input refused */
   "auth-security": async () => {
@@ -640,14 +667,7 @@ export const CHECKS = {
     for (const k of ['"ans"', '"ansP"', '"expl"', '"a":'])
       assert(!raw.includes(k), `diagnostic leaked ${k}`);
 
-    const solve = async q => {
-      if (q.type === "mc") {
-        for (let i = 0; i < q.opts.length; i++)
-          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) return i;
-        return 0;
-      }
-      return (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
-    };
+    const solve = q => correctAnswerFor(q.id);
 
     let q = r.body.question, guard = 0, summary = null;
     while (guard++ < 30) {
@@ -692,6 +712,146 @@ export const CHECKS = {
     assert(s2.skillMap.every(x => x.level === "needs work"), "weak learner shows a secure section");
 
     return `adaptive over ${summary.asked} questions, skill map + placement stored, replay blocked, weak/strong placed differently`;
+  },
+
+  /* 6.1 — Item Response Theory, not a streak rule wearing its name.
+
+     Each assertion below targets a property the streak rule cannot express,
+     so this check fails if the model is removed or quietly reverted. */
+  "irt-adaptive": async () => {
+    const irt = await import("../app/server/src/irt.js");
+
+    const free = irt.itemParams({ lvl: 2, type: "in" });
+    const mc4 = irt.itemParams({ lvl: 2, type: "mc", opts: ["a", "b", "c", "d"] });
+
+    /* 1. The estimator stays finite exactly where maximum likelihood gives up.
+
+       All-correct and all-wrong response patterns have no interior maximum —
+       MLE runs off to infinity — and both are ordinary in a twelve-question
+       diagnostic. An estimator that returns Infinity or NaN here would place
+       a child on a number that is not a number. */
+    const allRight = irt.estimateAbility(Array.from({ length: 10 }, () => ({ item: free, correct: true })));
+    const allWrong = irt.estimateAbility(Array.from({ length: 10 }, () => ({ item: free, correct: false })));
+    for (const [name, e] of [["all-correct", allRight], ["all-wrong", allWrong]]) {
+      assert(Number.isFinite(e.theta), `${name} ability estimate was ${e.theta}`);
+      assert(Number.isFinite(e.se) && e.se > 0, `${name} standard error was ${e.se}`);
+      assert(Math.abs(e.theta) < 4, `${name} ability ran to the edge of the grid (${e.theta})`);
+    }
+    assert(allRight.theta > allWrong.theta + 1, "answering everything right did not out-rank answering everything wrong");
+
+    /* With no evidence at all the estimate is the prior, not a guess. */
+    const cold = irt.estimateAbility([]);
+    assert(Math.abs(cold.theta) < 0.01 && Math.abs(cold.se - 1) < 0.02,
+      `cold start should be the prior, got theta ${cold.theta} se ${cold.se}`);
+
+    /* 2. A guessable correct answer is weaker evidence than an unguessable one.
+
+       Six correct four-option questions can happen by luck roughly once in
+       4,000; six correct free-input answers essentially cannot. The streak
+       rule counted both as three promotions. */
+    assert(mc4.c === 0.25, `four-option guessing floor is ${mc4.c}`);
+    assert(free.c === 0, `free-input guessing floor is ${free.c}`);
+    assert(irt.guessingFloor({ type: "order", items: [1, 2, 3, 4] }) < 0.05, "ordering four items is treated as guessable");
+    const viaMc = irt.estimateAbility(Array.from({ length: 6 }, () => ({ item: mc4, correct: true }))).theta;
+    const viaFree = irt.estimateAbility(Array.from({ length: 6 }, () => ({ item: free, correct: true }))).theta;
+    assert(viaFree > viaMc + 0.15,
+      `guessing is not discounted: six correct scored ${viaMc.toFixed(2)} on multiple choice vs ${viaFree.toFixed(2)} on free input`);
+
+    /* 3. Selection aims difficulty at the learner, in BOTH directions.
+
+       This is a regression that actually happened. Grading discrimination by
+       tier (0.8/1.0/1.2) made information scale with a-squared in favour of
+       hard items, so the selector served middle and boss questions to a
+       learner of ability -1.5, never asked an easy one, and placed a
+       struggling child at "challenge". Pinned in both directions because the
+       broken version still looked correct for strong learners. */
+    const candidates = () => [1, 2, 3].map(lvl => ({ lvl, item: irt.itemParams({ lvl, type: "in" }) }));
+
+    /* Swept rather than spot-checked, and that is the whole point of this
+       assertion. The first version of it probed ability -1.5 and 1.5, both of
+       which the broken gradient happened to get right, so it passed against
+       the very bug it was written to catch. The gradient goes wrong in a band
+       either side of the middle — at -1.25, -1.0, -0.75, 0.25 and 0.5 — which
+       two convenient sample points walked straight past.
+
+       The property that actually holds is an equality: with discrimination
+       uniform, the most informative item is always the one nearest the
+       learner in difficulty. Any per-tier weighting breaks it somewhere, so
+       sweeping the range catches it wherever it breaks. */
+    const sweep = [];
+    for (let theta = -3; theta <= 3.001; theta += 0.25) sweep.push(Number(theta.toFixed(2)));
+    const mismatched = [];
+    for (const theta of sweep) {
+      const chosen = irt.selectNext(theta, candidates());
+      const nearest = candidates().reduce((best, cand) =>
+        Math.abs(cand.item.b - theta) < Math.abs(best.item.b - theta) ? cand : best);
+      if (chosen.item.b !== nearest.item.b)
+        mismatched.push(`theta ${theta}: served b=${chosen.item.b}, nearest was b=${nearest.item.b}`);
+    }
+    assert(mismatched.length === 0,
+      `most-informative is not nearest-difficulty at ${mismatched.length}/${sweep.length} abilities — ${mismatched.slice(0, 3).join("; ")}`);
+
+    /* And the direction holds at the extremes, which is the harm in plain
+       terms: a struggling learner must be handed something easier, not the
+       middle of the bank. */
+    assert(irt.selectNext(-2, candidates()).item.b < 0, "a struggling learner was not served an easier item");
+    assert(irt.selectNext(2, candidates()).item.b > 0, "a strong learner was not served a harder item");
+
+    /* Information must peak at the learner the item is aimed at, which is
+       what makes "most informative" mean "best targeted". */
+    const boss = irt.itemParams({ lvl: 3, type: "in" });
+    assert(irt.information(boss.b, boss) > irt.information(boss.b - 2, boss)
+        && irt.information(boss.b, boss) > irt.information(boss.b + 2, boss),
+      "information does not peak at the item's own difficulty");
+
+    /* 4. Placement follows measured ability, not the raw percentage.
+
+       Two learners, both exactly 50%: one half-right on boss items, one
+       half-right on practice items. A percentage cannot tell them apart
+       because it does not know what was asked. The model must, and must
+       place them differently. */
+    const practice = irt.itemParams({ lvl: 1, type: "in" });
+    const half = item => [true, true, true, false, false, false].map(correct => ({ item, correct }));
+    const hardHalf = irt.estimateAbility(half(boss)).theta;
+    const easyHalf = irt.estimateAbility(half(practice)).theta;
+    assert(hardHalf > easyHalf + 1,
+      `same 50% scored the same either way (hard ${hardHalf.toFixed(2)} vs easy ${easyHalf.toFixed(2)})`);
+    assert(irt.tierForAbility(hardHalf) !== irt.tierForAbility(easyHalf),
+      `both 50% learners were placed at ${irt.tierForAbility(hardHalf)}`);
+
+    /* 5. End to end: a real diagnostic reports the estimate and its error,
+       and the reported uncertainty is honest rather than decorative. */
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "irt@b.com", password: "a-long-enough-pass", name: "I" });
+    const kid = (await post(c, "/learners", { name: "IRT Kid" })).body.learner;
+    const start = await post(c, "/diagnostic/start", { learnerId: kid.id, topicId: "g6-nscoord" });
+    assert(start.status === 200, "diagnostic did not start");
+
+    let summary = null, guard = 0;
+    while (guard++ < 30) {
+      const step = await post(c, "/diagnostic/answer",
+        { diagnosticId: start.body.diagnosticId, answer: "-999999" });
+      if (step.body.done) { summary = step.body.summary; break; }
+    }
+    assert(summary, "diagnostic never completed");
+    assert(typeof summary.ability === "number" && Number.isFinite(summary.ability),
+      `diagnostic reported ability ${summary.ability}`);
+    assert(typeof summary.abilityError === "number" && summary.abilityError > 0,
+      `diagnostic reported error ${summary.abilityError}`);
+    assert(summary.ability < -0.5,
+      `a learner who answered everything wrong measured ${summary.ability}`);
+    assert(summary.recommendation.tier === "practice",
+      `all-wrong learner placed at ${summary.recommendation.tier}`);
+    /* The uncertainty has to be reported as reached or not reached, and the
+       message has to say so — a placement presented as settled when it is
+       still provisional is worse than no number at all. */
+    assert(typeof summary.measured === "boolean", "the diagnostic does not say whether it reached its target precision");
+    if (!summary.measured)
+      assert(/first estimate|may move/.test(summary.recommendation.message),
+        "an unsettled placement is reported without saying so");
+
+    return `3PL model: finite where MLE diverges, guessing discounted (mc ${viaMc.toFixed(2)} vs free ${viaFree.toFixed(2)}), difficulty targeted both ways, same 50% placed ${irt.tierForAbility(easyHalf)} vs ${irt.tierForAbility(hardHalf)} by item difficulty`;
   },
 
   /* 13.3 — the whole journey: diagnostic -> practice -> mastery check -> review */
@@ -1340,6 +1500,38 @@ export const CHECKS = {
           assert([...q.items].sort().join("|") === [...q.ansOrder].sort().join("|"),
             `${tag}: ansOrder is not a permutation of items`);
           assert(q.items.length >= 3, `${tag} has too few items to order`);
+        } else if (q.type === "plot") {
+          /* Exactly one of the two marking modes, never both and never
+             neither: a question carrying both a stored answer and a rule has
+             an ambiguous mark, and one carrying neither cannot be marked. */
+          const hasPoints = Array.isArray(q.ansPlot) && q.ansPlot.length > 0;
+          const hasRule = !!q.plotRule;
+          assert(hasPoints !== hasRule, `${tag} must have either ansPlot or plotRule, not both or neither`);
+          const grid = q.plot || {};
+          assert(grid.xMin < grid.xMax && grid.yMin < grid.yMax, `${tag} has no grid to plot on`);
+          if (hasPoints) {
+            assert(q.ansPlot.every(p => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite)),
+              `${tag} has a malformed point`);
+            /* Every answer has to be reachable on the grid the child is
+               given — an answer outside it cannot be plotted at all. */
+            assert(q.ansPlot.every(([x, y]) => x >= grid.xMin && x <= grid.xMax && y >= grid.yMin && y <= grid.yMax),
+              `${tag} has an answer outside its own grid`);
+            assert(new Set(q.ansPlot.map(p => p.join(","))).size === q.ansPlot.length,
+              `${tag} lists the same point twice`);
+          } else {
+            assert(Number.isFinite(q.plotRule.m) && Number.isFinite(q.plotRule.c),
+              `${tag} has a malformed plot rule`);
+            const need = q.plotRule.need || 2;
+            /* The rule must have at least `need` solutions ON the grid, or
+               the question is unanswerable however well the child reasons. */
+            let reachable = 0;
+            for (let x = Math.ceil(grid.xMin); x <= Math.floor(grid.xMax); x++) {
+              const y = q.plotRule.m * x + q.plotRule.c;
+              if (Number.isInteger(y) && y >= grid.yMin && y <= grid.yMax) reachable++;
+            }
+            assert(reachable >= need,
+              `${tag} needs ${need} points on the line but only ${reachable} lattice points fit on its grid`);
+          }
         } else assert(false, `${tag} has unknown type "${q.type}"`);
       });
     }
@@ -3094,6 +3286,300 @@ export const CHECKS = {
 
     assert(findings.length === 0, "security scan findings:\n    " + findings.join("\n    "));
     return `${sqli.length} SQLi payloads, XSS, IDOR, cookie forgery, privilege escalation, prototype pollution and path traversal all probed -- no findings. NOT a substitute for professional penetration testing.`;
+  },
+
+  /* 3.2.2 — plotting points on a grid, marked server-side. */
+  "plot-input": async () => {
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+    const bank = QUESTIONS["g6-nscoord"];
+    const plots = bank.map((q, i) => ({ q, i })).filter(o => o.q.type === "plot");
+    assert(plots.length >= 4, `only ${plots.length} plot questions authored`);
+    assert(plots.some(o => o.q.plotRule), "no open-ended plot question authored");
+    assert(plots.some(o => o.q.ansPlot?.length > 1) || plots.length >= 4,
+      "no multi-point plot question authored");
+
+    /* Every authored plot question must be well posed: exactly one set of
+       points is accepted, and the question says so. An earlier draft asked
+       for "a point in Quadrant II 4 units from the y-axis" while storing a
+       single answer — (-4, 1) — so a child plotting the equally correct
+       (-4, 3) would have been marked wrong. Open-ended intent belongs in
+       plotRule, where any satisfying answer passes; anything with a stored
+       ansPlot has to be a question with one answer. */
+    for (const { q, i } of plots) {
+      if (q.plotRule) continue;
+      assert(Array.isArray(q.ansPlot) && q.ansPlot.length >= 1,
+        `g6-nscoord:${i} is a plot question with no answer`);
+      assert(!/\bany\b/i.test(q.q),
+        `g6-nscoord:${i} asks for "any" point but stores one exact answer — every other correct placement would be marked wrong`);
+    }
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "plot@b.com", password: "a-long-enough-pass", name: "PL" });
+
+    /* 1. The grid is served; the answer is not. */
+    const exact = plots.find(o => o.q.ansPlot && o.q.ansPlot.length === 1);
+    const exactId = `g6-nscoord:${exact.i}`;
+    const listed = await c("/topics/g6-nscoord/boss/questions");
+    assert(listed.status === 200, `questions did not load (${listed.status})`);
+    const rawServed = JSON.stringify(listed.body);
+    for (const leak of ['"ansPlot"', '"plotRule"', '"expl"', '"ansP"', '"ans"'])
+      assert(!rawServed.includes(leak), `a served question leaked ${leak}`);
+
+    const servedPlot = listed.body.questions.find(q => q.type === "plot");
+    assert(servedPlot, "no plot question was served at the boss tier");
+    assert(servedPlot.plot && typeof servedPlot.plot.need === "number",
+      "the served plot question carries no grid to answer on");
+    assert(servedPlot.plot.xMin < servedPlot.plot.xMax && servedPlot.plot.yMin < servedPlot.plot.yMax,
+      "the served grid has no extent");
+
+    /* 2. Marking is order-independent, because the plane has no order.
+       The rectangle question's corners can be placed in any sequence. */
+    const multi = plots.find(o => o.q.ansPlot && o.q.ansPlot.length > 1);
+    if (multi) {
+      const id = `g6-nscoord:${multi.i}`;
+      const pts = multi.q.ansPlot;
+      const forward = await post(c, "/answer", { questionId: id, answer: pts });
+      const reversed = await post(c, "/answer", { questionId: id, answer: [...pts].reverse() });
+      assert(forward.body.correct && reversed.body.correct,
+        "the same points marked differently depending on the order they were placed");
+    }
+
+    /* 3. A correct placement is accepted; a wrong one is refused. */
+    const right = await post(c, "/answer", { questionId: exactId, answer: exact.q.ansPlot });
+    assert(right.body.correct === true, `the stored answer was marked wrong: ${right.body.correctAnswer}`);
+    const wrong = await post(c, "/answer",
+      { questionId: exactId, answer: [[exact.q.ansPlot[0][0] + 1, exact.q.ansPlot[0][1]]] });
+    assert(wrong.body.correct === false, "a point one unit away was marked correct");
+
+    /* Junk must be refused rather than crash the grader — the answer arrives
+       from a client and its shape cannot be assumed. */
+    for (const junk of [null, "3,-2", [[1]], [["a", "b"]], [[]], 42, [[1, 2, 3, 4]], {}])
+      assert((await post(c, "/answer", { questionId: exactId, answer: junk })).body.correct === false,
+        `junk answer ${JSON.stringify(junk)} was marked correct`);
+
+    /* 4. The open-ended question: infinitely many right answers, so it cannot
+       be marked by comparison with a stored one. Several different correct
+       placements must all pass. */
+    const ruleQ = plots.find(o => o.q.plotRule);
+    const ruleId = `g6-nscoord:${ruleQ.i}`;
+    const { m, c: intercept, need } = ruleQ.q.plotRule;
+    const onLine = x => [x, m * x + intercept];
+    for (const pair of [[onLine(0), onLine(1)], [onLine(-2), onLine(2)], [onLine(1), onLine(-1)]]) {
+      const r = await post(c, "/answer", { questionId: ruleId, answer: pair });
+      assert(r.body.correct === true,
+        `${JSON.stringify(pair)} is on the line but was marked wrong`);
+    }
+    /* Off the line is refused, and so is satisfying "two points" with one
+       point placed twice — otherwise the question can be answered without
+       ever finding a second solution. */
+    assert((await post(c, "/answer", { questionId: ruleId, answer: [onLine(0), [1, 99]] })).body.correct === false,
+      "a point off the line was accepted");
+    assert((await post(c, "/answer", { questionId: ruleId, answer: [onLine(2), onLine(2)] })).body.correct === false,
+      "the same point placed twice satisfied a two-point question");
+    assert((await post(c, "/answer", { questionId: ruleId, answer: [onLine(0)] })).body.correct === false,
+      `one point satisfied a ${need}-point question`);
+
+    /* 5. Partial credit behaves like select-all: right points count for,
+       wrong points count against, so covering the grid scores nothing. */
+    if (multi) {
+      const id = `g6-nscoord:${multi.i}`;
+      const half = await post(c, "/answer", { questionId: id, answer: [multi.q.ansPlot[0]] });
+      assert(half.body.credit > 0 && half.body.credit < 1,
+        `a partly-right placement scored ${half.body.credit}`);
+    }
+    const spray = [];
+    for (let x = -3; x <= 3; x++) for (let y = -3; y <= 3; y++) spray.push([x, y]);
+    const sprayed = await post(c, "/answer", { questionId: exactId, answer: spray });
+    assert(sprayed.body.correct === false && sprayed.body.credit === 0,
+      `covering the grid in ${spray.length} points scored ${sprayed.body.credit}`);
+
+    /* 6. The input is reachable without a mouse. The grid is the answer
+         control for this type, so a click-only implementation would leave a
+         child who cannot use a pointer unable to answer at all — on the very
+         topic the question is assessing. */
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("app/web/src/components/AnswerInput.tsx", "utf8");
+    const plotSrc = src.slice(src.indexOf("export function PlotAnswer"));
+    assert(/onKeyDown/.test(plotSrc), "the plot grid has no keyboard handler");
+    assert(/tabIndex/.test(plotSrc), "the plot grid cannot be focused");
+    for (const key of ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Enter"])
+      assert(plotSrc.includes(key), `the plot grid does not handle ${key}`);
+    assert(/aria-live/.test(plotSrc), "placements are not announced to a screen reader");
+    assert(/aria-label/.test(plotSrc), "the plot grid has no accessible name");
+    /* The reset must key off the grid's values, not the prop object's
+       identity. Depending on the object means a caller passing an inline
+       `plot={{ ...q.plot }}` hands over a new reference every render, and the
+       child's points are cleared underneath them mid-question — every
+       placement vanishing the moment anything else on screen changes. This
+       was happening, and was only visible by driving the component in a
+       browser: the source reads correctly either way. */
+    assert(!/\}, \[plot\]\)/.test(plotSrc),
+      "the plot reset depends on the prop object's identity, so an inline plot prop wipes the child's points on every render");
+    assert(/visually-hidden/.test(plotSrc) && readFileSync("app/web/src/styles.css", "utf8").includes(".visually-hidden"),
+      "the live region uses a class the stylesheet does not define, so it would render on screen");
+
+    return `${plots.length} plot questions (${plots.filter(p => p.q.plotRule).length} open-ended), order-independent marking, junk and over-plotting refused, any point on y=${m}x+${intercept} accepted, grid keyboard-operable and announced`;
+  },
+
+  /* 7.2 — summative tests across a whole unit, not one topic. */
+  "unit-tests": async () => {
+    const units = await import("../app/server/src/units.js");
+
+    /* 1. Coverage is a property of the draw, not luck.
+
+       The failure this guards against is silent: pooling a unit's banks and
+       taking twelve at random can miss a topic outright — more often than it
+       sounds, because the larger bank crowds out the smaller one — and the
+       unit is then reported on evidence that never included it. Asserted over
+       every testable unit and many draws, because a single draw passing says
+       nothing about a sampling rule. */
+    const testable = units.testableUnits("adv");
+    assert(testable.length >= 2, `only ${testable.length} units have enough authored topics to test`);
+    for (const unit of testable) {
+      assert(unit.size >= units.MIN_TEST_SIZE, `${unit.key}: offered a ${unit.size}-question test`);
+      for (let trial = 0; trial < 100; trial++) {
+        const drawn = units.drawQuestions(unit);
+        const seen = new Set(drawn.map(d => d.topicId));
+        assert(seen.size === unit.topics.length,
+          `${unit.key}: draw ${trial} covered ${seen.size} of ${unit.topics.length} topics`);
+        assert(new Set(drawn.map(d => `${d.topicId}:${d.idx}`)).size === drawn.length,
+          `${unit.key}: draw ${trial} repeated a question`);
+
+        /* Exactly balanced, not approximately.
+
+           Letting the rotation drain the smallest bank weights the score by
+           how many questions each topic happens to have — Counting &
+           Cardinality has 8 for counting and 5 for counting back, so an
+           unbalanced paper is 7 against 5 and the child's unit percentage
+           leans on counting for reasons that have nothing to do with either
+           skill. The paper is capped at the smallest bank so every topic
+           carries equal weight. */
+        const counts = {};
+        for (const d of drawn) counts[d.topicId] = (counts[d.topicId] || 0) + 1;
+        const values = Object.values(counts);
+        assert(Math.max(...values) === Math.min(...values),
+          `${unit.key}: draw ${trial} weighted topics unequally (${JSON.stringify(counts)})`);
+      }
+    }
+
+    /* 2. A unit with too few authored topics is refused by name, not served
+       as a one-topic test dressed up as unit-level evidence. */
+    const thin = units.allUnits().find(u => u.authoredCount === 1);
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "unit@b.com", password: "a-long-enough-pass", name: "U" });
+    const kid = (await post(c, "/learners", { name: "Unit Kid" })).body.learner;
+
+    if (thin) {
+      const refused = await post(c, "/unit-test/start", { learnerId: kid.id, unitKey: thin.key });
+      assert(refused.status === 409, `a single-topic unit started a unit test (${refused.status})`);
+      assert(/at least/.test(refused.body.message || ""),
+        "the refusal does not say what the requirement is");
+    }
+    const unknown = await post(c, "/unit-test/start", { learnerId: kid.id, unitKey: "9:not-a-unit" });
+    assert(unknown.status === 404, `an unknown unit returned ${unknown.status}`);
+
+    /* 3. The offered list is real and track-filtered. */
+    const offered = (await c(`/learners/${kid.id}/units`)).body.units;
+    assert(offered.length >= 2, `only ${offered.length} units offered`);
+    assert(offered.every(u => u.topics.length >= 2), "a unit with too few topics was offered");
+
+    const target = offered.find(u => u.key.startsWith("6:")) || offered[0];
+    const started = await post(c, "/unit-test/start", { learnerId: kid.id, unitKey: target.key });
+    assert(started.status === 200, "unit test did not start");
+    assert(started.body.questions.length === target.questionCount,
+      `served ${started.body.questions.length} questions, offered ${target.questionCount}`);
+    assert(started.body.threshold === 90, `core threshold was ${started.body.threshold}`);
+
+    /* The paper served over HTTP is balanced too, not just the module's draw. */
+    const servedCounts = {};
+    for (const q of started.body.questions) {
+      const t = q.id.split(":")[0];
+      servedCounts[t] = (servedCounts[t] || 0) + 1;
+    }
+    assert(Math.max(...Object.values(servedCounts)) === Math.min(...Object.values(servedCounts)),
+      `the served paper weighted topics unequally: ${JSON.stringify(servedCounts)}`);
+
+    const raw = JSON.stringify(started.body.questions);
+    for (const leak of ['"ans"', '"ansP"', '"expl"', '"a":', '"aMulti"', '"ansOrder"'])
+      assert(!raw.includes(leak), `unit test leaked ${leak}`);
+
+    /* The paper really does span topics, as served over HTTP and not merely
+       in the module. */
+    const servedTopics = new Set(started.body.questions.map(q => q.id.split(":")[0]));
+    assert(servedTopics.size === target.topics.length,
+      `paper covered ${servedTopics.size} of ${target.topics.length} topics`);
+
+    /* 4. Marking is the server's, and the breakdown names the weak topic.
+
+       One topic answered correctly throughout and the other deliberately
+       wrong, so the breakdown has a known right answer to be checked against
+       — a single overall percentage could not distinguish these two topics
+       at all, which is the point of reporting per topic. */
+    const topicIds = [...servedTopics].sort();
+    const strongTopic = topicIds[0], weakTopic = topicIds[1];
+    /* Answers are taken from the bank rather than round-tripped through
+       /answer. The `correctAnswer` that endpoint returns is formatted for a
+       child to read — ordering questions come back as "25% -> 0.4 -> 1/2" —
+       so replaying it does not grade as correct, and a helper built on it
+       would silently mark the "fully correct" topic at about half and make
+       this check look like a marking bug. */
+    const answers = {};
+    for (const q of started.body.questions)
+      answers[q.id] = q.id.startsWith(strongTopic + ":") ? await correctAnswerFor(q.id) : "-999999";
+
+    const done = await post(c, "/unit-test/submit",
+      { testId: started.body.testId, answers, score: 12, pct: 100, passed: true });
+    assert(done.status === 200, "unit test did not submit");
+    assert(done.body.pct < 100 && done.body.pct > 0,
+      `a half-right paper scored ${done.body.pct}% — the client's claimed score may have been trusted`);
+    assert(done.body.passed === false, "a half-right paper passed a 90% threshold");
+
+    const parts = done.body.breakdown;
+    assert(parts.length === target.topics.length, `breakdown covered ${parts.length} topics`);
+    const strong = parts.find(p => p.topicId === strongTopic);
+    const weak = parts.find(p => p.topicId === weakTopic);
+    assert(strong.pct === 100, `the fully-correct topic scored ${strong.pct}%`);
+    assert(weak.pct === 0, `the fully-wrong topic scored ${weak.pct}%`);
+    assert(done.body.weakest.topicId === weakTopic, "the weakest topic was not identified");
+
+    /* 5. A spent test cannot be resubmitted. */
+    const replay = await post(c, "/unit-test/submit", { testId: started.body.testId, answers });
+    assert(replay.status === 404, "a finished unit test accepted a second submission");
+
+    /* 6. The result is stored and retrievable. */
+    const history = (await c(`/learners/${kid.id}/unit-tests`)).body.tests;
+    assert(history.length === 1, `history holds ${history.length} tests`);
+    assert(history[0].pct === done.body.pct && history[0].breakdown.length === parts.length,
+      "the stored result does not match what was returned");
+
+    /* 7. A unit test must not masquerade as a topic.
+
+       It is recorded in its own table precisely so the unit key never appears
+       where a topic id is expected. If it were written into `runs`, every
+       per-topic view — progress, time on task, the readiness signals — would
+       acquire a phantom topic that is not in the curriculum. */
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync("app/server/data/verify.db");
+    const phantom = db.prepare("SELECT COUNT(*) c FROM runs WHERE topic_id = ?").get(target.key);
+    assert(phantom.c === 0, `the unit test wrote ${phantom.c} run rows under a unit key`);
+    const stored = db.prepare("SELECT COUNT(*) c FROM unit_tests WHERE learner_id = ?").get(kid.id);
+    assert(stored.c === 1, `unit_tests holds ${stored.c} rows`);
+
+    /* 8. Another account cannot start, submit or read this learner's tests. */
+    const other = client();
+    await post(other, "/auth/register",
+      { coppaConsent: true, email: "unit-other@b.com", password: "a-long-enough-pass", name: "O" });
+    assert((await post(other, "/unit-test/start", { learnerId: kid.id, unitKey: target.key })).status === 403,
+      "another account started a unit test for someone else's learner");
+    assert((await other(`/learners/${kid.id}/unit-tests`)).status === 403,
+      "another account read someone else's unit test history");
+    assert((await other(`/learners/${kid.id}/units`)).status === 403,
+      "another account listed someone else's units");
+
+    return `${testable.length} testable units, every topic covered in 100 draws each, single-topic units refused, server-marked with per-topic breakdown (${strongTopic} 100% vs ${weakTopic} 0%), replay blocked, no phantom topic rows`;
   },
 
   /* X.4 — progress survives a restart (checked by reopening the file) */

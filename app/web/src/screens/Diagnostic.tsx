@@ -3,7 +3,7 @@ import { api, type Question, type Learner, type DiagnosticSummary } from "../api
 import { Grid, Beast } from "../beasts";
 
 import { ReadAloud } from "../components/ReadAloud";
-import { OrderAnswer, MultiAnswer } from "../components/AnswerInput";
+import { OrderAnswer, MultiAnswer, PlotAnswer } from "../components/AnswerInput";
 
 /* Placement diagnostic. The server decides which question comes next and
    when to stop, so this screen only renders and submits. */
@@ -93,7 +93,9 @@ export function Diagnostic({ learner, topicId, topicName, onDone, onExit }: {
         <p className="qtext">{q.q}</p>
         <ReadAloud text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
-        {q.type === "order" ? (
+        {q.type === "plot" ? (
+          <PlotAnswer plot={q.plot!} disabled={busy} onSubmit={p => send(p)} />
+        ) : q.type === "order" ? (
           <OrderAnswer items={q.items!} disabled={busy} onSubmit={o => send(o)} />
         ) : q.type === "multi" ? (
           <MultiAnswer opts={q.opts!} disabled={busy} onSubmit={p => send(p)} />

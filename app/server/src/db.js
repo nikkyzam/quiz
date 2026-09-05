@@ -243,6 +243,30 @@ CREATE TABLE IF NOT EXISTS bandit_arms (
   PRIMARY KEY (learner_id, topic_id, tier)
 );
 
+-- 7.2: summative tests spanning a whole unit.
+-- Kept in their own table rather than folded into runs, because a run is
+-- keyed by topic and a unit test is not about one topic. Writing it into runs
+-- would mean inventing a fake topic id, which would then leak into every
+-- per-topic query — progress, time on task, the readiness signals — as a
+-- topic that does not exist. The per-topic breakdown is stored as JSON since
+-- it is always read whole, alongside the result it belongs to.
+CREATE TABLE IF NOT EXISTS unit_tests (
+  id          TEXT PRIMARY KEY,
+  learner_id  TEXT NOT NULL REFERENCES learners(id) ON DELETE CASCADE,
+  unit_key    TEXT NOT NULL,
+  unit_name   TEXT NOT NULL,
+  score       INTEGER NOT NULL,
+  total       INTEGER NOT NULL,
+  pct         INTEGER NOT NULL,
+  threshold   INTEGER NOT NULL,
+  passed      INTEGER NOT NULL,
+  breakdown   TEXT NOT NULL,
+  seconds     INTEGER,
+  finished_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_unit_tests_learner ON unit_tests(learner_id, finished_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_review_due ON review_schedule(learner_id, due_at);
 
 CREATE INDEX IF NOT EXISTS idx_diag_learner ON diagnostics(learner_id, finished_at DESC);

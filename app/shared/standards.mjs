@@ -16,13 +16,30 @@ export const STANDARDS = {
 
   "g1-add20":    ["1.OA.A.1", "1.OA.C.6"],
   "g1-tensones": ["1.NBT.B.2"],
+  "g1-sub20":    ["1.OA.C.6"],
+  "g1-equals":   ["1.OA.D.7", "1.OA.D.8"],
+  "g1-wordprob": ["1.OA.A.1"],
+  "g1-compare2": ["1.NBT.B.3"],
+  "g1-length":   ["1.MD.A.1", "1.MD.A.2"],
 
   "g2-arrays":   ["2.OA.C.4"],
   "g2-place1000":["2.NBT.A.1", "2.NBT.A.3"],
+  "g2-fluency":  ["2.OA.B.2"],
+  "g2-add1000":  ["2.NBT.B.7"],
+  "g2-money":    ["2.MD.C.8"],
 
   "g3-mult":     ["3.OA.A.1", "3.OA.C.7"],
   "g3-fracnum":  ["3.NF.A.1"],
   "g3-area":     ["3.MD.C.5", "3.MD.C.7"],
+
+  "g4-multcomp": ["4.OA.A.1", "4.OA.A.2"],
+  "g4-placemil": ["4.NBT.A.1", "4.NBT.A.2", "4.NBT.A.3"],
+  "g4-fracadd":  ["4.NF.B.3"],
+  "g4-areaform": ["4.MD.A.3"],
+
+  "g5-express":  ["5.OA.A.1", "5.OA.A.2"],
+  "g5-decops":   ["5.NBT.B.7"],
+  "g5-unlike":   ["5.NF.A.1"],
 
   "g6-nscoord":  ["6.NS.C.6", "6.NS.C.8"],
   "g6-ratios":   ["6.RP.A.1", "6.RP.A.2", "6.RP.A.3"],

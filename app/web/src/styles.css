@@ -447,3 +447,13 @@ svg .poly{fill:var(--accent);opacity:.14;stroke:var(--accent);stroke-width:2}
 .lessondots i{width:10px;height:10px;border-radius:50%;background:var(--line-strong);display:block}
 .lessondots i.on{background:var(--band)}
 .lessondots i.done{background:var(--good)}
+
+/* Plot input (spec 3.2.2). currentColor throughout so the grid inherits the
+   theme's ink rather than pinning a colour that only works on one background. */
+.plotbox{margin-top:16px}
+.plotgrid{max-width:100%;height:auto;color:var(--ink,#333);touch-action:manipulation;cursor:crosshair}
+/* The grid is a focusable widget, so it needs a focus ring as visible as a
+   button's — it is operated by keyboard, and a cursor you cannot locate is
+   the same as no cursor. */
+.plotgrid:focus-visible{outline:3px solid var(--focus,#2b6cb0);outline-offset:3px}
+.plotlist{margin:8px 0 12px;font-variant-numeric:tabular-nums}
