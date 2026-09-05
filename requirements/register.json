@@ -34,7 +34,7 @@
       "title": "Grades 3-5 cover fluency, fractions, decimals, geometry + prime factorisation, modular arithmetic, probability",
       "status": "partial",
       "priority": 1,
-      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, area, rounding, time to the minute, classifying quadrilaterals. Grade 4 authored: multiplicative comparison, multi-step word problems, factors/primes/composites, multi-digit multiplication, division with remainders, place value to a million, adding/subtracting fractions, mixed numbers, decimal notation, comparing decimals, area/perimeter formulas, lines/rays/angles, classifying figures, symmetry. Grade 5 authored: numerical expressions, decimal operations, unlike denominators, place value to thousandths, multiplying fractions, dividing with unit fractions, converting units. 29 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
+      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, equivalent fractions, whole numbers as fractions, area, perimeter, rounding, time to the minute, classifying quadrilaterals, properties of multiplication, two-step word problems, arithmetic patterns, adding/subtracting within 1000, multiplying by multiples of ten. Grade 4 authored: multiplicative comparison, multi-step word problems, factors/primes/composites, multi-digit multiplication, division with remainders, place value to a million, adding/subtracting fractions, mixed numbers, decimal notation, comparing decimals, area/perimeter formulas, lines/rays/angles, classifying figures, symmetry. Grade 5 authored: numerical expressions, decimal operations, unlike denominators, place value to thousandths, multiplying fractions, dividing with unit fractions, converting units. All Grade 3 core (non-advanced) topics are now authored. 37 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
       "evidence": "check:content-integrity"
     },
     {
@@ -893,7 +893,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "642 questions across 71 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grade 2's core curriculum is fully authored. 257 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
+      "notes": "706 questions across 79 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grades 2 and 3's core curricula are both fully authored. 249 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",
