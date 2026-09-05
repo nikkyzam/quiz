@@ -97,6 +97,13 @@ export const STANDARDS = {
   "g5-fracmult": ["5.NF.B.4"],
   "g5-fracdiv":  ["5.NF.B.7"],
   "g5-convert":  ["5.MD.A.1"],
+  "g5-patterns": ["5.OA.B.3"],
+  "g5-twodigit": ["5.NBT.B.6"],
+  "g5-fracword": ["5.NF.B.6"],
+  "g5-lineplot": ["5.MD.B.2"],
+  "g5-volume":   ["5.MD.C.3", "5.MD.C.5"],
+  "g5-coord":    ["5.G.A.1", "5.G.A.2"],
+  "g5-hierarchy": ["5.G.B.3", "5.G.B.4"],
 
   "g6-nscoord":  ["6.NS.C.6", "6.NS.C.8"],
   "g6-ratios":   ["6.RP.A.1", "6.RP.A.2", "6.RP.A.3"],
