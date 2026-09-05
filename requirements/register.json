@@ -25,7 +25,7 @@
       "title": "Grades K-2 cover number sense, patterns, early logic, intro combinatorics",
       "status": "partial",
       "priority": 1,
-      "notes": "K-2 authored: counting, counting back, adding/subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign, word problems, comparing two-digit numbers, measuring length, fluency within 20, adding/subtracting within 1000, money, equal groups, rulers, and time to five minutes. 21 of the 80 K-2 topics now have questions; the rest still do not.",
+      "notes": "K-2 authored: counting, counting back, adding/subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign, word problems, comparing two-digit numbers, measuring length, fluency within 20, adding/subtracting within 1000, money, equal groups, rulers, time to five minutes, adding/subtracting within 100, comparing three-digit numbers, mental math with 10s/100s, estimating length, line plots, polygons by attribute, rows & columns, and halves/thirds/fourths. All Grade 2 core (non-advanced) topics are now authored. 29 of the 80 K-2 topics now have questions; Grade K and Grade 1 advanced/enrichment topics still do not.",
       "evidence": "check:content-integrity"
     },
     {
@@ -615,9 +615,10 @@
       "id": "6.6",
       "section": "Adaptive engine",
       "title": "Multi-track adaptation with separate core/advanced models",
-      "status": "partial",
+      "status": "done",
       "priority": 2,
-      "notes": "Core and advanced tracks carry separate mastery thresholds and BKT keeps a separate estimate per topic, so a learner can sit at different levels in different strands. Parent/teacher override of track assignment is not built."
+      "notes": "Core and advanced now have separate adaptive models (check:multi-track-adaptation). Ability is held per (learner, track) in track_ability and each track's estimate is the prior for the next diagnostic started in that track, so what a learner has shown in core changes where core begins and leaves advanced untouched. Verified end to end over HTTP: the same learner reaching 2.11 in core after a perfect core diagnostic and -1.54 in advanced after an all-wrong one, starting at boss and practice respectively, with neither track moving on the other's evidence. One pooled estimate could not express that -- a strong core record would drag advanced up and drop the child into enrichment work above them, and a weak advanced record would drag core down and hand them practice they finished months ago; both failures are invisible in an average. Remembered confidence is deliberately widened (sd floor 0.8) so an old measurement informs where a new diagnostic starts without overruling what the learner does today. IRT's estimator now accepts a prior, which is what makes the carry-over possible.",
+      "evidence": "check:multi-track-adaptation"
     },
     {
       "id": "7.1",
@@ -666,9 +667,10 @@
       "id": "7.6",
       "section": "Assessment",
       "title": "Mastery thresholds configurable, default 90/80",
-      "status": "partial",
-      "notes": "Defaults 90/80 enforced server-side and verified. Not yet configurable per teacher/admin, and mastery does not decay.",
-      "priority": 2
+      "status": "done",
+      "notes": "Defaults stay 90% core / 80% advanced and are enforced server-side. They are now configurable by an administrator at run time (check:configurable-mastery), stored rather than held in memory so a deploy cannot silently revert a school to 90% mid-term, and read through on every call so no process serves a stale value. Out-of-range values are refused rather than clamped -- an admin who typed 5 meant something, and quietly storing 50 would leave them believing the platform did what they asked -- with the accepted range published by the endpoint. Changing a threshold moves the live judgement of mastery (review queue, per-topic thresholds, curriculum payload) but never rewrites recorded results, so an admin cannot change what a child actually scored. Readable by any signed-in user, since the bar a learner is held to is not a secret from them; writable by admins only, and audited. Deliberately platform-wide, not per class: a learner can be in two classes, and per-class thresholds would make the same topic mastered and unmastered at once with no non-arbitrary precedence rule -- that needs a decision, not a column. Mastery decay is still not implemented.",
+      "priority": 2,
+      "evidence": "check:configurable-mastery"
     },
     {
       "id": "8.1",
@@ -891,7 +893,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "578 questions across 63 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 265 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
+      "notes": "642 questions across 71 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grade 2's core curriculum is fully authored. 257 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",
