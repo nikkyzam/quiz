@@ -224,5 +224,66 @@ export const G12_BANKS = {
  ans:3.75,hint:"Subtract both amounts.",expl:"$10.00 − $3.75 − $2.50 = $3.75."},
 {lvl:3,sec:"MNY",type:"in",q:"You buy a shirt for $12.99 and pay with a $20 bill. How much change do you get, in dollars?",
  ans:7.01,expl:"$20.00 − $12.99 = $7.01."}
+],
+
+"g2-equalgrp": [
+{sec:"N",type:"in",q:"There are 4 groups of 5 apples. How many apples in total?",ans:20,
+ expl:"4 groups of 5 is 5 + 5 + 5 + 5 = 20."},
+{sec:"N",type:"in",q:"3 groups of 6 stars. How many stars?",ans:18,expl:"6 + 6 + 6 = 18."},
+{sec:"N",type:"mc",q:"Which shows 5 groups of 3?",mono:true,
+ opts:["3 + 3 + 3 + 3 + 3","5 + 5 + 5","3 + 5","5 × 3 + 3"],a:0,
+ expl:"5 groups of 3 means adding 3 five times: 3 + 3 + 3 + 3 + 3 = 15."},
+{sec:"N",type:"in",q:"24 cookies are shared into 4 equal groups. How many cookies in each group?",ans:6,
+ expl:"24 ÷ 4 = 6 cookies per group."},
+{sec:"N",type:"mc",q:"Which set of groups is NOT equal?",mono:true,
+ opts:["3, 3, 5","4, 4, 4","6, 6","2, 2, 2, 2"],a:0,
+ expl:"3, 3, 5 has a group of a different size. The rest are all equal groups."},
+{lvl:2,sec:"N",type:"in",q:"6 groups of 7 crayons. How many crayons altogether?",ans:42,
+ expl:"6 groups of 7 is 7 × 6 = 42."},
+{lvl:2,sec:"N",type:"in",q:"35 marbles are put into equal groups of 5. How many groups are there?",ans:7,
+ expl:"35 ÷ 5 = 7 groups."},
+{lvl:3,sec:"N",type:"in",q:"There are 8 equal groups. Together they have 56 counters. How many counters are in each group?",
+ ans:7,expl:"56 ÷ 8 = 7 counters per group."}
+],
+
+"g2-rulers": [
+{sec:"M",type:"mc",q:"When measuring with a ruler, where do you line up the start of the object?",
+ opts:["At the 0 mark","At the 1 mark","At the end of the ruler","Anywhere is fine"],a:0,
+ expl:"Measuring always starts at 0, or you have to subtract to correct for it."},
+{sec:"M",type:"in",q:"A crayon measures 4 inches on a ruler. A marker measures 6 inches. How many inches LONGER is the marker?",
+ ans:2,expl:"6 − 4 = 2 inches longer."},
+{sec:"M",type:"mc",q:"Which is the better tool to measure the length of a classroom door?",
+ opts:["a yardstick","a ruler","a paperclip","a scale"],a:0,
+ expl:"A door is much longer than a 12-inch ruler, so a yardstick (3 feet) is the better fit."},
+{sec:"M",type:"in",q:"Two ribbons measure 7 inches and 3 inches. What is their combined length, in inches?",
+ ans:10,expl:"7 + 3 = 10 inches."},
+{sec:"M",type:"mc",q:"A book measures 8 inches with one ruler. Measuring the SAME book with a different (accurate) ruler should give ___.",
+ opts:["8 inches","a different length","no answer","only centimeters"],a:0,
+ expl:"Length does not change with the tool — any accurate ruler gives the same measurement."},
+{lvl:2,sec:"M",type:"in",q:"A ribbon is 24 inches long. How many feet is that? (12 inches = 1 foot)",
+ ans:2,expl:"24 ÷ 12 = 2 feet."},
+{lvl:2,sec:"M",type:"in",q:"A table is 36 inches long. How many feet is that?",ans:3,
+ expl:"36 ÷ 12 = 3 feet."},
+{lvl:3,sec:"M",type:"in",q:"A rope measures 5 feet. How many inches is that?",ans:60,
+ expl:"5 × 12 = 60 inches."}
+],
+
+"g2-time5": [
+{sec:"M",type:"mc",q:"The clock's minute hand points to the 3. How many minutes past the hour is it?",
+ opts:["15","3","30","45"],a:0,expl:"Each number on a clock face counts for 5 minutes: 3 × 5 = 15."},
+{sec:"M",type:"mc",q:"The minute hand points to the 6. How many minutes past the hour is it?",
+ opts:["30","6","15","45"],a:0,expl:"6 × 5 = 30 minutes."},
+{sec:"M",type:"in",q:"A clock's minute hand points to the 9. How many minutes past the hour is that?",
+ ans:45,expl:"9 × 5 = 45 minutes."},
+{sec:"M",type:"mc",q:"Which time is the SAME as 'half past 4'?",mono:true,
+ opts:["4:30","4:15","4:45","4:06"],a:0,expl:"'Half past' means 30 minutes after the hour."},
+{sec:"M",type:"in",q:"A show starts at 3:00 and the minute hand moves to the 2. How many minutes past 3:00 is it now?",
+ ans:10,expl:"2 × 5 = 10 minutes."},
+{lvl:2,sec:"M",type:"in",q:"A movie starts at 2:15 and ends at 2:45. How many minutes long is it?",
+ ans:30,expl:"From 2:15 to 2:45 is 30 minutes."},
+{lvl:2,sec:"M",type:"mc",q:"It is 6:50. In ten minutes, what time will it be?",mono:true,
+ opts:["7:00","6:60","6:40","7:10"],a:0,expl:"50 + 10 = 60 minutes, which rolls over to the next hour: 7:00."},
+{lvl:3,sec:"M",type:"in",q:"A clock reads 5:40. How many minutes until it is 6:00?",ans:20,
+ expl:"From 40 to 60 minutes is 20 minutes."}
 ]
 };

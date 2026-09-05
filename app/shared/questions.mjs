@@ -24,8 +24,11 @@ import { G12_BANKS } from "./banks/g1g2.mjs";
 import { G3_BANKS } from "./banks/g3.mjs";
 import { G4_BANKS } from "./banks/g4.mjs";
 import { G5_BANKS } from "./banks/g5.mjs";
+import { G6_BANKS } from "./banks/g6.mjs";
+import { G7_BANKS } from "./banks/g7.mjs";
+import { G8_BANKS } from "./banks/g8.mjs";
 
-const QUESTIONS = { ...K_BANKS, ...G12_BANKS, ...G3_BANKS, ...G4_BANKS, ...G5_BANKS };
+const QUESTIONS = { ...K_BANKS, ...G12_BANKS, ...G3_BANKS, ...G4_BANKS, ...G5_BANKS, ...G6_BANKS, ...G7_BANKS, ...G8_BANKS };
 
 QUESTIONS["g6-nscoord"] = [
 /* A — Know the Plane */

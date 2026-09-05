@@ -25,7 +25,7 @@
       "title": "Grades K-2 cover number sense, patterns, early logic, intro combinatorics",
       "status": "partial",
       "priority": 1,
-      "notes": "K-2 authored: counting, counting back, adding and subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign and balance, word problems with unknowns, comparing two-digit numbers, measuring length, fluency within 20, adding and subtracting within 1000, and money problems. 18 of the 80 K-2 topics now have questions; the rest still do not.",
+      "notes": "K-2 authored: counting, counting back, adding/subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign, word problems, comparing two-digit numbers, measuring length, fluency within 20, adding/subtracting within 1000, money, equal groups, rulers, and time to five minutes. 21 of the 80 K-2 topics now have questions; the rest still do not.",
       "evidence": "check:content-integrity"
     },
     {
@@ -34,7 +34,7 @@
       "title": "Grades 3-5 cover fluency, fractions, decimals, geometry + prime factorisation, modular arithmetic, probability",
       "status": "partial",
       "priority": 1,
-      "notes": "Grade 3 authored: multiplication, fractions as numbers, area. Grade 4 authored: multiplication as comparison, place value to a million, adding and subtracting fractions, area and perimeter formulas. Grade 5 authored: numerical expressions, decimal operations, unlike denominators. 10 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
+      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, area, rounding, time to the minute, classifying quadrilaterals. Grade 4 authored: multiplicative comparison, place value to a million, adding/subtracting fractions, area and perimeter formulas. Grade 5 authored: numerical expressions, decimal operations, unlike denominators. 15 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
       "evidence": "check:content-integrity"
     },
     {
@@ -42,7 +42,7 @@
       "section": "Curriculum",
       "title": "Grades 6-8 cover ratios, algebra, geometry, statistics + full modular arithmetic, quadratics, graph theory, proof",
       "status": "partial",
-      "notes": "Map covers ratios, algebra, geometry, statistics plus modular arithmetic, quadratics, graph theory and proof for 6-8. g6-nscoord, g6-ratios and g6-percent authored; grades 7-8 still have no questions.",
+      "notes": "Map covers ratios, algebra, geometry, statistics plus modular arithmetic, quadratics, graph theory and proof for 6-8. Grade 6 authored: coordinate plane, ratios, percent, unit conversion, decimal operations, exponents, one-variable equations. Grade 7 authored: unit rates with fractions, proportional relationships, operations with rational numbers. Grade 8 authored: irrational numbers, radicals and integer exponents, linear equations. 13 of the 134 grade 6-8 topics now have questions.",
       "priority": 1
     },
     {
@@ -59,7 +59,7 @@
       "section": "Content types",
       "title": "Practice problems: varied types, immediate feedback, hints, full solutions",
       "status": "partial",
-      "notes": "Six question types authored and graded server-side, now including graph/plot input (check:plot-input): the child places points on a coordinate grid rather than typing coordinates, marked order-independently because the plane has no order. Two marking modes — a stored set of points, and a rule, so \"plot any two points on y = 2x + 1\" has infinitely many correct answers and is marked by predicate rather than comparison. Partial credit follows select-all: points on target count for, points off target count against, so covering the grid scores nothing. The grid is operable by keyboard as well as pointer (arrow keys move, Enter places) and announces placements through a live region, because plotting is the skill being assessed and a click-only control would leave some children unable to answer at all. Content also covered by check:content-integrity. Still missing: dynamic geometry — draggable, constraint-preserving figures — which is a substantially larger interactive build and is not started.",
+      "notes": "Five question types (plus the new plot-input type) authored and graded server-side, now exercised across 49 topics and all 9 grade levels. Dynamic geometry beyond point-plotting still missing.",
       "priority": 1,
       "evidence": "check:plot-input"
     },
@@ -891,7 +891,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "317 questions across 31 topics in 7 grades (K, 1, 2, 3, 4, 5, 6), every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 297 of 328 topics still have no content -- grades 7-8 not started (0 of 134), and most K-6 advanced/enrichment topics remain unauthored."
+      "notes": "466 questions across 49 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 279 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",
