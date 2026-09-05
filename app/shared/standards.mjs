@@ -69,6 +69,10 @@ export const STANDARDS = {
   "g3-fraceq":   ["3.NF.A.3.A"],
   "g3-wholefrac": ["3.NF.A.3.C"],
   "g3-perimeter": ["3.MD.D.8"],
+  "g3-volmass":  ["3.MD.A.2"],
+  "g3-scaled":   ["3.MD.B.3"],
+  "g3-equalarea": ["3.G.A.2"],
+  "g3-areaperim": ["3.MD.D.8"],
 
   "g4-multcomp": ["4.OA.A.1", "4.OA.A.2"],
   "g4-placemil": ["4.NBT.A.1", "4.NBT.A.2", "4.NBT.A.3"],
@@ -142,7 +146,22 @@ export const STANDARDS = {
 
   "g8-irrational":["8.NS.A.1", "8.NS.A.2"],
   "g8-radicals": ["8.EE.A.1", "8.EE.A.2"],
-  "g8-linear":   ["8.EE.C.7"]
+  "g8-linear":   ["8.EE.C.7"],
+  "g8-scinot":   ["8.EE.A.3", "8.EE.A.4"],
+  "g8-propgraph": ["8.EE.B.5"],
+  "g8-systems":  ["8.EE.C.8"],
+  "g8-funcdef":  ["8.F.A.1"],
+  "g8-funccomp": ["8.F.A.2"],
+  "g8-funcmodel": ["8.F.B.4"],
+  "g8-funcgraph": ["8.F.B.5"],
+  "g8-transform": ["8.G.A.1", "8.G.A.2"],
+  "g8-dilations": ["8.G.A.4"],
+  "g8-angleAA":  ["8.G.A.5"],
+  "g8-pythag":   ["8.G.B.6", "8.G.B.7"],
+  "g8-solids":   ["8.G.C.9"],
+  "g8-scatter":  ["8.SP.A.1"],
+  "g8-fitline":  ["8.SP.A.2", "8.SP.A.3"],
+  "g8-twoway":   ["8.SP.A.4"]
 };
 
 export const standardsFor = id => STANDARDS[id] || [];
