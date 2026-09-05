@@ -25,7 +25,7 @@
       "title": "Grades K-2 cover number sense, patterns, early logic, intro combinatorics",
       "status": "partial",
       "priority": 1,
-      "notes": "K-2 authored: counting, counting back, adding/subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign, word problems, comparing two-digit numbers, measuring length, fluency within 20, adding/subtracting within 1000, money, equal groups, rulers, time to five minutes, adding/subtracting within 100, comparing three-digit numbers, mental math with 10s/100s, estimating length, line plots, polygons by attribute, rows & columns, and halves/thirds/fourths. All Grade 2 core (non-advanced) topics are now authored. 29 of the 80 K-2 topics now have questions; Grade K and Grade 1 advanced/enrichment topics still do not.",
+      "notes": "K-2 authored: counting, counting back, adding/subtracting within 10 and 20, even/odd, flat shapes, tens and ones, arrays, place value to 1000, subtracting within 20, the equal sign, word problems, comparing two-digit numbers, measuring length, fluency within 20, adding/subtracting within 1000, money, equal groups, rulers, time to five minutes, adding/subtracting within 100, comparing three-digit numbers, mental math with 10s/100s, estimating length, line plots, polygons by attribute, rows & columns, halves/thirds/fourths, commutative/associative properties, ten more/ten less, telling time, bar & picture graphs, defining attributes, composing shapes, and halves & fourths. All Grade 1 and Grade 2 core (non-advanced) topics are now authored -- coins is the one Grade 1 core topic deliberately skipped, since money has no real CCSSM standard before Grade 2. 37 of the 80 K-2 topics now have questions; Grade K and Grade 1 advanced/enrichment topics still do not.",
       "evidence": "check:content-integrity"
     },
     {
@@ -425,10 +425,10 @@
       "id": "4.3.2",
       "section": "Teacher portal",
       "title": "Assignment tools with due dates and per-group tracks",
-      "status": "partial",
+      "status": "done",
       "priority": 2,
-      "evidence": "check:teacher-portal",
-      "notes": "Assignments per class with optional tier and due date, validated against real topics. Per-group differentiation and individual accommodations not built."
+      "evidence": "check:differentiated-assignments",
+      "notes": "Assignments per class with optional tier and due date, validated against real topics, plus per-group differentiation and individual accommodations (check:differentiated-assignments). Groups let a teacher set different work for part of a class without creating a second class and splitting the register; a group assignment reaches its members and nobody else. Accommodations adjust one learner's tier and deadline on one assignment, recorded against the assignment rather than as a duplicate so the teacher keeps one thing to track. The child's list and the teacher's view are built from the same rows and the adjustment is disclosed to the learner alongside the class deadline -- an extension the child cannot see is worth nothing to the person it was granted for. Only learners already in the class can be grouped or accommodated, so neither route can reach a child the teacher has no relationship with."
     },
     {
       "id": "4.3.3",
@@ -893,7 +893,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "706 questions across 79 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grades 2 and 3's core curricula are both fully authored. 249 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
+      "notes": "770 questions across 87 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grades 1, 2 and 3's core curricula are all fully authored (Grade 1's coins topic excepted, for lack of a real K-1 CCSSM standard). 241 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",

@@ -40,6 +40,7 @@ export const PREREQS = {
   "g1-tenmore":   ["g1-tensones"],
   "g1-shares":    ["k-half"],
   "g1-compose":   ["k-combine"],
+  "g1-attrib":    ["k-2d"],
   "g1-evenodd":   ["k-evenodd", "g1-tensones"],
   "g1-factors":   ["g1-evenodd"],
   "g1-div25":     ["k-skip", "g1-evenodd"],
