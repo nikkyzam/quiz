@@ -13,6 +13,7 @@ const SECS = {
   P:"Patterns & Algebra",
   D:"Decimals",
   MNY:"Money",
+  S:"Statistics",
   AXES:"Know the Plane", PTS:"Points & Quadrants", DIST:"Distance on the Grid",
   REFL:"Reflections", RECT:"Rectangles & Word Problems", CMP:"Compare & Order", FRDEC:"Fractions & Decimals"
 };

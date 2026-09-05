@@ -42,7 +42,7 @@
       "section": "Curriculum",
       "title": "Grades 6-8 cover ratios, algebra, geometry, statistics + full modular arithmetic, quadratics, graph theory, proof",
       "status": "partial",
-      "notes": "Map covers ratios, algebra, geometry, statistics plus modular arithmetic, quadratics, graph theory and proof for 6-8. Grade 6 authored: coordinate plane, ratios, percent, unit conversion, decimal operations, exponents, one-variable equations. Grade 7 authored: unit rates with fractions, proportional relationships, operations with rational numbers. Grade 8 authored: irrational numbers, radicals and integer exponents, linear equations. 13 of the 134 grade 6-8 topics now have questions.",
+      "notes": "Map covers ratios, algebra, geometry, statistics plus modular arithmetic, quadratics, graph theory and proof for 6-8. Grade 6 authored: coordinate plane, ratios, percent, unit conversion, decimal operations, exponents, one-variable equations, dividing fractions, equivalent expressions, dependent/independent variables, area of polygons, volume with fractional edges, polygons on the coordinate plane, nets & surface area, statistical questions, center & variability, data displays -- all of Grade 6 core (non-advanced) is now authored. Grade 7 authored: unit rates with fractions, proportional relationships, operations with rational numbers. Grade 8 authored: irrational numbers, radicals and integer exponents, linear equations. 23 of the 134 grade 6-8 topics now have questions.",
       "priority": 1
     },
     {
@@ -902,7 +902,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "914 questions across 105 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grades 1, 2, 3, 4 and 5's core curricula are all fully authored, and Kindergarten's core is authored except three topics with no real CCSSM standard (ordinal numbers, patterns, logic puzzles). 223 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
+      "notes": "994 questions across 115 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). Grades 1 through 6's core curricula are all fully authored, and Kindergarten's core is authored except three topics with no real CCSSM standard (ordinal numbers, patterns, logic puzzles). 213 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",
