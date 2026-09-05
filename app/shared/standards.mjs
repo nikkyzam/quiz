@@ -58,6 +58,10 @@ export const STANDARDS = {
   "g5-express":  ["5.OA.A.1", "5.OA.A.2"],
   "g5-decops":   ["5.NBT.B.7"],
   "g5-unlike":   ["5.NF.A.1"],
+  "g5-thousandth": ["5.NBT.A.1", "5.NBT.A.3"],
+  "g5-fracmult": ["5.NF.B.4"],
+  "g5-fracdiv":  ["5.NF.B.7"],
+  "g5-convert":  ["5.MD.A.1"],
 
   "g6-nscoord":  ["6.NS.C.6", "6.NS.C.8"],
   "g6-ratios":   ["6.RP.A.1", "6.RP.A.2", "6.RP.A.3"],

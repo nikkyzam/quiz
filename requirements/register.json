@@ -34,7 +34,7 @@
       "title": "Grades 3-5 cover fluency, fractions, decimals, geometry + prime factorisation, modular arithmetic, probability",
       "status": "partial",
       "priority": 1,
-      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, area, rounding, time to the minute, classifying quadrilaterals. Grade 4 authored: multiplicative comparison, multi-step word problems, factors/primes/composites, multi-digit multiplication, division with remainders, place value to a million, adding/subtracting fractions, mixed numbers, decimal notation, comparing decimals, area/perimeter formulas, lines/rays/angles, classifying figures, symmetry. Grade 5 authored: numerical expressions, decimal operations, unlike denominators. 25 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
+      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, area, rounding, time to the minute, classifying quadrilaterals. Grade 4 authored: multiplicative comparison, multi-step word problems, factors/primes/composites, multi-digit multiplication, division with remainders, place value to a million, adding/subtracting fractions, mixed numbers, decimal notation, comparing decimals, area/perimeter formulas, lines/rays/angles, classifying figures, symmetry. Grade 5 authored: numerical expressions, decimal operations, unlike denominators, place value to thousandths, multiplying fractions, dividing with unit fractions, converting units. 29 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
       "evidence": "check:content-integrity"
     },
     {
@@ -880,9 +880,9 @@
       "section": "Architecture",
       "title": "CI/CD with automated tests and IaC",
       "status": "partial",
-      "notes": "CI runs the full requirement suite on every push. A single-container Dockerfile builds the client and serves it from the API, with configs for Fly.io and Render pointing health checks at /ready and mounting persistent storage for SQLite. The check boots the production build and verifies it serves client, assets and API, that the SPA fallback does not swallow unknown API routes, and that Secure/HttpOnly cookies and HSTS are set. NOT done: an actual deployment (needs a host account), blue-green releases, and Infrastructure as Code.",
+      "notes": "CI runs the full requirement suite on every push and now also validates the infrastructure (terraform fmt -check and terraform validate, no credentials needed). Infrastructure as Code is done (check:infrastructure-as-code): infra/ declares the Fly app, the database volume and the machine in Terraform, where previously the only record of them was prose in DEPLOY.md and whatever someone typed once. The volume carries prevent_destroy because Fly replaces a volume when an immutable attribute changes and a replaced volume is an empty one -- a one-word region edit would otherwise plan the deletion of every learner's progress. machine_count is validated to 1: two machines cannot share one SQLite volume and would serve silently diverging databases. Backup interval and retention sweep are set in infrastructure rather than left to code defaults, and the check scans every file under infra/ for committed credentials. A single-container Dockerfile builds the client and serves it from the API, with Fly and Render configs pointing health checks at /ready and mounting persistent storage. NOT done: an actual deployment, which needs a host account. Blue-green releases are NOT possible in this architecture and the config says so rather than leaving it looking forgotten -- they need two live machines, and the single SQLite volume only one can mount; a networked database is the prerequisite, so releases are rolling with a health gate.",
       "priority": 1,
-      "evidence": "check:production-build"
+      "evidence": "check:infrastructure-as-code"
     },
     {
       "id": "13.1",
@@ -891,7 +891,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "546 questions across 59 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 269 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
+      "notes": "578 questions across 63 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 265 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",

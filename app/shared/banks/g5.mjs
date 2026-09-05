@@ -52,5 +52,79 @@ export const G5_BANKS = {
  expl:"The LCD of 8 and 3 is 24: 21/24 − 16/24 = 5/24."},
 {lvl:3,sec:"F",type:"mc",q:"1/2 + 1/3 + 1/6 = ?",mono:true,opts:["1","5/6","1/6","2"],a:0,
  expl:"The LCD of 2, 3 and 6 is 6: 3/6 + 2/6 + 1/6 = 6/6, which equals 1 whole."}
+],
+
+"g5-thousandth": [
+{sec:"N",type:"in",q:"What is the value of the 5 in 3.256? Type as a decimal, like 0.05.",ans:0.05,
+ expl:"The 5 sits in the hundredths place: 5 hundredths = 0.05."},
+{sec:"N",type:"in",q:"Write 'four and seven thousandths' as a decimal.",ans:4.007,
+ expl:"4 and 7 thousandths = 4.007."},
+{sec:"N",type:"mc",q:"Which decimal is the SAME as 2.400?",opts:["2.4","2.04","24","0.24"],a:0,
+ expl:"Trailing zeros after the last meaningful digit do not change a decimal's value."},
+{sec:"N",type:"in",q:"Round 5.678 to the nearest hundredth.",ans:5.68,
+ expl:"The thousandths digit is 8, which rounds the hundredths digit up: 5.68."},
+{sec:"N",type:"mc",q:"Which number has a digit in the thousandths place?",
+ opts:["0.125","1.25","12.5","125"],a:0,
+ expl:"0.125 has three decimal places: tenths, hundredths, and thousandths (the 5)."},
+{lvl:2,sec:"N",type:"in",q:"Round 3.4562 to the nearest thousandth.",ans:3.456,
+ expl:"The ten-thousandths digit is 2, which rounds down: 3.456."},
+{lvl:2,sec:"N",type:"mc",q:"Which symbol makes this true?  0.5 ◯ 0.500",opts:["=","<",">"],a:0,
+ expl:"Trailing zeros do not change the value: 0.5 and 0.500 are equal."},
+{lvl:3,sec:"N",type:"in",q:"What is 10 times 0.045?",ans:0.45,
+ hint:"Multiplying by 10 shifts every digit one place value to the left.",
+ expl:"Multiplying by 10 moves the decimal point one place right: 0.045 × 10 = 0.45."}
+],
+
+"g5-fracmult": [
+{sec:"F",type:"mc",q:"1/2 × 1/3 = ?",mono:true,opts:["1/6","1/5","2/5","1/3"],a:0,
+ expl:"Multiply numerators and denominators: (1×1)/(2×3) = 1/6."},
+{sec:"F",type:"mc",q:"2/3 × 3/4 = ?",mono:true,opts:["1/2","5/7","6/7","3/4"],a:0,
+ expl:"(2×3)/(3×4) = 6/12, which simplifies to 1/2."},
+{sec:"F",type:"in",q:"3/4 of 8 = ?",ans:6,expl:"3/4 × 8 = 24/4 = 6."},
+{sec:"F",type:"mc",q:"Multiplying a whole number by a fraction less than 1 makes the result ___.",
+ opts:["smaller than the whole number","larger than the whole number","always 1","always 0"],a:0,
+ expl:"Taking a fraction of something less than the whole always gives less than the original amount."},
+{sec:"F",type:"in",q:"1/2 × 10 = ?",ans:5,expl:"1/2 × 10 = 10/2 = 5."},
+{lvl:2,sec:"F",type:"mc",q:"3/5 × 2/3 = ?",mono:true,opts:["2/5","5/8","6/8","1/2"],a:0,
+ expl:"(3×2)/(5×3) = 6/15, which simplifies to 2/5."},
+{lvl:2,sec:"F",type:"in",q:"2/3 of 18 = ?",ans:12,expl:"2/3 × 18 = 36/3 = 12."},
+{lvl:3,sec:"F",type:"mc",q:"1/4 × 2/3 × 3/2 = ?",mono:true,opts:["1/4","1/2","1/8","3/4"],a:0,
+ expl:"Multiply straight across: (1×2×3)/(4×3×2) = 6/24, which simplifies to 1/4."}
+],
+
+"g5-fracdiv": [
+{sec:"F",type:"in",q:"1/2 ÷ 4 = ? Type just the denominator of the answer (the numerator is 1).",
+ ans:8,expl:"1/2 ÷ 4 = 1/8, so the denominator is 8."},
+{sec:"F",type:"in",q:"1/3 ÷ 2 = ? Type just the denominator of the answer.",ans:6,
+ expl:"1/3 ÷ 2 = 1/6, so the denominator is 6."},
+{sec:"F",type:"mc",q:"6 ÷ 1/3 = ?",opts:["18","2","3","6"],a:0,
+ expl:"Dividing by a fraction multiplies by its reciprocal: 6 × 3 = 18."},
+{sec:"F",type:"in",q:"4 ÷ 1/2 = ?",ans:8,expl:"4 × 2 = 8."},
+{sec:"F",type:"mc",q:"Which expression equals 1/5 ÷ 3?",mono:true,
+ opts:["1/15","3/5","5/3","1/8"],a:0,expl:"1/5 ÷ 3 = 1/5 × 1/3 = 1/15."},
+{lvl:2,sec:"F",type:"in",q:"1/4 ÷ 5 = ? Type just the denominator of the answer.",ans:20,
+ expl:"1/4 ÷ 5 = 1/20, so the denominator is 20."},
+{lvl:2,sec:"F",type:"in",q:"8 ÷ 1/4 = ?",ans:32,expl:"8 × 4 = 32."},
+{lvl:3,sec:"F",type:"in",q:"A ribbon that is 1/3 yard long is cut into pieces that are 1/9 yard each. How many pieces?",
+ ans:3,hint:"Dividing by a fraction multiplies by its reciprocal.",
+ expl:"(1/3) ÷ (1/9) = 1/3 × 9 = 3 pieces."}
+],
+
+"g5-convert": [
+{sec:"M",type:"in",q:"How many centimeters are in 5 meters? (100 cm = 1 m)",ans:500,
+ expl:"5 × 100 = 500 centimeters."},
+{sec:"M",type:"in",q:"How many grams are in 3 kilograms? (1000 g = 1 kg)",ans:3000,
+ expl:"3 × 1000 = 3000 grams."},
+{sec:"M",type:"mc",q:"Which is equal to 2.5 liters?",opts:["2500 mL","250 mL","25 mL","25000 mL"],a:0,
+ expl:"1 liter = 1000 mL, so 2.5 liters = 2500 mL."},
+{sec:"M",type:"in",q:"How many minutes are in 3 hours?",ans:180,expl:"3 × 60 = 180 minutes."},
+{sec:"M",type:"in",q:"How many millimeters are in 4 centimeters? (10 mm = 1 cm)",ans:40,
+ expl:"4 × 10 = 40 millimeters."},
+{lvl:2,sec:"M",type:"in",q:"A ribbon is 250 cm long. How many meters is that?",ans:2.5,
+ expl:"250 ÷ 100 = 2.5 meters."},
+{lvl:2,sec:"M",type:"in",q:"A recipe needs 1500 mL of water. How many liters is that?",ans:1.5,
+ expl:"1500 ÷ 1000 = 1.5 liters."},
+{lvl:3,sec:"M",type:"in",q:"A runner covers 3.2 kilometers. How many meters is that?",ans:3200,
+ expl:"3.2 × 1000 = 3200 meters."}
 ]
 };
