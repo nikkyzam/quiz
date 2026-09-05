@@ -34,7 +34,7 @@
       "title": "Grades 3-5 cover fluency, fractions, decimals, geometry + prime factorisation, modular arithmetic, probability",
       "status": "partial",
       "priority": 1,
-      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, area, rounding, time to the minute, classifying quadrilaterals. Grade 4 authored: multiplicative comparison, place value to a million, adding/subtracting fractions, area and perimeter formulas. Grade 5 authored: numerical expressions, decimal operations, unlike denominators. 15 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
+      "notes": "Grade 3 authored: multiplication, division, fractions as numbers, comparing fractions, area, rounding, time to the minute, classifying quadrilaterals. Grade 4 authored: multiplicative comparison, multi-step word problems, factors/primes/composites, multi-digit multiplication, division with remainders, place value to a million, adding/subtracting fractions, mixed numbers, decimal notation, comparing decimals, area/perimeter formulas, lines/rays/angles, classifying figures, symmetry. Grade 5 authored: numerical expressions, decimal operations, unlike denominators. 25 of the 114 grade 3-5 topics now have questions; prime factorisation, modular arithmetic and probability topics are not yet among them.",
       "evidence": "check:content-integrity"
     },
     {
@@ -772,9 +772,9 @@
       "section": "Non-functional",
       "title": "Security and privacy: COPPA, FERPA, GDPR, encryption, RBAC, audit logs",
       "status": "partial",
-      "notes": "Done and verified: security headers incl. CSP, brute-force limiting on login, COPPA consent required at registration, audit log, FERPA/GDPR export and erasure, secure cookie in production, and RBAC across parent, teacher and admin roles with admin not self-assignable. NOT done: encryption at rest (needs a deployment/KMS decision), automated retention deletion, and a third-party penetration test.",
+      "notes": "Done and verified: security headers incl. CSP, brute-force limiting on login, COPPA consent required at registration, audit log, FERPA/GDPR export and erasure, secure cookie in production, RBAC across parent, teacher and admin roles with admin not self-assignable, and -- new -- automated retention deletion (check:retention-deletion). Retention was previously prose on an admin endpoint that no code read; one POLICY object is now both rendered to admins and enforced by a sweep that runs daily by default, deleting expired sessions and reset tokens, audit entries past 400 days, and audit rows whose account is gone. Learner work is deliberately never swept on a timer -- it is retained while the learner exists and removed with them -- because deleting a year of a child's progress from a family that did nothing wrong is a worse failure than holding it. The check pins both directions at each boundary, that learner work survives, and that the sweep is idempotent, admin-only and audited. NOT done: encryption at rest (needs a deployment and KMS decision) and a third-party penetration test.",
       "priority": 1,
-      "evidence": "check:security-privacy"
+      "evidence": "check:retention-deletion"
     },
     {
       "id": "10.4",
@@ -891,7 +891,7 @@
       "status": "partial",
       "priority": 1,
       "evidence": "check:content-integrity",
-      "notes": "466 questions across 49 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 279 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
+      "notes": "546 questions across 59 topics spanning K through grade 8, every one validated: at least 5 questions and 2 tiers per topic, explanations present, options unique, ordering answers permutations of their items, and every authored topic on the prerequisite graph. Every authored topic is also mapped to real CCSSM codes (check:standards-mapping). 269 of 328 topics still have no content -- most K-8 advanced/enrichment topics remain unauthored, and grades 7-8 have only 3 topics each."
     },
     {
       "id": "13.2",

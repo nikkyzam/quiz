@@ -35,7 +35,7 @@ Automated checks
   PASS  error-analysis     13 classifier cases, mistakes recorded and reported by category and topic
   PASS  intervention-triggers struggling fires on the third consecutive miss, not before, and a correct answer clears it
   PASS  competition-prep   5 formats, papers scored server-side, timing enforced, history tracked
-  PASS  content-integrity  49 banks, 466 questions, 9 grades, all valid
+  PASS  content-integrity  59 banks, 546 questions, 9 grades, all valid
   PASS  gamification       advanced worth 150 vs core 100, badges awarded once, levels and streaks tracked
   PASS  teacher-portal     classes, parent-initiated join, assignments, class progress and heatmap, RBAC enforced
   PASS  reporting-exports  learner CSV, class CSV and printable report, with correct escaping and access control
@@ -47,25 +47,26 @@ Automated checks
   PASS  admin-portal       aggregate analytics, retention policy, audited access, RBAC enforced and admin not self-assignable
   PASS  partial-credit     partial credit on ordering and select-all, guessing everything scores worse, single answers stay all-or-nothing
   PASS  puzzles            8 puzzles, hints one at a time, wrong answers never reveal the solution, trophies reflect hint use
-  PASS  performance        slowest endpoint next at 2ms, curriculum 31KB, 40 concurrent reads in 30ms, 10 concurrent writes all recorded
+  PASS  performance        slowest endpoint next at 1ms, curriculum 32KB, 40 concurrent reads in 9ms, 10 concurrent writes all recorded
   PASS  pwa-offline        installable manifest, offline shell, API excluded from cache, production build emits all shell files
   PASS  achievement-titles 6 titles, requirements validated against real badges, strongest shown first
   PASS  leaderboards       off by default, teacher-controlled, anonymised by default, class-scoped with no global board
   PASS  reliability        liveness and readiness separated, backup restorable and integrity-checked, pruning bounded
   PASS  math-notation      7 notations rendered as MathML with spoken labels, prose left alone
-  PASS  content-lint       13 rules each proven to fire, 466 questions and 8 puzzles clean
+  PASS  content-lint       13 rules each proven to fire, 546 questions and 8 puzzles clean
   PASS  production-build   single-process production build serves client, assets and API; cookies hardened; configs coherent
   PASS  password-reset     token hashed at rest, single use, old sessions revoked, learner data intact
   PASS  resilience         malformed and oversized bodies handled without stack traces, SIGTERM drains and exits 0
   PASS  scheduled-backup   scheduled backup ran, kept 3 of the last snapshots, integrity verified
   PASS  age-appropriate-ui junior 60px targets vs senior 48px, type scales by band, motion optional
   PASS  comic-lessons      3 lessons, resume works panel by panel, wrong answers do not block, points awarded once
-  PASS  diversity-scan     3 stereotype patterns proven to fire, neutral content passes, authored content clean with a cast of 30
-  PASS  standards-mapping  49 authored topics mapped to real CCSSM codes, zero orphans in either direction
+  PASS  diversity-scan     3 stereotype patterns proven to fire, neutral content passes, authored content clean with a cast of 33
+  PASS  standards-mapping  59 authored topics mapped to real CCSSM codes, zero orphans in either direction
   PASS  curriculum-overview overview served without login, includes standards and a leak-free sample, unauthored topics refused cleanly
   PASS  security-scan      3 SQLi payloads, XSS, IDOR, cookie forgery, privilege escalation, prototype pollution and path traversal all probed -- no findings. NOT a substitute for professional penetration testing.
+  FAIL  retention-deletion the admin endpoint states a different policy than the one enforced
   PASS  plot-input         5 plot questions (1 open-ended), order-independent marking, junk and over-plotting refused, any point on y=2x+1 accepted, grid keyboard-operable and announced
-  PASS  unit-tests         15 testable units, every topic covered in 100 draws each, single-topic units refused, server-marked with per-topic breakdown (g6-percent 100% vs g6-ratios 0%), replay blocked, no phantom topic rows
+  PASS  unit-tests         19 testable units, every topic covered in 100 draws each, single-topic units refused, server-marked with per-topic breakdown (g6-percent 100% vs g6-ratios 0%), replay blocked, no phantom topic rows
   PASS  persistence        progress and run history are on disk, readable by a separate process
 
 Next up (priority 1 first, blocked excluded)
