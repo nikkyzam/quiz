@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ava's Unit 1 Quiz Prep</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --coral: #E88A8B;
+    --coral-tint: #FBEAEA;
+    --gold: #F2B33D;
+    --gold-tint: #FDF3DE;
+    --teal: #4FAE97;
+    --teal-tint: #E4F3EF;
+    --slate: #746D8A;
+    --slate-tint: #ECEAF2;
+    --ink: #2E2A3D;
+    --ink-soft: #6B6579;
+    --line: #E9E5EE;
+    --bg: #FFFFFF;
+    --panel: #FCFBFD;
+    --good: #3F9C6D;
+    --good-tint: #E7F6EE;
+    --bad: #D6604D;
+    --bad-tint: #FCEBE7;
+    --amber: #D97B32;
+    --amber-tint: #FCEADA;
+    --radius: 18px;
+    --shadow: 0 1px 2px rgba(46,42,61,.04), 0 8px 24px -12px rgba(46,42,61,.16);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1C1A24; --panel: #242130; --ink: #F1EEF6; --ink-soft: #B4AEC4;
+      --line: #34303F; --coral-tint: #3A2529; --gold-tint: #362D1B;
+      --teal-tint: #1C2F2A; --slate-tint: #29263A; --good-tint: #17301F; --bad-tint: #3A2320;
+      --amber-tint: #3B2A18;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1C1A24; --panel: #242130; --ink: #F1EEF6; --ink-soft: #B4AEC4;
+    --line: #34303F; --coral-tint: #3A2529; --gold-tint: #362D1B;
+    --teal-tint: #1C2F2A; --slate-tint: #29263A; --good-tint: #17301F; --bad-tint: #3A2320;
+    --amber-tint: #3B2A18;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: 'Nunito', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 60px; }
+
+  h1, h2, h3, .display { font-family: 'Baloo 2', system-ui, sans-serif; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--coral); }
+  .brand span { font-family: 'Baloo 2'; font-weight: 700; font-size: 1.05rem; letter-spacing: .2px; }
+
+  /* ---------- start screen ---------- */
+  .hero {
+    background: linear-gradient(155deg, var(--teal-tint), var(--gold-tint) 60%, var(--coral-tint));
+    border-radius: 24px; padding: 38px 28px 32px; text-align: center;
+    box-shadow: var(--shadow); position: relative; overflow: hidden;
+  }
+  .hero .kicker {
+    font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    font-size: .72rem; color: var(--teal); margin-bottom: 10px;
+  }
+  .hero h1 { font-size: 2rem; margin: 0 0 10px; line-height: 1.15; font-weight: 800; }
+  .hero p { color: var(--ink-soft); font-size: 1rem; line-height: 1.55; margin: 0 auto 22px; max-width: 46ch; }
+
+  .stratrow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 26px; }
+  .strat {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 999px;
+    padding: 7px 14px; font-size: .82rem; font-weight: 700; color: var(--ink-soft);
+  }
+
+  .bigbtn {
+    background: var(--coral); color: #fff; border: none; border-radius: 999px;
+    font-family: 'Baloo 2'; font-weight: 700; font-size: 1.08rem;
+    padding: 15px 38px; cursor: pointer; box-shadow: 0 10px 22px -8px rgba(232,138,139,.55);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .bigbtn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px -8px rgba(232,138,139,.6); }
+  .bigbtn:active { transform: translateY(0); }
+  .bigbtn:focus-visible { outline: 3px solid var(--slate); outline-offset: 3px; }
+
+  .sectionlist {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 26px 0 6px; text-align: left;
+  }
+  .seccard {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 13px 14px;
+  }
+  .seccard b { display: block; font-size: .88rem; margin-bottom: 2px; }
+  .seccard span { font-size: .78rem; color: var(--ink-soft); }
+
+  /* ---------- quiz screen ---------- */
+  .progwrap { margin-bottom: 18px; }
+  .progtop {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px; font-size: .82rem; font-weight: 700; color: var(--ink-soft);
+  }
+  .progtop .secname { color: var(--teal); text-transform: uppercase; letter-spacing: .06em; font-size: .74rem; }
+  .track { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--coral)); border-radius: 999px; transition: width .3s ease; }
+
+  .qcard {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 26px 24px 24px; box-shadow: var(--shadow);
+  }
+  .qtag {
+    display: inline-block; font-size: .72rem; font-weight: 800; letter-spacing: .06em;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 999px; margin-bottom: 14px;
+  }
+  .tag-A { background: var(--gold-tint); color: #8A6212; }
+  .tag-B { background: var(--slate-tint); color: var(--slate); }
+  .tag-C { background: var(--teal-tint); color: #2C7A64; }
+  .tag-D { background: var(--coral-tint); color: #B44C4C; }
+  .tag-E { background: var(--gold-tint); color: #8A6212; }
+  .tag-F { background: var(--teal-tint); color: #2C7A64; }
+  .tag-G { background: var(--amber-tint); color: var(--amber); }
+
+  .qtext { font-size: 1.18rem; line-height: 1.48; font-weight: 700; margin: 0 0 20px; }
+
+  .opts { display: grid; gap: 10px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    width: 100%; background: var(--bg); border: 1.5px solid var(--line); border-radius: 13px;
+    padding: 13px 15px; font-family: 'Nunito'; font-size: .97rem; font-weight: 700; color: var(--ink);
+    cursor: pointer; transition: border-color .12s ease, background .12s ease;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--slate); background: var(--slate-tint); }
+  .opt:focus-visible { outline: 3px solid var(--slate); outline-offset: 2px; }
+  .opt .key {
+    flex: none; width: 24px; height: 24px; border-radius: 7px; background: var(--line);
+    display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 800; color: var(--ink-soft);
+  }
+  .opt.right { border-color: var(--good); background: var(--good-tint); }
+  .opt.right .key { background: var(--good); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-tint); }
+  .opt.wrong .key { background: var(--bad); color: #fff; }
+  .opt:disabled { cursor: default; }
+  .opt .mark { margin-left: auto; font-size: 1.1rem; }
+
+  .numrow { display: flex; gap: 10px; }
+  .numin {
+    flex: 1; min-width: 0; border: 1.5px solid var(--line); border-radius: 13px; padding: 13px 16px;
+    font-family: 'Nunito'; font-size: 1.05rem; font-weight: 800; color: var(--ink); background: var(--bg);
+  }
+  .numin:focus { outline: none; border-color: var(--teal); }
+  .numin.right { border-color: var(--good); background: var(--good-tint); }
+  .numin.wrong { border-color: var(--bad); background: var(--bad-tint); }
+  .checkbtn {
+    background: var(--ink); color: #fff; border: none; border-radius: 13px;
+    padding: 0 22px; font-family: 'Baloo 2'; font-weight: 700; font-size: .95rem; cursor: pointer;
+  }
+  .checkbtn:disabled { opacity: .4; cursor: default; }
+
+  .fb {
+    margin-top: 18px; border-radius: 14px; padding: 16px 17px; font-size: .93rem; line-height: 1.55;
+  }
+  .fb.good { background: var(--good-tint); }
+  .fb.bad { background: var(--bad-tint); }
+  .fb .fbhead { font-family: 'Baloo 2'; font-weight: 700; font-size: 1rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .fb.good .fbhead { color: var(--good); }
+  .fb.bad .fbhead { color: var(--bad); }
+  .fb p { margin: 0; color: var(--ink); }
+  .fb .correctline { margin: 0 0 8px; font-weight: 700; }
+  .fb .correctline b { color: var(--bad); }
+  .fb .strategy { display: inline-block; margin-top: 8px; font-size: .78rem; font-weight: 800; color: var(--ink-soft); }
+
+  .nextrow { display: flex; justify-content: flex-end; margin-top: 20px; }
+  .nextbtn {
+    background: var(--coral); color: #fff; border: none; border-radius: 999px;
+    padding: 12px 26px; font-family: 'Baloo 2'; font-weight: 700; font-size: .98rem; cursor: pointer;
+  }
+  .nextbtn:focus-visible, .checkbtn:focus-visible { outline: 3px solid var(--slate); outline-offset: 2px; }
+
+  /* ---------- results ---------- */
+  .results { text-align: center; }
+  .scoreball {
+    width: 148px; height: 148px; border-radius: 50%; margin: 6px auto 20px;
+    background: conic-gradient(var(--teal) calc(var(--pct) * 1%), var(--line) 0);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scoreball .inner {
+    width: 118px; height: 118px; border-radius: 50%; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .scoreball .n { font-family: 'Baloo 2'; font-size: 1.9rem; font-weight: 800; line-height: 1; }
+  .scoreball .of { font-size: .78rem; color: var(--ink-soft); font-weight: 700; margin-top: 2px; }
+  .results h2 { font-size: 1.5rem; margin: 0 0 8px; }
+  .results > p { color: var(--ink-soft); margin: 0 0 26px; }
+
+  .breakdown { display: grid; gap: 9px; text-align: left; margin-bottom: 28px; }
+  .brow {
+    display: flex; align-items: center; gap: 12px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px;
+  }
+  .brow .bname { flex: 1; font-weight: 700; font-size: .9rem; }
+  .brow .btrack { width: 90px; height: 7px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .brow .btrack i { display: block; height: 100%; background: var(--teal); border-radius: 999px; }
+  .brow .bfrac { font-size: .82rem; font-weight: 800; color: var(--ink-soft); width: 40px; text-align: right; }
+
+  .restartrow { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .ghostbtn {
+    background: var(--bg); color: var(--ink); border: 1.5px solid var(--line); border-radius: 999px;
+    padding: 12px 24px; font-family: 'Baloo 2'; font-weight: 700; font-size: .95rem; cursor: pointer;
+  }
+
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 420px) {
+    .hero h1 { font-size: 1.6rem; }
+    .sectionlist { grid-template-columns: 1fr; }
+    .qtext { font-size: 1.06rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span><span>Ava's Unit 1 Prep</span></div>
+  </div>
+
+  <!-- START -->
+  <div id="screen-start">
+    <div class="hero">
+      <div class="kicker">Eureka Math &middot; 5th Grade &middot; Unit 1</div>
+      <h1>Ready to warm up for your quiz?</h1>
+      <p>46 practice questions pulled straight from your study guide &mdash; powers of 10, place value, multiplication &amp; division strategies, and word problems &mdash; plus a Challenge Round that pushes a little further. Answer, get instant feedback, and see exactly where to review.</p>
+      <div class="stratrow">
+        <span class="strat">🔟 Powers of 10</span>
+        <span class="strat">📐 Place Value</span>
+        <span class="strat">✖️ Multiplication</span>
+        <span class="strat">➗ Division</span>
+        <span class="strat">📝 Word Problems</span>
+        <span class="strat">🌟 Challenge Round</span>
+      </div>
+      <button class="bigbtn" id="startBtn">Start practicing →</button>
+    </div>
+    <div class="sectionlist" id="sectionList"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" hidden>
+    <div class="progwrap">
+      <div class="progtop">
+        <span id="secLabel" class="secname"></span>
+        <span id="qCount"></span>
+      </div>
+      <div class="track"><div class="fill" id="progFill" style="width:0%"></div></div>
+    </div>
+    <div class="qcard" id="qcard"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" hidden>
+    <div class="results">
+      <div class="scoreball" id="scoreball" style="--pct:0">
+        <div class="inner">
+          <div class="n" id="scoreN">0</div>
+          <div class="of">out of 46</div>
+        </div>
+      </div>
+      <h2 id="resultTitle">Nice work!</h2>
+      <p id="resultSub">Here's how you did by topic.</p>
+      <div class="breakdown" id="breakdown"></div>
+      <div class="restartrow">
+        <button class="ghostbtn" id="reviewBtn">Review missed questions</button>
+        <button class="bigbtn" id="restartBtn">Try again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SECTIONS = {
+    A: "Powers of 10",
+    B: "Place Value",
+    C: "Multiplication",
+    D: "Division",
+    E: "Quotient & Remainder",
+    F: "Multi-Step Problems",
+    G: "Challenge Round"
+  };
+
+  var Q = [
+    // ---------------- A. Powers of Ten / Exponents ----------------
+    { s:"A", type:"mc", q:"What is 10³ written in standard form?",
+      opts:["100","1,000","10,000","30"], a:1,
+      expl:"The exponent tells you how many zeros to write. 10³ means 10 × 10 × 10 = 1,000 — three zeros for the exponent 3.", strat:"The Exponent's Three Jobs: it's the zero counter." },
+    { s:"A", type:"num", q:"How many zeros are in the standard form of 10⁵?", answer:5,
+      expl:"The exponent IS the zero counter — 10⁵ has exactly 5 zeros: 100,000.", strat:"The Exponent's Three Jobs" },
+    { s:"A", type:"mc", q:"Which exponential form matches 10 × 10 × 10 × 10?",
+      opts:["10⁴","4¹⁰","10 × 4","40"], a:0,
+      expl:"Count the number of times 10 is used as a factor — here it's 4 times, so the exponent is 4: 10⁴.", strat:"Exponential Form" },
+    { s:"A", type:"num", q:"Solve: 7 × 10²", answer:700,
+      expl:"10² = 100, and 7 × 100 = 700. Multiplying by a power of 10 shifts every digit that many places to the left.", strat:"10 as a Factor" },
+    { s:"A", type:"mc", q:"Which power of 10 would shift every digit 4 places to the LEFT?",
+      opts:["10²","10³","10⁴","10⁵"], a:2,
+      expl:"The exponent tells you how many places the digits slide on a place value chart. An exponent of 4 means 4 places left.", strat:"Place Value Shifts" },
+    { s:"A", type:"mc", q:"In the expression 10³ = 1,000, what do we call the small raised '3'?",
+      opts:["The base","The exponent","The product","The factor"], a:1,
+      expl:"The exponent sits small and high next to the base and tells it exactly what to do — here, multiply 10 by itself 3 times.", strat:"Exponential Form vocabulary" },
+
+    // ---------------- B. Place Value — "10 Times As Much" ----------------
+    { s:"B", type:"mc", q:"In 6,600, the 6 in the thousands place is how many times as much as the 6 in the hundreds place?",
+      opts:["2 times","10 times","100 times","The same"], a:1,
+      expl:"6,000 ÷ 600 = 10. Moving one place to the LEFT on a place value chart always multiplies a digit's value by 10.", strat:"The '10 Times As Much' Rule" },
+    { s:"B", type:"num", q:"The 4 in 4,000 is 10 times as much as the 4 in ____.", answer:400,
+      expl:"4,000 ÷ 10 = 400. One place to the right of the thousands place is the hundreds place.", strat:"Quick Practice, straight from your guide" },
+    { s:"B", type:"num", q:"The 8 in 80,000 is 10 times as much as the 8 in ____.", answer:8000,
+      expl:"80,000 ÷ 10 = 8,000. Same rule — one place value to the right divides the value by 10.", strat:"Quick Practice, straight from your guide" },
+    { s:"B", type:"num", q:"The 2 in 5,200 is 10 times as much as the 2 in 520. What is the VALUE of the 2 in 5,200?", answer:200,
+      expl:"In 5,200 the 2 sits in the hundreds place, so its value is 200. (And 200 is 10 times the value of the 2 in 520, which is 20.)", strat:"Across two numbers" },
+    { s:"B", type:"mc", q:"If a digit moves ONE place to the RIGHT on a place value chart, its value is...",
+      opts:["multiplied by 10","divided by 10","multiplied by 100","unchanged"], a:1,
+      expl:"Shifting right is the opposite of shifting left. Left = × 10. Right = ÷ 10.", strat:"When multiplying by 10, digits shift left. When dividing, they shift right." },
+    { s:"B", type:"mc", q:"The 7 in 740 is how many times as much as the 7 in 74?",
+      opts:["1 time","10 times","70 times","100 times"], a:1,
+      expl:"In 740 the 7 is worth 700 (hundreds). In 74 the 7 is worth 70 (tens). 700 ÷ 70 = 10.", strat:"The '10 Times As Much' Rule" },
+
+    // ---------------- C. Multiplication Strategies ----------------
+    { s:"C", type:"num", q:"Using the Standard Algorithm: 184 × 28 = ?", answer:5152,
+      expl:"Step 1: 184 × 8 = 1,472. Step 2–3: 184 × 20 = 3,680 (that's the 'scratch, scratch, lay an egg' placeholder zero). Step 4: 1,472 + 3,680 = 5,152.", strat:"Standard Algorithm, Steps 1–4" },
+    { s:"C", type:"mc", q:"In the Standard Algorithm, why do you write a placeholder zero before multiplying by the tens digit?",
+      opts:["Because you're now multiplying by a TENS digit, not ones","Because the answer must end in zero","It's just a rule with no reason","To make the number look bigger"], a:0,
+      expl:"That zero (\"scratch, scratch, lay an egg!\") holds the ones place so the tens-digit product lines up correctly before you add.", strat:"Standard Algorithm, Step 2" },
+    { s:"C", type:"num", q:"Using Partial Products: 21,876 × 9 = ?", answer:196884,
+      expl:"9×20,000=180,000, 9×1,000=9,000, 9×800=7,200, 9×70=630, 9×6=54. Add them: 180,000+9,000+7,200+630+54 = 196,884.", strat:"Partial Product strategy" },
+    { s:"C", type:"num", q:"Using the Distributive Property on 7 × 3,098, first decompose 3,098 into 3,000 + 90 + 8. What is 7 × 90?", answer:630,
+      expl:"That's the middle partial product in the distributive property breakdown: 7 × 90 = 630.", strat:"Distributive Property, Step 2" },
+    { s:"C", type:"num", q:"Finish it: 7 × 3,098 = (7×3,000) + (7×90) + (7×8) = 21,000 + 630 + 56. What's the final product?", answer:21686,
+      expl:"21,000 + 630 + 56 = 21,686. Adding the partial products together is Step 3 of the Distributive Property strategy.", strat:"Distributive Property, Step 3" },
+    { s:"C", type:"num", q:"Open Area Model for 7 × 40,823 splits it into 7×40,000, 7×0, 7×800, 7×20, and 7×3. What is 7 × 800?", answer:5600,
+      expl:"7 × 800 = 5,600 — one column of the area model. (The full model adds up to 285,761.)", strat:"Open Area Model Strategy" },
+    { s:"C", type:"mc", q:"To ESTIMATE 289 × 6, you round 289 to the nearest hundred first. What do you round it to?",
+      opts:["200","280","290","300"], a:3,
+      expl:"289 is closer to 300 than to 200, so it rounds to 300. Then 300 × 6 = 1,800 is your reasonable estimate.", strat:"Estimating Products" },
+    { s:"C", type:"mc", q:"Which is the best ESTIMATE for 412 × 7?",
+      opts:["700","2,800","3,000","4,200"], a:1,
+      expl:"Round 412 to 400 (nearest hundred), then 400 × 7 = 2,800.", strat:"Estimating Products — round, then multiply" },
+
+    // ---------------- D. Division Strategies ----------------
+    { s:"D", type:"num", q:"Using Partial Quotients: 1,344 ÷ 7 = ?", answer:192,
+      expl:"Subtract friendly chunks: 1,344 − 700(×100) = 644, − 350(×50) = 294, − 140(×20) = 154, − 140(×20) = 14, − 14(×2) = 0. Add the ×'s: 100+50+20+20+2 = 192.", strat:"Dividing with Partial Quotients" },
+    { s:"D", type:"mc", q:"Why does Partial Quotients let you subtract friendly chunks like ×10, ×20, ×50, ×100 instead of one big step?",
+      opts:["It breaks a hard division into easier multiplication facts you already know","It's always faster than every other method","It only works with even numbers","It avoids ever having a remainder"], a:0,
+      expl:"A 'think box' of easy facts (like 7×10, 7×50, 7×100) lets you chip away at the dividend using multiplication you're already confident with.", strat:"The Think Box" },
+    { s:"D", type:"num", q:"Using the Area Model for division, 756 ÷ 5 — what is the QUOTIENT (whole number part, ignore the remainder)?", answer:151,
+      expl:"The area model splits 756 into 500 (×100) + 250 (×50) + 5 (×1), using up 5×151 = 755 with 1 left over: 151 r1.", strat:"Division Using the Area Model" },
+    { s:"D", type:"num", q:"Same problem — 756 ÷ 5. What is the REMAINDER?", answer:1,
+      expl:"5 × 151 = 755, and 756 − 755 = 1. So 756 ÷ 5 = 151 r1.", strat:"Division Using the Area Model" },
+    { s:"D", type:"mc", q:"\"Does McDonald's Serve Burgers?\" — what does the S stand for?",
+      opts:["Solve","Sum","Subtract","Start"], a:2,
+      expl:"D-M-S-B = Divide, Multiply, Subtract, Bring down — the four repeating steps of long division.", strat:"Does McDonald's Serve Burgers?" },
+    { s:"D", type:"mc", q:"\"Does McDonald's Serve Burgers?\" — what does the B stand for?",
+      opts:["Bring down","Borrow","Base","Big number"], a:0,
+      expl:"After you subtract, you Bring Down the next digit and repeat the cycle: Divide, Multiply, Subtract, Bring down.", strat:"Does McDonald's Serve Burgers?" },
+    { s:"D", type:"mc", q:"In 756 ÷ 5 = 151 r1, what do we call 756?",
+      opts:["The divisor","The dividend","The quotient","The remainder"], a:1,
+      expl:"The dividend is the number being divided (756). The divisor (5) divides it, giving a quotient (151) and remainder (1).", strat:"Division vocabulary" },
+    { s:"D", type:"num", q:"To ESTIMATE 3,214 ÷ 8, round to a friendlier number that divides evenly, like 3,200. What is 3,200 ÷ 8?", answer:400,
+      expl:"3,200 ÷ 8 = 400 — a quick, reasonable estimate for 3,214 ÷ 8.", strat:"Estimating Quotients" },
+
+    // ---------------- E. Quotient & Remainder in Word Problems ----------------
+    { s:"E", type:"mc", q:"A bakery packs 2,845 cookies into boxes of 12. In 2,845 ÷ 12, what does the QUOTIENT represent?",
+      opts:["How many cookies are left over","How many full boxes of 12 can be filled","The total number of cookies","How many bakeries there are"], a:1,
+      expl:"The quotient tells you how many complete groups (boxes) of 12 you can make from the total.", strat:"Model word problem from your guide" },
+    { s:"E", type:"num", q:"Solve it: 2,845 ÷ 12 — what is the QUOTIENT?", answer:237,
+      expl:"12 × 237 = 2,844, with 1 cookie left over. So the bakery fills 237 full boxes.", strat:"Model word problem from your guide" },
+    { s:"E", type:"num", q:"Same problem, 2,845 ÷ 12 — what is the REMAINDER?", answer:1,
+      expl:"2,845 − 2,844 = 1. That 1 leftover cookie means the bakery actually needs one MORE box so nothing is left behind.", strat:"Interpreting the remainder" },
+    { s:"E", type:"num", q:"Your word problem: 3,520 pencils shared equally among 24 students. How many pencils does EACH student get (the quotient)?", answer:146,
+      expl:"24 × 146 = 3,504. Each student gets 146 pencils, with some left over — this is exactly the problem you wrote yourself!", strat:"From your own practice problem" },
+    { s:"E", type:"num", q:"Same problem — how many pencils are LEFT OVER (the remainder)?", answer:16,
+      expl:"3,520 − 3,504 = 16 pencils left over after giving every student an equal share of 146.", strat:"From your own practice problem" },
+    { s:"E", type:"mc", q:"When a division word problem has a remainder, what should you always do?",
+      opts:["Always round the quotient up, no matter what","Think about what the remainder actually MEANS in that situation","Always ignore the remainder completely","Always round the quotient down, no matter what"], a:1,
+      expl:"Sometimes you round up (the bakery needs one more box). Sometimes the remainder IS the answer (16 leftover pencils). It depends on the story.", strat:"The most important habit for word problems" },
+
+    // ---------------- F. Multi-Step Word Problems ----------------
+    { s:"F", type:"num", q:"A school orders 8 boxes of markers with 24 markers in each box, then gives 45 markers to the art room. How many markers are left?", answer:147,
+      expl:"Step 1: 8 × 24 = 192 total markers. Step 2: 192 − 45 = 147 markers left.", strat:"Multiply, then subtract" },
+    { s:"F", type:"num", q:"A theater has 15 rows with 18 seats each. If 187 seats are already filled, how many empty seats are there?", answer:83,
+      expl:"Step 1: 15 × 18 = 270 total seats. Step 2: 270 − 187 = 83 empty seats.", strat:"Multiply, then subtract" },
+    { s:"F", type:"num", q:"Mia buys 6 packs of stickers with 45 stickers in each pack, then shares them equally among 9 friends. How many stickers does each friend get?", answer:30,
+      expl:"Step 1: 6 × 45 = 270 total stickers. Step 2: 270 ÷ 9 = 30 stickers each.", strat:"Multiply, then divide" },
+    { s:"F", type:"num", q:"A farmer has 1,260 apples and packs them into crates of 15 apples each. He then sells 42 of the crates. How many crates does he have left?", answer:42,
+      expl:"Step 1: 1,260 ÷ 15 = 84 total crates. Step 2: 84 − 42 = 42 crates left.", strat:"Divide, then subtract" },
+
+    // ---------------- G. Challenge Round ----------------
+    { s:"G", type:"num", q:"A number is multiplied by 10³ and the result is 47,000. What was the original number?", answer:47,
+      expl:"Work backwards: 47,000 ÷ 10³ = 47,000 ÷ 1,000 = 47. Undoing 'shift left 3 places' means shifting back right.", strat:"Place Value Shifts, in reverse" },
+    { s:"G", type:"num", q:"The value of the 5 in a number is 500,000. If that digit moves 2 places to the RIGHT on a place value chart, what is its NEW value?", answer:5000,
+      expl:"Moving right divides by 10 each place: 500,000 ÷ 10 ÷ 10 = 5,000. Two places right is the same as dividing by 100.", strat:"The '10 Times As Much' Rule, two shifts" },
+    { s:"G", type:"num", q:"Using any strategy you like: 356 × 47 = ?", answer:16732,
+      expl:"Distributive Property: 356 × 47 = 356 × 40 + 356 × 7 = 14,240 + 2,492 = 16,732. Two 2-digit-ish factors — the same idea as the Standard Algorithm, just bigger.", strat:"Choose your own strategy" },
+    { s:"G", type:"mc", q:"Which is the best ESTIMATE for 587 × 42?",
+      opts:["18,000","21,000","24,000","30,000"], a:2,
+      expl:"Round 587 to 600 and 42 to 40 (both nearest hundred/ten). 600 × 40 = 24,000.", strat:"Estimating Products with bigger numbers" },
+    { s:"G", type:"num", q:"6,192 ÷ 24 = ?", answer:258,
+      expl:"Partial Quotients: 6,192 − 6,000 (×250) = 192, then 192 − 192 (×8) = 0. Add the ×'s: 250 + 8 = 258.", strat:"Partial Quotients with a 2-digit divisor" },
+    { s:"G", type:"num", q:"A field trip has 245 students. Each bus holds 36 students. How many buses are needed so NO student is left behind?", answer:7,
+      expl:"245 ÷ 36 = 6 remainder 29. Six buses only fit 216 students, leaving 29 behind — you need a 7th bus for them. Round UP, because leftover people still need a seat.", strat:"Interpreting the remainder — round up" },
+    { s:"G", type:"num", q:"A store has 18 shelves with 34 books on each. They sell 212 books, then restock 75 more. How many books are there now?", answer:475,
+      expl:"Step 1: 18 × 34 = 612. Step 2: 612 − 212 = 400. Step 3: 400 + 75 = 475. Three steps this time — multiply, subtract, then add.", strat:"Multi-Step Problems, one step further" },
+    { s:"G", type:"num", q:"A number divided by 8 gives a quotient of 47 with a remainder of 5. What is the number?", answer:381,
+      expl:"Work backwards using dividend = (divisor × quotient) + remainder: (8 × 47) + 5 = 376 + 5 = 381.", strat:"Division vocabulary, in reverse" }
+  ];
+
+  var order = Q.map(function (_, i) { return i; });
+  var idx = 0, score = 0, answered = [];  // answered[i] = true/false once answered
+  var reviewMode = false, reviewList = [];
+
+  var $start = document.getElementById("screen-start");
+  var $quiz = document.getElementById("screen-quiz");
+  var $results = document.getElementById("screen-results");
+  var $qcard = document.getElementById("qcard");
+  var $secLabel = document.getElementById("secLabel");
+  var $qCount = document.getElementById("qCount");
+  var $progFill = document.getElementById("progFill");
+
+  function buildSectionList() {
+    var counts = {};
+    Q.forEach(function (q) { counts[q.s] = (counts[q.s] || 0) + 1; });
+    var icons = { A:"🔟", B:"📐", C:"✖️", D:"➗", E:"🍪", F:"🧩", G:"🌟" };
+    var html = "";
+    Object.keys(SECTIONS).forEach(function (k) {
+      html += '<div class="seccard"><b>' + icons[k] + " " + SECTIONS[k] + "</b><span>" + counts[k] + " questions</span></div>";
+    });
+    document.getElementById("sectionList").innerHTML = html;
+  }
+  buildSectionList();
+
+  function show(screen) {
+    $start.hidden = screen !== "start";
+    $quiz.hidden = screen !== "quiz";
+    $results.hidden = screen !== "results";
+  }
+
+  function startQuiz(list) {
+    order = list;
+    idx = 0; score = 0; answered = new Array(order.length).fill(null);
+    show("quiz");
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    var qi = order[idx];
+    var q = Q[qi];
+    $secLabel.textContent = SECTIONS[q.s];
+    $qCount.textContent = "Question " + (idx + 1) + " of " + order.length;
+    $progFill.style.width = Math.round((idx / order.length) * 100) + "%";
+
+    var html = '<span class="qtag tag-' + q.s + '">' + SECTIONS[q.s] + '</span>';
+    html += '<p class="qtext">' + q.q + '</p>';
+
+    if (q.type === "mc") {
+      html += '<div class="opts" id="opts">';
+      q.opts.forEach(function (opt, i) {
+        html += '<button class="opt" data-i="' + i + '"><span class="key">' + String.fromCharCode(65 + i) + '</span>' + opt + '<span class="mark"></span></button>';
+      });
+      html += "</div>";
+    } else {
+      html += '<div class="numrow"><input class="numin" id="numInput" type="number" inputmode="numeric" placeholder="Type your answer" autocomplete="off">' +
+              '<button class="checkbtn" id="checkBtn">Check</button></div>';
+    }
+    html += '<div id="fbSlot"></div>';
+    $qcard.innerHTML = html;
+
+    if (q.type === "mc") {
+      var btns = $qcard.querySelectorAll(".opt");
+      btns.forEach(function (b) {
+        b.addEventListener("click", function () { handleMcAnswer(q, qi, parseInt(b.getAttribute("data-i"), 10), btns); });
+      });
+    } else {
+      var input = document.getElementById("numInput");
+      var check = document.getElementById("checkBtn");
+      function submit() {
+        if (input.value === "" || input.disabled) return;
+        handleNumAnswer(q, qi, input, check);
+      }
+      check.addEventListener("click", submit);
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      input.focus();
+    }
+  }
+
+  function handleMcAnswer(q, qi, chosen, btns) {
+    if (answered[idx] !== null) return;
+    var correct = chosen === q.a;
+    answered[idx] = correct;
+    if (correct) score++;
+    else reviewList.push(qi);
+
+    btns.forEach(function (b, i) {
+      b.disabled = true;
+      if (i === q.a) { b.classList.add("right"); b.querySelector(".mark").textContent = "✓"; }
+      else if (i === chosen) { b.classList.add("wrong"); b.querySelector(".mark").textContent = "✗"; }
+    });
+    showFeedback(correct, q);
+  }
+
+  function handleNumAnswer(q, qi, input, check) {
+    if (answered[idx] !== null) return;
+    var val = parseFloat(input.value);
+    var correct = !isNaN(val) && Math.abs(val - q.answer) < 1e-9;
+    answered[idx] = correct;
+    if (correct) score++;
+    else reviewList.push(qi);
+
+    input.disabled = true; check.disabled = true;
+    input.classList.add(correct ? "right" : "wrong");
+    /* Leave the typed value alone: a number input silently REJECTS a
+       non-numeric string like "3  (correct: 5)", so writing the answer
+       into the field just erased what the child typed. The correct answer
+       is shown in the feedback panel instead. */
+    showFeedback(correct, q);
+  }
+
+  function showFeedback(correct, q) {
+    var slot = document.getElementById("fbSlot");
+    var answerLine = (!correct && q.type === "num")
+      ? '<p class="correctline">Correct answer: <b>' + q.answer.toLocaleString("en-US") + '</b></p>' : "";
+    var html = '<div class="fb ' + (correct ? "good" : "bad") + '">' +
+      '<div class="fbhead">' + (correct ? "✅ Nice — that's right!" : "💡 Not quite — here's why") + '</div>' +
+      answerLine +
+      '<p>' + q.expl + '</p>' +
+      '<span class="strategy">' + q.strat + '</span></div>' +
+      '<div class="nextrow"><button class="nextbtn" id="nextBtn">' +
+      (idx === order.length - 1 ? "See results →" : "Next question →") + '</button></div>';
+    slot.innerHTML = html;
+    document.getElementById("nextBtn").addEventListener("click", nextQuestion);
+    slot.querySelector(".nextbtn").focus();
+  }
+
+  function nextQuestion() {
+    if (idx < order.length - 1) { idx++; renderQuestion(); }
+    else finishQuiz();
+  }
+
+  function finishQuiz() {
+    show("results");
+    var total = order.length;
+    var pct = Math.round((score / total) * 100);
+    document.getElementById("scoreball").style.setProperty("--pct", pct);
+    document.getElementById("scoreN").textContent = score;
+    document.getElementById("scoreball").querySelector(".of").textContent = "out of " + total;
+
+    var title, sub;
+    if (reviewMode) {
+      title = pct === 100 ? "All cleaned up! 🌟" : "Better!";
+      sub = pct === 100 ? "You got every missed question right this time." : score + " of " + total + " on your second try at these.";
+    } else if (pct >= 90) { title = "You've got this! 🌟"; sub = "Excellent prep — you're ready for the real quiz."; }
+    else if (pct >= 75) { title = "Great progress! 💪"; sub = "Just a little more review on a few topics and you'll be set."; }
+    else if (pct >= 50) { title = "Good start! 📚"; sub = "Look back at the topics below with your Learning Coach before the quiz."; }
+    else { title = "Keep practicing! 🌱"; sub = "That's totally OK — review the study guide sections below and try again."; }
+    document.getElementById("resultTitle").textContent = title;
+    document.getElementById("resultSub").textContent = sub;
+
+    var bySec = {};
+    order.forEach(function (qi, i) {
+      var s = Q[qi].s;
+      bySec[s] = bySec[s] || { correct: 0, total: 0 };
+      bySec[s].total++;
+      if (answered[i]) bySec[s].correct++;
+    });
+    var bhtml = "";
+    Object.keys(SECTIONS).forEach(function (k) {
+      if (!bySec[k]) return;
+      var d = bySec[k];
+      var p = Math.round((d.correct / d.total) * 100);
+      bhtml += '<div class="brow"><span class="bname">' + SECTIONS[k] + '</span>' +
+        '<span class="btrack"><i style="width:' + p + '%"></i></span>' +
+        '<span class="bfrac">' + d.correct + '/' + d.total + '</span></div>';
+    });
+    document.getElementById("breakdown").innerHTML = bhtml;
+
+    var reviewBtn = document.getElementById("reviewBtn");
+    reviewBtn.style.visibility = reviewList.length ? "visible" : "hidden";
+    reviewBtn.textContent = "Review " + reviewList.length + " missed question" + (reviewList.length === 1 ? "" : "s");
+  }
+
+  document.getElementById("startBtn").addEventListener("click", function () {
+    reviewMode = false; reviewList = [];
+    startQuiz(Q.map(function (_, i) { return i; }));
+  });
+  document.getElementById("restartBtn").addEventListener("click", function () {
+    reviewMode = false; reviewList = [];
+    startQuiz(Q.map(function (_, i) { return i; }));
+  });
+  document.getElementById("reviewBtn").addEventListener("click", function () {
+    if (!reviewList.length) return;
+    var list = reviewList.slice();
+    reviewMode = true; reviewList = [];
+    startQuiz(list);
+  });
+
+  show("start");
+})();
+</script>
+</body>
+</html>
