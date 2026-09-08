@@ -13,6 +13,14 @@ services:
         value: 8080
       - key: DB_FILE
         value: /data/mathquest.db
+      - key: RETENTION_SWEEP_HOURS
+        value: "24"          # spec 10.3: enforce the retention policy
+      - key: BACKUP_INTERVAL_HOURS
+        value: "6"           # the disk holds the only copy of the database
+      - key: BACKUP_KEEP
+        value: "7"
+      - key: BACKUP_DIR
+        value: /data/backups
       - key: ADMIN_EMAILS
         sync: false          # set this yourself; it grants admin access
     disk:

@@ -3,7 +3,7 @@ import { api, type Question, type Learner } from "../api";
 import { Grid, Beast } from "../beasts";
 
 const fbMood = (fb: any) => fb ? (fb.correct ? "happy" as const : "oops" as const) : "idle" as const;
-import { ReadAloud } from "../components/ReadAloud";
+import { SpokenText } from "../components/ReadAloud";
 import { OrderAnswer, MultiAnswer, PlotAnswer } from "../components/AnswerInput";
 
 type Feedback = { correct: boolean; correctAnswer: string; explanation: string; figA: any };
@@ -109,8 +109,7 @@ export function Quiz({ topicId, topicName, tier, advanced, threshold, learner, o
           <Beast kind={learner?.beast || "vex"} size={48} mood={fbMood(typeof fb !== "undefined" ? fb : null)} />
           <div className="sec">{q.secName}</div>
         </div>
-        <p className="qtext">{q.q}</p>
-        <ReadAloud text={q.q} />
+        <SpokenText className="qtext" text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
 
         {q.type === "plot" ? (

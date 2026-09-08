@@ -457,3 +457,237 @@ svg .poly{fill:var(--accent);opacity:.14;stroke:var(--accent);stroke-width:2}
    the same as no cursor. */
 .plotgrid:focus-visible{outline:3px solid var(--focus,#2b6cb0);outline-offset:3px}
 .plotlist{margin:8px 0 12px;font-variant-numeric:tabular-nums}
+
+/* Read-aloud highlighting (spec 3.2.9). The highlight has to be visible in
+   both themes and must not rely on colour alone — an underline carries it for
+   anyone who cannot distinguish the background. */
+.spokenblock{display:flex;flex-direction:column;gap:6px}
+.spoken-word{background:var(--accent-soft,#ffe9a8);color:inherit;border-radius:3px;
+  padding:0 2px;text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){.spoken-word{transition:none}}
+
+/* ============================================================
+   Arcade — the game zone. Same tokens as the rest of the app so
+   every colour pair stays AA-clean; the difference is volume:
+   bigger icons, wobblier cards, brighter hero. Motion still bows
+   to prefers-reduced-motion via the global rule at the top.
+   ============================================================ */
+
+.arcadehero{
+  display:flex;align-items:center;gap:16px;
+  background:linear-gradient(135deg,var(--accent),var(--band));
+  color:var(--onaccent);
+  border-radius:var(--r-lg);padding:calc(20px * var(--step)) calc(18px * var(--step));
+  box-shadow:var(--shadow-lift);margin-bottom:22px;
+}
+.arcadehero h1{color:inherit;font-size:calc(1.7rem * var(--step))}
+.arcadehero .eyebrow{color:inherit;opacity:.85}
+.arcadehero p{color:inherit;opacity:.92}
+.arcadehero .beast-wrap{flex:0 0 auto;filter:drop-shadow(0 3px 0 rgba(0,0,0,.15))}
+.soundbtn{
+  margin-left:auto;flex:0 0 auto;
+  width:var(--tap);height:var(--tap);border-radius:50%;
+  background:rgba(255,255,255,.22);border:2px solid rgba(255,255,255,.5);
+  font-size:1.3rem;line-height:1;color:var(--onaccent);
+  transition:transform .12s ease,background .12s ease;
+}
+.soundbtn:hover{transform:scale(1.08);background:rgba(255,255,255,.34)}
+
+/* home-page banner that invites kids into the arcade */
+.arcadebanner{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;
+  width:100%;text-align:left;margin:0 0 18px;
+  background:var(--card);color:var(--ink);
+  border:3px solid var(--band);border-radius:var(--r-lg);
+  padding:calc(13px * var(--step)) calc(16px * var(--step));
+  min-height:var(--tap);box-shadow:var(--shadow);
+  transition:transform .14s ease,box-shadow .14s ease;
+}
+.arcadebanner:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:var(--shadow-lift)}
+
+.gameGrid{display:grid;gap:12px}
+.gamecard{
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;
+  text-align:left;background:var(--card);color:var(--ink);
+  border:2px solid var(--line);border-radius:var(--r-lg);
+  padding:calc(13px * var(--step)) calc(16px * var(--step));
+  min-height:var(--tap);box-shadow:var(--shadow);
+  transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;
+}
+.gamecard:hover{transform:translateY(-3px) rotate(-.5deg);box-shadow:var(--shadow-lift);border-color:var(--band)}
+.gicon{
+  display:grid;place-items:center;flex:0 0 auto;
+  width:calc(52px * var(--step));height:calc(52px * var(--step));
+  border-radius:var(--r);background:var(--band-soft);
+  font-size:calc(1.7rem * var(--step));line-height:1;
+}
+.gicon.big{width:calc(64px * var(--step));height:calc(64px * var(--step));font-size:calc(2.2rem * var(--step))}
+.ginfo{display:block}
+.gname2{font-family:var(--display);font-weight:600;font-size:calc(1.12rem * var(--step));display:block}
+.gblurb{color:var(--muted);font-size:calc(.86rem * var(--step));display:block}
+.gskill{display:inline-block;margin-top:4px;font-size:calc(.7rem * var(--step));font-weight:700;
+  background:var(--chip);color:var(--accent);border-radius:var(--r-pill);padding:.15em .7em}
+.gmeta2{text-align:right;display:grid;gap:2px;justify-items:end}
+.gplays{color:var(--muted);font-size:calc(.76rem * var(--step))}
+.gplays.new{color:var(--good);font-weight:700}
+
+.starburst{letter-spacing:2px}
+.starburst span{color:var(--line-strong)}
+.starburst span.lit{color:var(--star)}
+
+/* level picker */
+.gamehero{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+.levelrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.levelcard{
+  display:grid;justify-items:center;gap:6px;
+  background:var(--card);color:var(--ink);
+  border:2px solid var(--line);border-radius:var(--r-lg);
+  padding:calc(18px * var(--step)) 10px;min-height:var(--tap);
+  font-family:var(--display);font-weight:600;font-size:calc(1rem * var(--step));
+  box-shadow:var(--shadow);
+  transition:transform .14s ease,box-shadow .14s ease,border-color .14s ease;
+}
+.levelcard:hover{transform:translateY(-4px) scale(1.03);box-shadow:var(--shadow-lift);border-color:var(--band)}
+.lvlicon{font-size:calc(2.1rem * var(--step));line-height:1}
+
+/* the stage every game plays on */
+.gamestage{position:relative}
+.gametop{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.gamesec{font-family:var(--display);font-weight:600;letter-spacing:.08em;
+  font-size:calc(.78rem * var(--step));color:var(--band);text-transform:uppercase}
+.gamehud{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.timechip{font-family:var(--display);font-weight:600;font-size:calc(.92rem * var(--step));
+  background:var(--chip);color:var(--accent);border-radius:var(--r-pill);padding:.3em 1em}
+.timechip.low{color:var(--bad);background:var(--bad-bg)}
+
+/* sprint */
+.sprintq{font-family:var(--display);font-weight:600;text-align:center;
+  font-size:calc(2.2rem * var(--step));line-height:1.2;margin:10px 0 18px;
+  font-variant-numeric:tabular-nums}
+.streakline{text-align:center;color:var(--star);font-weight:700;margin:12px 0 0;
+  font-family:var(--display);font-size:calc(1.05rem * var(--step))}
+
+/* match */
+.matchgrid{display:grid;gap:10px;margin-top:6px;perspective:800px}
+.mcard{
+  position:relative;aspect-ratio:3/3.4;min-height:64px;
+  background:none;border:0;padding:0;
+  transform-style:preserve-3d;
+}
+.mface{
+  position:absolute;inset:0;display:grid;place-items:center;
+  border-radius:var(--r);border:2px solid var(--line);
+  font-family:var(--display);font-weight:600;font-size:calc(1.05rem * var(--step));
+  backface-visibility:hidden;transition:transform .28s ease;
+  box-shadow:var(--shadow);
+}
+.mback{background:var(--band-soft);color:var(--band);font-size:calc(1.8rem * var(--step))}
+.mfront{background:var(--card);color:var(--ink);transform:rotateY(180deg)}
+.mfront.ans{color:var(--accent)}
+.mcard.up .mback{transform:rotateY(180deg)}
+.mcard.up .mfront{transform:rotateY(0)}
+.mcard.solved .mfront{border-color:var(--good);background:var(--good-bg);box-shadow:none}
+.mcard:hover:not(.up):not(.solved) .mback{border-color:var(--band);transform:translateY(-3px)}
+
+/* bonds */
+.bondeq{display:flex;align-items:center;justify-content:center;gap:12px;
+  margin:14px 0 20px;flex-wrap:wrap}
+.bondnum{display:grid;place-items:center;
+  width:calc(64px * var(--step));height:calc(64px * var(--step));
+  border-radius:50%;background:var(--band-soft);color:var(--band);
+  font-family:var(--display);font-weight:600;font-size:calc(1.6rem * var(--step))}
+.bondnum.target{background:var(--accent);color:var(--onaccent)}
+.bondnum.hole{border:3px dashed var(--band);background:var(--card)}
+.bondop{font-family:var(--display);font-weight:600;font-size:calc(1.6rem * var(--step));color:var(--muted)}
+.bubblerow{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.bubble{
+  display:grid;place-items:center;
+  width:calc(68px * var(--step));height:calc(68px * var(--step));
+  min-height:var(--tap);border-radius:50%;
+  background:var(--chip);color:var(--accent);
+  border:2px solid var(--line-strong);
+  font-family:var(--display);font-weight:600;font-size:calc(1.35rem * var(--step));
+  box-shadow:var(--shadow);transition:transform .14s ease,border-color .14s ease;
+}
+.bubble:hover{transform:translateY(-4px) scale(1.06);border-color:var(--accent)}
+.bubble.right{border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.bubble.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+
+/* fractions */
+.pizza{width:min(240px,80%);height:auto;display:block;margin:0 auto}
+.pizza .crust{fill:#E8C14A}
+.pizza .slice{fill:#F5E1B8;stroke:var(--card);stroke-width:2}
+.pizza .slice.eaten{fill:transparent;stroke:var(--bad);stroke-width:2.5;stroke-dasharray:6 5}
+.pizza .rim{stroke:#C24A00;stroke-width:3}
+.fracrow{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:8px}
+.fracbtn{
+  display:grid;place-items:center;min-width:calc(64px * var(--step));
+  min-height:var(--tap);padding:10px 14px;
+  background:var(--card);color:var(--ink);
+  border:2px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);transition:transform .14s ease,border-color .14s ease;
+}
+.fracbtn:hover{transform:translateY(-3px);border-color:var(--band)}
+.fracbtn.right{border-color:var(--good);background:var(--good-bg)}
+.fracbtn.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.frac{display:grid;justify-items:center;font-family:var(--mono);font-weight:600;
+  font-size:calc(1.1rem * var(--step));line-height:1.15}
+.frac .fbar{width:100%;height:3px;background:currentColor;border-radius:2px;margin:2px 0}
+
+/* compare */
+.plates{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.plate{
+  display:grid;place-items:center;min-height:calc(120px * var(--step));
+  background:var(--card);color:var(--ink);
+  border:3px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);transition:transform .14s ease,border-color .14s ease;
+}
+.plate:hover{transform:translateY(-3px);border-color:var(--band)}
+.plate.right{border-color:var(--good);background:var(--good-bg)}
+.plate.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.platenum{font-size:calc(2rem * var(--step));font-weight:600}
+.berries{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:150px}
+.berries i{width:calc(18px * var(--step));height:calc(18px * var(--step));
+  border-radius:50%;background:var(--accent);display:block;
+  box-shadow:inset -3px -3px 0 rgba(0,0,0,.18)}
+.cmpline{display:flex;align-items:center;justify-content:center;gap:14px;
+  margin:16px 0 20px;flex-wrap:wrap}
+.cmpexpr{font-size:calc(1.5rem * var(--step));font-weight:600;
+  background:var(--chip);border-radius:var(--r);padding:.4em .8em}
+.cmphole{font-family:var(--display);font-weight:600;font-size:calc(1.8rem * var(--step));color:var(--band)}
+.signrow{display:flex;justify-content:center;gap:14px}
+.signbtn{
+  display:grid;place-items:center;
+  width:calc(64px * var(--step));height:calc(64px * var(--step));
+  min-height:var(--tap);border-radius:var(--r);
+  background:var(--card);color:var(--accent);
+  border:2px solid var(--line-strong);
+  font-family:var(--display);font-weight:600;font-size:calc(1.8rem * var(--step));
+  box-shadow:var(--shadow);transition:transform .14s ease,border-color .14s ease;
+}
+.signbtn:hover{transform:translateY(-4px) scale(1.05);border-color:var(--accent)}
+.signbtn.right{border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.signbtn.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+
+/* result card */
+.gdone{text-align:center;padding:10px 0 4px}
+.newbest{display:inline-block;margin-top:6px;font-family:var(--display);font-weight:600;
+  color:var(--star);background:color-mix(in srgb, var(--star) 14%, transparent);
+  border-radius:var(--r-pill);padding:.3em 1em}
+
+@media (prefers-reduced-motion: no-preference){
+  .gamecard{animation:popin .3s ease both}
+  .gamecard:nth-child(2){animation-delay:.05s}
+  .gamecard:nth-child(3){animation-delay:.1s}
+  .gamecard:nth-child(4){animation-delay:.15s}
+  .gamecard:nth-child(5){animation-delay:.2s}
+  @keyframes popin{from{transform:translateY(14px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+  .arcadebanner .gicon,.gamehero .gicon{animation:wiggle 2.6s ease-in-out infinite}
+  @keyframes wiggle{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-8deg)}96%{transform:rotate(8deg)}}
+  .timechip.low{animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{transform:scale(1.12)}}
+  .bubble{animation:bob 3.2s ease-in-out infinite}
+  .bubble:nth-child(2){animation-delay:.4s}
+  .bubble:nth-child(3){animation-delay:.8s}
+  .bubble:nth-child(4){animation-delay:1.2s}
+}

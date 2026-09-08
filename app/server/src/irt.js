@@ -141,9 +141,18 @@ export function information(theta, item) {
    `responses` is [{ item, correct }]. With none, this returns the prior:
    theta 0, se 1 — "we know nothing yet", which is the truthful answer and the
    right place to start selecting from. */
-export function estimateAbility(responses) {
+export function estimateAbility(responses, prior = null) {
+  /* An optional prior lets an estimate carry over what is already known
+     about this learner instead of starting from ignorance every time. Given
+     {mean, sd} the grid is weighted by that Normal instead of the standard
+     one — which is how a learner's established ability in a track becomes the
+     starting point for the next topic in it, rather than being thrown away
+     and re-measured from zero. */
+  const priorWeights = prior && Number.isFinite(prior.mean) && prior.sd > 0
+    ? GRID.map(t => Math.exp(-((t - prior.mean) ** 2) / (2 * prior.sd * prior.sd)))
+    : PRIOR;
   const weights = GRID.map((theta, i) => {
-    let w = PRIOR[i];
+    let w = priorWeights[i];
     for (const r of responses) {
       const p = probability(theta, r.item);
       w *= r.correct ? p : 1 - p;

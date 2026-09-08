@@ -7,11 +7,19 @@ type Cur = { curriculum: Record<string, Grade>; tiers: Tier[]; counts: Record<st
 const hasContent = (cur: Cur, id: string) =>
   !!cur.counts[id] && Object.values(cur.counts[id]).some(n => n > 0);
 
-export function GradeList({ order, cur, onOpen }: { order: string[]; cur: Cur; onOpen: (g: string) => void }) {
+export function GradeList({ order, cur, onOpen, onArcade }: { order: string[]; cur: Cur; onOpen: (g: string) => void; onArcade: () => void }) {
   return (
     <>
       <div className="eyebrow">Kindergarten → Grade 8</div>
       <h1 style={{ marginTop: 0 }}>Choose a grade</h1>
+      <button className="arcadebanner" onClick={onArcade}>
+        <span className="gicon" aria-hidden="true">🕹️</span>
+        <span className="ginfo">
+          <span className="gname2">Math Arcade</span>
+          <span className="gblurb">Five quick games — sprint, match, bonds, fractions and more</span>
+        </span>
+        <span className="wgo" aria-hidden="true">→</span>
+      </button>
       <div className="gradeGrid">
         {order.map(g => {
           const grade = cur.curriculum[g];

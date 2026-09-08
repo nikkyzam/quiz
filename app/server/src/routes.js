@@ -24,6 +24,13 @@ import { requireRole } from "./security.js";
 import { CURRICULUM, TIERS } from "../../shared/curriculum.mjs";
 import { QUESTIONS, SECS } from "../../shared/questions.mjs";
 import * as units_ from "./units.js";
+import * as retention from "./retention.js";
+import * as settings from "./settings.js";
+import * as trackmodel from "./trackmodel.js";
+import * as webhooks from "./webhooks.js";
+import * as avatar from "./avatar.js";
+import * as daily from "./daily.js";
+import * as review from "./review.js";
 
 export const api = Router();
 
@@ -33,7 +40,11 @@ const tierOf = q => TIER_BY_LVL[q.lvl || 1];
 /* Topic -> track index, built once from the curriculum. Spec 7.6: mastery is
    90% for core skills and 80% for advanced, so the threshold is a property of
    the topic, decided server-side rather than trusted from the client. */
-export const MASTERY = { core: 90, adv: 80 };
+/* Read from settings on each call so an administrator's change takes effect
+   without a restart. This replaced a compile-time constant: anything that
+   captured the value at import time would keep serving the old threshold to
+   whichever process happened to be running when it changed. */
+export const masteryThresholds = () => settings.masteryThresholds();
 const TOPIC_TRACK = (() => {
   const map = new Map();
   for (const g of Object.values(CURRICULUM))
@@ -42,7 +53,7 @@ const TOPIC_TRACK = (() => {
   return map;
 })();
 export const trackOf = topicId => TOPIC_TRACK.get(topicId) || null;
-export const thresholdOf = topicId => MASTERY[trackOf(topicId) || "core"];
+export const thresholdOf = topicId => masteryThresholds()[trackOf(topicId) || "core"];
 
 /* Strip everything that would give the answer away. The client never sees
    `a`, `ans`, `ansP` or `expl` until it has submitted. */
@@ -426,7 +437,7 @@ api.get("/learners/:id/curriculum", requireAuth, (req, res) => {
     const units = (body.units || []).filter(u => allowed.has(u.track));
     if (units.length) curriculum[grade] = { ...body, units };
   }
-  res.json({ track: learner.track, curriculum, tiers: TIERS, mastery: MASTERY });
+  res.json({ track: learner.track, curriculum, tiers: TIERS, mastery: masteryThresholds() });
 });
 
 api.delete("/learners/:id", requireAuth, (req, res) => {
@@ -448,7 +459,13 @@ api.get("/standards", (_req, res) => {
 
 api.get("/curriculum", (_req, res) => {
   const thresholds = {};
-  for (const id of TOPIC_TRACK.keys()) thresholds[id] = thresholdOf(id);
+  /* Read once, not once per topic. thresholdOf() reads through to the settings
+     table so an admin's change takes effect without a restart, which is right
+     for a single call and wrong inside a loop over every topic in the
+     curriculum — this was issuing 328 SELECTs per request. */
+  const bars = masteryThresholds();
+  for (const id of TOPIC_TRACK.keys())
+    thresholds[id] = bars[trackOf(id) === "adv" ? "adv" : "core"];
   const counts = {};
   Object.keys(QUESTIONS).forEach(t => {
     counts[t] = {};
@@ -458,7 +475,7 @@ api.get("/curriculum", (_req, res) => {
   });
   const standards = {};
   for (const id of Object.keys(QUESTIONS)) standards[id] = standardsFor(id);
-  res.json({ curriculum: CURRICULUM, tiers: TIERS, counts, thresholds, mastery: MASTERY, standards });
+  res.json({ curriculum: CURRICULUM, tiers: TIERS, counts, thresholds, mastery: masteryThresholds(), standards });
 });
 
 /* Parent-facing overview: what a topic covers, a sample problem to see the
@@ -527,7 +544,7 @@ api.post("/diagnostic/start", requireAuth, (req, res) => {
   for (const t of diag.TIER_ORDER)
     questionsByTier[t] = bank.map((q, i) => ({ q, i })).filter(o => tierOf(o.q) === t).map(o => o.i);
 
-  const id = diag.makeDiagnostic({ questionsByTier, bank, topicId, learnerId });
+  const id = diag.makeDiagnostic({ questionsByTier, bank, topicId, learnerId, track: trackOf(topicId) || "core" });
   const sess = diag.getSession(id);
   const first = diag.nextQuestion(sess);
   if (!first) { diag.endSession(id); return res.status(404).json({ error: "empty_topic" }); }
@@ -734,7 +751,7 @@ api.post("/unit-test/start", requireAuth, (req, res) => {
   res.json({
     testId: id,
     unit: { key: unit.key, name: unit.name, grade: unit.grade },
-    threshold: MASTERY[unit.track === "adv" ? "adv" : "core"],
+    threshold: masteryThresholds()[unit.track === "adv" ? "adv" : "core"],
     questions: picked.map(p => publicQuestion(p.topicId, p.idx))
   });
 });
@@ -773,7 +790,7 @@ api.post("/unit-test/submit", requireAuth, (req, res) => {
 
   const total = sess.ids.length;
   const pct = Math.round((score / total) * 100);
-  const threshold = MASTERY[unit.track === "adv" ? "adv" : "core"];
+  const threshold = masteryThresholds()[unit.track === "adv" ? "adv" : "core"];
   const passed = pct >= threshold;
   const parts = units_.breakdown(results, unit);
   const ts = now();
@@ -1050,7 +1067,9 @@ api.post("/practice/answer", requireAuth, (req, res) => {
 function rewardRound(learnerId, topicId, { score, total, pct, hintsUsed = 0, contest = false }) {
   const track = trackOf(topicId) || "core";
   const pts = rewards.pointsFor({ pct, total, track, hintsUsed });
-  if (pts > 0) rewards.award(learnerId, "points", `round:${topicId}`, pts);
+  /* Attributed to the track the work was on, so levels can be reported per
+     subject rather than as one number that says nothing about which. */
+  if (pts > 0) rewards.award(learnerId, "points", `round:${topicId}`, pts, track);
 
   const earned = [];
   const give = code => { if (rewards.award(learnerId, "badge", code)) earned.push(code); };
@@ -1078,11 +1097,30 @@ function rewardRound(learnerId, topicId, { score, total, pct, hintsUsed = 0, con
     .get(learnerId, topicId).c;
   if (attempts >= 2 && pct >= bar) give("persistent");
 
+  /* Spend a freeze on yesterday BEFORE reading the streak, so a protected gap
+     is already bridged by the time the number is taken. Doing it after would
+     report a broken streak once, on the very round that saved it. */
+  const froze = rewards.useFreezeIfNeeded(learnerId);
   const st = rewards.streak(learnerId);
   if (st >= 3) give("streak_3");
   if (st >= 7) give("streak_7");
+  /* Earned after the streak is known, so a week of practice grants its
+     freeze on the day it is completed. */
+  rewards.grantFreezes(learnerId);
 
-  return { points: pts, badges: earned.map(c => ({ code: c, ...rewards.BADGES[c] })), streak: st };
+  /* Everything else in the catalogue is decided from the learner's record
+     rather than from this one event, so a badge added later is earned
+     retroactively by whoever already qualifies instead of only by children
+     who happen to do the thing again. */
+  for (const code of rewards.evaluateBadges(learnerId, rewards.award,
+        { streak: st, trackOf, secOf: t => (QUESTIONS[t]?.[0]?.sec ?? null) }))
+    if (!earned.includes(code)) earned.push(code);
+
+  return {
+    points: pts, badges: earned.map(c => ({ code: c, ...rewards.BADGES[c] })), streak: st,
+    freezes: rewards.freezeBalance(learnerId),
+    freezeUsed: froze.used ? froze.day : null
+  };
 }
 
 api.get("/learners/:id/rewards", requireAuth, (req, res) => {
@@ -1090,6 +1128,7 @@ api.get("/learners/:id/rewards", requireAuth, (req, res) => {
   res.json({
     ...rewards.totals(req.params.id),
     streak: rewards.streak(req.params.id),
+    freezes: { balance: rewards.freezeBalance(req.params.id), max: rewards.MAX_FREEZES },
     catalogue: rewards.BADGES
   });
 });
@@ -1183,6 +1222,13 @@ api.post("/contest/submit", requireAuth, (req, res) => {
     byTopic: Object.values(byTopic).map(t => ({ ...t, pct: Math.round((t.correct / t.asked) * 100) }))
               .sort((a, b) => a.pct - b.pct)
   });
+
+  /* Fired AFTER the response and never awaited: a school's slow or broken
+     endpoint must not hold up a child who has just finished a timed paper.
+     emit() swallows its own failures and records them for the admin view. */
+  webhooks.emit("contest.completed", {
+    learnerId: sess.learnerId, format: sess.format, score, total, pct, seconds, expired
+  }).catch(() => {});
 });
 
 api.get("/learners/:id/contests", requireAuth, (req, res) => {
@@ -1241,14 +1287,122 @@ api.post("/classes/join", requireAuth, (req, res) => {
   res.json({ joined: { classId: cls.id, name: cls.name } });
 });
 
+/* ---------------- groups and differentiation (spec 4.3.2) ----------------
+   A class is rarely one group working at one level. Groups let a teacher set
+   different work for different children without creating a second class and
+   splitting the register in half. */
+api.post("/classes/:id/groups", requireAuth, requireTeacher, (req, res) => {
+  if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
+  const name = String(req.body?.name || "").trim();
+  if (!name) return res.status(400).json({ error: "missing_name" });
+  const id = randomUUID();
+  db.prepare("INSERT INTO class_groups (id, class_id, name, created_at) VALUES (?,?,?,?)")
+    .run(id, req.params.id, name, now());
+  audit(req.user.id, "class.group.created", `${req.params.id}:${name}`, req);
+  res.json({ group: { id, name, members: [] } });
+});
+
+api.get("/classes/:id/groups", requireAuth, requireTeacher, (req, res) => {
+  if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
+  const groups = db.prepare("SELECT id, name FROM class_groups WHERE class_id=? ORDER BY name").all(req.params.id);
+  res.json({
+    groups: groups.map(g => ({
+      id: g.id, name: g.name,
+      members: db.prepare(`SELECT l.id, l.name FROM group_members gm
+                           JOIN learners l ON l.id = gm.learner_id WHERE gm.group_id=?`).all(g.id)
+    }))
+  });
+});
+
+api.post("/classes/:id/groups/:groupId/members", requireAuth, requireTeacher, (req, res) => {
+  if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
+  const group = db.prepare("SELECT * FROM class_groups WHERE id=? AND class_id=?")
+    .get(req.params.groupId, req.params.id);
+  if (!group) return res.status(404).json({ error: "unknown_group" });
+  const { learnerId } = req.body || {};
+  /* Only a learner already in the class may be grouped. Without this a
+     teacher could pull any learner id into their group and, through a group
+     assignment, reach a child who never joined their class. */
+  const inClass = db.prepare("SELECT 1 FROM class_members WHERE class_id=? AND learner_id=?")
+    .get(req.params.id, learnerId);
+  if (!inClass) return res.status(400).json({ error: "not_in_class" });
+  db.prepare("INSERT OR IGNORE INTO group_members (group_id, learner_id) VALUES (?,?)")
+    .run(group.id, learnerId);
+  res.json({ ok: true });
+});
+
 api.post("/classes/:id/assignments", requireAuth, requireTeacher, (req, res) => {
   if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
-  const { topicId, tier, dueAt } = req.body || {};
+  const { topicId, tier, dueAt, groupId } = req.body || {};
   if (!QUESTIONS[topicId]) return res.status(400).json({ error: "unknown_topic" });
+  if (groupId) {
+    const group = db.prepare("SELECT 1 FROM class_groups WHERE id=? AND class_id=?").get(groupId, req.params.id);
+    if (!group) return res.status(404).json({ error: "unknown_group" });
+  }
   const id = randomUUID();
-  db.prepare("INSERT INTO assignments (id, class_id, topic_id, tier, due_at, created_at) VALUES (?,?,?,?,?,?)")
-    .run(id, req.params.id, topicId, tier || null, dueAt || null, now());
-  res.json({ assignment: { id, topicId, tier: tier || null, dueAt: dueAt || null } });
+  db.prepare("INSERT INTO assignments (id, class_id, topic_id, tier, due_at, created_at, group_id) VALUES (?,?,?,?,?,?,?)")
+    .run(id, req.params.id, topicId, tier || null, dueAt || null, now(), groupId || null);
+  res.json({ assignment: { id, topicId, tier: tier || null, dueAt: dueAt || null, groupId: groupId || null } });
+});
+
+/* An individual accommodation: a later deadline or an easier tier for one
+   child on one assignment. Recorded against the assignment rather than as a
+   second assignment, so the teacher keeps one thing to track and one place
+   that says who is working to a different arrangement. */
+api.put("/assignments/:id/accommodations/:learnerId", requireAuth, requireTeacher, (req, res) => {
+  const a = db.prepare("SELECT * FROM assignments WHERE id=?").get(req.params.id);
+  if (!a) return res.status(404).json({ error: "unknown_assignment" });
+  if (!ownClass(req, a.class_id)) return res.status(403).json({ error: "not_your_class" });
+  const inClass = db.prepare("SELECT 1 FROM class_members WHERE class_id=? AND learner_id=?")
+    .get(a.class_id, req.params.learnerId);
+  if (!inClass) return res.status(400).json({ error: "not_in_class" });
+
+  const { tier, dueAt, note } = req.body || {};
+  if (tier && !TIERS.some(t => t.id === tier)) return res.status(400).json({ error: "unknown_tier" });
+  db.prepare(`INSERT INTO assignment_accommodations (assignment_id, learner_id, tier, due_at, note, set_at)
+              VALUES (?,?,?,?,?,?)
+              ON CONFLICT(assignment_id, learner_id) DO UPDATE SET
+                tier=excluded.tier, due_at=excluded.due_at, note=excluded.note, set_at=excluded.set_at`)
+    .run(a.id, req.params.learnerId, tier || null, dueAt || null, note || null, now());
+  audit(req.user.id, "assignment.accommodation", `${a.id}:${req.params.learnerId}`, req);
+  res.json({ ok: true, accommodation: { tier: tier || null, dueAt: dueAt || null, note: note || null } });
+});
+
+/* What THIS learner is actually assigned, with group targeting and any
+   accommodation already applied. The teacher's view and the child's view are
+   built from the same rows, so an extension a teacher grants is an extension
+   the child can see — an accommodation the learner's own list does not
+   reflect is worth nothing to the person it was granted for. */
+api.get("/learners/:id/assignments", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const learnerId = req.params.id;
+  const rows = db.prepare(`
+    SELECT a.*, c.name AS class_name FROM assignments a
+    JOIN classes c ON c.id = a.class_id
+    JOIN class_members cm ON cm.class_id = a.class_id AND cm.learner_id = ?
+    WHERE a.group_id IS NULL
+       OR a.group_id IN (SELECT group_id FROM group_members WHERE learner_id = ?)
+    ORDER BY a.created_at DESC`).all(learnerId, learnerId);
+
+  res.json({
+    assignments: rows.map(a => {
+      const acc = db.prepare("SELECT * FROM assignment_accommodations WHERE assignment_id=? AND learner_id=?")
+        .get(a.id, learnerId);
+      return {
+        id: a.id, className: a.class_name, topicId: a.topic_id,
+        tier: acc?.tier || a.tier || null,
+        dueAt: acc?.due_at || a.due_at || null,
+        groupAssignment: Boolean(a.group_id),
+        /* Named rather than hidden: a child should be able to see that their
+           deadline is different, and why, instead of wondering whether the
+           screen is wrong. */
+        accommodated: Boolean(acc),
+        accommodationNote: acc?.note || null,
+        classTier: a.tier || null,
+        classDueAt: a.due_at || null
+      };
+    })
+  });
 });
 
 /* Class progress: one row per learner per assignment, plus a topic heatmap. */
@@ -1344,19 +1498,70 @@ api.get("/admin/retention", requireAuth, requireAdmin, (req, res) => {
   const oldest = db.prepare("SELECT MIN(finished_at) m FROM runs").get().m;
   audit(req.user.id, "admin.retention.read", null, req);
   res.json({
+    /* Rendered from the same object the sweep enforces, so what an admin is
+       told and what the code actually does cannot drift apart. */
     policy: {
-      auditLog: "retained while the account exists; deleted with the account",
-      learnerWork: "retained while the learner exists; deleted with the learner or the account",
-      sessions: "expire after 30 days",
+      ...retention.policyReport(),
       erasure: "self-service via DELETE /api/me, cascading to learners, progress, runs and mistakes"
     },
+    enforcedBy: "a scheduled sweep; see POST /api/admin/retention/sweep",
     oldestRecord: oldest,
     counts: {
       auditEntries: db.prepare("SELECT COUNT(*) c FROM audit_log").get().c,
       runs: db.prepare("SELECT COUNT(*) c FROM runs").get().c,
-      mistakes: db.prepare("SELECT COUNT(*) c FROM mistakes").get().c
+      mistakes: db.prepare("SELECT COUNT(*) c FROM mistakes").get().c,
+      sessions: db.prepare("SELECT COUNT(*) c FROM sessions").get().c
     }
   });
+});
+
+/* Mastery thresholds (spec 7.6). Readable by any signed-in user, because the
+   bar a learner is being held to is not a secret from them; changeable by an
+   administrator only.
+
+   Deliberately platform-wide rather than per class. A learner can belong to
+   more than one class, and per-class thresholds would mean the same topic is
+   simultaneously mastered and not mastered depending on which teacher is
+   looking — with no non-arbitrary rule for which one wins. Per-class needs a
+   decision about precedence first, not just a column. */
+/* Per-track ability profile (spec 6.6). Reported as two separate estimates,
+   never averaged into one: the whole point of holding them apart is that a
+   learner can be in different places in core and advanced at the same time. */
+api.get("/learners/:id/tracks", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  res.json({ tracks: trackmodel.profile(req.params.id) });
+});
+
+api.get("/settings/mastery", requireAuth, (_req, res) => {
+  res.json({
+    thresholds: masteryThresholds(),
+    defaults: settings.DEFAULT_MASTERY,
+    range: { min: settings.MASTERY_MIN, max: settings.MASTERY_MAX }
+  });
+});
+
+api.put("/admin/settings/mastery", requireAuth, requireAdmin, (req, res) => {
+  const { core, adv } = req.body || {};
+  const result = settings.setMasteryThresholds({ core, adv }, req.user.id);
+  if (!result.ok) return res.status(400).json({ error: "invalid_threshold", message: result.error });
+  audit(req.user.id, "admin.settings.mastery", `core=${result.thresholds.core} adv=${result.thresholds.adv}`, req);
+  res.json({ ok: true, thresholds: result.thresholds });
+});
+
+api.delete("/admin/settings/mastery", requireAuth, requireAdmin, (req, res) => {
+  const thresholds = settings.resetMasteryThresholds();
+  audit(req.user.id, "admin.settings.mastery.reset", null, req);
+  res.json({ ok: true, thresholds });
+});
+
+/* Run the retention sweep now. Scheduled in production; exposed here so an
+   admin can enforce the policy on demand and see exactly what it removed —
+   deletion that cannot be observed is hard to trust and harder to audit. */
+api.post("/admin/retention/sweep", requireAuth, requireAdmin, (req, res) => {
+  const { at, removed } = retention.sweep();
+  audit(req.user.id, "admin.retention.sweep",
+        Object.entries(removed).map(([k, v]) => `${k}=${v}`).join(" "), req);
+  res.json({ ok: true, at, removed, lastSweptAt: retention.lastSweptAt() });
 });
 
 /* Audit access is itself auditable. */
@@ -1477,8 +1682,8 @@ api.get("/learners/:id/readiness", requireAuth, (req, res) => {
   const progress = db.prepare("SELECT topic_id, tier, best_pct FROM progress WHERE learner_id = ?").all(id);
   const contests = db.prepare("SELECT pct, expired, seconds, limit_secs FROM contests WHERE learner_id = ? ORDER BY finished_at DESC LIMIT 10").all(id);
 
-  const advMastered = progress.filter(p => trackOf(p.topic_id) === "adv" && p.best_pct >= MASTERY.adv);
-  const coreMastered = progress.filter(p => trackOf(p.topic_id) === "core" && p.best_pct >= MASTERY.core);
+  const advMastered = progress.filter(p => trackOf(p.topic_id) === "adv" && p.best_pct >= masteryThresholds().adv);
+  const coreMastered = progress.filter(p => trackOf(p.topic_id) === "core" && p.best_pct >= masteryThresholds().core);
   const contestsRun = contests.length;
   const contestAvg = contestsRun ? Math.round(contests.reduce((a, c) => a + c.pct, 0) / contestsRun) : 0;
   // Running out of time is a different problem from getting things wrong, and
@@ -1580,6 +1785,341 @@ api.get("/classes/:id/leaderboard", requireAuth, (req, res) => {
     name: settings.displayNames || mineIds.has(r.learnerId) || isTeacher ? r.name : `Learner ${i + 1}`
   }));
   res.json({ enabled: true, displayNames: settings.displayNames, board });
+});
+
+/* ---------------- content review workflow (spec 8.5, 3.5.5) ---------------- */
+
+/* Preview a topic exactly as a learner receives it.
+
+   Built from the same publicQuestion() the learners' endpoints use, rather
+   than a reviewer-specific rendering. A preview assembled separately would
+   drift from what is actually served, and a reviewer would end up approving a
+   version of the content no child ever sees. */
+api.get("/admin/content/:topicId/preview", requireAuth, requireAdmin, (req, res) => {
+  const bank = QUESTIONS[req.params.topicId];
+  if (!bank) return res.status(404).json({ error: "unknown_topic" });
+  const asStudent = bank.map((_, i) => publicQuestion(req.params.topicId, i));
+  const raw = JSON.stringify(asStudent);
+  res.json({
+    topicId: req.params.topicId,
+    count: bank.length,
+    review: review.statusFor(req.params.topicId, bank),
+    /* The reviewer sees the answers separately and deliberately, not mixed
+       into the student view — the point of previewing as a student is to see
+       what they see. */
+    asStudent,
+    answers: bank.map((q, i) => ({
+      id: `${req.params.topicId}:${i}`,
+      answer: q.ans ?? q.a ?? q.ansP ?? q.ansOrder ?? q.aMulti ?? q.ansPlot ?? null,
+      explanation: q.expl
+    })),
+    leakCheck: ["\"ans\"", "\"expl\"", "\"ansP\""].every(k => !raw.includes(k))
+  });
+});
+
+api.get("/admin/content/:topicId/review", requireAuth, requireAdmin, (req, res) => {
+  const bank = QUESTIONS[req.params.topicId];
+  if (!bank) return res.status(404).json({ error: "unknown_topic" });
+  res.json({ status: review.statusFor(req.params.topicId, bank), history: review.historyFor(req.params.topicId) });
+});
+
+api.post("/admin/content/:topicId/review", requireAuth, requireAdmin, (req, res) => {
+  const bank = QUESTIONS[req.params.topicId];
+  if (!bank) return res.status(404).json({ error: "unknown_topic" });
+  const { status, notes } = req.body || {};
+  /* Signed off against the hash of what is in front of the reviewer now, so
+     the approval cannot be carried forward onto content nobody looked at. */
+  const result = review.record({
+    topicId: req.params.topicId, hash: review.contentHash(bank),
+    status, reviewerId: req.user.id, notes
+  });
+  if (!result.ok) return res.status(400).json({ error: "invalid_status", message: result.error });
+  audit(req.user.id, "content.review", `${req.params.topicId}:${status}`, req);
+  res.json({ ok: true, status: review.statusFor(req.params.topicId, bank) });
+});
+
+/* Which topics are approved, which have never been looked at, and which have
+   been edited since sign-off. */
+api.get("/admin/content/review-status", requireAuth, requireAdmin, (_req, res) => {
+  const topics = Object.keys(QUESTIONS).filter(t => QUESTIONS[t]?.length).sort();
+  const rows = topics.map(t => review.statusFor(t, QUESTIONS[t]));
+  const tally = {};
+  for (const r of rows) tally[r.state] = (tally[r.state] || 0) + 1;
+  res.json({ total: rows.length, tally, topics: rows });
+});
+
+/* ---------------- competition teams (spec 4.3.5) ----------------
+   A team is a squad within a class that enters contests together. Managed by
+   the class teacher, because team selection is a decision about children that
+   belongs to an adult who knows them. */
+api.post("/classes/:id/teams", requireAuth, requireTeacher, (req, res) => {
+  if (!ownClass(req, req.params.id)) return res.status(403).json({ error: "not_your_class" });
+  const name = String(req.body?.name || "").trim();
+  if (!name) return res.status(400).json({ error: "missing_name" });
+  const id = randomUUID();
+  db.prepare("INSERT INTO teams (id, class_id, name, created_at) VALUES (?,?,?,?)")
+    .run(id, req.params.id, name, now());
+  audit(req.user.id, "team.created", `${req.params.id}:${name}`, req);
+  res.json({ team: { id, name, members: [] } });
+});
+
+api.post("/teams/:id/members", requireAuth, requireTeacher, (req, res) => {
+  const team = db.prepare("SELECT * FROM teams WHERE id=?").get(req.params.id);
+  if (!team) return res.status(404).json({ error: "unknown_team" });
+  if (!ownClass(req, team.class_id)) return res.status(403).json({ error: "not_your_class" });
+  const { learnerId } = req.body || {};
+  /* Only a member of this team's class. Without it a teacher could enter a
+     child from another school into their squad. */
+  if (!db.prepare("SELECT 1 FROM class_members WHERE class_id=? AND learner_id=?")
+         .get(team.class_id, learnerId))
+    return res.status(400).json({ error: "not_in_class" });
+
+  /* One team per learner PER CLASS. Scoped to this class deliberately: a
+     learner in two classes has two teachers who each pick squads, and a
+     platform-wide rule let whichever teacher acted first lock the other out
+     of their own class — with an error telling them to undo something they
+     had no permission to touch and no way to see. */
+  const existing = db.prepare("SELECT team_id FROM team_members WHERE learner_id=? AND class_id=?")
+    .get(learnerId, team.class_id);
+  if (existing && existing.team_id !== team.id)
+    return res.status(409).json({
+      error: "already_on_a_team",
+      message: "That learner is already on another team in this class. Remove them from it first."
+    });
+  db.prepare("INSERT OR IGNORE INTO team_members (learner_id, team_id, class_id, joined_at) VALUES (?,?,?,?)")
+    .run(learnerId, team.id, team.class_id, now());
+  res.json({ ok: true });
+});
+
+api.delete("/teams/:id/members/:learnerId", requireAuth, requireTeacher, (req, res) => {
+  const team = db.prepare("SELECT * FROM teams WHERE id=?").get(req.params.id);
+  if (!team) return res.status(404).json({ error: "unknown_team" });
+  if (!ownClass(req, team.class_id)) return res.status(403).json({ error: "not_your_class" });
+  const r = db.prepare("DELETE FROM team_members WHERE team_id=? AND learner_id=?")
+    .run(team.id, req.params.learnerId);
+  res.json({ ok: true, removed: r.changes > 0 });
+});
+
+/* Team standings for a class.
+
+   A team's score is the SUM of its members' best papers, and the team size is
+   reported alongside it, because a sum rewards the bigger squad. Reporting
+   the average as the headline would do the opposite and reward the smallest.
+   Both numbers are given so neither shape of unfairness is hidden behind one
+   figure a teacher cannot interrogate. */
+api.get("/classes/:id/teams", requireAuth, (req, res) => {
+  const cls = db.prepare("SELECT * FROM classes WHERE id=?").get(req.params.id);
+  if (!cls) return res.status(404).json({ error: "unknown_class" });
+  const isTeacher = cls.teacher_id === req.user.id;
+  const mine = db.prepare(`SELECT l.id FROM class_members m JOIN learners l ON l.id=m.learner_id
+                           WHERE m.class_id=? AND l.user_id=?`).all(cls.id, req.user.id);
+  if (!isTeacher && mine.length === 0) return res.status(403).json({ error: "not_in_this_class" });
+
+  const format = req.query.format || null;
+  const settings = classSettings(cls.id);
+  const mineIds = new Set(mine.map(m => m.id));
+
+  const teams = db.prepare("SELECT id, name FROM teams WHERE class_id=? ORDER BY name").all(cls.id)
+    .map(t => {
+      const members = db.prepare(`SELECT l.id, l.name FROM team_members tm
+                                  JOIN learners l ON l.id = tm.learner_id WHERE tm.team_id=?`).all(t.id);
+      const scores = members.map(m => {
+        const row = db.prepare(`SELECT pct FROM contests WHERE learner_id=? ${format ? "AND format=?" : ""}
+                                AND expired = 0 ORDER BY pct DESC, seconds ASC LIMIT 1`)
+          .get(...(format ? [m.id, format] : [m.id]));
+        return row ? row.pct : null;
+      });
+      const scored = scores.filter(v => v !== null);
+      return {
+        id: t.id, name: t.name, size: members.length,
+        /* Names follow the same rule as every other board here: shown only if
+           the teacher allowed it, with a parent always able to see their own
+           child. */
+        members: members.map(m => ({
+          id: m.id,
+          name: settings.displayNames || isTeacher || mineIds.has(m.id) ? m.name : "A learner",
+          you: mineIds.has(m.id)
+        })),
+        entered: scored.length,
+        totalPct: scored.reduce((a, b) => a + b, 0),
+        averagePct: scored.length ? Math.round(scored.reduce((a, b) => a + b, 0) / scored.length) : null
+      };
+    })
+    .sort((a, b) => b.totalPct - a.totalPct || (b.averagePct ?? 0) - (a.averagePct ?? 0));
+
+  res.json({ format: format || "all", teams });
+});
+
+/* ---------------- avatar wardrobe (spec 5.3, 5.7) ---------------- */
+api.get("/learners/:id/avatar", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  res.json({ wardrobe: avatar.wardrobe(req.params.id) });
+});
+
+api.put("/learners/:id/avatar/:accessoryId", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const on = req.body?.equipped !== false;
+  const result = avatar.equip(req.params.id, req.params.accessoryId, on);
+  if (!result.ok) return res.status(result.error === "unknown_accessory" ? 404 : 403).json(result);
+  res.json({ ok: true, wardrobe: result.wardrobe });
+});
+
+/* ---------------- challenge of the day and daily goals (spec 4.1.2) ---------------- */
+api.get("/learners/:id/today", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const key = daily.todayKey();
+  const pick = daily.resolveChallenge(key, QUESTIONS);
+  const attempt = daily.attemptFor(req.params.id, key);
+  res.json({
+    goals: daily.todayProgress(req.params.id),
+    streak: rewards.streak(req.params.id),
+    challenge: pick
+      ? {
+          date: key,
+          question: attempt ? null : publicQuestion(pick.topicId, pick.idx),
+          topicId: pick.topicId,
+          /* Answered already: the question is not served again, so the
+             explanation cannot be farmed for a second attempt. */
+          done: Boolean(attempt),
+          correct: attempt ? !!attempt.correct : null
+        }
+      : null
+  });
+});
+
+api.post("/learners/:id/today/answer", requireAuth, (req, res) => {
+  if (!ownLearner(req, req.params.id)) return res.status(403).json({ error: "not_your_learner" });
+  const key = daily.todayKey();
+  const pick = daily.resolveChallenge(key, QUESTIONS);
+  if (!pick) return res.status(404).json({ error: "no_challenge" });
+  if (daily.attemptFor(req.params.id, key))
+    return res.status(409).json({ error: "already_attempted", message: "Today's challenge has already been answered." });
+
+  const q = QUESTIONS[pick.topicId][pick.idx];
+  const { ok, correctAnswer } = gradeAnswer(q, req.body?.answer);
+  const { alreadyDone } = daily.recordAttempt(req.params.id, key, ok);
+  /* Lost the race with a simultaneous submission: report it the same way as
+     an ordinary repeat rather than as a server error. */
+  if (alreadyDone)
+    return res.status(409).json({ error: "already_attempted", message: "Today's challenge has already been answered." });
+
+  /* The challenge counts as practice.
+
+     Streaks are derived from the awards table, so without this a child who
+     answers the challenge every day and does nothing else has a streak of
+     zero, earns no streak badge and is granted no freeze — the one feature
+     built to reward showing up daily would ignore the daily habit. Points are
+     modest and only for a correct answer, so it rewards the attempt without
+     competing with real practice. */
+  /* Turning up counts, whether or not the answer was right.
+
+     A practice round scores zero points at 0% and so does not register as
+     activity, and mirroring that here was the obvious thing to do — but the
+     daily challenge is ONE question, and gating the streak on getting it
+     right means a child who shows up every day and slips once loses the run.
+     The streak is meant to reward the habit; the points reward the answer. */
+  const pts = ok ? 15 : 5;
+  rewards.award(req.params.id, "points", `daily:${key}`, pts, trackOf(pick.topicId) || "core");
+  rewards.grantFreezes(req.params.id);
+  rewards.evaluateBadges(req.params.id, rewards.award,
+    { streak: rewards.streak(req.params.id), trackOf, secOf: t => (QUESTIONS[t]?.[0]?.sec ?? null) });
+  const reward = { points: pts, streak: rewards.streak(req.params.id) };
+  res.json({ correct: ok, correctAnswer, explanation: q.expl, date: key, reward });
+});
+
+/* ---------------- webhooks (spec 9.2) ----------------
+   Admin-only: a webhook is a URL this server will fetch on a schedule set by
+   events, so who may add one is a security decision, not a convenience. */
+api.get("/admin/webhooks", requireAuth, requireAdmin, (_req, res) => {
+  const rows = db.prepare("SELECT id, url, events, active, created_at FROM webhooks ORDER BY created_at DESC").all();
+  res.json({
+    events: webhooks.EVENTS,
+    /* Secrets are never listed. They are shown once, at creation. */
+    webhooks: rows.map(r => ({
+      id: r.id, url: r.url, events: JSON.parse(r.events), active: !!r.active, createdAt: r.created_at,
+      recentDeliveries: db.prepare(`SELECT event, status, error, at FROM webhook_deliveries
+                                    WHERE webhook_id=? ORDER BY at DESC, rowid DESC LIMIT 5`).all(r.id)
+    }))
+  });
+});
+
+api.post("/admin/webhooks", requireAuth, requireAdmin, async (req, res) => {
+  const { url, events } = req.body || {};
+  const target = await webhooks.validateTarget(url);
+  if (!target.ok) return res.status(400).json({ error: "invalid_url", message: target.error });
+  const result = await webhooks.register({ url, events, createdBy: req.user.id });
+  if (!result.ok) return res.status(400).json({ error: "invalid_events", message: result.error });
+  audit(req.user.id, "admin.webhook.created", `${result.webhook.id}:${url}`, req);
+  res.json({ webhook: result.webhook, note: "The secret is shown once. Store it now; it cannot be read back." });
+});
+
+api.delete("/admin/webhooks/:id", requireAuth, requireAdmin, (req, res) => {
+  const r = db.prepare("DELETE FROM webhooks WHERE id=?").run(req.params.id);
+  if (!r.changes) return res.status(404).json({ error: "unknown_webhook" });
+  audit(req.user.id, "admin.webhook.deleted", req.params.id, req);
+  res.json({ ok: true });
+});
+
+/* Contest leaderboard (spec 13.12).
+
+   Built on exactly the same guarantees as the points board above rather than
+   as a second, looser ranking: off until a teacher turns it on, anonymised
+   unless they choose otherwise, and scoped to one class. A contest board is
+   the most tempting place to add a global ranking and the worst place to do
+   it — a child who has just been timed and scored is precisely the child who
+   should not then be ranked against strangers.
+
+   Only each learner's BEST attempt at a format counts. Ranking every attempt
+   would put the child with the most free time on top rather than the child
+   who did best, and would quietly reward re-sitting the same paper. */
+api.get("/classes/:id/contests/leaderboard", requireAuth, (req, res) => {
+  const cls = db.prepare("SELECT * FROM classes WHERE id=?").get(req.params.id);
+  if (!cls) return res.status(404).json({ error: "unknown_class" });
+
+  const isTeacher = cls.teacher_id === req.user.id;
+  const mine = db.prepare(`SELECT l.id FROM class_members m JOIN learners l ON l.id=m.learner_id
+                           WHERE m.class_id=? AND l.user_id=?`).all(cls.id, req.user.id);
+  if (!isTeacher && mine.length === 0) return res.status(403).json({ error: "not_in_this_class" });
+
+  const settings = classSettings(cls.id);
+  if (!settings.leaderboardOn)
+    return res.json({ enabled: false, reason: "The teacher has not turned on the leaderboard for this class." });
+
+  const format = req.query.format || null;
+  const members = db.prepare(`SELECT l.id, l.name FROM class_members m
+    JOIN learners l ON l.id = m.learner_id WHERE m.class_id=?`).all(cls.id);
+  const mineIds = new Set(mine.map(m => m.id));
+
+  /* Best attempt per learner: highest percentage, and among equal
+     percentages the faster paper. Ranking a contest by score alone leaves
+     ties in whatever order the rows happen to come back in, which is not a
+     result — time is the tie-break every contest already uses. */
+  const best = members.map(m => {
+    const row = db.prepare(`SELECT pct, seconds, format, finished_at FROM contests
+                            WHERE learner_id = ? ${format ? "AND format = ?" : ""} AND expired = 0
+                            ORDER BY pct DESC, seconds ASC LIMIT 1`)
+      .get(...(format ? [m.id, format] : [m.id]));
+    return row ? { learnerId: m.id, name: m.name, ...row } : null;
+  }).filter(Boolean)
+    .sort((a, b) => b.pct - a.pct || a.seconds - b.seconds);
+
+  const board = best.map((r, i) => ({
+    rank: i + 1,
+    pct: r.pct,
+    seconds: r.seconds,
+    format: r.format,
+    you: mineIds.has(r.learnerId),
+    name: settings.displayNames || mineIds.has(r.learnerId) || isTeacher ? r.name : `Learner ${i + 1}`
+  }));
+
+  res.json({
+    enabled: true, format: format || "all", displayNames: settings.displayNames,
+    /* Said plainly, because a board that silently omits people reads as a
+       ranking of everyone: members with no completed paper are absent, not
+       last. */
+    entrants: board.length, classSize: members.length,
+    board
+  });
 });
 
 /* ---------------- comic lessons (spec 3.2.1, 4.1.3) ----------------

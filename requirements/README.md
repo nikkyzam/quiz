@@ -30,7 +30,7 @@ reading.
 ## Where things stand
 
 Run `npm run status` for live numbers. At the last update: 124 requirements —
-41 done, 57 partial, 14 todo, 11 blocked, 1 deferred.
+43 done, 55 partial, 14 todo, 11 blocked, 1 deferred.
 
 Two checks (`question-types`, `reliability`) run without being named as evidence
 by any requirement, because the requirements they cover are `partial`. They

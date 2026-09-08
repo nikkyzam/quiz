@@ -15,7 +15,23 @@ const DB = "./data/verify.db";
 process.env.DB_FILE = "app/server/data/verify.db";
 
 export async function withServer(fn) {
-  rmSync("app/server/" + DB.replace("./", ""), { force: true });
+  /* Reset the whole database, sidecars included.
+
+     SQLite in WAL mode keeps two files beside the database: -wal holds
+     committed pages not yet folded back in, and -shm indexes it. Deleting
+     only the main file leaves both behind describing a database that no
+     longer exists, and the next run starts a fresh database next to a
+     write-ahead log belonging to the old one. That mismatch surfaces later,
+     somewhere else, as "disk I/O error" from whichever connection happens to
+     touch it first — which is why the failures looked random and landed on
+     unrelated checks.
+
+     The server must be gone before this runs, which is what the awaited exit
+     in the `finally` below guarantees. An earlier attempt at this deleted the
+     sidecars while the previous server was still checkpointing into them and
+     made things reliably worse. */
+  const dbPath = "app/server/" + DB.replace("./", "");
+  for (const suffix of ["", "-wal", "-shm"]) rmSync(dbPath + suffix, { force: true });
   const srv = spawn("node", ["src/index.js"], {
     cwd: "app/server",
     env: { ...process.env, PORT: String(PORT), DB_FILE: DB,
@@ -31,7 +47,23 @@ export async function withServer(fn) {
     await waitFor(`${BASE}/health`);
     return await fn();
   } finally {
+    /* Wait for the process to actually exit, not just for the signal to be
+       sent. kill() returns immediately; the server still has to close its
+       database and check the write-ahead log back in. Returning before that
+       hands the next run a database that is still being written to. */
+    /* If the child has already gone, there is no "exit" event left to hear,
+       so check first rather than waiting for one that will never arrive. The
+       fallback timer is deliberately NOT unref'd: an unref'd timer does not
+       hold the event loop open, so when it was the only thing left Node
+       exited with an unsettled top-level await (exit code 13) instead of
+       finishing the run. It is cleared as soon as the race is decided. */
+    const ended = srv.exitCode !== null || srv.signalCode !== null
+      ? Promise.resolve()
+      : new Promise(resolve => srv.once("exit", resolve));
     srv.kill();
+    let timer;
+    await Promise.race([ended, new Promise(r => { timer = setTimeout(r, 5000); })]);
+    clearTimeout(timer);
   }
 }
 
@@ -91,11 +123,18 @@ const assert = (cond, msg) => { if (!cond) throw new Error(msg); };
    answers wrong. Adding a question type used to break several checks at once
    for exactly that reason; adding the type here fixes all of them together. */
 let _bank = null;
-async function correctAnswerFor(qid) {
+async function correctAnswerFor(qid, c) {
   _bank ||= (await import("../app/shared/questions.mjs")).QUESTIONS;
   const [topicId, idxRaw] = String(qid).split(":");
   const q = _bank[topicId]?.[Number(idxRaw)];
-  if (!q) return null;
+  /* Generated questions are rebuilt from a seed and have no bank entry, so
+     there is nothing to read the answer out of. For those the round-trip
+     through /answer is the only route — and it is safe there, because
+     generated items are numeric. */
+  if (!q) {
+    if (!c) return null;
+    return (await post(c, "/answer", { questionId: qid, answer: "__none__" })).body.correctAnswer;
+  }
   switch (q.type) {
     case "mc": return q.a;
     case "order": return q.ansOrder;
@@ -1404,18 +1443,13 @@ export const CHECKS = {
     /* Answer everything correctly; the server must score it accurately. */
     const answers = {};
     for (const q of start.body.questions) {
-      if (q.type === "mc") {
-        for (let i = 0; i < q.opts.length; i++)
-          if ((await post(c, "/answer", { questionId: q.id, answer: i })).body.correct) { answers[q.id] = i; break; }
-      } else if (q.type === "order") {
-        answers[q.id] = (await post(c, "/answer", { questionId: q.id, answer: [] }))
-          .body.correctAnswer.split("  →  ");
-      } else if (q.type === "multi") {
-        const p = await post(c, "/answer", { questionId: q.id, answer: [] });
-        answers[q.id] = p.body.correctAnswer.split(", ").map(t => q.opts.indexOf(t));
-      } else {
-        answers[q.id] = (await post(c, "/answer", { questionId: q.id, answer: "__" })).body.correctAnswer;
-      }
+      /* One helper for every type. This used to be a per-type ladder that
+         fell through to /answer's display string for anything it did not
+         recognise, so the day a new question type reached a contest paper
+         the "perfect" answers were silently wrong and a full-marks paper
+         scored 67%. Intermittently, too — papers are drawn at random, so it
+         failed only when the new type happened to be picked. */
+      answers[q.id] = await correctAnswerFor(q.id, c);
     }
     const done = await post(c, "/contest/submit", { contestId: start.body.contestId, answers });
     assert(done.body.pct === 100, `perfect paper scored ${done.body.pct}%`);
@@ -3288,6 +3322,1684 @@ export const CHECKS = {
     return `${sqli.length} SQLi payloads, XSS, IDOR, cookie forgery, privilege escalation, prototype pollution and path traversal all probed -- no findings. NOT a substitute for professional penetration testing.`;
   },
 
+  /* 5.2 — a catalogue of 100+ badges where every entry is reachable. */
+  "badge-catalogue": async () => {
+    const badges = await import("../app/server/src/badges.js");
+    const rewards = await import("../app/server/src/rewards.js");
+    const { readFileSync } = await import("node:fs");
+
+    const codes = Object.keys(badges.BADGES);
+    assert(codes.length >= 100, `the catalogue holds ${codes.length} badges, short of the 100 the spec asks for`);
+
+    /* Both directions, which is the whole point of holding the condition and
+       the description in one object.
+
+       A badge in the catalogue that nothing can award is a promise to a child
+       that never arrives. A badge awarded by code but missing from the
+       catalogue renders to them as a raw string like "streak_30". Scattered
+       award calls make both possible; here neither is. */
+    for (const [code, b] of Object.entries(badges.BADGES)) {
+      assert(b.name && b.hint, `${code} has no name or hint, so it would render as a raw code`);
+      assert(b.group, `${code} has no group`);
+      assert(typeof b.when === "function" || badges.EVENT_BADGES.includes(code),
+        `${code} is in the catalogue but nothing can award it`);
+    }
+
+    /* Reachable means the condition can actually FIRE, not merely that a
+       predicate exists.
+
+       The first version of this asserted only `typeof b.when === "function"`,
+       which a predicate that can never return true satisfies perfectly well —
+       and eight grade badges were in exactly that state, unearnable because
+       the grade could not be parsed out of a topic id, while this check
+       reported "every one reachable". Evaluating each condition against a
+       maximal record is what turns the claim into evidence. */
+    const maximal = {
+      rounds: 10000, perfectRounds: 10000, masteryRuns: 10000,
+      topicsMastered: 10000, advTopicsMastered: 10000,
+      gradesMastered: 9, strandsMastered: 20,
+      points: 10_000_000, badgesHeld: 1000, streak: 10000,
+      contests: 10000, bestContestPct: 100,
+      diagnostics: 10000, unitTestsPassed: 10000, lessonsCompleted: 10000
+    };
+    const unreachable = Object.entries(badges.BADGES)
+      .filter(([, b]) => typeof b.when === "function" && !b.when(maximal))
+      .map(([c]) => c);
+    assert(unreachable.length === 0,
+      `${unreachable.length} badges can never fire even for a maximal record: ${unreachable.join(", ")}`);
+
+    /* And the ceilings the model actually imposes are real: gradesMastered
+       cannot exceed the number of grades, so a badge asking for more than
+       that is unearnable however hard a child works. */
+    const { CURRICULUM } = await import("../app/shared/curriculum.mjs");
+    const gradeCount = Object.keys(CURRICULUM).length;
+    const overGrade = Object.entries(badges.BADGES)
+      .filter(([c, b]) => c.startsWith("grades_") && typeof b.when === "function" &&
+                          !b.when({ ...maximal, gradesMastered: gradeCount }))
+      .map(([c]) => c);
+    assert(overGrade.length === 0,
+      `these grade badges need more grades than the curriculum has (${gradeCount}): ${overGrade.join(", ")}`);
+
+    /* The grade parser must recognise real topic ids, which is the defect the
+       reachability assertion above missed the first time. */
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+    const authored = Object.keys(QUESTIONS).filter(t => QUESTIONS[t]?.length);
+    const gradeless = authored.filter(t => !/^(k|g[1-8])(-|$)/i.test(t));
+    assert(gradeless.length === 0,
+      `${gradeless.length} authored topic ids carry no parseable grade: ${gradeless.slice(0, 5).join(", ")}`);
+    /* Nothing outside the catalogue is awardable: awards are issued by
+       walking it, and the remaining literal award sites are all catalogued. */
+    const src = readFileSync("app/server/src/routes.js", "utf8") +
+                readFileSync("app/server/src/rewards.js", "utf8");
+    const literals = [...src.matchAll(/give\("([a-z_0-9]+)"\)/g)].map(m => m[1])
+      .concat([...src.matchAll(/award\([^,]+,\s*"badge",\s*"([a-z_0-9]+)"/g)].map(m => m[1]));
+    for (const code of new Set(literals))
+      assert(badges.BADGES[code], `code awards badge "${code}" which is not in the catalogue`);
+
+    /* Subject and meta badges, as the spec names them. */
+    const groups = new Set(Object.values(badges.BADGES).map(b => b.group));
+    for (const needed of ["meta", "breadth", "advanced", "contest", "streak", "mastery"])
+      assert(groups.has(needed), `no ${needed} badges in the catalogue`);
+    assert(codes.filter(c => badges.BADGES[c].group === "meta").length >= 3,
+      "fewer than three meta badges");
+
+    /* Distinct names, or a child collecting two identical-looking badges
+       cannot tell what the second one was for. */
+    const names = Object.values(badges.BADGES).map(b => b.name);
+    assert(new Set(names).size === names.length,
+      `${names.length - new Set(names).size} badges share a name`);
+
+    /* Milestones within a family must be ordered: a badge for 10 rounds must
+       not be earned before the one for 5. */
+    const famAt = (prefix, n, stats) => badges.BADGES[`${prefix}_${n}`].when(stats);
+    assert(famAt("rounds", 5, { rounds: 5 }) && !famAt("rounds", 10, { rounds: 5 }),
+      "round milestones are not ordered");
+    assert(!famAt("points", 1000, { points: 999 }) && famAt("points", 1000, { points: 1000 }),
+      "a points milestone fires on the wrong side of its own boundary");
+
+    /* Earned from the record, so they apply retroactively. */
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "badges@b.com", password: "a-long-enough-pass", name: "B" });
+    const kid = (await post(c, "/learners", { name: "Badge Kid" })).body.learner;
+    for (let i = 0; i < 6; i++)
+      await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+
+    const held = (await c(`/learners/${kid.id}/rewards`)).body.badges.map(b => b.code);
+    assert(held.includes("first_steps"), "the first badge was not awarded");
+    assert(held.includes("rounds_5"), `six rounds did not earn the 5-round badge (held: ${held.join(", ")})`);
+    assert(held.includes("perfect_5"), "five perfect rounds did not earn the perfect-round milestone");
+    assert(!held.includes("rounds_100"), "a badge was awarded for work that has not been done");
+
+    /* Every badge held renders with a name rather than a raw code. */
+    for (const b of (await c(`/learners/${kid.id}/rewards`)).body.badges)
+      assert(b.name && b.name !== b.code, `badge ${b.code} renders without a name`);
+
+    /* Awarded once. Running the engine again must add nothing. */
+    const before = held.length;
+    const again = rewards.evaluateBadges(kid.id, rewards.award, { streak: 1 });
+    assert(again.length === 0, `re-evaluating awarded ${again.length} duplicate badges`);
+    const after = (await c(`/learners/${kid.id}/rewards`)).body.badges.length;
+    assert(after === before, `badge count changed from ${before} to ${after} on re-evaluation`);
+
+    return `${codes.length} badges in ${groups.size} groups, every one reachable and every awardable code catalogued, milestones ordered, earned from the record so they apply retroactively, and awarded once`;
+  },
+
+  /* 8.5 / 3.5.5 — content signed off against the exact version reviewed. */
+  "content-review-workflow": async () => {
+    const review = await import("../app/server/src/review.js");
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+
+    /* The hash is what makes an approval mean something, so its behaviour is
+       pinned first: stable under reformatting, sensitive to meaning. */
+    const bank = [{ q: "2+2?", ans: 4, expl: "Add them." }];
+    assert(review.contentHash(bank) === review.contentHash([{ expl: "Add them.", ans: 4, q: "2+2?" }]),
+      "reordering fields changes the hash, so reformatting the source would revoke every approval");
+    for (const changed of [
+      [{ q: "2+3?", ans: 4, expl: "Add them." }],
+      [{ q: "2+2?", ans: 5, expl: "Add them." }],
+      [{ q: "2+2?", ans: 4, expl: "Different reasoning." }],
+      [{ q: "2+2?", ans: 4, expl: "Add them." }, { q: "3+3?", ans: 6, expl: "Add." }]
+    ]) assert(review.contentHash(bank) !== review.contentHash(changed),
+      `a meaningful change did not change the hash: ${JSON.stringify(changed).slice(0, 60)}`);
+
+    const c = client();
+    const admin = { email: "boss@b.com", password: "a-long-enough-pass" };
+    const reg = await post(c, "/auth/register", { coppaConsent: true, name: "Admin", ...admin });
+    if (reg.status !== 200) await post(c, "/auth/login", admin);
+
+    const topic = "g6-ratios";
+    /* Preview shows what a child sees, built from the same function the
+       learner endpoints use. */
+    const preview = await c(`/admin/content/${topic}/preview`);
+    assert(preview.status === 200, `preview failed (${preview.status})`);
+    assert(preview.body.count === QUESTIONS[topic].length, "the preview does not cover the whole bank");
+    assert(preview.body.leakCheck === true, "the student preview contains answer fields");
+    const studentRaw = JSON.stringify(preview.body.asStudent);
+    for (const leak of ['"ans"', '"expl"', '"ansP"', '"aMulti"'])
+      assert(!studentRaw.includes(leak), `the student view leaked ${leak}`);
+    /* The reviewer still gets the answers, deliberately and separately. */
+    assert(preview.body.answers.length === preview.body.count && preview.body.answers[0].explanation,
+      "the reviewer cannot see the answers they are meant to be checking");
+
+    /* Unreviewed until someone reviews it. */
+    assert(preview.body.review.state === "unreviewed",
+      `a never-reviewed topic reports as ${preview.body.review.state}`);
+
+    const bad = await post(c, `/admin/content/${topic}/review`, { status: "looks-fine" });
+    assert(bad.status === 400, "an unrecognised review status was accepted");
+
+    const approve = await post(c, `/admin/content/${topic}/review`,
+      { status: "approved", notes: "Checked against the scheme of work." });
+    assert(approve.status === 200 && approve.body.status.state === "approved",
+      `approval did not take (${approve.status}, ${JSON.stringify(approve.body.status)})`);
+
+    /* THE property. An approval recorded against a topic id alone survives
+       every later edit, so a bank approved in March still reads as approved
+       after a June rewrite nobody checked — which is worse than no approval,
+       because it looks like assurance. Editing the content must invalidate
+       the sign-off. */
+    const original = QUESTIONS[topic];
+    const edited = [...original,
+      { sec: original[0].sec, type: "in", q: "Newly added, unreviewed?", ans: 1, expl: "..." }];
+
+    /* Evaluated against the edited bank directly rather than by mutating the
+       shared module: the server holds its own copy of the content in its own
+       process, so changing it here would prove nothing about what the server
+       reports. statusFor takes the bank as an argument precisely so the
+       question "is THIS version approved?" can be asked of any version. */
+    const stale = review.statusFor(topic, edited);
+    assert(stale.state === "stale",
+      `an edited bank reports ${stale.state}, so the old approval carried forward onto content nobody reviewed`);
+    assert(stale.reviewedHash && stale.reviewedHash !== stale.hash,
+      "the stale state does not record which version was actually approved");
+    assert(/changed since/.test(stale.message || ""), "the stale state does not explain itself");
+
+    /* The record of who approved what is kept, not overwritten. */
+    const history = review.historyFor(topic);
+    assert(history.length >= 1 && history[0].content_hash === review.contentHash(original),
+      "the approval history does not retain the version that was signed off");
+
+    /* And the unchanged content is still approved — the sign-off is about the
+       content, not about the clock. */
+    const restored = await c(`/admin/content/${topic}/review`);
+    assert(restored.body.status.state === "approved",
+      `the unchanged approved content reports as ${restored.body.status.state}`);
+
+    /* Changes requested is a distinct outcome, not a silent non-approval. */
+    await post(c, `/admin/content/${topic}/review`,
+      { status: "changes_requested", notes: "Question 3 gives the answer away." });
+    const rejected = await c(`/admin/content/${topic}/review`);
+    assert(rejected.body.status.state === "changes_requested",
+      "requesting changes left the topic looking approved");
+    assert(rejected.body.status.notes, "the reviewer's notes were not kept");
+
+    /* A whole-estate view: what is approved, what nobody has looked at, and
+       what has drifted since. */
+    const overview = await c("/admin/content/review-status");
+    assert(overview.status === 200 && overview.body.total > 0, "the review overview is empty");
+    assert(typeof overview.body.tally.unreviewed === "number",
+      "the overview does not report how much content has never been reviewed");
+
+    /* The record outlives the reviewer's account.
+
+       reviewer_id cascaded on users(id), so deleting the account of someone
+       who had signed off 40 topics deleted all 40 approvals with it, and
+       every one of those topics silently reverted to "never reviewed" — the
+       exact record this table exists to hold. Erasing a person is a request
+       this product honours; erasing the fact that a review happened is a
+       different request nobody made. */
+    const { DatabaseSync: DBrev } = await import("node:sqlite");
+    const { randomUUID: uuid } = await import("node:crypto");
+    const revDb = new DBrev("app/server/data/verify.db");
+    const ghost = uuid();
+    revDb.prepare(`INSERT INTO users (id, email, pass_hash, pass_salt, name, role, created_at)
+                   VALUES (?,?,?,?,?,?,?)`)
+      .run(ghost, `ghost-${ghost}@b.com`, "x", "y", "Departing Reviewer", "admin", new Date().toISOString());
+    revDb.prepare(`INSERT INTO content_reviews (id, topic_id, content_hash, status, reviewer_id, notes, at)
+                   VALUES (?,?,?,?,?,?,?)`)
+      .run(uuid(), "g6-percent", "deadbeef", "approved", ghost, "signed off before leaving",
+           new Date().toISOString());
+    const beforeDelete = revDb.prepare("SELECT COUNT(*) c FROM content_reviews WHERE topic_id='g6-percent'").get().c;
+    revDb.prepare("PRAGMA foreign_keys = ON").run();
+    revDb.prepare("DELETE FROM users WHERE id=?").run(ghost);
+    const afterDelete = revDb.prepare("SELECT COUNT(*) c FROM content_reviews WHERE topic_id='g6-percent'").get().c;
+    assert(afterDelete === beforeDelete,
+      `deleting the reviewer's account destroyed ${beforeDelete - afterDelete} approval record(s) — the sign-off history goes with whoever leaves`);
+    assert(revDb.prepare("SELECT reviewer_id FROM content_reviews WHERE topic_id='g6-percent'").get().reviewer_id === null,
+      "the departed reviewer is still named on the record rather than detached from it");
+
+    /* Admin only: content sign-off is an editorial authority, not a setting. */
+    const outsider = client();
+    await post(outsider, "/auth/register",
+      { coppaConsent: true, email: "review-outsider@b.com", password: "a-long-enough-pass", name: "O" });
+    assert((await outsider(`/admin/content/${topic}/preview`)).status === 403,
+      "a non-admin previewed unreleased content with its answers");
+    assert((await post(outsider, `/admin/content/${topic}/review`, { status: "approved" })).status === 403,
+      "a non-admin approved content");
+
+    return `approvals bound to a hash of the exact content: reformatting keeps a sign-off, any change of meaning revokes it and the topic reports as stale with the version that was approved, history survives the reviewer's account being deleted, preview built from the same code learners are served, admin only`;
+  },
+
+  /* 5.4 — levels per subject, and prestige on the advanced track. */
+  "levels-and-prestige": async () => {
+    const rewards = await import("../app/server/src/rewards.js");
+    const { db } = await import("../app/server/src/db.js");
+    const { randomUUID } = await import("node:crypto");
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "levels@b.com", password: "a-long-enough-pass", name: "L" });
+    const kid = (await post(c, "/learners", { name: "Level Kid" })).body.learner;
+
+    const givePoints = (amount, track) =>
+      db.prepare("INSERT INTO awards (id, learner_id, kind, code, amount, at, track) VALUES (?,?,?,?,?,?,?)")
+        .run(randomUUID(), kid.id, "points", "test", amount, new Date().toISOString(), track);
+
+    /* Nothing earned means level 1 in both, and no prestige. */
+    const cold = rewards.bySubject(kid.id);
+    assert(cold.core.level === 1 && cold.adv.level === 1, "a new learner does not start at level 1");
+    assert(cold.core.prestige === 0 && cold.adv.prestige === 0, "a new learner already has prestige");
+
+    /* THE separation: core points must not raise the advanced level. One
+       number for both would tell a child their competition standing had gone
+       up because they did their times tables. */
+    givePoints(5000, "core");
+    const afterCore = rewards.bySubject(kid.id);
+    assert(afterCore.core.level > 1, `core points did not raise the core level (${afterCore.core.level})`);
+    assert(afterCore.adv.level === 1,
+      `core points raised the advanced level to ${afterCore.adv.level} — the subjects are pooled`);
+    assert(afterCore.adv.points === 0, `advanced shows ${afterCore.adv.points} points earned on core work`);
+
+    /* Prestige is for the advanced track only, as the spec asks. */
+    givePoints(5000, "adv");
+    const both = rewards.bySubject(kid.id);
+    assert(both.adv.points === 5000, `advanced points are ${both.adv.points}`);
+    assert(both.core.prestige === 0, "the core track was given prestige");
+    assert(both.core.levelCap === null && both.adv.levelCap === rewards.LEVEL_CAP,
+      "the level cap is not reported for the advanced track only");
+
+    /* Passing the cap converts into prestige rather than an ever-growing
+       number, and the displayed level wraps within the cap. */
+    givePoints(500000, "adv");
+    const high = rewards.bySubject(kid.id);
+    assert(high.adv.prestige >= 1,
+      `${high.adv.points} advanced points gave prestige ${high.adv.prestige}`);
+    assert(high.adv.level >= 1 && high.adv.level <= rewards.LEVEL_CAP,
+      `the displayed advanced level is ${high.adv.level}, outside 1..${rewards.LEVEL_CAP}`);
+
+    /* Prestige is DERIVED, not stored: recomputing must give the same answer,
+       and there is no second record of it to drift from the level. */
+    const again = rewards.bySubject(kid.id);
+    assert(again.adv.prestige === high.adv.prestige && again.adv.level === high.adv.level,
+      "recomputing gave a different prestige — it is being stored somewhere as well as derived");
+    const cols = db.prepare("PRAGMA table_info(awards)").all().map(c => c.name);
+    assert(cols.includes("track"), "points are not attributed to a track at all");
+
+    /* Points earned through a real round are attributed to that round's
+       track, not left unassigned. */
+    const before = rewards.bySubject(kid.id).core.points;
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    assert(rewards.bySubject(kid.id).core.points > before,
+      "points from a core round were not attributed to the core track");
+
+    /* And it reaches the learner. */
+    const view = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(view.subjects && view.subjects.core && view.subjects.adv,
+      "per-subject levels are not reported to the learner");
+    assert(typeof view.subjects.adv.prestige === "number", "prestige is not reported");
+
+    return `levels held per subject so core work cannot raise an advanced standing, prestige derived from the advanced level rather than stored beside it, cap ${rewards.LEVEL_CAP}, and round points attributed to the track they were earned on`;
+  },
+
+  /* 4.3.5 — competition teams within a class. */
+  "competition-teams": async () => {
+    const { DatabaseSync } = await import("node:sqlite");
+    const { randomUUID } = await import("node:crypto");
+    const db = new DatabaseSync("app/server/data/verify.db");
+
+    const teacher = client();
+    await post(teacher, "/auth/register",
+      { coppaConsent: true, email: "teamteacher@b.com", password: "a-long-enough-pass", name: "T", role: "teacher" });
+    const cls = await post(teacher, "/classes", { name: "Squad Class" });
+    assert(cls.status === 200, `class creation failed (${cls.status})`);
+    const classId = cls.body.class.id, joinCode = cls.body.class.joinCode;
+
+    const join = async (email, name) => {
+      const c = client();
+      await post(c, "/auth/register", { coppaConsent: true, email, password: "a-long-enough-pass", name: "P" });
+      const kid = (await post(c, "/learners", { name })).body.learner;
+      await post(c, "/classes/join", { joinCode, learnerId: kid.id });
+      return { c, kid };
+    };
+    const a = await join("tm-a@b.com", "Alpha");
+    const b = await join("tm-b@b.com", "Bravo");
+    const solo = await join("tm-c@b.com", "Solo");
+
+    const red = await post(teacher, `/classes/${classId}/teams`, { name: "Red" });
+    const blue = await post(teacher, `/classes/${classId}/teams`, { name: "Blue" });
+    assert(red.status === 200 && blue.status === 200, "team creation failed");
+
+    assert((await post(teacher, `/teams/${red.body.team.id}/members`, { learnerId: a.kid.id })).status === 200,
+      "adding a class member to a team failed");
+    assert((await post(teacher, `/teams/${red.body.team.id}/members`, { learnerId: b.kid.id })).status === 200,
+      "adding a second member failed");
+    assert((await post(teacher, `/teams/${blue.body.team.id}/members`, { learnerId: solo.kid.id })).status === 200,
+      "adding a member to the second team failed");
+
+    /* A learner belongs to at most one team. Two teams sharing a member would
+       count that child's paper twice and rank both squads on work only one of
+       them did. */
+    const poach = await post(teacher, `/teams/${blue.body.team.id}/members`, { learnerId: a.kid.id });
+    assert(poach.status === 409,
+      `a learner was added to a second team (${poach.status}) — their score would be counted twice`);
+
+    /* A child from outside the class cannot be entered into its squad. */
+    const outFamily = client();
+    await post(outFamily, "/auth/register",
+      { coppaConsent: true, email: "tm-out@b.com", password: "a-long-enough-pass", name: "O" });
+    const outKid = (await post(outFamily, "/learners", { name: "Outsider" })).body.learner;
+    assert((await post(teacher, `/teams/${red.body.team.id}/members`, { learnerId: outKid.id })).status === 400,
+      "a learner from outside the class was entered into its team");
+
+    /* One team per learner PER CLASS, not per platform.
+
+       A learner is commonly in more than one class, and each teacher picks
+       their own squads. Enforced platform-wide, whichever teacher acted first
+       locked every other one out: the second got "already on a team, remove
+       them first" for a team in a class they cannot see, on a learner they
+       cannot remove — `DELETE /teams/:id/members/:learnerId` checks ownership
+       of the OTHER teacher's class and returns 403. The child was simply
+       excluded from their second class's teams for good. */
+    const teacher2 = client();
+    await post(teacher2, "/auth/register",
+      { coppaConsent: true, email: "teamteacher2@b.com", password: "a-long-enough-pass", name: "T2", role: "teacher" });
+    const cls2 = await post(teacher2, "/classes", { name: "Enrichment Class" });
+    assert(cls2.status === 200, `second class creation failed (${cls2.status})`);
+    /* The SAME learner joins the second class, as a child in two classes does. */
+    assert((await post(a.c, "/classes/join",
+      { joinCode: cls2.body.class.joinCode, learnerId: a.kid.id })).status === 200,
+      "a learner could not join a second class");
+
+    const green = await post(teacher2, `/classes/${cls2.body.class.id}/teams`, { name: "Green" });
+    assert(green.status === 200, "team creation in the second class failed");
+    const second = await post(teacher2, `/teams/${green.body.team.id}/members`, { learnerId: a.kid.id });
+    assert(second.status === 200,
+      `a learner already on a team in another class was refused entry to their second class's team (${second.status}) — the second teacher cannot undo the first one's pick`);
+    /* And the rule still holds within that class. */
+    const lime = await post(teacher2, `/classes/${cls2.body.class.id}/teams`, { name: "Lime" });
+    assert((await post(teacher2, `/teams/${lime.body.team.id}/members`, { learnerId: a.kid.id })).status === 409,
+      "a learner was added to two teams within the SAME class");
+
+    /* Papers, so the standings have something to rank. */
+    const paper = (learnerId, pct, seconds) =>
+      db.prepare(`INSERT INTO contests (id, learner_id, format, score, total, pct, seconds, limit_secs, expired, detail, finished_at)
+                  VALUES (?,?,?,?,?,?,?,?,0,?,?)`)
+        .run(randomUUID(), learnerId, "sprint", pct, 100, pct, seconds, 600, "[]", new Date().toISOString());
+    paper(a.kid.id, 90, 300);
+    paper(a.kid.id, 40, 100);   // a worse earlier paper, which must not be the one counted
+    paper(b.kid.id, 70, 300);
+    paper(solo.kid.id, 95, 300);
+
+    const standings = (await teacher(`/classes/${classId}/teams?format=sprint`)).body.teams;
+    const redRow = standings.find(t => t.name === "Red");
+    const blueRow = standings.find(t => t.name === "Blue");
+
+    /* Best paper per member, summed. */
+    assert(redRow.totalPct === 160, `Red totals ${redRow.totalPct}, expected 90 + 70 = 160`);
+    assert(blueRow.totalPct === 95, `Blue totals ${blueRow.totalPct}`);
+    assert(standings[0].name === "Red", `the standings are led by ${standings[0].name}`);
+
+    /* Both the sum and the average are reported, with the squad size.
+
+       A sum rewards the bigger team and an average rewards the smaller one;
+       publishing only one hides whichever unfairness it carries behind a
+       figure a teacher cannot interrogate. Blue's single 95 beats Red's
+       average of 80, and both facts have to be visible. */
+    assert(redRow.size === 2 && blueRow.size === 1, "team sizes are not reported");
+    assert(redRow.averagePct === 80, `Red averages ${redRow.averagePct}, expected 80`);
+    assert(blueRow.averagePct === 95, `Blue averages ${blueRow.averagePct}`);
+    assert(blueRow.averagePct > redRow.averagePct && redRow.totalPct > blueRow.totalPct,
+      "the fixture no longer shows the sum and the average disagreeing");
+
+    /* Removing a member changes the standings. */
+    assert((await teacher(`/teams/${red.body.team.id}/members/${b.kid.id}`, { method: "DELETE" })).status === 200,
+      "removing a team member failed");
+    const after = (await teacher(`/classes/${classId}/teams?format=sprint`)).body.teams;
+    assert(after.find(t => t.name === "Red").totalPct === 90,
+      "the standings did not follow the removal");
+
+    /* Names follow the same rule as every other board: hidden unless the
+       teacher allows them, with a parent always seeing their own child. */
+    const parentView = (await a.c(`/classes/${classId}/teams`)).body.teams;
+    const names = JSON.stringify(parentView);
+    assert(names.includes("Alpha"), "a parent cannot see their own child on the team sheet");
+    assert(!names.includes("Solo"), "another family's child is named on an unanonymised team sheet");
+    await teacher(`/classes/${classId}/settings`,
+      { method: "PUT", body: JSON.stringify({ leaderboardOn: true, displayNames: true }) });
+    assert(JSON.stringify((await a.c(`/classes/${classId}/teams`)).body).includes("Solo"),
+      "names stay hidden after the teacher allowed them");
+
+    /* Only this class's teacher manages its teams, and outsiders see nothing. */
+    const otherTeacher = client();
+    await post(otherTeacher, "/auth/register",
+      { coppaConsent: true, email: "tm-otherteacher@b.com", password: "a-long-enough-pass", name: "OT", role: "teacher" });
+    assert((await post(otherTeacher, `/teams/${red.body.team.id}/members`, { learnerId: solo.kid.id })).status === 403,
+      "another teacher altered someone else's team");
+    assert((await outFamily(`/classes/${classId}/teams`)).status === 403,
+      "a family outside the class read its team sheet");
+
+    return "teams within a class, one team per learner enforced by the schema so no paper is counted twice, outsiders refused, standings on best papers with sum and average both published alongside squad size, names anonymised by the class's own setting";
+  },
+
+  /* 5.5 — streaks that survive one missed day, without becoming unbreakable. */
+  "streak-freezes": async () => {
+    const rewards = await import("../app/server/src/rewards.js");
+    const { db } = await import("../app/server/src/db.js");
+    const { randomUUID } = await import("node:crypto");
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "freeze@b.com", password: "a-long-enough-pass", name: "F" });
+    const kid = (await post(c, "/learners", { name: "Freeze Kid" })).body.learner;
+
+    const DAY = 86400000;
+    const key = ms => new Date(ms).toISOString().slice(0, 10);
+    const todayMs = Date.now();
+    const activity = daysAgo =>
+      db.prepare("INSERT INTO awards (id, learner_id, kind, code, amount, at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), kid.id, "points", "practice", 10,
+             new Date(todayMs - daysAgo * DAY).toISOString());
+
+    /* A plain unbroken run still counts the ordinary way. */
+    for (const d of [0, 1, 2]) activity(d);
+    assert(rewards.streak(kid.id) === 3, `three consecutive days gave a streak of ${rewards.streak(kid.id)}`);
+
+    /* A gap breaks it when there is nothing to protect it. */
+    const gapKid = (await post(c, "/learners", { name: "Gap Kid" })).body.learner;
+    const gapActivity = daysAgo =>
+      db.prepare("INSERT INTO awards (id, learner_id, kind, code, amount, at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), gapKid.id, "points", "practice", 10,
+             new Date(todayMs - daysAgo * DAY).toISOString());
+    for (const d of [0, 2, 3]) gapActivity(d);   // yesterday missed
+    assert(rewards.streak(gapKid.id) === 1,
+      `a missed day should end the run at 1, got ${rewards.streak(gapKid.id)}`);
+
+    /* With a freeze available, activity today spends it on yesterday and the
+       run continues across the gap. */
+    assert(rewards.freezeBalance(gapKid.id) === 0, "the fixture starts with a freeze");
+    const noneToUse = rewards.useFreezeIfNeeded(gapKid.id);
+    assert(noneToUse.used === false, "a freeze was spent from an empty balance");
+
+    db.prepare("INSERT INTO streak_freezes (id, learner_id, earned_at) VALUES (?,?,?)")
+      .run(randomUUID(), gapKid.id, new Date().toISOString());
+    const used = rewards.useFreezeIfNeeded(gapKid.id);
+    assert(used.used === true, `a freeze was not spent on the missed day: ${used.reason}`);
+    assert(used.day === key(todayMs - DAY), `the freeze was spent on ${used.day}, not yesterday`);
+    assert(rewards.streak(gapKid.id) === 3,
+      `the protected run should be 3 days of practice, got ${rewards.streak(gapKid.id)}`);
+
+    /* Spent freezes are recorded against their day, so the same token cannot
+       cover a second gap later. */
+    assert(rewards.freezeBalance(gapKid.id) === 0, "the freeze was not consumed");
+    const again = rewards.useFreezeIfNeeded(gapKid.id);
+    assert(again.used === false, "a spent freeze was spent again");
+
+    /* THE limit. A freeze covers ONE missed day at the moment of activity; it
+       cannot be applied retroactively across a long absence. A learner
+       returning after a fortnight has a broken streak, and that is the honest
+       answer — otherwise one token repairs a month and the number stops
+       meaning anything. */
+    const lapsed = (await post(c, "/learners", { name: "Lapsed Kid" })).body.learner;
+    for (const d of [0, 14, 15, 16])
+      db.prepare("INSERT INTO awards (id, learner_id, kind, code, amount, at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), lapsed.id, "points", "practice", 10, new Date(todayMs - d * DAY).toISOString());
+    db.prepare("INSERT INTO streak_freezes (id, learner_id, earned_at) VALUES (?,?,?)")
+      .run(randomUUID(), lapsed.id, new Date().toISOString());
+    const cannot = rewards.useFreezeIfNeeded(lapsed.id);
+    assert(cannot.used === false,
+      "a freeze bridged a fortnight-long absence — one token must not repair an arbitrary gap");
+    assert(rewards.streak(lapsed.id) === 1,
+      `a learner returning after two weeks has a streak of ${rewards.streak(lapsed.id)}, not 1`);
+
+    /* The balance is capped, or a hard month banks an unbreakable streak. */
+    const hoard = (await post(c, "/learners", { name: "Hoard Kid" })).body.learner;
+    for (let i = 0; i < 10; i++)
+      db.prepare("INSERT INTO streak_freezes (id, learner_id, earned_at) VALUES (?,?,?)")
+        .run(randomUUID(), hoard.id, new Date().toISOString());
+    const before = rewards.freezeBalance(hoard.id);
+    rewards.grantFreezes(hoard.id);
+    assert(rewards.freezeBalance(hoard.id) === before,
+      "more freezes were granted to a learner already over the cap");
+    assert(rewards.MAX_FREEZES <= 3,
+      `the cap is ${rewards.MAX_FREEZES}, high enough to make a streak effectively unbreakable`);
+
+    /* Earning is scoped to the CURRENT streak, not to a lifetime total.
+
+       Counted over a lifetime, the entitlement ratchets: a learner who earns
+       two freezes, spends them, then breaks their streak needs 21 unbroken
+       days for the next one, then 28, then 35 — while the rule they were told
+       is one a week. This learner has spent two and is seven days into a new
+       run, so exactly one is due. */
+    const restart = (await post(c, "/learners", { name: "Restart Kid" })).body.learner;
+    for (let d = 0; d < 7; d++)
+      db.prepare("INSERT INTO awards (id, learner_id, kind, code, amount, at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), restart.id, "points", "practice", 10, new Date(todayMs - d * DAY).toISOString());
+    /* Two earned and spent during an OLDER run, long before this one began. */
+    for (let i = 0; i < 2; i++)
+      db.prepare(`INSERT INTO streak_freezes (id, learner_id, earned_at, spent_on, spent_at)
+                  VALUES (?,?,?,?,?)`)
+        .run(randomUUID(), restart.id, new Date(todayMs - 60 * DAY).toISOString(),
+             key(todayMs - 55 * DAY), new Date(todayMs - 55 * DAY).toISOString());
+
+    assert(rewards.streak(restart.id) === 7, `expected a 7-day run, got ${rewards.streak(restart.id)}`);
+    const regrant = rewards.grantFreezes(restart.id);
+    assert(regrant.granted === 1,
+      `a full week of a fresh streak granted ${regrant.granted} freezes — spent freezes from an older run are still counted against the new one`);
+
+    /* Surfaced to the learner, and scoped to their own family. */
+    const view = (await c(`/learners/${kid.id}/rewards`)).body;
+    assert(view.freezes && typeof view.freezes.balance === "number" && view.freezes.max === rewards.MAX_FREEZES,
+      "the freeze balance is not reported to the learner");
+
+    return `a missed day ends a streak, one freeze bridges exactly one missed day at the moment of activity and is recorded against it, a fortnight's absence cannot be repaired, earning rebases on the current run rather than a lifetime total, and the balance is capped at ${rewards.MAX_FREEZES}`;
+  },
+
+  /* 5.3 / 5.7 / 4.1.2 — accessories earned by achievement, and a daily
+     challenge that is the same for everyone and cannot be re-rolled. */
+  "avatar-and-daily": async () => {
+    const avatar = await import("../app/server/src/avatar.js");
+    const dailyMod = await import("../app/server/src/daily.js");
+    const { QUESTIONS } = await import("../app/shared/questions.mjs");
+
+    /* Every accessory unlocks from a real badge — an item whose requirement
+       does not exist is one a child can never earn. Enforced at import, so
+       reaching here at all is part of the proof. */
+    const { BADGES } = await import("../app/server/src/rewards.js");
+    for (const [id, item] of Object.entries(avatar.ACCESSORIES))
+      assert(BADGES[item.badge], `accessory ${id} requires a badge that does not exist`);
+    assert(Object.keys(avatar.ACCESSORIES).length >= 8,
+      `only ${Object.keys(avatar.ACCESSORIES).length} accessories`);
+
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "avatar@b.com", password: "a-long-enough-pass", name: "A" });
+    const kid = (await post(c, "/learners", { name: "Avatar Kid" })).body.learner;
+
+    /* Locked items are listed, not hidden — the collection is pointless if a
+       child cannot see what they have not got — and each names what earns it. */
+    const start = (await c(`/learners/${kid.id}/avatar`)).body.wardrobe;
+    assert(start.items.length === Object.keys(avatar.ACCESSORIES).length,
+      "locked accessories are hidden, so the collection is invisible until it is already complete");
+    assert(start.unlockedCount === 0, `a new learner already has ${start.unlockedCount} accessories`);
+    for (const item of start.items) {
+      assert(item.unlockedBy && item.unlockHint,
+        `${item.id} does not say what unlocks it, leaving an unexplained locked slot`);
+      assert(item.unlocked === false, `${item.id} is unlocked before any badge was earned`);
+    }
+
+    /* THE authorisation property: an unearned accessory cannot be worn by
+       asking for it. Without this a learner could post the contest sash's id
+       and every badge on display would stop meaning anything. */
+    const steal = await c(`/learners/${kid.id}/avatar/contest_sash`,
+      { method: "PUT", body: JSON.stringify({ equipped: true }) });
+    assert(steal.status === 403, `an unearned accessory was equipped (${steal.status})`);
+    assert(/Contest Ready/.test(JSON.stringify(steal.body)),
+      "the refusal does not name the badge that would earn it");
+    assert((await c(`/learners/${kid.id}/avatar/not_a_real_item`,
+      { method: "PUT", body: JSON.stringify({ equipped: true }) })).status === 404,
+      "an accessory that does not exist was accepted");
+
+    /* Earn a badge the honest way, and the matching item unlocks. */
+    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 8, total: 8 });
+    const earned = (await c(`/learners/${kid.id}/avatar`)).body.wardrobe;
+    assert(earned.unlockedCount > 0,
+      "finishing a perfect first round unlocked nothing, so accessories are not tied to achievement at all");
+    const openItem = earned.items.find(i => i.unlocked);
+    const wear = await c(`/learners/${kid.id}/avatar/${openItem.id}`,
+      { method: "PUT", body: JSON.stringify({ equipped: true }) });
+    assert(wear.status === 200, `an earned accessory could not be equipped (${wear.status})`);
+    assert(wear.body.wardrobe.items.find(i => i.id === openItem.id).equipped === true,
+      "the accessory did not stay on");
+
+    /* One item per slot: a second hat replaces the first rather than stacking. */
+    const sameSlot = earned.items.filter(i => i.unlocked && i.slot === openItem.slot && i.id !== openItem.id);
+    if (sameSlot.length) {
+      await c(`/learners/${kid.id}/avatar/${sameSlot[0].id}`,
+        { method: "PUT", body: JSON.stringify({ equipped: true }) });
+      const after = (await c(`/learners/${kid.id}/avatar`)).body.wardrobe;
+      const worn = after.items.filter(i => i.equipped && i.slot === openItem.slot);
+      assert(worn.length === 1, `${worn.length} items are worn in the ${openItem.slot} slot`);
+    }
+
+    /* Another family cannot dress this learner. */
+    const outsider = client();
+    await post(outsider, "/auth/register",
+      { coppaConsent: true, email: "avatar-outsider@b.com", password: "a-long-enough-pass", name: "O" });
+    assert((await outsider(`/learners/${kid.id}/avatar`)).status === 403,
+      "another account read this learner's wardrobe");
+
+    /* ---- challenge of the day ---- */
+
+    /* The same for everyone on a given day, and stable when asked twice. A
+       random pick would let a child reload until they got an easy one. */
+    for (const key of ["2026-01-01", "2026-06-15", "2027-03-09"]) {
+      const a = dailyMod.challengeFor(key, QUESTIONS);
+      const b = dailyMod.challengeFor(key, QUESTIONS);
+      assert(a && b && a.topicId === b.topicId && a.idx === b.idx,
+        `${key} produced two different challenges — it can be re-rolled by reloading`);
+      assert(QUESTIONS[a.topicId] && QUESTIONS[a.topicId][a.idx],
+        `${key} selected a question that does not exist`);
+    }
+    const distinct = new Set(["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05"]
+      .map(k => { const p = dailyMod.challengeFor(k, QUESTIONS); return `${p.topicId}#${p.idx}`; }));
+    assert(distinct.size >= 4, `five consecutive days gave only ${distinct.size} different challenges`);
+
+    /* Stable across a change of content, which the raw derivation is not.
+
+       The pick is an index modulo the number of banks, so publishing content
+       reshuffles every past date too — authoring went from 16 banks to 147 in
+       one stretch of work, silently rewriting what every previous day's
+       challenge had been, and a deploy landing at lunchtime hands the
+       afternoon a different question from the morning while the attempt row
+       still says the day is done. So the day's pick is decided once and
+       remembered; here the banks change underneath it and it must not move. */
+    const pinKey = "2026-04-04";
+    const firstPick = dailyMod.resolveChallenge(pinKey, QUESTIONS);
+    assert(firstPick, "no challenge could be resolved");
+    const shrunk = Object.fromEntries(Object.entries(QUESTIONS).slice(0, 8));
+    const grown = { ...QUESTIONS, "zz-brand-new-bank": QUESTIONS["g6-ratios"] };
+    for (const [label, banks] of [["a smaller", shrunk], ["a larger", grown]]) {
+      const again = dailyMod.resolveChallenge(pinKey, banks);
+      /* Only meaningful while the remembered pick still exists in the banks
+         on offer; a deleted topic is allowed to fall back to a fresh pick. */
+      if (banks[firstPick.topicId]?.[firstPick.idx])
+        assert(again.topicId === firstPick.topicId && again.idx === firstPick.idx,
+          `${label} question bank changed what ${pinKey}'s challenge had been: ${firstPick.topicId}#${firstPick.idx} became ${again.topicId}#${again.idx}`);
+    }
+
+    const today = (await c(`/learners/${kid.id}/today`)).body;
+    assert(today.challenge && today.challenge.question, "no challenge was served");
+    assert(today.challenge.done === false, "an unanswered challenge is reported as done");
+    const leak = JSON.stringify(today.challenge.question);
+    for (const field of ['"ans"', '"ansP"', '"expl"', '"a":', '"ansPlot"'])
+      assert(!leak.includes(field), `the daily challenge leaked ${field}`);
+
+    /* One attempt per day. Otherwise a learner answers, reads the
+       explanation, and answers again — and the streak it feeds would measure
+       persistence at re-submitting rather than practice. */
+    const first = await post(c, `/learners/${kid.id}/today/answer`, { answer: "-999999" });
+    assert(first.status === 200, `the challenge could not be answered (${first.status})`);
+    const second = await post(c, `/learners/${kid.id}/today/answer`, { answer: "-999999" });
+    assert(second.status === 409, `the daily challenge accepted a second attempt (${second.status})`);
+    const after = (await c(`/learners/${kid.id}/today`)).body;
+    assert(after.challenge.done === true, "an answered challenge is not marked done");
+    assert(after.challenge.question === null,
+      "the question is served again after being answered, so the explanation can be farmed for a retry");
+
+    /* Turning up counts even when the answer is wrong.
+
+       The streak is the habit, not the score. A one-question challenge that
+       only counts when answered correctly punishes a child for showing up and
+       slipping, which is the opposite of what a daily streak is for. */
+    const wrongKid = (await post(c, "/learners", { name: "Wrong Answer Kid" })).body.learner;
+    const beforeStreak = (await c(`/learners/${wrongKid.id}/rewards`)).body.streak;
+    assert(beforeStreak === 0, `a fresh learner has a streak of ${beforeStreak}`);
+    const missed = await post(c, `/learners/${wrongKid.id}/today/answer`, { answer: "-999999" });
+    assert(missed.status === 200 && missed.body.correct === false, "the fixture answer was not wrong");
+    const afterStreak = (await c(`/learners/${wrongKid.id}/rewards`)).body.streak;
+    assert(afterStreak >= 1,
+      `answering the daily challenge wrong left the streak at ${afterStreak} — showing up did not count`);
+    assert(missed.body.reward && missed.body.reward.points > 0 && missed.body.reward.points < 15,
+      `a wrong attempt scored ${missed.body.reward && missed.body.reward.points}; it should earn less than a correct one but more than nothing`);
+
+    /* ---- daily goals ---- */
+    assert(today.goals.goalSet === false, "a learner with no goal is reported as having one");
+    const setGoal = body => c(`/learners/${kid.id}/goal`, { method: "PUT", body: JSON.stringify(body) });
+    assert((await setGoal({ roundsPerWeek: 7, minutesPerWeek: 70 })).status === 200, "setting a goal failed");
+    const withGoal = (await c(`/learners/${kid.id}/today`)).body.goals;
+    assert(withGoal.goalSet === true, "a set goal is not reflected");
+    assert(withGoal.rounds.target === 1,
+      `7 rounds a week gave a daily target of ${withGoal.rounds.target}`);
+    assert(withGoal.rounds.done >= 1, "the round recorded earlier is not counted towards today");
+
+    /* Rounded UP, so a small weekly goal is not presented as no goal at all. */
+    await setGoal({ roundsPerWeek: 3, minutesPerWeek: 3 });
+    const small = (await c(`/learners/${kid.id}/today`)).body.goals;
+    assert(small.rounds.target === 1,
+      `3 rounds a week rounded to a daily target of ${small.rounds.target} — a real goal shown as none`);
+
+    return `${Object.keys(avatar.ACCESSORIES).length} accessories, each unlocked by a real badge and refused until earned, one per slot; the daily challenge is derived from the date so everyone gets the same one, cannot be re-rolled, and takes one attempt; daily targets derived from the weekly goal and rounded up`;
+  },
+
+  /* 3.2.9 — read-aloud that highlights the word being spoken. */
+  "read-aloud-highlight": async () => {
+    const { execFileSync } = await import("node:child_process");
+    const { readFileSync } = await import("node:fs");
+    /* Compiled with the project's own esbuild rather than parsed as text, so
+       these assertions run against the real module. */
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    /* Built into the OS temp directory, not the repo: a check that leaves
+       artefacts behind turns `git status` into a place where real changes
+       hide. */
+    const bundle = join(tmpdir(), `readaloud.check.${process.pid}.mjs`);
+    execFileSync("./node_modules/.bin/esbuild",
+      ["src/components/ReadAloud.tsx", "--bundle", "--format=esm", "--jsx=automatic",
+       `--outfile=${bundle}`, "--log-level=error"],
+      { cwd: "app/web" });
+    const ra = await import(`file://${bundle}?${Date.now()}`);
+
+    /* The spoken text is unchanged by adding the mapping. This is the
+       regression that matters: highlighting must not alter what a child
+       hears. */
+    const spoken = {
+      "What is 4 × 6?": "What is 4 times 6?",
+      "12 ÷ 3 = ?": "12 divided by 3 = ?",
+      "Compute 7 + 5": "Compute 7 plus 5",
+      "Find 9 − 2": "Find 9 minus 2",
+      "The ratio 3:4": "The ratio 3 to 4",
+      "Simplify 1/2": "Simplify 1 half",
+      "Shade 3/4": "Shade 3 quarters",
+      "Point (3, −2)": "Point the point 3 comma -2",
+      "Find |-7|": "Find the absolute value of -7",
+      "Increase by 25%": "Increase by 25 percent"
+    };
+    for (const [written, said] of Object.entries(spoken))
+      assert(ra.speakableText(written) === said,
+        `"${written}" is now spoken as "${ra.speakableText(written)}", not "${said}"`);
+
+    /* The mapping is the hard part and the reason this is not just a
+       character index. The browser reports where it has reached in the string
+       it was GIVEN, and that string is not the one on screen: by the second
+       word of "4 × 6" the two have already drifted. Highlighting on the raw
+       index underlines the wrong word, and further wrong with every
+       transformation. */
+    const written = "What is 4 × 6?";
+    const { spoken: out, map } = ra.speakableSpans(written);
+    assert(out === "What is 4 times 6?", `spoken form is ${JSON.stringify(out)}`);
+    assert(out.indexOf("times") !== written.indexOf("times"),
+      "the fixture no longer exercises a drifting index");
+
+    /* Every position in the spoken string maps back inside the written one. */
+    for (let i = 0; i < out.length; i++) {
+      const r = ra.sourceRangeAt(map, i);
+      assert(r, `spoken position ${i} (${JSON.stringify(out[i])}) maps to nothing written`);
+      assert(r.start >= 0 && r.end <= written.length && r.end > r.start,
+        `spoken position ${i} maps to an impossible range ${JSON.stringify(r)}`);
+    }
+
+    /* The word actually highlighted is the right one. */
+    const at = i => {
+      const r = ra.highlightRangeAt(written, map, i);
+      return r ? written.slice(r.start, r.end) : null;
+    };
+    assert(at(0) === "What", `the first word highlights ${JSON.stringify(at(0))}`);
+    assert(at(out.indexOf("is")) === "is", `"is" highlights ${JSON.stringify(at(out.indexOf("is")))}`);
+    /* A rewritten expression stays highlighted whole while it is being said —
+       underlining just the "4" while the voice says "times" is worse than no
+       highlight at all. */
+    for (const probe of ["4 times", "times", "6?"]) {
+      const idx = out.indexOf(probe);
+      assert(at(idx) === "4 × 6",
+        `while saying ${JSON.stringify(probe)} the highlight is ${JSON.stringify(at(idx))}, not the whole written expression`);
+    }
+    /* Naive character mapping would land somewhere else entirely. */
+    assert(written.slice(out.indexOf("times"), out.indexOf("times") + 5) !== "4 × 6",
+      "the naive index happens to be correct here, so this fixture proves nothing");
+
+    /* Plain text with nothing to transform maps one to one. */
+    const plain = "Count the red apples";
+    const flat = ra.speakableSpans(plain);
+    assert(flat.spoken === plain, "plain text was altered");
+    assert(ra.highlightRangeAt(plain, flat.map, plain.indexOf("red")) &&
+           plain.slice(...Object.values(ra.highlightRangeAt(plain, flat.map, plain.indexOf("red")))) === "red",
+      "a plain word does not highlight itself");
+
+    /* Wired to the browser event, and degrading where it never fires. */
+    const src = readFileSync("app/web/src/components/ReadAloud.tsx", "utf8");
+    const spokenComponent = src.slice(src.indexOf("export function SpokenText"));
+    /* Matched as an assignment, not as a substring. The first version of this
+       tested for the word "onboundary" anywhere in the file, so renaming the
+       handler to `onboundaryDISABLED` — which switches highlighting off
+       entirely — still satisfied it. */
+    assert(/\bu\.onboundary\s*=/.test(spokenComponent),
+      "nothing is assigned to the utterance's onboundary handler, so nothing can highlight");
+    assert(/\be\.charIndex\b/.test(spokenComponent), "the boundary position is not read from the event");
+    assert(/onend/.test(spokenComponent) && /setRange\(null\)/.test(spokenComponent),
+      "the highlight is never cleared when speech stops");
+    assert(/\}, \[text\]\)/.test(spokenComponent),
+      "a new question does not reset the highlight, so the previous question's word stays marked");
+
+    /* The highlight must not be colour alone. */
+    const css = readFileSync("app/web/src/styles.css", "utf8");
+    const rule = css.slice(css.indexOf(".spoken-word"));
+    assert(/text-decoration:\s*underline/.test(rule.slice(0, 300)),
+      "the spoken word is marked by colour alone, which is invisible to anyone who cannot distinguish it");
+
+    /* And the screens actually use it. */
+    for (const screen of ["Practice", "Quiz", "Diagnostic", "MasteryCheck"]) {
+      const body = readFileSync(`app/web/src/screens/${screen}.tsx`, "utf8");
+      assert(/<SpokenText/.test(body), `${screen} still renders the question without the highlighting reader`);
+    }
+
+    return `spoken output unchanged across ${Object.keys(spoken).length} maths phrases, every spoken position maps back into the written text, rewritten expressions highlight whole, cleared on stop and on a new question, underlined not just coloured`;
+  },
+
+  /* 9.2 — outbound webhooks, signed and refused when they point inward. */
+  "webhooks": async () => {
+    const hooks = await import("../app/server/src/webhooks.js");
+    const { createServer } = await import("node:http");
+
+    /* A URL supplied by a user that the SERVER then fetches is a request
+       forgery primitive. These are the destinations that turn it into one:
+       loopback, private ranges, link-local — which is where cloud instance
+       metadata and its credentials live — and carrier NAT. Checked against
+       the RESOLVED address, so "localhost" is caught by what it resolves to
+       rather than by its spelling. */
+    for (const bad of [
+      "https://127.0.0.1/hook", "https://localhost/hook", "https://169.254.169.254/latest/meta-data",
+      "https://10.0.0.5/hook", "https://192.168.1.10/hook", "https://172.16.4.4/hook",
+      "https://100.64.0.1/hook", "http://example.com/hook", "not-a-url", "ftp://example.com/x"
+    ]) {
+      const v = await hooks.validateTarget(bad);
+      assert(v.ok === false, `${bad} was accepted as a webhook destination`);
+      assert(typeof v.error === "string" && v.error.length > 0, `${bad} was refused without saying why`);
+    }
+    assert((await hooks.validateTarget("https://example.com/hook")).ok === true,
+      "a legitimate public https destination was refused");
+
+    /* Signatures verify constant-time, and a wrong or truncated one fails. */
+    const body = JSON.stringify({ event: "test", n: 1 });
+    const sig = hooks.sign("s3cret", body);
+    assert(hooks.verify("s3cret", body, sig), "a correct signature did not verify");
+    assert(!hooks.verify("s3cret", body, sig.slice(0, -2)), "a truncated signature verified");
+    assert(!hooks.verify("s3cret", body + " ", sig), "a signature verified over altered content");
+    assert(!hooks.verify("wrong", body, sig), "a signature verified under the wrong secret");
+
+    /* Delivery, against a real local receiver. Reaching it requires the
+       explicit private-address opt-in, which is itself the proof that the
+       guard is on by default. */
+    const received = [];
+    const server = createServer((req, res) => {
+      let raw = "";
+      req.on("data", d => { raw += d; });
+      req.on("end", () => {
+        received.push({
+          event: req.headers["x-beastforge-event"],
+          signature: req.headers["x-beastforge-signature"],
+          raw
+        });
+        res.writeHead(200).end("ok");
+      });
+    });
+    await new Promise(r => server.listen(0, "127.0.0.1", r));
+    const port = server.address().port;
+    const localUrl = `http://127.0.0.1:${port}/hook`;
+
+    try {
+      assert((await hooks.validateTarget(localUrl)).ok === false,
+        "a loopback destination was accepted while the guard was supposed to be on");
+
+      process.env.WEBHOOK_ALLOW_PRIVATE = "1";
+      assert((await hooks.validateTarget(localUrl)).ok === true,
+        "the documented dev opt-in does not allow a local receiver");
+
+      const reg = await hooks.register({ url: localUrl, events: ["contest.completed"], createdBy: null });
+      assert(reg.ok, `registration failed: ${reg.error}`);
+      /* register() refuses an unsafe destination on its own terms, so the
+         guard does not depend on a caller remembering to validate first. */
+      delete process.env.WEBHOOK_ALLOW_PRIVATE;
+      const refused = await hooks.register({ url: "https://169.254.169.254/x", events: ["contest.completed"] });
+      assert(refused.ok === false, "register() persisted a link-local destination without validating it");
+      process.env.WEBHOOK_ALLOW_PRIVATE = "1";
+      assert(reg.webhook.secret && reg.webhook.secret.length >= 32,
+        "the generated secret is too short to be worth signing with");
+
+      const out = await hooks.emit("contest.completed", { learnerId: "x", pct: 91 });
+      assert(out.delivered === 1, `expected one delivery, got ${JSON.stringify(out)}`);
+      assert(received.length === 1, "the receiver was not called");
+      assert(received[0].event === "contest.completed", "the event name header is missing or wrong");
+      assert(hooks.verify(reg.webhook.secret, received[0].raw, received[0].signature),
+        "the delivered body did not verify against the subscription's secret");
+      assert(JSON.parse(received[0].raw).data.pct === 91, "the payload did not arrive intact");
+
+      /* A delivery that SUCCEEDED must record no error.
+
+         The count and the signature were the only things asserted before, and
+         both survived a ReferenceError thrown after the status was set: the
+         catch swallowed it into the error column, so every successful webhook
+         was stored as delivered-with-an-error while this check reported the
+         delivery clean. */
+      const { DatabaseSync: DBok } = await import("node:sqlite");
+      const okRow = new DBok("app/server/data/verify.db")
+        .prepare("SELECT status, error FROM webhook_deliveries WHERE webhook_id=? ORDER BY rowid DESC LIMIT 1")
+        .get(reg.webhook.id);
+      assert(okRow && okRow.status === "delivered",
+        `a successful delivery was recorded as ${okRow && okRow.status}`);
+      assert(!okRow.error,
+        `a successful delivery also recorded an error: ${okRow.error}`);
+
+      /* A subscription only hears the events it asked for. */
+      const before = received.length;
+      await hooks.emit("mastery.achieved", { learnerId: "x" });
+      assert(received.length === before,
+        "a subscription received an event it did not subscribe to");
+
+      /* A broken receiver must not throw into the caller, and the failure
+         has to be recorded rather than vanishing. */
+      await new Promise(r => server.close(r));
+      const failed = await hooks.emit("contest.completed", { learnerId: "x" });
+      assert(failed.delivered === 0, "delivery to a dead receiver reported success");
+      const { DatabaseSync } = await import("node:sqlite");
+      const db = new DatabaseSync("app/server/data/verify.db");
+      /* Ordered by rowid, not by `at`. Two deliveries can land in the same
+         millisecond, and then "the latest row" is whichever the engine feels
+         like returning — which made this assertion fail about one run in
+         three, on the row from the SUCCESSFUL delivery. */
+      const rec = db.prepare(`SELECT status, error FROM webhook_deliveries
+                              WHERE webhook_id=? ORDER BY rowid DESC LIMIT 1`).get(reg.webhook.id);
+      assert(rec && rec.status === "failed" && rec.error,
+        `a failed delivery was not recorded with a reason (got ${JSON.stringify(rec)})`);
+    } finally {
+      delete process.env.WEBHOOK_ALLOW_PRIVATE;
+      try { server.close(); } catch {}
+    }
+
+    /* Registration is admin-only and the secret is never listed back. */
+    const c = client();
+    const admin = { email: "boss@b.com", password: "a-long-enough-pass" };
+    const reg2 = await post(c, "/auth/register", { coppaConsent: true, name: "Admin", ...admin });
+    if (reg2.status !== 200) await post(c, "/auth/login", admin);
+    const created = await post(c, "/admin/webhooks",
+      { url: "https://example.com/hook", events: ["mastery.achieved"] });
+    assert(created.status === 200, `admin webhook creation failed (${created.status})`);
+    assert(created.body.webhook.secret, "the secret was not returned at creation");
+    const listed = (await c("/admin/webhooks")).body;
+    assert(!JSON.stringify(listed).includes(created.body.webhook.secret),
+      "the webhook secret is readable from the list endpoint");
+
+    const inward = await post(c, "/admin/webhooks",
+      { url: "https://169.254.169.254/latest/meta-data", events: ["mastery.achieved"] });
+    assert(inward.status === 400, "the API accepted a webhook pointing at cloud metadata");
+
+    const outsider = client();
+    await post(outsider, "/auth/register",
+      { coppaConsent: true, email: "hook-outsider@b.com", password: "a-long-enough-pass", name: "O" });
+    assert((await post(outsider, "/admin/webhooks",
+      { url: "https://example.com/x", events: ["mastery.achieved"] })).status === 403,
+      "a non-admin registered a webhook");
+    assert((await outsider("/admin/webhooks")).status === 403, "a non-admin listed the webhooks");
+
+    return `${hooks.EVENTS.length} events, HMAC-signed and verified constant-time, delivered to a live receiver, failures recorded; loopback, private, link-local and carrier-NAT destinations all refused by resolved address, secrets shown once and never listed`;
+  },
+
+  /* 13.12 — mock contests ranked correctly, with the same safeguards as
+     every other board here. */
+  "contest-leaderboard": async () => {
+    const { DatabaseSync } = await import("node:sqlite");
+    const { randomUUID } = await import("node:crypto");
+    const db = new DatabaseSync("app/server/data/verify.db");
+
+    const teacher = client();
+    await post(teacher, "/auth/register",
+      { coppaConsent: true, email: "contestteacher@b.com", password: "a-long-enough-pass", name: "T", role: "teacher" });
+    const cls = await post(teacher, "/classes", { name: "Contest Club" });
+    assert(cls.status === 200, `class creation failed (${cls.status})`);
+    const classId = cls.body.class.id, joinCode = cls.body.class.joinCode;
+
+    const join = async (email, name) => {
+      const c = client();
+      await post(c, "/auth/register", { coppaConsent: true, email, password: "a-long-enough-pass", name: "P" });
+      const kid = (await post(c, "/learners", { name })).body.learner;
+      await post(c, "/classes/join", { joinCode, learnerId: kid.id });
+      return { c, kid };
+    };
+    const ace = await join("cl-a@b.com", "Ace");
+    const quick = await join("cl-b@b.com", "Quick");
+    const slow = await join("cl-c@b.com", "Slow");
+    const absent = await join("cl-d@b.com", "No Paper");
+
+    const board = async (as, qs = "") =>
+      (await as(`/classes/${classId}/contests/leaderboard${qs}`));
+
+    /* Off until a teacher turns it on — the same default as every other
+       board, not a looser one because this is a contest. */
+    const off = await board(teacher);
+    assert(off.status === 200 && off.body.enabled === false,
+      "the contest leaderboard is on before a teacher enabled it");
+
+    await teacher(`/classes/${classId}/settings`,
+      { method: "PUT", body: JSON.stringify({ leaderboardOn: true, displayNames: false }) });
+
+    /* Recorded attempts. Ace scores highest; Quick and Slow tie on score and
+       must be separated by time; Ace also has a WORSE earlier attempt that
+       must not be the one ranked. */
+    const attempt = (learnerId, pct, seconds, expired = 0) =>
+      db.prepare(`INSERT INTO contests (id, learner_id, format, score, total, pct, seconds, limit_secs, expired, detail, finished_at)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
+        .run(randomUUID(), learnerId, "sprint", pct, 100, pct, seconds, 600, expired, "[]", new Date().toISOString());
+    attempt(ace.kid.id, 40, 100);      // an earlier, worse paper
+    attempt(ace.kid.id, 95, 500);      // their best
+    attempt(quick.kid.id, 80, 200);
+    attempt(slow.kid.id, 80, 400);
+    attempt(absent.kid.id, 99, 10, 1); // expired: a paper that ran out of time
+
+    const on = await board(teacher);
+    assert(on.body.enabled === true, "the leaderboard is still off after being enabled");
+    const rows = on.body.board;
+
+    /* Best attempt only. Ranking every attempt would put the child with the
+       most free time on top and quietly reward re-sitting the same paper. */
+    assert(rows.filter(r => r.name === "Ace").length === 1,
+      "a learner appears more than once — every attempt is being ranked, not their best");
+    assert(rows[0].name === "Ace" && rows[0].pct === 95,
+      `the top entry is ${JSON.stringify(rows[0])}, expected Ace at 95`);
+
+    /* Ties broken by time, or the ranking is not a result. */
+    const quickRow = rows.find(r => r.name === "Quick"), slowRow = rows.find(r => r.name === "Slow");
+    assert(quickRow.pct === slowRow.pct, "the tie fixture is wrong");
+    assert(quickRow.rank < slowRow.rank,
+      `equal scores were not separated by time (Quick ${quickRow.seconds}s ranked ${quickRow.rank}, Slow ${slowRow.seconds}s ranked ${slowRow.rank})`);
+
+    /* An expired paper is not a result, and a learner with none is absent
+       rather than ranked last — and the response says so. */
+    assert(!rows.some(r => r.name === "No Paper"),
+      "a learner whose only paper expired appears on the leaderboard");
+    assert(on.body.entrants === 3 && on.body.classSize === 4,
+      `the board reports ${on.body.entrants} of ${on.body.classSize}; absent members must be visible as absent, not implied to be last`);
+
+    /* Anonymous by default; a parent still sees their own child. */
+    const parentView = (await board(quick.c)).body;
+    const names = parentView.board.map(r => r.name);
+    assert(names.includes("Quick"), "a parent cannot identify their own child on the board");
+    assert(!names.includes("Ace"),
+      "another family's child is named on an anonymised board");
+    assert(parentView.board.find(r => r.name === "Quick").you === true, "the parent's own child is not marked");
+
+    await teacher(`/classes/${classId}/settings`,
+      { method: "PUT", body: JSON.stringify({ leaderboardOn: true, displayNames: true }) });
+    assert((await board(quick.c)).body.board.map(r => r.name).includes("Ace"),
+      "names are still hidden after the teacher allowed them");
+
+    /* Class-scoped: no global board, and outsiders are refused. */
+    const outsider = client();
+    await post(outsider, "/auth/register",
+      { coppaConsent: true, email: "cl-outsider@b.com", password: "a-long-enough-pass", name: "O" });
+    assert((await board(outsider)).status === 403,
+      "someone outside the class read its contest leaderboard");
+    for (const path of ["/leaderboard", "/contests/leaderboard", "/leaderboards/global"]) {
+      const global = await teacher(path);
+      assert(global.status === 404 || global.status === 400,
+        `a class-free leaderboard route answered at ${path} (${global.status}) — children must not be ranked against strangers`);
+    }
+
+    return "best attempt per learner ranked by score then time, expired papers excluded, absent members reported as absent, off until a teacher enables it, anonymous by default, class-scoped with no global board";
+  },
+
+  /* 4.3.2 — differentiated assignments: groups and individual accommodations. */
+  "differentiated-assignments": async () => {
+    const teacher = client();
+    await post(teacher, "/auth/register",
+      { coppaConsent: true, email: "diffteacher@b.com", password: "a-long-enough-pass", name: "T", role: "teacher" });
+    const cls = await post(teacher, "/classes", { name: "Differentiation 1" });
+    assert(cls.status === 200, `class creation failed (${cls.status}) — teacher role not granted`);
+    const classId = cls.body.class.id;
+    const joinCode = cls.body.class.joinCode;
+
+    /* Two families, three children, all in the same class. */
+    const make = async (email, name) => {
+      const c = client();
+      await post(c, "/auth/register",
+        { coppaConsent: true, email, password: "a-long-enough-pass", name: "P" });
+      const kid = (await post(c, "/learners", { name })).body.learner;
+      const joined = await post(c, "/classes/join", { joinCode, learnerId: kid.id });
+      assert(joined.status === 200, `${name} could not join the class (${joined.status})`);
+      return { c, kid };
+    };
+    const stretch = await make("diff-a@b.com", "Stretch Kid");
+    const support = await make("diff-b@b.com", "Support Kid");
+    const plain = await make("diff-c@b.com", "Ungrouped Kid");
+
+    const listFor = async ({ c, kid }) => (await c(`/learners/${kid.id}/assignments`)).body.assignments;
+
+    /* A group, and only one child in it. */
+    const group = await post(teacher, `/classes/${classId}/groups`, { name: "Stretch" });
+    assert(group.status === 200, `group creation failed (${group.status})`);
+    const groupId = group.body.group.id;
+    assert((await post(teacher, `/classes/${classId}/groups/${groupId}/members`,
+      { learnerId: stretch.kid.id })).status === 200, "adding a class member to a group failed");
+
+    /* A learner who never joined this class cannot be pulled into a group —
+       otherwise a group assignment would reach a child the teacher has no
+       relationship with. */
+    const outsiderFamily = client();
+    await post(outsiderFamily, "/auth/register",
+      { coppaConsent: true, email: "diff-outsider@b.com", password: "a-long-enough-pass", name: "O" });
+    const outsiderKid = (await post(outsiderFamily, "/learners", { name: "Outside Kid" })).body.learner;
+    assert((await post(teacher, `/classes/${classId}/groups/${groupId}/members`,
+      { learnerId: outsiderKid.id })).status === 400,
+      "a learner who is not in the class was added to one of its groups");
+
+    /* Whole-class assignment reaches everyone. */
+    const whole = await post(teacher, `/classes/${classId}/assignments`,
+      { topicId: "g6-ratios", tier: "practice", dueAt: "2030-01-10T00:00:00.000Z" });
+    assert(whole.status === 200, "whole-class assignment failed");
+    for (const kid of [stretch, support, plain])
+      assert((await listFor(kid)).some(a => a.id === whole.body.assignment.id),
+        "a whole-class assignment did not reach every member");
+
+    /* THE differentiation property: a group assignment reaches its group and
+       nobody else. Without this, "per-group" is a label on a field that
+       changes nothing about who is asked to do the work. */
+    const groupWork = await post(teacher, `/classes/${classId}/assignments`,
+      { topicId: "g6-percent", tier: "boss", groupId });
+    assert(groupWork.status === 200, `group assignment failed (${groupWork.status})`);
+    const gid = groupWork.body.assignment.id;
+    assert((await listFor(stretch)).some(a => a.id === gid),
+      "a group assignment did not reach the group's own member");
+    for (const kid of [support, plain]) {
+      const list = await listFor(kid);
+      assert(!list.some(a => a.id === gid),
+        "a group assignment reached a learner outside the group — differentiation leaks to the whole class");
+    }
+    assert((await listFor(stretch)).find(a => a.id === gid).groupAssignment === true,
+      "a group assignment is not identified as one");
+
+    /* An accommodation changes what its learner sees, and only that learner. */
+    const wid = whole.body.assignment.id;
+    const acc = await teacher(`/assignments/${wid}/accommodations/${support.kid.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ tier: "practice", dueAt: "2030-02-01T00:00:00.000Z", note: "Extra week agreed with home" })
+    });
+    assert(acc.status === 200, `setting an accommodation failed (${acc.status})`);
+
+    const supported = (await listFor(support)).find(a => a.id === wid);
+    assert(supported.dueAt === "2030-02-01T00:00:00.000Z",
+      `the accommodated learner still sees the class deadline (${supported.dueAt}) — an extension the child cannot see is worth nothing`);
+    assert(supported.accommodated === true, "the accommodation is applied but not disclosed to the learner");
+    assert(supported.classDueAt === "2030-01-10T00:00:00.000Z",
+      "the original class deadline is no longer visible alongside the adjusted one");
+
+    for (const kid of [stretch, plain]) {
+      const theirs = (await listFor(kid)).find(a => a.id === wid);
+      assert(theirs.dueAt === "2030-01-10T00:00:00.000Z",
+        "one learner's accommodation changed another learner's deadline");
+      assert(theirs.accommodated === false, "a learner without an accommodation is marked as having one");
+    }
+
+    /* An accommodation may only be set by the class's own teacher, and only
+       for a learner in that class. */
+    const otherTeacher = client();
+    await post(otherTeacher, "/auth/register",
+      { coppaConsent: true, email: "diff-other-teacher@b.com", password: "a-long-enough-pass", name: "OT", role: "teacher" });
+    assert((await otherTeacher(`/assignments/${wid}/accommodations/${support.kid.id}`,
+      { method: "PUT", body: JSON.stringify({ dueAt: "2031-01-01T00:00:00.000Z" }) })).status !== 200,
+      "another teacher set an accommodation on someone else's class");
+    assert((await teacher(`/assignments/${wid}/accommodations/${outsiderKid.id}`,
+      { method: "PUT", body: JSON.stringify({ dueAt: "2031-01-01T00:00:00.000Z" }) })).status === 400,
+      "an accommodation was set for a learner who is not in the class");
+    assert((await stretch.c(`/learners/${support.kid.id}/assignments`)).status === 403,
+      "one family read another family's assignment list");
+
+    return "groups target work at part of a class without splitting it, group assignments reach only their members, and an individual accommodation moves one learner's tier and deadline visibly to them and to nobody else";
+  },
+
+  /* 6.6 — core and advanced are modelled separately, not averaged.
+
+     Driven entirely over HTTP through real diagnostics rather than by poking
+     the module: the separation only matters if it survives the whole path
+     from a child answering questions to what the next session offers them. */
+  "multi-track-adaptation": async () => {
+    const c = client();
+    await post(c, "/auth/register",
+      { coppaConsent: true, email: "tracks@b.com", password: "a-long-enough-pass", name: "T" });
+    const kid = (await post(c, "/learners", { name: "Track Kid" })).body.learner;
+
+    const tracks = async () => (await c(`/learners/${kid.id}/tracks`)).body.tracks;
+
+    /* Nothing measured yet means unmeasured, not an ability of zero. Zero is
+       a measurement — "average" — and would place an untested learner in the
+       middle of the range as though we had checked. */
+    const cold = await tracks();
+    assert(cold.core && cold.adv, "the profile does not report both tracks");
+    assert(cold.core.measured === false && cold.adv.measured === false,
+      "an untested learner is reported as measured");
+
+    /* Run a whole diagnostic, answering every question a given way. */
+    const runDiagnostic = async (topicId, answerCorrectly) => {
+      const start = await post(c, "/diagnostic/start", { learnerId: kid.id, topicId });
+      assert(start.status === 200, `diagnostic on ${topicId} did not start (${start.status})`);
+      let q = start.body.question, guard = 0, summary = null;
+      while (guard++ < 30) {
+        const answer = answerCorrectly ? await correctAnswerFor(q.id, c) : "-999999";
+        const step = await post(c, "/diagnostic/answer",
+          { diagnosticId: start.body.diagnosticId, answer });
+        assert(step.status === 200, `answer rejected on ${topicId} (${step.status})`);
+        if (step.body.done) { summary = step.body.summary; break; }
+        q = step.body.question;
+      }
+      assert(summary, `the diagnostic on ${topicId} never finished`);
+      return summary;
+    };
+
+    /* A strong run in CORE. */
+    const coreSummary = await runDiagnostic("g6-ratios", true);
+    assert(coreSummary.overall === 100, `the core run scored ${coreSummary.overall}%`);
+    const afterCore = await tracks();
+    assert(afterCore.core.measured === true, "a completed core diagnostic did not record core ability");
+    assert(afterCore.core.ability > 0.3,
+      `a perfect core diagnostic left core ability at ${afterCore.core.ability}`);
+
+    /* THE property. Pooled into one estimate, this strong core record would
+       drag advanced up with it and drop the learner into enrichment material
+       well above them. The average is never wrong about a learner who does
+       not exist. */
+    assert(afterCore.adv.measured === false,
+      "a core diagnostic also marked advanced as measured — the tracks are pooled");
+    assert(afterCore.adv.ability === 0,
+      `advanced ability moved to ${afterCore.adv.ability} on core evidence alone`);
+
+    /* And the reverse: a weak run in ADVANCED must not pull core down. */
+    const advSummary = await runDiagnostic("k-evenodd", false);
+    assert(advSummary.overall === 0, `the deliberately-wrong advanced run scored ${advSummary.overall}%`);
+    const both = await tracks();
+    assert(both.adv.measured === true, "a completed advanced diagnostic did not record advanced ability");
+    assert(both.adv.ability < 0, `an all-wrong advanced run left advanced ability at ${both.adv.ability}`);
+    assert(Math.abs(both.core.ability - afterCore.core.ability) < 1e-9,
+      `core ability changed from ${afterCore.core.ability} to ${both.core.ability} on advanced evidence alone`);
+
+    /* The separation has to change something a learner would notice. */
+    assert(both.core.startsAt !== both.adv.startsAt,
+      `both tracks start this learner at "${both.core.startsAt}" despite opposite evidence — the separation has no effect`);
+    assert(both.core.ability > both.adv.ability,
+      `core ${both.core.ability} is not above advanced ${both.adv.ability} after opposite evidence`);
+
+    /* A second diagnostic in a track starts from what that track already
+       knows, rather than re-measuring from ignorance. */
+    const second = await post(c, "/diagnostic/start", { learnerId: kid.id, topicId: "g6-percent" });
+    assert(second.status === 200, "the second core diagnostic did not start");
+    let q2 = second.body.question, g2 = 0, secondSummary = null;
+    while (g2++ < 30) {
+      const step = await post(c, "/diagnostic/answer",
+        { diagnosticId: second.body.diagnosticId, answer: await correctAnswerFor(q2.id, c) });
+      if (step.body.done) { secondSummary = step.body.summary; break; }
+      q2 = step.body.question;
+    }
+    assert(secondSummary, "the second core diagnostic never finished");
+    assert(secondSummary.abilityError <= coreSummary.abilityError + 1e-9,
+      `the second diagnostic in the same track was no more certain (${secondSummary.abilityError}) than the first (${coreSummary.abilityError}) — history is being discarded`);
+
+    /* Another account cannot read this learner's ability profile. */
+    const outsider = client();
+    await post(outsider, "/auth/register",
+      { coppaConsent: true, email: "tracks-outsider@b.com", password: "a-long-enough-pass", name: "O" });
+    assert((await outsider(`/learners/${kid.id}/tracks`)).status === 403,
+      "another account read this learner's ability profile");
+
+    return `core and advanced held apart end to end: opposite evidence gives ${both.core.ability} vs ${both.adv.ability} (starting at ${both.core.startsAt} vs ${both.adv.startsAt}), neither track moves on the other's evidence, and a repeat diagnostic builds on its own track's history`;
+  },
+
+  /* 7.6 — mastery thresholds configurable, defaulting to 90/80. */
+  "configurable-mastery": async () => {
+    const settings = await import("../app/server/src/settings.js");
+
+    const c = client();
+    const admin = { email: "boss@b.com", password: "a-long-enough-pass" };
+    const reg = await post(c, "/auth/register", { coppaConsent: true, name: "Admin", ...admin });
+    if (reg.status !== 200) {
+      const login = await post(c, "/auth/login", admin);
+      assert(login.status === 200, `could not obtain the admin account (${reg.status}/${login.status})`);
+    }
+
+    /* Defaults are unchanged until somebody changes them. */
+    const start = (await c("/settings/mastery")).body;
+    assert(start.thresholds.core === 90 && start.thresholds.adv === 80,
+      `defaults are ${JSON.stringify(start.thresholds)}, expected 90/80`);
+    assert(start.range.min === settings.MASTERY_MIN && start.range.max === settings.MASTERY_MAX,
+      "the endpoint does not publish the range it will accept");
+
+    /* A change takes effect on what the platform actually enforces, not just
+       on what it reports about itself. A topic scored at 85 is below the 90
+       default and at or above a lowered 85. */
+    const kid = (await post(c, "/learners", { name: "Threshold Kid" })).body.learner;
+    await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 85, total: 100 });
+    /* Asserted on the REASON, not merely on presence in the queue. A topic
+       appears there for either of two reasons — not yet mastered, or
+       mastered and due a refresher — so "is g6-ratios listed?" cannot tell
+       whether the threshold did anything. The reason can. */
+    const reviewEntry = async () => {
+      const body = (await c(`/learners/${kid.id}/review`)).body;
+      return (body.review || []).find(r => r.topicId === "g6-ratios") || null;
+    };
+    const before = await reviewEntry();
+    assert(before && before.reason === "not_yet_mastered",
+      `at 85% under a 90% threshold the topic should be unmastered, got ${JSON.stringify(before)}`);
+    assert(before.threshold === 90, `the entry reports a threshold of ${before.threshold}`);
+
+    const putMastery = body =>
+      c("/admin/settings/mastery", { method: "PUT", body: JSON.stringify(body) });
+    const put = await putMastery({ core: 85, adv: 80 });
+    assert(put.status === 200, `the threshold change was rejected (${put.status})`);
+    assert(put.body.thresholds.core === 85,
+      `the change was accepted but reading it back gives ${put.body.thresholds.core}, not 85 — stored and ignored`);
+    const curriculum = (await c("/curriculum")).body;
+    assert(curriculum.mastery.core === 85,
+      "the curriculum payload still reports the old threshold, so something captured it at import time");
+    assert(curriculum.thresholds["g6-ratios"] === 85,
+      "per-topic thresholds did not follow the change");
+    const after = await reviewEntry();
+    assert(!after || after.reason !== "not_yet_mastered",
+      "the same 85% topic is still reported as not yet mastered after the threshold moved to 85 — the setting is reported but not enforced");
+    if (after) assert(after.threshold === 85,
+      `the review entry still quotes a threshold of ${after.threshold}`);
+
+    /* History must not be rewritten. The recorded run keeps the score it
+       actually got; only the live judgement of "mastered" moves. A setting
+       that edited past results would let an admin change what a child did. */
+    const { DatabaseSync: DB } = await import("node:sqlite");
+    const file = new DB("app/server/data/verify.db");
+    const stored = file.prepare("SELECT pct FROM runs WHERE learner_id=? AND topic_id=?")
+      .get(kid.id, "g6-ratios");
+    assert(stored && stored.pct === 85,
+      `the recorded run now reads ${stored && stored.pct} — changing a threshold rewrote what the child actually scored`);
+
+    /* Out of range is refused, not silently clamped: an admin who typed 5
+       meant something, and storing 50 instead leaves them believing the
+       platform is doing what they asked. */
+    for (const bad of [{ core: 5, adv: 80 }, { core: 90, adv: 101 }, { core: "ninety", adv: 80 },
+                       { core: 87.5, adv: 80 }, { core: null, adv: 80 }]) {
+      const r = await putMastery(bad);
+      assert(r.status === 400, `${JSON.stringify(bad)} was accepted (${r.status})`);
+    }
+    assert((await c("/settings/mastery")).body.thresholds.core === 85,
+      "a refused change still altered the stored threshold");
+
+    /* Only an admin may change it; anyone signed in may read it. */
+    const parent = client();
+    await post(parent, "/auth/register",
+      { coppaConsent: true, email: "threshold-parent@b.com", password: "a-long-enough-pass", name: "P" });
+    assert((await parent("/admin/settings/mastery",
+      { method: "PUT", body: JSON.stringify({ core: 50, adv: 50 }) })).status === 403,
+      "a non-admin changed the mastery threshold");
+    assert((await parent("/settings/mastery")).status === 200,
+      "a signed-in parent cannot see the bar their child is held to");
+
+    /* Reset returns to the documented defaults, and the change is audited. */
+    const reset = await c("/admin/settings/mastery", { method: "DELETE" });
+    assert(reset.status === 200 && reset.body.thresholds.core === 90,
+      "reset did not restore the 90/80 defaults");
+    const { DatabaseSync } = await import("node:sqlite");
+    const db = new DatabaseSync("app/server/data/verify.db");
+    assert(db.prepare("SELECT 1 FROM audit_log WHERE action='admin.settings.mastery'").get(),
+      "changing the mastery threshold was not audited");
+
+    return "defaults 90/80, admin-configurable within 50-100, enforced live on review and curriculum, out-of-range refused not clamped, history unchanged, admin-only and audited";
+  },
+
+  /* 11.7 — infrastructure declared as code, not typed once by hand. */
+  "infrastructure-as-code": async () => {
+    const { readFileSync, existsSync } = await import("node:fs");
+    const { execFileSync } = await import("node:child_process");
+
+    for (const f of ["infra/main.tf", "infra/variables.tf", "infra/outputs.tf"])
+      assert(existsSync(f), `${f} is missing`);
+    const tf = ["main.tf", "variables.tf", "outputs.tf"]
+      .map(f => readFileSync(`infra/${f}`, "utf8")).join("\n");
+
+    /* The volume is the product. Fly replaces a volume when an immutable
+       attribute changes, and a replaced volume is an empty one — so a
+       one-word edit to the region would otherwise plan the deletion of every
+       learner's progress and apply it without comment. */
+    assert(/resource\s+"fly_volume"/.test(tf), "no volume is declared, so the database has nowhere durable to live");
+    const volumeBlock = tf.slice(tf.indexOf('resource "fly_volume"'));
+    assert(/prevent_destroy\s*=\s*true/.test(volumeBlock.slice(0, 900)),
+      "the database volume has no prevent_destroy guard — a region or size change would silently plan to destroy every learner's data");
+
+    /* Scaling out is refused rather than merely discouraged: two machines
+       cannot share one SQLite volume, so a second would serve a different,
+       silently diverging database. */
+    assert(/machine_count/.test(tf), "machine count is not declared");
+    assert(/condition\s*=\s*var\.machine_count == 1/.test(tf),
+      "nothing stops the machine count being raised, which would serve two diverging SQLite databases");
+
+    /* Operating parameters that are off-by-default in code must be on in
+       infrastructure: a host holding the only copy of the database with no
+       backup schedule is one disk failure from total loss, and a retention
+       sweep that never runs means holding data past its stated policy. */
+    assert(/BACKUP_INTERVAL_HOURS/.test(tf), "backups are not configured in the infrastructure");
+    assert(/condition\s*=\s*var\.backup_interval_hours > 0/.test(tf),
+      "the backup interval may be set to zero, leaving the only copy of the database unbacked");
+    assert(/RETENTION_SWEEP_HOURS/.test(tf), "the retention sweep is not configured in the infrastructure");
+
+    /* No secret may be committed. The token is read from the environment and
+       admin emails are a sensitive variable supplied at apply time. */
+    assert(/variable "admin_emails"[\s\S]{0,300}sensitive\s*=\s*true/.test(tf),
+      "admin_emails is not marked sensitive");
+
+    /* Scan every file in infra/, not just the three .tf files, and match
+       unquoted values as well as quoted ones. The first version of this
+       required a quote after the "=" and so waved through
+       `# FLY_API_TOKEN=fo1_realtokenvalue` in a comment — which is precisely
+       the shape a leaked credential takes in practice: pasted into a comment
+       or a stray tfvars file, not neatly quoted in an HCL string. */
+    const { readdirSync } = await import("node:fs");
+    const infraFiles = readdirSync("infra", { withFileTypes: true })
+      .filter(e => e.isFile()).map(e => e.name);
+    assert(!infraFiles.some(f => /\.tfvars$/.test(f)),
+      `a tfvars file is committed (${infraFiles.filter(f => /\.tfvars$/.test(f))}), which is where secrets end up`);
+    assert(!infraFiles.some(f => /^\.env/.test(f)), "an env file is committed under infra/");
+
+    const secretPatterns = [
+      /* Twelve credential characters, so documentation keeps working: the
+         usage comment in main.tf reads `export FLY_API_TOKEN=...`, and a
+         scanner that cannot tell a placeholder from a token either fires on
+         every README or gets deleted for crying wolf. */
+      [/\b(FLY_API_TOKEN|fly_api_token)\s*[=:]\s*["']?[A-Za-z0-9_\-]{12,}/, "a Fly API token is assigned"],
+      [/\bf[om]1_[A-Za-z0-9_\-]{12,}/, "a value with a Fly token prefix appears"],
+      [/\b(password|passwd|secret|api_key|apikey|access_key|private_key)\s*[=:]\s*["']?[^\s"'{$][^\s"']{7,}/i,
+       "a credential is assigned a literal value"]
+    ];
+    for (const name of infraFiles) {
+      const body = readFileSync(`infra/${name}`, "utf8");
+      for (const [pattern, why] of secretPatterns) {
+        const hit = body.match(pattern);
+        assert(!hit, `${why} in infra/${name}: ${String(hit && hit[0]).slice(0, 60)}`);
+      }
+    }
+
+    /* The deploy configs and the infrastructure must agree on the operating
+       parameters, or the running system depends on which one was used. */
+    const fly = readFileSync("fly.toml", "utf8");
+    for (const key of ["RETENTION_SWEEP_HOURS", "BACKUP_INTERVAL_HOURS"])
+      assert(fly.includes(key), `fly.toml does not set ${key}, so it would run on a different policy than the Terraform`);
+
+    /* Blue-green is not configured, and the config has to say why rather than
+       leaving it looking forgotten: it needs two live machines, which this
+       single-volume SQLite deployment cannot have. */
+    assert(/strategy\s*=\s*"rolling"/.test(fly), "no release strategy is declared");
+
+    /* CI validates the infrastructure on every push. */
+    const ci = readFileSync(".github/workflows/verify.yml", "utf8");
+    assert(/terraform validate/.test(ci), "CI does not validate the infrastructure");
+    assert(/terraform fmt -check/.test(ci), "CI does not check infrastructure formatting");
+
+    /* And if terraform is on this machine, it must actually be valid — the
+       assertions above are all structural, and structure that does not parse
+       is not infrastructure. */
+    let parsed = "structure only (terraform not installed here; CI validates it)";
+    try {
+      execFileSync("terraform", ["-version"], { stdio: "ignore" });
+      execFileSync("terraform", ["init", "-backend=false", "-input=false"],
+                   { cwd: "infra", stdio: "ignore" });
+      execFileSync("terraform", ["validate"], { cwd: "infra", stdio: "ignore" });
+      execFileSync("terraform", ["fmt", "-check"], { cwd: "infra", stdio: "ignore" });
+      parsed = "terraform validate and fmt both pass";
+    } catch (e) {
+      if (e.code !== "ENOENT") throw new Error(`terraform rejected the infrastructure: ${e.message}`);
+    }
+
+    return `volume declared with prevent_destroy, scale-out refused, backups and retention set, no secrets committed, CI validates on every push — ${parsed}`;
+  },
+
+  /* 10.3 — the retention policy is enforced, not merely stated. */
+  "retention-deletion": async () => {
+    const retention = await import("../app/server/src/retention.js");
+    const { db } = await import("../app/server/src/db.js");
+    const { randomUUID } = await import("node:crypto");
+
+    const DAY = 86_400_000;
+    const iso = ms => new Date(ms).toISOString();
+    const nowMs = Date.now();
+
+    /* The policy the admin endpoint shows must be the policy the sweep runs
+       on. Prose and behaviour drifting apart is the failure this whole
+       requirement is about: retention was previously a paragraph that no
+       code read. */
+    const report = retention.policyReport();
+    for (const key of ["sessions", "resetTokens", "auditLog", "learnerWork"])
+      assert(report[key], `the policy report omits ${key}`);
+
+    /* The description has to state the period the sweep actually enforces.
+
+       Comparing the endpoint against policyReport() alone proves nothing —
+       both read the same function, so breaking it moves both sides together
+       and the assertion still passes. Checking the prose against the numeric
+       constant is what catches the real drift: someone shortening the audit
+       retention from 400 days to 30 and leaving the text saying 400. */
+    for (const [key, rule] of Object.entries(retention.POLICY)) {
+      if (rule.days === null) {
+        assert(/never on a timer|deleted with/.test(rule.describe),
+          `${key} is not swept on a timer but its description does not say so`);
+      } else {
+        assert(rule.describe.includes(String(rule.days)),
+          `${key} is enforced at ${rule.days} days but its description does not mention that number: "${rule.describe}"`);
+        assert(!/indefinite/i.test(rule.describe),
+          `${key} is actually deleted after ${rule.days} days but is described as retained indefinitely`);
+      }
+    }
+
+    /* boss@b.com is the one address withServer grants admin, so it is shared
+       with whichever check registered it first. Register, and fall back to
+       signing in when it already exists — assuming the account is ours makes
+       this check pass alone and fail inside the suite, which is the most
+       annoying kind of failure to chase. */
+    const c = client();
+    const admin = { email: "boss@b.com", password: "a-long-enough-pass" };
+    const reg = await post(c, "/auth/register", { coppaConsent: true, name: "Admin", ...admin });
+    if (reg.status !== 200) {
+      const login = await post(c, "/auth/login", admin);
+      assert(login.status === 200,
+        `could not obtain the admin account (register ${reg.status}, login ${login.status})`);
+    }
+    const adminView = await c("/admin/retention");
+    assert(adminView.status === 200, `admin retention endpoint returned ${adminView.status}`);
+    const api = adminView.body;
+    assert(api.policy && api.policy.sessions === report.sessions,
+      "the admin endpoint states a different policy than the one enforced");
+
+    /* A learner with real work, which must survive the sweep untouched. */
+    const kid = (await post(c, "/learners", { name: "Retention Kid" })).body.learner;
+    await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 6, total: 8 });
+    const workBefore = {
+      runs: db.prepare("SELECT COUNT(*) c FROM runs WHERE learner_id=?").get(kid.id).c,
+      progress: db.prepare("SELECT COUNT(*) c FROM progress WHERE learner_id=?").get(kid.id).c
+    };
+    assert(workBefore.runs === 1 && workBefore.progress === 1, "the fixture did not record any work");
+
+    /* Rows placed either side of each boundary, so the sweep is tested at the
+       line rather than in the easy middle. */
+    const uid = db.prepare("SELECT id FROM users WHERE email=?").get("boss@b.com").id;
+    const seed = () => {
+      const stale = randomUUID(), fresh = randomUUID();
+      db.prepare("INSERT INTO sessions (id,user_id,created_at,expires_at) VALUES (?,?,?,?)")
+        .run(stale, uid, iso(nowMs - 40 * DAY), iso(nowMs - 3 * DAY));      // expired 3 days ago
+      db.prepare("INSERT INTO sessions (id,user_id,created_at,expires_at) VALUES (?,?,?,?)")
+        .run(fresh, uid, iso(nowMs), iso(nowMs + 30 * DAY));                 // still valid
+      db.prepare("INSERT INTO reset_tokens (token_hash,user_id,created_at,expires_at,used_at) VALUES (?,?,?,?,?)")
+        .run("stale-" + stale, uid, iso(nowMs - 5 * DAY), iso(nowMs - 4 * DAY), null);
+      db.prepare("INSERT INTO reset_tokens (token_hash,user_id,created_at,expires_at,used_at) VALUES (?,?,?,?,?)")
+        .run("fresh-" + fresh, uid, iso(nowMs), iso(nowMs + DAY), null);
+      db.prepare("INSERT INTO audit_log (id,user_id,action,detail,ip,at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), uid, "ancient", null, null, iso(nowMs - 500 * DAY));
+      db.prepare("INSERT INTO audit_log (id,user_id,action,detail,ip,at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), uid, "recent", null, null, iso(nowMs - 10 * DAY));
+      /* An audit row whose user no longer exists: the policy says the log
+         goes with the account, and audit_log has no foreign key to enforce it. */
+      db.prepare("INSERT INTO audit_log (id,user_id,action,detail,ip,at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), "user-that-is-gone", "orphan", null, null, iso(nowMs));
+      /* A system event belongs to nobody and must NOT be swept as an orphan. */
+      db.prepare("INSERT INTO audit_log (id,user_id,action,detail,ip,at) VALUES (?,?,?,?,?,?)")
+        .run(randomUUID(), null, "system", null, null, iso(nowMs));
+      return { stale, fresh };
+    };
+    const { stale, fresh } = seed();
+
+    const { removed } = retention.sweep();
+
+    /* Past the line goes; inside the line stays. Both directions asserted,
+       because a sweep that deletes everything also passes "the old row is
+       gone" — and would take every live session with it. */
+    assert(!db.prepare("SELECT 1 FROM sessions WHERE id=?").get(stale), "an expired session survived the sweep");
+    assert(db.prepare("SELECT 1 FROM sessions WHERE id=?").get(fresh), "the sweep deleted a session that is still valid");
+    assert(!db.prepare("SELECT 1 FROM reset_tokens WHERE token_hash=?").get("stale-" + stale),
+      "an expired reset token survived");
+    assert(db.prepare("SELECT 1 FROM reset_tokens WHERE token_hash=?").get("fresh-" + fresh),
+      "the sweep deleted a reset token that has not expired");
+    assert(!db.prepare("SELECT 1 FROM audit_log WHERE action='ancient'").get(),
+      "an audit entry past its retention survived");
+    assert(db.prepare("SELECT 1 FROM audit_log WHERE action='recent'").get(),
+      "the sweep deleted an audit entry inside its retention period");
+    assert(!db.prepare("SELECT 1 FROM audit_log WHERE action='orphan'").get(),
+      "an audit entry for a deleted account survived");
+    assert(db.prepare("SELECT 1 FROM audit_log WHERE action='system'").get(),
+      "the sweep deleted a system audit entry that belongs to no account");
+
+    /* THE property. A retention sweep that eats a child's progress is far
+       worse than one that keeps data too long: the family did nothing, and a
+       year of work is gone. Learner work is removed with the learner, never
+       on a timer, so it must be untouched here. */
+    const workAfter = {
+      runs: db.prepare("SELECT COUNT(*) c FROM runs WHERE learner_id=?").get(kid.id).c,
+      progress: db.prepare("SELECT COUNT(*) c FROM progress WHERE learner_id=?").get(kid.id).c
+    };
+    assert(workAfter.runs === workBefore.runs && workAfter.progress === workBefore.progress,
+      `the sweep deleted a learner's work (runs ${workBefore.runs}->${workAfter.runs}, progress ${workBefore.progress}->${workAfter.progress})`);
+
+    /* Sweeping again removes nothing: it is a convergent operation, so a
+       daily timer cannot compound. */
+    const { removed: second } = retention.sweep();
+    for (const key of ["sessions", "resetTokens", "auditLog", "orphanedAudit"])
+      assert(second[key] === 0, `a second sweep removed ${second[key]} more ${key} — the sweep is not idempotent`);
+
+    /* Clean up the rows this check invented.
+
+       The sweep removes the stale ones by design, but the deliberately-fresh
+       session and reset token survive it — and another check that reads "the
+       newest reset_tokens row" would then find a fixture instead of its own
+       data. A check that leaves test rows in shared tables makes some other
+       check fail somewhere else, which is the hardest kind of failure to
+       trace back. */
+    db.prepare("DELETE FROM sessions WHERE id = ?").run(fresh);
+    db.prepare("DELETE FROM reset_tokens WHERE token_hash LIKE 'fresh-%' OR token_hash LIKE 'stale-%'").run();
+    db.prepare("DELETE FROM audit_log WHERE action IN ('recent','ancient','system','orphan')").run();
+
+    /* Reachable by an admin, refused to everyone else, and audited. */
+    const swept = await post(c, "/admin/retention/sweep", {});
+    assert(swept.status === 200 && swept.body.removed, `admin sweep failed (${swept.status})`);
+    const outsider = client();
+    await post(outsider, "/auth/register",
+      { coppaConsent: true, email: "not-admin@b.com", password: "a-long-enough-pass", name: "N" });
+    assert((await post(outsider, "/admin/retention/sweep", {})).status === 403,
+      "a non-admin ran the retention sweep");
+    assert(db.prepare("SELECT 1 FROM audit_log WHERE action='admin.retention.sweep'").get(),
+      "the sweep was not recorded in the audit log");
+
+    return `policy enforced not just stated: expired sessions/tokens and audit past 400 days deleted, live rows and learner work untouched, idempotent, admin-only and audited (removed ${removed.sessions + removed.resetTokens + removed.auditLog + removed.orphanedAudit} rows)`;
+  },
+
   /* 3.2.2 — plotting points on a grid, marked server-side. */
   "plot-input": async () => {
     const { QUESTIONS } = await import("../app/shared/questions.mjs");
@@ -3585,17 +5297,40 @@ export const CHECKS = {
   /* X.4 — progress survives a restart (checked by reopening the file) */
   "persistence": async () => {
     const c = client();
-    await post(c, "/auth/register", { coppaConsent: true, email: "persist@b.com", password: "a-long-enough-pass", name: "P" });
-    const kid = (await post(c, "/learners", { name: "Persist Kid" })).body.learner;
-    await post(c, "/runs", { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 7, total: 8 });
+    /* Each setup step is asserted before the next depends on it. Without
+       this the check reported "progress not written to disk" whenever
+       registration or the run POST had failed for an unrelated reason —
+       blaming persistence for something that never got as far as writing. */
+    const reg = await post(c, "/auth/register",
+      { coppaConsent: true, email: "persist@b.com", password: "a-long-enough-pass", name: "P" });
+    assert(reg.status === 200, `registration failed (${reg.status}: ${JSON.stringify(reg.body)})`);
+    const made = await post(c, "/learners", { name: "Persist Kid" });
+    assert(made.status === 200 && made.body.learner,
+      `learner not created (${made.status}: ${JSON.stringify(made.body)})`);
+    const kid = made.body.learner;
+    const run = await post(c, "/runs",
+      { learnerId: kid.id, topicId: "g6-ratios", tier: "practice", score: 7, total: 8 });
+    assert(run.status === 200, `recording the run failed (${run.status}: ${JSON.stringify(run.body)})`);
 
     const { DatabaseSync } = await import("node:sqlite");
     const db = new DatabaseSync("app/server/data/verify.db");
     const row = db.prepare("SELECT best_pct, runs FROM progress WHERE learner_id = ?").get(kid.id);
-    assert(row, "progress not written to disk");
+
+    if (!row) {
+      /* Two very different faults produce a missing row, and the old message
+         could not tell them apart: the write never happened, or it happened
+         and this second connection cannot see it. Ask the server — which is
+         the writer — and say which one it was. */
+      const viaApi = await c(`/learners/${kid.id}/progress`);
+      const seenByServer = JSON.stringify(viaApi.body || {}).includes("g6-ratios");
+      const total = db.prepare("SELECT COUNT(*) c FROM progress").get().c;
+      assert(false, seenByServer
+        ? `the server can see this progress but a second connection to the file cannot (file holds ${total} progress rows) — a read-visibility fault, not a write failure`
+        : `the run was accepted but no progress was recorded anywhere; the server cannot see it either (file holds ${total} progress rows)`);
+    }
     assert(row.best_pct === 88, `expected 88%, stored ${row.best_pct}`);
     const runs = db.prepare("SELECT COUNT(*) c FROM runs WHERE learner_id = ?").get(kid.id);
-    assert(runs.c === 1, "run history not written");
+    assert(runs.c === 1, `run history not written (found ${runs.c} rows)`);
     return "progress and run history are on disk, readable by a separate process";
   }
 };

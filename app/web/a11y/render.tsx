@@ -5,6 +5,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { AuthScreen } from "../src/screens/Auth";
 import { LearnerPicker } from "../src/screens/Learners";
 import { GradeList, GradeMap, TierPicker } from "../src/screens/Curriculum";
+import { Arcade } from "../src/screens/Arcade";
+import { Bonds } from "../src/games/Bonds";
 
 const noop = () => {};
 const learner = { id: "l1", name: "Josiah", beast: "vex", stars: 2, topics: 1 };
@@ -31,7 +33,11 @@ export const SCREENS: Record<string, string> = {
     <LearnerPicker userName="Sam" learners={[learner]} onPick={noop}
                    onChanged={async () => []} onSignOut={noop} />),
   grades: renderToStaticMarkup(
-    <div className="wrap"><main><GradeList order={["6"]} cur={cur as any} onOpen={noop} /></main></div>),
+    <div className="wrap"><main><GradeList order={["6"]} cur={cur as any} onOpen={noop} onArcade={noop} /></main></div>),
+  arcade: renderToStaticMarkup(
+    <div className="wrap"><main><Arcade learner={learner as any} onBack={noop} /></main></div>),
+  arcadeLevel: renderToStaticMarkup(
+    <div className="wrap"><main><Bonds learner={learner as any} onArcade={noop} /></main></div>),
   gradeMap: renderToStaticMarkup(
     <div className="wrap"><main><GradeMap gradeKey="6" cur={cur as any} onBack={noop} onOpen={noop} /></main></div>),
   tiers: renderToStaticMarkup(

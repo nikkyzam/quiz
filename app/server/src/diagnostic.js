@@ -23,6 +23,7 @@
 import { randomUUID } from "node:crypto";
 import { db, now } from "./db.js";
 import * as irt from "./irt.js";
+import * as trackmodel from "./trackmodel.js";
 
 export const TIER_ORDER = ["practice", "challenge", "boss"];
 const MAX_QUESTIONS = 12;
@@ -30,14 +31,25 @@ const MIN_QUESTIONS = 6;
 
 const sessions = new Map();
 
-export function makeDiagnostic({ questionsByTier, bank, topicId, learnerId }) {
+export function makeDiagnostic({ questionsByTier, bank, topicId, learnerId, track = "core" }) {
   const id = randomUUID();
+  /* Start from what this learner has already shown IN THIS TRACK (spec 6.6).
+
+     Not from their overall average: a child fluent in core arithmetic and new
+     to competition combinatorics would otherwise open the advanced diagnostic
+     several tiers above themselves, get a run of questions they cannot do,
+     and be measured mostly on how they cope with that. The core record says
+     nothing about the advanced one, so it is not allowed to speak for it. */
+  const prior = trackmodel.priorFor(learnerId, track);
   sessions.set(id, {
-    learnerId, topicId,
+    learnerId, topicId, track,
     bank: bank || [],
     asked: [], results: [],
     responses: [],                  // [{ item, correct }] — the model's input
-    theta: 0, se: 1,                // the prior, before any evidence
+    theta: prior ? prior.mean : 0,
+    se: prior ? prior.sd : 1,
+    prior,
+    startedFromPrior: Boolean(prior),
     pool: questionsByTier,
     used: new Set()
   });
@@ -88,7 +100,12 @@ export function record(sess, { idx, tier, sec, correct }) {
   const q = sess.bank[idx];
   if (q) sess.responses.push({ item: irt.itemParams(q), correct });
 
-  const { theta, se } = irt.estimateAbility(sess.responses);
+  /* Estimated against this track's prior, so the running estimate reflects
+     both the answers given here and what the track already knew. The prior is
+     the one captured when the session opened rather than re-read per answer:
+     it cannot change mid-diagnostic, and re-reading it was a database round
+     trip for every question a child answered. */
+  const { theta, se } = irt.estimateAbility(sess.responses, sess.prior);
   sess.theta = theta;
   sess.se = se;
 }
@@ -155,6 +172,8 @@ export function summarise(sess, secNames) {
 }
 
 export function persist(sess, summary) {
+  /* Fold this diagnostic into the track it belongs to, and only that track. */
+  if (sess.responses.length) trackmodel.observe(sess.learnerId, sess.track, sess.responses);
   db.prepare(`INSERT INTO diagnostics (id, learner_id, topic_id, asked, correct, skill_map, recommendation, finished_at)
               VALUES (?,?,?,?,?,?,?,?)`)
     .run(randomUUID(), sess.learnerId, sess.topicId, summary.asked, summary.correct,

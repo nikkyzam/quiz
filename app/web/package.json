@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "a11y": "esbuild a11y/render.tsx --bundle --platform=node --format=esm --outfile=a11y/render.mjs --jsx=automatic --external:react --external:react-dom && node a11y/audit.mjs"
+    "a11y": "esbuild a11y/render.tsx --bundle --platform=node --format=esm --outfile=a11y/render.mjs --jsx=automatic --external:react --external:react-dom && node a11y/audit.mjs",
+    "smoke": "esbuild a11y/arcade-smoke.tsx --bundle --platform=node --format=esm --outfile=a11y/arcade-smoke.mjs --jsx=automatic --external:react --external:react-dom --external:jsdom && node a11y/arcade-smoke.mjs",
+    "smoke:shots": "npm run build && esbuild a11y/arcade-smoke.tsx --bundle --platform=node --format=esm --outfile=a11y/arcade-smoke.mjs --jsx=automatic --external:react --external:react-dom --external:jsdom && node a11y/arcade-smoke.mjs --shots"
   },
   "dependencies": {
     "react": "^18.3.1",

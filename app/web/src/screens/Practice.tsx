@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, type Question, type Learner } from "../api";
 import { Grid, Beast, Confetti } from "../beasts";
-import { ReadAloud } from "../components/ReadAloud";
+import { SpokenText } from "../components/ReadAloud";
 import { OrderAnswer, MultiAnswer, PlotAnswer } from "../components/AnswerInput";
 
 type Summary = {
@@ -130,8 +130,7 @@ export function Practice({ learner, topicId, topicName, onExit, onRestart }: {
                  mood={fb ? (fb.correct ? "happy" : "oops") : hints.length ? "thinking" : "idle"} />
           <div className="sec">{q.secName}</div>
         </div>
-        <p className="qtext">{q.q}</p>
-        <ReadAloud text={q.q} />
+        <SpokenText className="qtext" text={q.q} />
         {q.fig && <div className="fig"><Grid spec={q.fig} /></div>}
 
         {q.type === "plot" ? (

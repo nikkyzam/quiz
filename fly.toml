@@ -11,6 +11,23 @@ primary_region = "lhr"
   NODE_ENV = "production"
   PORT = "8080"
   DB_FILE = "/data/mathquest.db"
+  # Retention enforcement (spec 10.3): deletes data past its stated period.
+  # 0 disables the sweep, which means holding data longer than the policy says.
+  RETENTION_SWEEP_HOURS = "24"
+  # This volume holds the only copy of the database. Backups are off unless an
+  # interval is set, so it is set here rather than left to a default.
+  BACKUP_INTERVAL_HOURS = "6"
+  BACKUP_KEEP = "7"
+  BACKUP_DIR = "/data/backups"
+
+# Releases are rolling, not blue-green, and that is a constraint rather than a
+# preference: blue-green runs the old and new versions side by side, and this
+# app keeps its state in one SQLite file on one volume that only one machine
+# can mount. Two machines would serve two silently diverging databases. Moving
+# to a networked database is the prerequisite for zero-downtime releases; until
+# then a rolling restart with a health gate is the honest ceiling.
+[deploy]
+  strategy = "rolling"
 
 [[mounts]]
   source = "mathquest_data"
@@ -19,6 +36,12 @@ primary_region = "lhr"
 [http_service]
   internal_port = 8080
   force_https = true
+  # The machine suspends when idle, so nothing that relies on a long-running
+  # timer can be trusted to fire here. Both scheduled jobs above record when
+  # they last ran and check whether they are overdue at boot, which is what
+  # makes a 24-hour sweep and a 6-hour backup real on a host that stops
+  # between requests. Changing this to keep a machine always on is not
+  # required for them to work.
   auto_stop_machines = "suspend"
   auto_start_machines = true
   min_machines_running = 0

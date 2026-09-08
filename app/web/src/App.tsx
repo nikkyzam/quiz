@@ -11,6 +11,7 @@ import { Diagnostic } from "./screens/Diagnostic";
 import { MasteryCheck } from "./screens/MasteryCheck";
 import { Practice } from "./screens/Practice";
 import { Lesson } from "./screens/Lesson";
+import { Arcade } from "./screens/Arcade";
 
 const GRADE_ORDER = ["K", "1", "2", "3", "4", "5", "6", "7", "8"];
 
@@ -22,6 +23,7 @@ type View =
   | { s: "mastery"; topicId: string; topicName: string }
   | { s: "practice"; topicId: string; topicName: string; nonce: number }
   | { s: "lesson"; topicId: string; topicName: string; lessonId: string }
+  | { s: "arcade" }
   | { s: "dash" };
 
 
@@ -89,6 +91,7 @@ export default function App() {
     <nav className="appbar" aria-label="Learner">
         <span className="who"><Beast kind={active.beast} size={26} /><b>{active.name}</b></span>
         <span className="spread">
+          <button className="linkbtn" onClick={() => setView({ s: "arcade" })}>🕹️ Arcade</button>
           <button className="linkbtn" onClick={() => setView({ s: "dash" })}>Progress</button>
           <button className="linkbtn" onClick={() => setActive(null)}>Switch</button>
       </span>
@@ -101,10 +104,13 @@ export default function App() {
         await refreshLearners(); setActive(null);
       }} />}
 
+      {view.s === "arcade" && <Arcade learner={active} onBack={back} />}
+
       {view.s === "grades" && cur && (
         <GradeList
           order={GRADE_ORDER} cur={cur}
           onOpen={g => setView({ s: "grade", g })}
+          onArcade={() => setView({ s: "arcade" })}
         />
       )}
 
