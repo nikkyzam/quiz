@@ -140,7 +140,26 @@ export const G4_BANKS = {
 {lvl:2,sec:"N",type:"in",q:"A theater sells 235 tickets a day for 6 days. How many tickets total?",
  ans:1410,expl:"235 × 6 = 1410."},
 {lvl:3,sec:"N",type:"in",q:"A number times 8 equals 976. What is the number?",ans:122,
- hint:"Divide to undo the multiplication.",expl:"976 ÷ 8 = 122."}
+ hint:"Divide to undo the multiplication.",expl:"976 ÷ 8 = 122."},
+{sec:"N",type:"in",q:"Using the Standard Algorithm: 184 × 28 = ?",ans:5152,
+ expl:"184 × 8 = 1,472. 184 × 20 = 3,680 (that placeholder zero holds the ones place). Add them: 1,472 + 3,680 = 5,152."},
+{sec:"N",type:"mc",q:"In the Standard Algorithm, why do you write a placeholder zero before multiplying by the tens digit?",
+ opts:["Because you're now multiplying by a TENS digit, not ones","Because the answer must end in zero","It's just a rule with no reason","To make the number look bigger"],a:0,
+ expl:"That zero holds the ones place so the tens-digit product lines up correctly before you add it to the first row."},
+{lvl:2,sec:"N",type:"in",q:"Using Partial Products: 21,876 × 9 = ?",ans:196884,
+ expl:"9×20,000=180,000, 9×1,000=9,000, 9×800=7,200, 9×70=630, 9×6=54. Add them: 180,000+9,000+7,200+630+54 = 196,884."},
+{lvl:2,sec:"N",type:"in",q:"Using the Distributive Property on 7 × 3,098, first decompose 3,098 into 3,000 + 90 + 8. What is 7 × 90?",
+ ans:630,expl:"That's the middle partial product: 7 × 90 = 630."},
+{lvl:2,sec:"N",type:"in",q:"Finish it: 7 × 3,098 = (7×3,000) + (7×90) + (7×8) = 21,000 + 630 + 56. What's the final product?",
+ ans:21686,expl:"21,000 + 630 + 56 = 21,686 — adding the partial products together."},
+{lvl:3,sec:"N",type:"in",q:"Open Area Model for 7 × 40,823 splits it into 7×40,000, 7×0, 7×800, 7×20, and 7×3. What is 7 × 800?",
+ ans:5600,expl:"7 × 800 = 5,600 — one column of the area model. (The full model adds up to 285,761.)"},
+{sec:"N",type:"mc",q:"To ESTIMATE 289 × 6, you round 289 to the nearest hundred first. What do you round it to?",
+ opts:["200","280","290","300"],a:3,
+ expl:"289 is closer to 300 than to 200, so it rounds to 300. Then 300 × 6 = 1,800 is your reasonable estimate."},
+{lvl:2,sec:"N",type:"mc",q:"Which is the best ESTIMATE for 412 × 7?",
+ opts:["700","2,800","3,000","4,200"],a:1,
+ expl:"Round 412 to 400 (nearest hundred), then 400 × 7 = 2,800."}
 ],
 
 "g4-divide": [
