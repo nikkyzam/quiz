@@ -189,6 +189,14 @@
     margin-top:18px;
     box-shadow:0 10px 26px var(--shadow);
   }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
   .cat-tag{
     display:inline-flex;
     align-items:center;
@@ -202,7 +210,43 @@
     border:1px solid rgba(184,134,63,0.35);
     padding:4px 10px;
     border-radius:999px;
-    margin-bottom:14px;
+  }
+  .timer{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .timer-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:0.85rem;
+    font-weight:600;
+    color:var(--muted);
+    width:2.2em;
+    text-align:right;
+  }
+  .timer-track{
+    width:70px;
+    height:6px;
+    border-radius:999px;
+    background:var(--line);
+    overflow:hidden;
+  }
+  .timer-fill{
+    height:100%;
+    width:100%;
+    background:var(--sage);
+    border-radius:999px;
+    transition:width .18s linear, background .3s ease;
+  }
+  .timer-fill.low{ background:var(--stamp-red); }
+  .multi-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--gold);
+    margin:-10px 0 12px;
   }
   .qtext{
     font-size:1.2rem;
@@ -257,6 +301,24 @@
   }
   .choice.wrong .letter{ border-color:var(--stamp-red); color:var(--stamp-red); }
   .choice.dim{ opacity:0.55; }
+  .choice.picked{ border-color:var(--gold); background:rgba(184,134,63,0.1); }
+  .choice.missed{ border-color:var(--stamp-red); border-style:dashed; }
+  .choice .letter.box{ border-radius:5px; }
+
+  .submit-row{ margin-top:4px; }
+  button.submit{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    background:var(--gold);
+    color:#fff;
+    border:none;
+    padding:9px 16px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  button.submit:disabled{ opacity:0.4; cursor:default; }
 
   .feedback{
     margin-top:16px;
@@ -426,12 +488,22 @@
   </div>
 
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-label"><span id="progressText">Question 1 of 20</span><span id="progressPct">0%</span></div>
+  <div class="progress-label"><span id="progressText">Question 1 of 26</span><span id="progressPct">0%</span></div>
 
   <div class="card" id="quizCard">
-    <span class="cat-tag" id="catTag">Vocabulary</span>
+    <div class="card-top">
+      <span class="cat-tag" id="catTag">Vocabulary</span>
+      <div class="timer">
+        <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+        <span class="timer-num" id="timerNum">20s</span>
+      </div>
+    </div>
     <p class="qtext" id="qtext">Loading…</p>
+    <p class="multi-hint" id="multiHint" style="display:none;">Select ALL that apply</p>
     <div class="choices" id="choices"></div>
+    <div class="submit-row" id="submitRow" style="display:none;">
+      <button class="submit" id="submitBtn">Submit answer</button>
+    </div>
     <div class="feedback" id="feedback">
       <div class="stamp" id="stampLabel">Correct</div>
       <div id="feedbackText"></div>
@@ -445,7 +517,7 @@
     <div class="stamp-board">
       <div class="eyebrow">Final passport check</div>
       <div class="rank" id="rankTitle">—</div>
-      <div class="score-big" id="finalScore">0 / 20</div>
+      <div class="score-big" id="finalScore">0 / 26</div>
       <p class="desc" id="rankDesc"></p>
       <div class="stamps" id="stampIcons"></div>
       <div class="actions">
@@ -641,6 +713,67 @@
       q: "Match the ceremonial 'Head of State' role to its country: which pairing is INCORRECT?",
       choices:["UK — Monarch","Germany — President","Russia — President","Germany — Chancellor is a ceremonial-only role"], correct:3,
       explain:"The Chancellor is Germany's head of government and chief executive with the most political power — not a ceremonial role. The UK's Monarch and Germany's President are the ceremonial heads of state; Russia's President is unusual because it is both head of state AND the powerful chief executive."
+    },
+    {
+      cat: "Compare Systems", flag:"⚖️", multi:true,
+      q: "Select ALL statements that are TRUE of parliamentary democracies like the UK and Germany.",
+      choices:[
+        "Citizens directly elect the legislature (Parliament / Bundestag).",
+        "The legislature indirectly selects the chief executive (Prime Minister / Chancellor).",
+        "The ceremonial head of state holds the most real political power.",
+        "The legislature is unicameral — it has only one house."
+      ], correct:[0,1],
+      explain:"Both are true: citizens elect the legislature, which then selects the chief executive. The other two are false — the ceremonial head of state (Monarch/President) holds limited power, and both countries have bicameral (two-house) legislatures."
+    },
+    {
+      cat: "Russia", flag:"🇷🇺", multi:true,
+      q: "Select ALL statements that correctly describe Russia's system, according to the notes.",
+      choices:[
+        "Citizens vote directly for the President.",
+        "Citizens cast a separate vote for the State Duma (legislature).",
+        "The President can serve an unlimited number of 6-year terms.",
+        "International observers generally agree Russia's elections are free and fair."
+      ], correct:[0,1],
+      explain:"Citizens vote directly for both the President and, separately, the State Duma. The other two are false: the President is limited to two consecutive 6-year terms, and elections are often described as not free or fair."
+    },
+    {
+      cat: "Compare Systems", flag:"⚖️", multi:true,
+      q: "Select ALL roles below that are ceremonial 'Head of State' positions with limited real power.",
+      choices:["The UK's Monarch","Germany's President","Germany's Chancellor","Russia's President"], correct:[0,1],
+      explain:"The UK Monarch and Germany's President are ceremonial heads of state. Germany's Chancellor is the powerful chief executive, not ceremonial — and Russia's President is unusual, holding both the head-of-state title AND real executive power at once."
+    },
+    {
+      cat: "Compare Systems", flag:"⚖️",
+      q: "A country's citizens cast one ballot to elect a national assembly. That assembly debates and votes to choose the head of government, and can remove that leader if it loses confidence in them. Which system does this describe?",
+      choices:[
+        "A presidential democracy, like Russia's structure on paper.",
+        "A parliamentary democracy, like the UK's or Germany's structure.",
+        "An absolute monarchy with no elections at all.",
+        "A direct democracy with no elected officials."
+      ], correct:1,
+      explain:"Choosing (and being able to remove) the chief executive through the legislature, rather than by direct popular vote, is the defining feature of a parliamentary democracy — matching the UK's and Germany's indirect election paths."
+    },
+    {
+      cat: "Russia", flag:"🇷🇺",
+      q: "The State Duma rarely limits the President's power, and courts rarely check him either. Given that Russia still holds direct elections for both the President and the Duma, which best explains why analysts call Russia 'democratic on paper, autocratic in practice' rather than simply a straightforward autocracy?",
+      choices:[
+        "Russia has real democratic structures — elections and a legislature — but in practice those structures don't meaningfully constrain the President's power.",
+        "Russia has no legislature or elections of any kind, identical to a pure autocracy.",
+        "The term 'autocracy' legally applies only to monarchies, so Russia cannot be described that way at all.",
+        "Analysts are simply mistaken, and Russia's system works exactly as it appears on paper."
+      ], correct:0,
+      explain:"This is the core tension: the structures (elections, a legislature) look democratic, but weak checks on the President — from the courts, the Duma, media, and opponents — mean real power in practice concentrates in one office."
+    },
+    {
+      cat: "Vocabulary", flag:"🌍",
+      q: "Which term-length pairing is accurate?",
+      choices:[
+        "UK parliamentary terms last up to 5 years; German Bundestag elections are normally held every 4 years.",
+        "UK parliamentary terms last exactly 6 years, the same as Russia's presidential terms.",
+        "German Bundestag elections happen every 6 years, matching Russia's presidential term length.",
+        "None of the three countries hold elections on any regular cycle."
+      ], correct:0,
+      explain:"Watch the numbers closely: UK parliamentary terms can last up to 5 years, German Bundestag elections are held roughly every 4 years, and Russia's presidential terms are 6 years each (up to two consecutive terms) — three different cycles, easy to mix up."
     }
   ];
 
@@ -651,9 +784,14 @@
     { min: 0,   title:"Registered Voter", desc:"You're building the basics. Review the guided notes and try the tour again." }
   ];
 
+  const TIME_LIMIT = 15; // seconds per question — the clock is part of the challenge
+
   let order = [...QUESTIONS.keys()];
   shuffle(order);
   let idx = 0, score = 0, streak = 0, answered = false;
+  let displayIdx = [];       // shuffled choice order for the current question, as original indices
+  let picked = new Set();    // indices (into displayIdx) the player has toggled, for multi-select
+  let timerId = null, timeLeft = TIME_LIMIT;
   const results = [];
 
   const el = id => document.getElementById(id);
@@ -665,59 +803,129 @@
       const j = Math.floor(Math.random()*(i+1));
       [a[i],a[j]]=[a[j],a[i]];
     }
+    return a;
+  }
+
+  function currentQuestion(){ return QUESTIONS[order[idx]]; }
+
+  function startTimer(){
+    clearInterval(timerId);
+    timeLeft = TIME_LIMIT;
+    updateTimerUI();
+    timerId = setInterval(() => {
+      timeLeft -= 0.1;
+      if(timeLeft <= 0){
+        timeLeft = 0;
+        updateTimerUI();
+        clearInterval(timerId);
+        if(!answered) lockAnswer(-1); // time's up — counts as a miss
+        return;
+      }
+      updateTimerUI();
+    }, 100);
+  }
+
+  function updateTimerUI(){
+    const pct = Math.max(0, timeLeft / TIME_LIMIT * 100);
+    const fill = el('timerFill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('low', timeLeft <= TIME_LIMIT * 0.3);
+    el('timerNum').textContent = Math.ceil(timeLeft) + 's';
   }
 
   function render(){
-    const qi = order[idx];
-    const q = QUESTIONS[qi];
+    const q = currentQuestion();
     answered = false;
+    picked = new Set();
+    displayIdx = shuffle(q.choices.map((_, i) => i));
+
     el('catTag').textContent = q.flag + "  " + q.cat;
     el('qtext').textContent = q.q;
+    el('multiHint').style.display = q.multi ? 'block' : 'none';
     el('feedback').className = 'feedback';
     el('nextBtn').className = 'next';
+    el('submitRow').style.display = q.multi ? 'flex' : 'none';
+    el('submitBtn').disabled = true;
 
     const wrap = el('choices');
     wrap.innerHTML = '';
     const letters = ['A','B','C','D'];
-    q.choices.forEach((choice, i) => {
+    displayIdx.forEach((origI, slot) => {
       const btn = document.createElement('button');
       btn.className = 'choice';
-      btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${choice}</span>`;
-      btn.addEventListener('click', () => selectAnswer(i, btn));
+      const letterClass = q.multi ? 'letter box' : 'letter';
+      const mark = q.multi ? '' : '';
+      btn.innerHTML = `<span class="${letterClass}">${letters[slot]}</span><span>${q.choices[origI]}</span>`;
+      btn.addEventListener('click', () => q.multi ? toggleChoice(origI, btn) : lockAnswer(origI));
       wrap.appendChild(btn);
     });
 
     el('progressText').textContent = `Question ${idx+1} of ${QUESTIONS.length}`;
     el('progressPct').textContent = Math.round((idx/QUESTIONS.length)*100) + '%';
     el('progressFill').style.width = (idx/QUESTIONS.length*100) + '%';
+
+    startTimer();
   }
 
-  function selectAnswer(i, btn){
+  function toggleChoice(origI, btn){
+    if(answered) return;
+    if(picked.has(origI)){ picked.delete(origI); btn.classList.remove('picked'); }
+    else { picked.add(origI); btn.classList.add('picked'); }
+    el('submitBtn').disabled = picked.size === 0;
+  }
+
+  el('submitBtn').addEventListener('click', () => {
+    if(answered || picked.size === 0) return;
+    lockAnswer([...picked]);
+  });
+
+  function lockAnswer(choice){
     if(answered) return;
     answered = true;
-    const qi = order[idx];
-    const q = QUESTIONS[qi];
+    clearInterval(timerId);
+    const q = currentQuestion();
     const buttons = [...el('choices').children];
-    const correct = i === q.correct;
+    const timedOut = choice === -1;
 
-    buttons.forEach((b, bi) => {
-      b.disabled = true;
-      if(bi === q.correct) b.classList.add('correct');
-      else if(bi === i) b.classList.add('wrong');
-      else b.classList.add('dim');
-    });
+    let correct;
+    if(q.multi){
+      const chosenSet = new Set(Array.isArray(choice) ? choice : []);
+      const correctSet = new Set(q.correct);
+      correct = !timedOut && chosenSet.size === correctSet.size && [...chosenSet].every(c => correctSet.has(c));
+      buttons.forEach((b, slot) => {
+        const origI = displayIdx[slot];
+        b.disabled = true;
+        if(correctSet.has(origI)) b.classList.add('correct');
+        else if(chosenSet.has(origI)) b.classList.add('missed');
+        else b.classList.add('dim');
+      });
+      el('submitRow').style.display = 'none';
+    } else {
+      correct = !timedOut && choice === q.correct;
+      buttons.forEach((b, slot) => {
+        const origI = displayIdx[slot];
+        b.disabled = true;
+        if(origI === q.correct) b.classList.add('correct');
+        else if(origI === choice) b.classList.add('wrong');
+        else b.classList.add('dim');
+      });
+    }
 
     if(correct){ score++; streak++; }
     else { streak = 0; }
 
-    results.push({ q: q.q, correct, chosen: q.choices[i], answer: q.choices[q.correct] });
+    const answerText = q.multi
+      ? q.correct.map(i => q.choices[i]).join(' / ')
+      : q.choices[q.correct];
+
+    results.push({ q: q.q, correct, answer: answerText, timedOut });
 
     el('statScore').textContent = score;
     el('statStreak').textContent = streak;
 
     const fb = el('feedback');
     fb.classList.add('show', correct ? 'right' : 'wrong');
-    el('stampLabel').textContent = correct ? 'Correct' : 'Incorrect';
+    el('stampLabel').textContent = timedOut ? "Time's up" : (correct ? 'Correct' : 'Incorrect');
     el('feedbackText').textContent = q.explain;
 
     el('nextBtn').classList.add('show');
@@ -730,6 +938,7 @@
   });
 
   function showResults(){
+    clearInterval(timerId);
     el('quizCard').style.display = 'none';
     el('progressFill').style.width = '100%';
     el('progressText').textContent = `Question ${QUESTIONS.length} of ${QUESTIONS.length}`;
@@ -747,7 +956,7 @@
     const stampIcons = el('stampIcons');
     stampIcons.innerHTML = '';
     const flags = ['🇬🇧','🇩🇪','🇷🇺'];
-    const thresholds = [0.4, 0.65, 0.85];
+    const thresholds = [0.45, 0.7, 0.9];
     flags.forEach((f, i) => {
       const d = document.createElement('div');
       d.className = 'country-stamp' + (pct >= thresholds[i] ? ' earned' : '');
@@ -759,7 +968,7 @@
     reviewBox.innerHTML = '<h3>Answer review</h3>' + results.map(r => `
       <div class="review-item">
         <span class="mark ${r.correct ? 'ok' : 'no'}">${r.correct ? '✓' : '✗'}</span>
-        <span>${r.q}${r.correct ? '' : `<br><em>Correct answer: ${r.answer}</em>`}</span>
+        <span>${r.q}${r.correct ? '' : `<br><em>${r.timedOut ? 'Time ran out. ' : ''}Correct answer: ${r.answer}</em>`}</span>
       </div>
     `).join('');
 
