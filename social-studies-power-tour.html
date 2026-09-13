@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Power Tour</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --navy:#1c2b4a;
+    --navy-deep:#12203a;
+    --parchment:#f3ede0;
+    --paper:#fffdf7;
+    --gold:#b8863f;
+    --gold-bright:#c89b3c;
+    --stamp-red:#a33b2e;
+    --sage:#3f6e56;
+    --ink:#2a2620;
+    --muted:#6b6357;
+    --line: rgba(42,38,32,0.16);
+    --shadow: rgba(28,43,74,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --navy:#e8dcc0;
+      --navy-deep:#f3ede0;
+      --parchment:#141b2c;
+      --paper:#1b2438;
+      --gold:#d8ab5c;
+      --gold-bright:#e6bd75;
+      --stamp-red:#e08a78;
+      --sage:#7fc4a2;
+      --ink:#ece4d2;
+      --muted:#a79d87;
+      --line: rgba(236,228,210,0.16);
+      --shadow: rgba(0,0,0,0.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --navy:#e8dcc0;
+    --navy-deep:#f3ede0;
+    --parchment:#141b2c;
+    --paper:#1b2438;
+    --gold:#d8ab5c;
+    --gold-bright:#e6bd75;
+    --stamp-red:#e08a78;
+    --sage:#7fc4a2;
+    --ink:#ece4d2;
+    --muted:#a79d87;
+    --line: rgba(236,228,210,0.16);
+    --shadow: rgba(0,0,0,0.45);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    padding-block:32px;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding-inline:20px;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', Georgia, serif;
+    text-wrap:balance;
+    margin:0;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    font-size:0.7rem;
+    color:var(--gold);
+    font-weight:600;
+  }
+
+  /* ---------- Header / Passport cover ---------- */
+  .cover{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--parchment);
+    border-radius:18px;
+    padding:28px 26px 24px;
+    box-shadow:0 18px 40px var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  :root[data-theme="dark"] .cover, :root:not([data-theme="light"]) .cover{
+    color:var(--parchment);
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]) .cover{ color:#f3ede0; }
+  }
+  .cover::after{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px solid rgba(200,155,60,0.55);
+    border-radius:12px;
+    pointer-events:none;
+  }
+  .cover-top{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;
+  }
+  .cover h1{
+    font-size:clamp(1.6rem,4.2vw,2.15rem);
+    color:#f3ede0;
+    margin-top:6px;
+  }
+  .cover p.sub{
+    margin:8px 0 0;
+    color:#cdd3e2;
+    font-size:0.95rem;
+    max-width:46ch;
+  }
+  .badge-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;}
+  .flag-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.04em;
+    background:rgba(200,155,60,0.14);
+    border:1px solid rgba(200,155,60,0.5);
+    color:#e6d9b8;
+    padding:5px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+
+  /* ---------- Stat strip ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:18px;
+  }
+  .stat{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    text-align:center;
+  }
+  .stat .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:1.4rem;
+    font-weight:600;
+    color:var(--navy);
+  }
+  .stat .l{
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  /* ---------- Progress ---------- */
+  .progress-track{
+    height:6px;
+    border-radius:999px;
+    background:var(--line);
+    margin:18px 0 6px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+    border-radius:999px;
+    transition:width .35s ease;
+    width:0%;
+  }
+  .progress-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--muted);
+    display:flex;justify-content:space-between;
+  }
+
+  /* ---------- Question card ---------- */
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:26px 24px 22px;
+    margin-top:18px;
+    box-shadow:0 10px 26px var(--shadow);
+  }
+  .cat-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--navy);
+    background:rgba(184,134,63,0.13);
+    border:1px solid rgba(184,134,63,0.35);
+    padding:4px 10px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  .qtext{
+    font-size:1.2rem;
+    line-height:1.4;
+    margin:0 0 18px;
+    color:var(--ink);
+  }
+  .choices{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .choice{
+    text-align:left;
+    font-family:'Source Serif 4', Georgia, serif;
+    font-size:1rem;
+    padding:12px 14px;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    background:transparent;
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .choice .letter{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:0.78rem;
+    width:22px; height:22px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    border:1.5px solid var(--muted);
+    color:var(--muted);
+    flex:none;
+  }
+  .choice:hover:not(:disabled){
+    border-color:var(--gold);
+    transform:translateY(-1px);
+  }
+  .choice:disabled{cursor:default;}
+  .choice.correct{
+    border-color:var(--sage);
+    background:color-mix(in srgb, var(--sage) 14%, transparent);
+  }
+  .choice.correct .letter{ border-color:var(--sage); color:var(--sage); }
+  .choice.wrong{
+    border-color:var(--stamp-red);
+    background:color-mix(in srgb, var(--stamp-red) 12%, transparent);
+  }
+  .choice.wrong .letter{ border-color:var(--stamp-red); color:var(--stamp-red); }
+  .choice.dim{ opacity:0.55; }
+
+  .feedback{
+    margin-top:16px;
+    padding:14px 16px;
+    border-radius:10px;
+    font-size:0.94rem;
+    line-height:1.5;
+    display:none;
+    border:1px dashed var(--line);
+  }
+  .feedback.show{ display:block; }
+  .feedback .stamp{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    font-size:0.75rem;
+    display:inline-block;
+    margin-bottom:6px;
+    padding:3px 9px;
+    border-radius:6px;
+    transform:rotate(-2deg);
+  }
+  .feedback.right .stamp{ color:var(--sage); border:2px solid var(--sage); }
+  .feedback.wrong .stamp{ color:var(--stamp-red); border:2px solid var(--stamp-red); }
+
+  .next-row{ margin-top:18px; display:flex; justify-content:flex-end; }
+  button.next{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.82rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    background:var(--navy);
+    color:var(--parchment);
+    border:none;
+    padding:11px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    display:none;
+  }
+  button.next.show{ display:inline-flex; align-items:center; gap:6px;}
+  button.next:hover{ filter:brightness(1.12); }
+
+  /* ---------- Results ---------- */
+  .results{ display:none; }
+  .results.show{ display:block; }
+  .stamp-board{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:30px 26px;
+    margin-top:18px;
+    text-align:center;
+    box-shadow:0 10px 26px var(--shadow);
+  }
+  .rank{
+    font-family:'Fraunces', Georgia, serif;
+    font-size:2rem;
+    color:var(--navy);
+    margin:10px 0 4px;
+  }
+  .score-big{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:3rem;
+    font-weight:600;
+    color:var(--gold);
+    margin:6px 0;
+  }
+  .results p.desc{ color:var(--muted); max-width:44ch; margin:0 auto 18px; }
+  .stamps{
+    display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:18px 0;
+  }
+  .country-stamp{
+    width:66px; height:66px;
+    border-radius:50%;
+    border:2.5px dashed var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.6rem;
+    opacity:0.25;
+    transform:rotate(-6deg);
+  }
+  .country-stamp.earned{
+    opacity:1;
+    border-color:var(--gold);
+    border-style:solid;
+    box-shadow:0 0 0 3px rgba(184,134,63,0.15);
+  }
+  .actions{ display:flex; gap:10px; justify-content:center; margin-top:6px; flex-wrap:wrap;}
+  button.action{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    padding:11px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    border:1.5px solid var(--navy);
+    background:transparent;
+    color:var(--navy);
+  }
+  button.action.primary{
+    background:var(--navy);
+    color:var(--parchment);
+    border-color:var(--navy);
+  }
+  button.action:hover{ filter:brightness(1.1); }
+
+  .review{
+    text-align:left;
+    margin-top:22px;
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+  .review h3{ font-size:1rem; margin-bottom:10px; }
+  .review-item{
+    display:flex; gap:10px; align-items:flex-start;
+    padding:8px 0;
+    font-size:0.88rem;
+    border-bottom:1px solid var(--line);
+  }
+  .review-item:last-child{ border-bottom:none; }
+  .review-item .mark{ flex:none; font-weight:700; }
+  .review-item .mark.ok{ color:var(--sage); }
+  .review-item .mark.no{ color:var(--stamp-red); }
+
+  footer.credit{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    color:var(--muted);
+    letter-spacing:0.05em;
+    margin-top:26px;
+  }
+
+  @media (max-width:480px){
+    .stats{ grid-template-columns:repeat(3,1fr); gap:8px; }
+    .stat{ padding:9px 6px; }
+    .stat .n{ font-size:1.15rem; }
+    .cover{ padding:22px 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="cover">
+    <div class="cover-top">
+      <div>
+        <div class="eyebrow">SS6CG3 · Civics Passport</div>
+        <h1>World Power Tour</h1>
+        <p class="sub">Presidential vs. Parliamentary Governments — a quiz across the United Kingdom, Germany, and Russia.</p>
+      </div>
+    </div>
+    <div class="badge-row">
+      <span class="flag-chip">🇬🇧 UK — Parliamentary</span>
+      <span class="flag-chip">🇩🇪 Germany — Parliamentary</span>
+      <span class="flag-chip">🇷🇺 Russia — Presidential</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="statScore">0</div><div class="l">Score</div></div>
+    <div class="stat"><div class="n" id="statStreak">0</div><div class="l">Streak</div></div>
+    <div class="stat"><div class="n" id="statBest">0</div><div class="l">Best run</div></div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label"><span id="progressText">Question 1 of 18</span><span id="progressPct">0%</span></div>
+
+  <div class="card" id="quizCard">
+    <span class="cat-tag" id="catTag">Vocabulary</span>
+    <p class="qtext" id="qtext">Loading…</p>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback">
+      <div class="stamp" id="stampLabel">Correct</div>
+      <div id="feedbackText"></div>
+    </div>
+    <div class="next-row">
+      <button class="next" id="nextBtn">Next question →</button>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stamp-board">
+      <div class="eyebrow">Final passport check</div>
+      <div class="rank" id="rankTitle">—</div>
+      <div class="score-big" id="finalScore">0 / 18</div>
+      <p class="desc" id="rankDesc"></p>
+      <div class="stamps" id="stampIcons"></div>
+      <div class="actions">
+        <button class="action primary" id="retryBtn">Play again</button>
+        <button class="action" id="reviewToggle">Show answer review</button>
+      </div>
+      <div class="review" id="reviewBox" style="display:none;"></div>
+    </div>
+  </div>
+
+  <footer class="credit">Compare and contrast various forms of government · Government in Action</footer>
+</div>
+
+<script>
+(function(){
+  const QUESTIONS = [
+    {
+      cat: "Vocabulary", flag:"🌍",
+      q: "What is the key difference between a citizen and a voter?",
+      choices: [
+        "A citizen is a legal member of a country; a voter is a citizen who is casting a ballot in an election.",
+        "A voter has more legal rights than a citizen.",
+        "There is no difference — the words mean exactly the same thing.",
+        "A citizen can only vote in local elections, while a voter can vote nationally."
+      ], correct:0,
+      explain:"Every voter is a citizen exercising the right to vote, but not every citizen is voting at a given moment — citizenship is the legal status; voting is the act."
+    },
+    {
+      cat: "Vocabulary", flag:"🌍",
+      q: "In a democracy, citizen participation is generally...",
+      choices: ["Low, because one leader decides everything","High, because citizens vote and choose leaders","Illegal in most cases","Only allowed for government officials"], correct:1,
+      explain:"Democracies rely on citizens participating by voting and choosing their leaders — citizen power is high."
+    },
+    {
+      cat: "Vocabulary", flag:"🌍",
+      q: "True or False: In an autocratic government, citizens have little or no role in choosing their leaders.",
+      choices:["True","False"], correct:0,
+      explain:"Autocracy concentrates power in one leader or a small group, so voting is often restricted and citizen power is low."
+    },
+    {
+      cat: "United Kingdom", flag:"🇬🇧",
+      q: "The United Kingdom is best described as a...",
+      choices: ["Presidential republic","Parliamentary democracy and constitutional monarchy","Pure autocracy","Direct democracy with no legislature"], correct:1,
+      explain:"The UK is a parliamentary democracy — the Prime Minister leads the government — and a constitutional monarchy, where the monarch is a ceremonial head of state."
+    },
+    {
+      cat: "United Kingdom", flag:"🇬🇧",
+      q: "Who holds the real political power in the UK: the Prime Minister or the Monarch?",
+      choices:["The Monarch","The Prime Minister","They share power equally","Neither — Parliament has no leader"], correct:1,
+      explain:"The Prime Minister is head of government and chief executive, holding real political power. The Monarch is head of state with a ceremonial, largely symbolic role."
+    },
+    {
+      cat: "United Kingdom", flag:"🇬🇧",
+      q: "How is the UK's Prime Minister chosen?",
+      choices: [
+        "Citizens vote for the Prime Minister directly.",
+        "Citizens elect the House of Commons; the majority party's leader normally becomes Prime Minister.",
+        "The Monarch personally appoints anyone they choose.",
+        "The House of Lords elects the Prime Minister."
+      ], correct:1,
+      explain:"This is an indirect election: Citizens → House of Commons → Majority party → Prime Minister. UK citizens never vote directly for the PM."
+    },
+    {
+      cat: "United Kingdom", flag:"🇬🇧",
+      q: "Parliament in the UK is bicameral. What are its two houses?",
+      choices:["The Bundestag and the Bundesrat","The House of Commons and the House of Lords","The State Duma and the Senate","The Congress and the Senate"], correct:1,
+      explain:"UK Parliament has two houses: the elected House of Commons (more lawmaking power) and the mostly-appointed House of Lords (reviews and can delay bills)."
+    },
+    {
+      cat: "Germany", flag:"🇩🇪",
+      q: "Germany is a parliamentary democracy and also a...",
+      choices:["Constitutional monarchy","Federal republic","Absolute monarchy","Autocracy"], correct:1,
+      explain:"Germany is a federal republic — power is divided between the national government and 16 state governments (Länder) — as well as a parliamentary democracy."
+    },
+    {
+      cat: "Germany", flag:"🇩🇪",
+      q: "Which German government role holds the most political power and runs the government day-to-day?",
+      choices:["The President","The Chancellor","The Bundesrat","The Federal Court"], correct:1,
+      explain:"The Chancellor is head of government and chief executive, holding the most political power. The President is head of state with a ceremonial, limited role."
+    },
+    {
+      cat: "Germany", flag:"🇩🇪",
+      q: "How is the German Chancellor selected?",
+      choices:[
+        "Citizens vote for the Chancellor directly.",
+        "Citizens elect the Bundestag, and the Bundestag elects the Chancellor.",
+        "The Bundesrat appoints the Chancellor without any election.",
+        "The Chancellor inherits the position."
+      ], correct:1,
+      explain:"This is an indirect election: Citizens → Bundestag → Chancellor. German citizens vote only for the Bundestag, never directly for the Chancellor."
+    },
+    {
+      cat: "Germany", flag:"🇩🇪",
+      q: "What does the Bundesrat represent, and what makes it different from the Bundestag?",
+      choices:[
+        "The Bundesrat represents Germany's 16 states; the Bundestag is the elected lawmaking body that also elects the Chancellor.",
+        "The Bundesrat is elected directly by citizens for a 6-year term.",
+        "The Bundesrat and Bundestag are simply two names for the same house.",
+        "The Bundesrat is Germany's ceremonial head of state."
+      ], correct:0,
+      explain:"Germany's parliament is bicameral: the Bundestag is elected by citizens and chooses the Chancellor, while the Bundesrat represents the 16 state governments (Länder)."
+    },
+    {
+      cat: "Russia", flag:"🇷🇺",
+      q: "On paper, Russia's government is best classified as a...",
+      choices:["Parliamentary democracy","Presidential democracy","Constitutional monarchy","Direct democracy"], correct:1,
+      explain:"On paper, Russia is a presidential democracy: citizens vote directly for both the President (executive) and the legislature (State Duma)."
+    },
+    {
+      cat: "Russia", flag:"🇷🇺",
+      q: "In Russia's presidential system, who do citizens vote for directly?",
+      choices:["Only the State Duma","Only the President","Both the President and the State Duma, in separate votes","Neither — leaders are appointed"], correct:2,
+      explain:"Russian citizens aged 18+ cast two votes: one directly for the President and a separate vote for the legislature, the State Duma."
+    },
+    {
+      cat: "Russia", flag:"🇷🇺",
+      q: "According to the notes, how many consecutive 6-year terms can Russia's President serve?",
+      choices:["One term only","Two consecutive terms","Four consecutive terms","There is no term limit"], correct:1,
+      explain:"The President can serve up to two consecutive 6-year terms, though the system has changed over Russia's history."
+    },
+    {
+      cat: "Russia", flag:"🇷🇺",
+      q: "Why do experts say Russia looks democratic on paper but operates more like an autocracy in practice?",
+      choices:[
+        "Because elections are held but are often not free or fair, and the President holds most real power over media, courts, and opponents.",
+        "Because Russia has no legislature at all.",
+        "Because citizens are not allowed to vote for anyone.",
+        "Because Russia has never held an election."
+      ], correct:0,
+      explain:"Elections exist, but they are often not free or fair. The government controls much of the media, courts and the legislature rarely limit the President, and strong opponents may be blocked or punished — so real power concentrates in the President."
+    },
+    {
+      cat: "Russia", flag:"🇷🇺",
+      q: "What major historical event in 1991 shaped Russia's modern government?",
+      choices:["The founding of the State Duma","The collapse of the Soviet Union","Russia joining the European Union","The first Russian constitution was abolished"], correct:1,
+      explain:"Until the 1991 collapse of the Soviet Union, Russia was completely autocratic. Since then Russia has gained more civil liberties, but the system remains complicated."
+    },
+    {
+      cat: "Compare Systems", flag:"⚖️",
+      q: "In BOTH the UK and Germany's parliamentary systems, citizens directly elect the...",
+      choices:["Chief executive (Prime Minister or Chancellor)","Legislature (Parliament)","Monarch or President","Supreme Court"], correct:1,
+      explain:"In parliamentary systems, citizens elect the legislature (Parliament/Bundestag). The legislature then chooses the chief executive — an indirect election."
+    },
+    {
+      cat: "Compare Systems", flag:"⚖️",
+      q: "What is the biggest structural difference between a presidential and a parliamentary democracy?",
+      choices:[
+        "In a presidential system, citizens vote directly for the chief executive; in a parliamentary system, the legislature chooses the chief executive.",
+        "Presidential systems don't have a legislature.",
+        "Parliamentary systems don't allow citizens to vote at all.",
+        "There is no real difference between the two systems."
+      ], correct:0,
+      explain:"Presidential democracies (like Russia, on paper) have citizens vote directly for the executive. Parliamentary democracies (UK, Germany) have citizens elect the legislature, which then selects the chief executive — an indirect path to power."
+    }
+  ];
+
+  const RANKS = [
+    { min: 0.9, title:"Head of State", desc:"Exceptional command of comparative government — you could brief the cabinet yourself." },
+    { min: 0.7, title:"Prime Minister", desc:"Strong grasp of how power moves between citizens, legislatures, and executives." },
+    { min: 0.5, title:"Elected Delegate", desc:"Solid foundation — a few more reps and you'll have every path to power memorized." },
+    { min: 0,   title:"Registered Voter", desc:"You're building the basics. Review the guided notes and try the tour again." }
+  ];
+
+  let order = [...QUESTIONS.keys()];
+  shuffle(order);
+  let idx = 0, score = 0, streak = 0, answered = false;
+  const results = [];
+
+  const el = id => document.getElementById(id);
+  const best = () => parseInt(localStorage.getItem('wpt_best') || '0', 10);
+  el('statBest').textContent = best();
+
+  function shuffle(a){
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+  }
+
+  function render(){
+    const qi = order[idx];
+    const q = QUESTIONS[qi];
+    answered = false;
+    el('catTag').textContent = q.flag + "  " + q.cat;
+    el('qtext').textContent = q.q;
+    el('feedback').className = 'feedback';
+    el('nextBtn').className = 'next';
+
+    const wrap = el('choices');
+    wrap.innerHTML = '';
+    const letters = ['A','B','C','D'];
+    q.choices.forEach((choice, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice';
+      btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${choice}</span>`;
+      btn.addEventListener('click', () => selectAnswer(i, btn));
+      wrap.appendChild(btn);
+    });
+
+    el('progressText').textContent = `Question ${idx+1} of ${QUESTIONS.length}`;
+    el('progressPct').textContent = Math.round((idx/QUESTIONS.length)*100) + '%';
+    el('progressFill').style.width = (idx/QUESTIONS.length*100) + '%';
+  }
+
+  function selectAnswer(i, btn){
+    if(answered) return;
+    answered = true;
+    const qi = order[idx];
+    const q = QUESTIONS[qi];
+    const buttons = [...el('choices').children];
+    const correct = i === q.correct;
+
+    buttons.forEach((b, bi) => {
+      b.disabled = true;
+      if(bi === q.correct) b.classList.add('correct');
+      else if(bi === i) b.classList.add('wrong');
+      else b.classList.add('dim');
+    });
+
+    if(correct){ score++; streak++; }
+    else { streak = 0; }
+
+    results.push({ q: q.q, correct, chosen: q.choices[i], answer: q.choices[q.correct] });
+
+    el('statScore').textContent = score;
+    el('statStreak').textContent = streak;
+
+    const fb = el('feedback');
+    fb.classList.add('show', correct ? 'right' : 'wrong');
+    el('stampLabel').textContent = correct ? 'Correct' : 'Incorrect';
+    el('feedbackText').textContent = q.explain;
+
+    el('nextBtn').classList.add('show');
+  }
+
+  el('nextBtn').addEventListener('click', () => {
+    idx++;
+    if(idx >= QUESTIONS.length){ showResults(); }
+    else render();
+  });
+
+  function showResults(){
+    el('quizCard').style.display = 'none';
+    el('progressFill').style.width = '100%';
+    el('progressText').textContent = `Question ${QUESTIONS.length} of ${QUESTIONS.length}`;
+    el('progressPct').textContent = '100%';
+
+    const pct = score / QUESTIONS.length;
+    const rank = RANKS.find(r => pct >= r.min);
+    el('rankTitle').textContent = rank.title;
+    el('rankDesc').textContent = rank.desc;
+    el('finalScore').textContent = `${score} / ${QUESTIONS.length}`;
+
+    if(score > best()) localStorage.setItem('wpt_best', String(score));
+    el('statBest').textContent = best();
+
+    const stampIcons = el('stampIcons');
+    stampIcons.innerHTML = '';
+    const flags = ['🇬🇧','🇩🇪','🇷🇺'];
+    const thresholds = [0.4, 0.65, 0.85];
+    flags.forEach((f, i) => {
+      const d = document.createElement('div');
+      d.className = 'country-stamp' + (pct >= thresholds[i] ? ' earned' : '');
+      d.textContent = f;
+      stampIcons.appendChild(d);
+    });
+
+    const reviewBox = el('reviewBox');
+    reviewBox.innerHTML = '<h3>Answer review</h3>' + results.map(r => `
+      <div class="review-item">
+        <span class="mark ${r.correct ? 'ok' : 'no'}">${r.correct ? '✓' : '✗'}</span>
+        <span>${r.q}${r.correct ? '' : `<br><em>Correct answer: ${r.answer}</em>`}</span>
+      </div>
+    `).join('');
+
+    el('results').classList.add('show');
+  }
+
+  el('reviewToggle').addEventListener('click', () => {
+    const box = el('reviewBox');
+    const open = box.style.display !== 'none';
+    box.style.display = open ? 'none' : 'block';
+    el('reviewToggle').textContent = open ? 'Show answer review' : 'Hide answer review';
+  });
+
+  el('retryBtn').addEventListener('click', () => {
+    order = [...QUESTIONS.keys()];
+    shuffle(order);
+    idx = 0; score = 0; streak = 0;
+    results.length = 0;
+    el('statScore').textContent = 0;
+    el('statStreak').textContent = 0;
+    el('results').classList.remove('show');
+    el('reviewBox').style.display = 'none';
+    el('reviewToggle').textContent = 'Show answer review';
+    el('quizCard').style.display = 'block';
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
