@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>World Power Tour</title>
+<title>The Trading Post</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -469,15 +469,16 @@
   <div class="cover">
     <div class="cover-top">
       <div>
-        <div class="eyebrow">SS6CG3 · Civics Passport</div>
-        <h1>World Power Tour</h1>
-        <p class="sub">Presidential vs. Parliamentary Governments — a quiz across the United Kingdom, Germany, and Russia.</p>
+        <div class="eyebrow">SS6E · Economics Ledger</div>
+        <h1>The Trading Post</h1>
+        <p class="sub">Economic systems &amp; vocabulary — scarcity, production, and how Traditional, Command, Market, and Mixed economies decide who gets what.</p>
       </div>
     </div>
     <div class="badge-row">
-      <span class="flag-chip">🇬🇧 UK — Parliamentary</span>
-      <span class="flag-chip">🇩🇪 Germany — Parliamentary</span>
-      <span class="flag-chip">🇷🇺 Russia — Presidential</span>
+      <span class="flag-chip">🌾 Traditional</span>
+      <span class="flag-chip">🏛️ Command</span>
+      <span class="flag-chip">🏪 Market</span>
+      <span class="flag-chip">⚖️ Mixed</span>
     </div>
   </div>
 
@@ -488,7 +489,7 @@
   </div>
 
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-label"><span id="progressText">Question 1 of 26</span><span id="progressPct">0%</span></div>
+  <div class="progress-label"><span id="progressText">Question 1 of 27</span><span id="progressPct">0%</span></div>
 
   <div class="card" id="quizCard">
     <div class="card-top">
@@ -515,9 +516,9 @@
 
   <div class="results" id="results">
     <div class="stamp-board">
-      <div class="eyebrow">Final passport check</div>
+      <div class="eyebrow">Final ledger audit</div>
       <div class="rank" id="rankTitle">—</div>
-      <div class="score-big" id="finalScore">0 / 26</div>
+      <div class="score-big" id="finalScore">0 / 27</div>
       <p class="desc" id="rankDesc"></p>
       <div class="stamps" id="stampIcons"></div>
       <div class="actions">
@@ -528,260 +529,266 @@
     </div>
   </div>
 
-  <footer class="credit">Compare and contrast various forms of government · Government in Action<br><a href="economic-systems-quiz.html" style="color:inherit;">Next up: The Trading Post (Economics quiz) →</a></footer>
+  <footer class="credit">Different resources · Different choices · Different economies<br><a href="social-studies-power-tour.html" style="color:inherit;">← Back to World Power Tour (Government quiz)</a></footer>
 </div>
 
 <script>
 (function(){
   const QUESTIONS = [
     {
-      cat: "Vocabulary", flag:"🌍",
-      q: "Which statement correctly distinguishes a citizen from a voter?",
+      cat: "Vocabulary", flag:"💰",
+      q: "What is the key difference between 'money' and 'currency'?",
       choices: [
-        "A citizen is a legal member of a country; a voter is a citizen who is currently exercising the right to vote.",
-        "A voter is any adult, whether or not they hold citizenship in that country.",
-        "Citizens automatically lose voter status once they turn 18.",
-        "A citizen has fewer legal protections than a registered voter."
+        "Money is anything people agree to use to buy and sell goods and services; currency is the official money a specific country uses, like dollars or euros.",
+        "Currency is a broader idea than money — all money is currency, but not all currency is money.",
+        "Money can only be coins; currency can only be paper bills.",
+        "There is no difference — the two words mean exactly the same thing in every context."
       ], correct:0,
-      explain:"Every voter is a citizen exercising the right to vote, but not every citizen is voting at a given moment — citizenship is the legal status; voting is the act. Voting rights are tied to citizenship, not the reverse."
-    },
-    {
-      cat: "Vocabulary", flag:"🌍",
-      q: "Suffrage refers to...",
-      choices: ["The length of time a leader may serve in office","The legal right to vote in elections","A tax citizens pay to register to vote","The process of drawing voting districts"], correct:1,
-      explain:"Suffrage is the right to vote. It's easy to confuse with 'term limits' (how long a leader can serve) — those are two separate vocabulary words on the worksheet."
+      explain:"Money is the general concept — anything people agree to use in exchange for goods and services. Currency is the specific, official form of money a country issues, such as the dollar or the euro."
     },
     {
       cat: "Vocabulary", flag:"🌍",
-      q: "Which of these is NOT typically a feature of an autocratic government?",
-      choices: ["Power concentrated in one leader or small group","Restricted or controlled voting","Citizens regularly choosing leaders through free elections","Limited citizen participation"], correct:2,
-      explain:"Regularly choosing leaders through free elections is a hallmark of democracy, not autocracy. Autocracies restrict voting and concentrate power, giving citizens low participation."
-    },
-    {
-      cat: "United Kingdom", flag:"🇬🇧",
-      q: "Which pair of labels correctly describes the United Kingdom's system?",
-      choices: ["Presidential democracy and federal republic","Parliamentary democracy and constitutional monarchy","Parliamentary democracy and absolute monarchy","Presidential democracy and constitutional monarchy"], correct:1,
-      explain:"The UK is a parliamentary democracy (the PM leads government) and a constitutional monarchy (the monarch's power is limited by law and is mostly ceremonial) — not an absolute monarchy, where a monarch would hold unchecked power."
-    },
-    {
-      cat: "United Kingdom", flag:"🇬🇧",
-      q: "The Monarch and the Prime Minister are best distinguished as...",
-      choices: [
-        "The Monarch is head of government with real power; the Prime Minister is a ceremonial head of state.",
-        "The Prime Minister is head of government and chief executive; the Monarch is head of state with a ceremonial role.",
-        "Both roles are ceremonial, and Parliament alone holds executive power.",
-        "Both roles hold equal, shared executive power over the government."
-      ], correct:1,
-      explain:"It's a common mix-up to swap these two: the Prime Minister runs the government and holds real political power, while the Monarch is head of state in a largely symbolic role."
-    },
-    {
-      cat: "United Kingdom", flag:"🇬🇧",
-      q: "Which is the accurate path showing how the UK's Prime Minister reaches power?",
-      choices: [
-        "Citizens → Prime Minister (a direct vote, just like Russia's president)",
-        "Citizens → House of Commons → Majority party → Prime Minister",
-        "Citizens → House of Lords → Prime Minister",
-        "Monarch → House of Commons → Prime Minister"
-      ], correct:1,
-      explain:"This is an indirect election: Citizens elect the House of Commons; the majority party's leader normally becomes Prime Minister. UK citizens never vote directly for the PM, and the unelected House of Lords plays no role in choosing one."
-    },
-    {
-      cat: "United Kingdom", flag:"🇬🇧",
-      q: "Which house of the UK Parliament actually helps determine who becomes Prime Minister — the elected House of Commons, or the largely appointed House of Lords?",
-      choices:["The House of Lords, because peers have seniority","The House of Commons, because its elected majority party selects the PM","Both houses vote jointly on the Prime Minister","Neither — only the Monarch decides"], correct:1,
-      explain:"The House of Commons is elected and holds the greater lawmaking and political power, including determining the Prime Minister. The House of Lords reviews and can delay bills but does not choose the PM."
-    },
-    {
-      cat: "Germany", flag:"🇩🇪",
-      q: "Germany's two labels — parliamentary democracy and federal republic — mean, respectively, that...",
-      choices: [
-        "the legislature chooses the chief executive, AND power is divided between a national government and 16 state governments.",
-        "citizens vote directly for the Chancellor, AND all power is held by one central government.",
-        "a monarch is head of state, AND Germany has no state-level governments.",
-        "the Chancellor is elected for life, AND states have no political role."
+      q: "Which pairing correctly matches 'domestic' and 'foreign'?",
+      choices:[
+        "Domestic means produced inside your own country; foreign means produced in another country.",
+        "Domestic means produced in another country; foreign means produced inside your own country.",
+        "Both words describe goods produced only within your own country.",
+        "Both words describe goods that cross an international border."
       ], correct:0,
-      explain:"Parliamentary means the legislature (Bundestag) selects the chief executive (Chancellor) rather than citizens voting for them directly. Federal republic means power is split between the national government and Germany's 16 Länder (states)."
+      explain:"Domestic = connected to or produced inside your own country. Foreign = connected to or produced in another country — an easy pair to swap by accident."
     },
     {
-      cat: "Germany", flag:"🇩🇪",
-      q: "Which German role is the ceremonial ‘Head of State’ — and which common mix-up should you avoid?",
-      choices: [
-        "The Chancellor is ceremonial; don't confuse it with the Bundestag, which holds real power.",
-        "The President is ceremonial; don't confuse it with the Chancellor, who holds most political power.",
-        "The Bundesrat is ceremonial; don't confuse it with the President, who runs the government.",
-        "There is no ceremonial role in Germany's government."
-      ], correct:1,
-      explain:"The President is head of state with limited, ceremonial power — a role students often mix up with the Chancellor, who is head of government and chief executive with the most real political power."
-    },
-    {
-      cat: "Germany", flag:"🇩🇪",
-      q: "German citizens vote directly for the Bundestag. From there, what is the correct next step to reach the Chancellor?",
+      cat: "Vocabulary", flag:"🏭",
+      q: "An 'economy' is best defined as...",
       choices:[
-        "The Bundestag directly appoints the Chancellor's cabinet, then citizens ratify it.",
-        "The Bundestag elects the Chancellor.",
-        "The Bundesrat elects the Chancellor after the Bundestag vote is finalized.",
-        "The President selects the Chancellor with no legislative involvement."
-      ], correct:1,
-      explain:"This is an indirect election: Citizens → Bundestag → Chancellor. The Bundesrat represents the states in lawmaking but does not elect the Chancellor, and the President's role here is only to formally appoint whoever the Bundestag has already chosen."
-    },
-    {
-      cat: "Germany", flag:"🇩🇪",
-      q: "What is the key difference between the Bundestag and the Bundesrat?",
-      choices:[
-        "The Bundestag represents citizens and elects the Chancellor; the Bundesrat represents Germany's 16 states.",
-        "The Bundestag represents the states; the Bundesrat represents citizens and elects the Chancellor.",
-        "They are two names for the exact same elected chamber.",
-        "The Bundesrat is elected directly by citizens for 6-year terms, longer than the Bundestag's term."
+        "The system a country uses to produce, buy, sell, and trade goods and services.",
+        "Only the total amount of money printed by a government.",
+        "A single company's yearly profit.",
+        "The exchange rate between two currencies."
       ], correct:0,
-      explain:"The Bundestag is the elected lawmaking body that represents citizens and elects the Chancellor. The Bundesrat represents the state governments (Länder) and helps approve laws affecting the states."
+      explain:"An economy is the whole system a country uses to produce, distribute, and trade goods and services — much bigger than just money or one business."
     },
     {
-      cat: "Russia", flag:"🇷🇺",
-      q: "On paper, how does Russia's structure for choosing its executive differ from the UK's or Germany's?",
-      choices: [
-        "Russia is presidential: citizens vote directly for the President. The UK and Germany are parliamentary: the legislature chooses the chief executive.",
-        "Russia is parliamentary, just like the UK and Germany.",
-        "All three countries let citizens vote directly for their chief executive.",
-        "None of the three countries hold elections for their legislature."
+      cat: "GDP", flag:"📈",
+      q: "Gross Domestic Product (GDP) measures...",
+      choices:[
+        "The total value of all final goods and services made inside a country in one year.",
+        "The total value of goods a country imports from other countries.",
+        "The average income of a single household.",
+        "The number of businesses operating in a country."
       ], correct:0,
-      explain:"On paper, Russia is a presidential democracy — citizens vote directly for the President (the executive). The UK and Germany are parliamentary — citizens elect a legislature, which then selects the Prime Minister or Chancellor."
+      explain:"GDP is the total value of all final goods and services produced inside a country in one year — a measure of the overall size of an economy."
     },
     {
-      cat: "Russia", flag:"🇷🇺",
-      q: "Russian citizens aged 18+ cast two separate votes. What are they for?",
-      choices:["Only for the State Duma; the President is appointed","Only for the President; the State Duma is appointed","One vote directly for the President, and a separate vote for the State Duma (legislature)","One vote for the President and one for the Prime Minister"], correct:2,
-      explain:"Russian citizens vote directly for the President and, in a separate vote, for the State Duma. Note: Russia has no separately elected Prime Minister position comparable to the UK's."
-    },
-    {
-      cat: "Russia", flag:"🇷🇺",
-      q: "According to the notes, what are Russia's presidential term rules?",
-      choices:["One 6-year term with no re-election allowed","Up to two consecutive 6-year terms","Up to two consecutive 4-year terms","Unlimited 6-year terms"], correct:1,
-      explain:"The notes state the President can serve up to two consecutive 6-year terms — watch out for the term length (6, not 4 years, unlike the Bundestag's 4-year election cycle)."
-    },
-    {
-      cat: "Russia", flag:"🇷🇺",
-      q: "Why do analysts say Russia looks democratic 'on paper' but operates more like an autocracy 'in practice'? Choose the explanation that is FULLY accurate.",
+      cat: "GDP", flag:"📈",
+      q: "How is GDP per capita calculated, and what does it show that plain GDP does not?",
       choices:[
-        "Because Russia has abolished elections and the State Duma entirely.",
-        "Because elections are held and citizens do vote, but they are often not free or fair, and real power is concentrated in the President over media, courts, and opponents.",
-        "Because only the wealthy are legally allowed to vote in Russia.",
-        "Because Russia's constitution has never granted citizens any rights or freedoms."
-      ], correct:1,
-      explain:"Elections and a legislature (State Duma) do exist — that's the 'on paper' democratic structure. In practice, elections are often not free or fair, the government controls much of the media, courts rarely limit the President, and strong opponents may be blocked or punished."
-    },
-    {
-      cat: "Russia", flag:"🇷🇺",
-      q: "What happened in 1991, and what is still true about Russia's government today?",
-      choices:[
-        "The Soviet Union collapsed; today Russia has more civil liberties than before, but the system remains complicated.",
-        "The Soviet Union collapsed; today Russia has zero civil liberties, identical to before 1991.",
-        "Russia became a parliamentary democracy identical to Germany's.",
-        "The State Duma was permanently abolished."
+        "GDP divided by the population, showing an average amount of production/wealth per person rather than the economy's total size.",
+        "GDP multiplied by the population, showing an even bigger total.",
+        "GDP divided by the number of businesses, showing average company profit.",
+        "GDP per capita and GDP measure exactly the same thing."
       ], correct:0,
-      explain:"Until the 1991 collapse of the Soviet Union, Russia was completely autocratic. Since then Russia has gained more civil liberties — but the system remains complicated, blending democratic structures with autocratic practices."
+      explain:"GDP per capita = total GDP ÷ population. A country can have a huge total GDP but a low GDP per capita if it also has a huge population — per capita shows the average amount per person, not the size of the whole economy."
     },
     {
-      cat: "Compare Systems", flag:"⚖️",
-      q: "Which statement about the UK and Germany is TRUE for BOTH countries?",
+      cat: "GDP", flag:"📈", multi:true,
+      q: "Select ALL statements that are TRUE about GDP and GDP per capita.",
       choices:[
-        "Citizens directly elect the legislature, which then elects/selects the chief executive.",
-        "Citizens directly elect the chief executive, exactly as in Russia's presidential system.",
-        "Neither country has a ceremonial head of state.",
-        "Both countries have unicameral (one-house) legislatures."
-      ], correct:0,
-      explain:"In both parliamentary systems, citizens elect the legislature (House of Commons / Bundestag), which indirectly selects the chief executive. Both also have bicameral (two-house) legislatures and a separate ceremonial head of state (Monarch / President)."
-    },
-    {
-      cat: "Compare Systems", flag:"⚖️",
-      q: "A classmate says: 'Presidential and parliamentary systems are basically the same because both eventually put one person in charge of the government.' What's the flaw in that claim?",
-      choices:[
-        "It ignores that the key difference is HOW that person reaches power — direct citizen vote (presidential) vs. indirect selection by the legislature (parliamentary) — which changes how accountable the executive is to voters.",
-        "The claim is completely correct and there is no meaningful difference.",
-        "Presidential systems never have a single chief executive.",
-        "Parliamentary systems never have any elections at all."
-      ], correct:0,
-      explain:"Ending up with one chief executive isn't the real distinction — it's the path to power. Presidential systems (Russia, on paper) have direct elections for the executive; parliamentary systems (UK, Germany) have the legislature choose the executive indirectly."
-    },
-    {
-      cat: "Compare Systems", flag:"⚖️",
-      q: "Which country's citizens vote directly for their nation's chief executive?",
-      choices:["The United Kingdom","Germany","Russia (on paper)","All three countries"], correct:2,
-      explain:"Only Russia's system has citizens voting directly for the chief executive (the President), on paper. UK and Germany citizens elect a legislature that indirectly chooses the Prime Minister or Chancellor."
-    },
-    {
-      cat: "Compare Systems", flag:"⚖️",
-      q: "Match the ceremonial 'Head of State' role to its country: which pairing is INCORRECT?",
-      choices:["UK — Monarch","Germany — President","Russia — President","Germany — Chancellor is a ceremonial-only role"], correct:3,
-      explain:"The Chancellor is Germany's head of government and chief executive with the most political power — not a ceremonial role. The UK's Monarch and Germany's President are the ceremonial heads of state; Russia's President is unusual because it is both head of state AND the powerful chief executive."
-    },
-    {
-      cat: "Compare Systems", flag:"⚖️", multi:true,
-      q: "Select ALL statements that are TRUE of parliamentary democracies like the UK and Germany.",
-      choices:[
-        "Citizens directly elect the legislature (Parliament / Bundestag).",
-        "The legislature indirectly selects the chief executive (Prime Minister / Chancellor).",
-        "The ceremonial head of state holds the most real political power.",
-        "The legislature is unicameral — it has only one house."
+        "A bigger total GDP means a larger overall economy.",
+        "A higher GDP per capita generally means more wealth per person, on average.",
+        "GDP and GDP per capita will always rank countries in the exact same order.",
+        "GDP per capita can only be calculated for market economies."
       ], correct:[0,1],
-      explain:"Both are true: citizens elect the legislature, which then selects the chief executive. The other two are false — the ceremonial head of state (Monarch/President) holds limited power, and both countries have bicameral (two-house) legislatures."
+      explain:"Bigger GDP = larger overall economy; higher GDP per capita = more average wealth per person. But the two measures can rank countries differently — a populous country can have a large total GDP and a modest GDP per capita — so the third statement is false, and GDP per capita can be calculated for any economy, not just market ones."
     },
     {
-      cat: "Russia", flag:"🇷🇺", multi:true,
-      q: "Select ALL statements that correctly describe Russia's system, according to the notes.",
+      cat: "Economic Systems", flag:"🏛️",
+      q: "In a Command Economy, who makes most of the economic decisions?",
+      choices:["Individual businesses and consumers","The government","Family traditions passed down for generations","No one — decisions are made completely at random"], correct:1,
+      explain:"In a command economy, the government controls most of the economy and makes the big decisions about what, how, and for whom to produce, leaving little freedom for businesses or citizens."
+    },
+    {
+      cat: "Economic Systems", flag:"🏪",
+      q: "In a Market Economy, economic decisions are mainly driven by...",
+      choices:["Government five-year plans","Individuals and businesses, using supply and demand","Ancient customs and bartering","A single ruling monarch"], correct:1,
+      explain:"In a market economy, individuals and businesses make most economic decisions, guided by supply and demand, with more freedom for citizens and businesses than in a command economy."
+    },
+    {
+      cat: "Economic Systems", flag:"🌾",
+      q: "A Traditional Economy is best described as one that is...",
       choices:[
-        "Citizens vote directly for the President.",
-        "Citizens cast a separate vote for the State Duma (legislature).",
-        "The President can serve an unlimited number of 6-year terms.",
-        "International observers generally agree Russia's elections are free and fair."
-      ], correct:[0,1],
-      explain:"Citizens vote directly for both the President and, separately, the State Duma. The other two are false: the President is limited to two consecutive 6-year terms, and elections are often described as not free or fair."
-    },
-    {
-      cat: "Compare Systems", flag:"⚖️", multi:true,
-      q: "Select ALL roles below that are ceremonial 'Head of State' positions with limited real power.",
-      choices:["The UK's Monarch","Germany's President","Germany's Chancellor","Russia's President"], correct:[0,1],
-      explain:"The UK Monarch and Germany's President are ceremonial heads of state. Germany's Chancellor is the powerful chief executive, not ceremonial — and Russia's President is unusual, holding both the head-of-state title AND real executive power at once."
-    },
-    {
-      cat: "Compare Systems", flag:"⚖️",
-      q: "A country's citizens cast one ballot to elect a national assembly. That assembly debates and votes to choose the head of government, and can remove that leader if it loses confidence in them. Which system does this describe?",
-      choices:[
-        "A presidential democracy, like Russia's structure on paper.",
-        "A parliamentary democracy, like the UK's or Germany's structure.",
-        "An absolute monarchy with no elections at all.",
-        "A direct democracy with no elected officials."
-      ], correct:1,
-      explain:"Choosing (and being able to remove) the chief executive through the legislature, rather than by direct popular vote, is the defining feature of a parliamentary democracy — matching the UK's and Germany's indirect election paths."
-    },
-    {
-      cat: "Russia", flag:"🇷🇺",
-      q: "The State Duma rarely limits the President's power, and courts rarely check him either. Given that Russia still holds direct elections for both the President and the Duma, which best explains why analysts call Russia 'democratic on paper, autocratic in practice' rather than simply a straightforward autocracy?",
-      choices:[
-        "Russia has real democratic structures — elections and a legislature — but in practice those structures don't meaningfully constrain the President's power.",
-        "Russia has no legislature or elections of any kind, identical to a pure autocracy.",
-        "The term 'autocracy' legally applies only to monarchies, so Russia cannot be described that way at all.",
-        "Analysts are simply mistaken, and Russia's system works exactly as it appears on paper."
+        "Based on customs, farming, and bartering, often trading goods and services instead of using money.",
+        "Entirely run by large corporations using digital currency.",
+        "Controlled completely by an elected legislature.",
+        "Focused only on high-tech manufacturing and exports."
       ], correct:0,
-      explain:"This is the core tension: the structures (elections, a legislature) look democratic, but weak checks on the President — from the courts, the Duma, media, and opponents — mean real power in practice concentrates in one office."
+      explain:"Traditional economies are based on customs and farming, and often rely on bartering — trading goods or services directly — rather than using money."
     },
     {
-      cat: "Vocabulary", flag:"🌍",
-      q: "Which term-length pairing is accurate?",
+      cat: "Economic Systems", flag:"⚖️",
+      q: "A Mixed Economy combines which two elements?",
       choices:[
-        "UK parliamentary terms last up to 5 years; German Bundestag elections are normally held every 4 years.",
-        "UK parliamentary terms last exactly 6 years, the same as Russia's presidential terms.",
-        "German Bundestag elections happen every 6 years, matching Russia's presidential term length.",
-        "None of the three countries hold elections on any regular cycle."
+        "Market choices (individuals/businesses deciding) with government involvement.",
+        "Bartering with digital cryptocurrency only.",
+        "Two different traditional economies from neighboring countries.",
+        "Command economy rules with zero government involvement."
       ], correct:0,
-      explain:"Watch the numbers closely: UK parliamentary terms can last up to 5 years, German Bundestag elections are held roughly every 4 years, and Russia's presidential terms are 6 years each (up to two consecutive terms) — three different cycles, easy to mix up."
+      explain:"A mixed economy blends market choices — individuals and businesses making decisions — with some level of government involvement, landing between a pure market and a pure command economy."
+    },
+    {
+      cat: "Economic Systems", flag:"⚖️", multi:true,
+      q: "Select ALL economic systems that involve the GOVERNMENT playing at least some active role in economic decisions.",
+      choices:["Command Economy","Mixed Economy","Pure Market Economy (in theory)","Traditional Economy"], correct:[0,1],
+      explain:"By definition, a command economy is government-controlled, and a mixed economy includes real government involvement alongside the market. A theoretically pure market economy runs on individual and business choices with no government role, and a traditional economy runs on customs and bartering, not government planning."
+    },
+    {
+      cat: "Government & Economy", flag:"🏛️",
+      q: "According to the notes, which type of economy do democratic governments typically support?",
+      choices:["Command-leaning economies with heavy government control","Market-leaning economies with freedom of choice and private business","Only traditional, barter-based economies","No economy at all — democracies avoid economic systems"], correct:1,
+      explain:"Democratic governments typically support market-leaning economies — freedom of choice, private businesses, and citizen participation. Autocratic governments typically lean toward command-style control instead."
+    },
+    {
+      cat: "Government & Economy", flag:"🏛️",
+      q: "Why do autocratic governments typically favor command-leaning economies?",
+      choices:[
+        "Because concentrating economic decisions in government hands matches how autocracies concentrate political power in one leader or small group.",
+        "Because autocracies are legally required by international law to use command economies.",
+        "Because command economies always produce more citizen freedom than market economies.",
+        "There is no real connection between a country's government type and its economic system."
+      ], correct:0,
+      explain:"Government style often shapes economic style: autocracies concentrate power in a leader or small group, and command economies concentrate economic decision-making in that same government — more control, less business and citizen freedom."
+    },
+    {
+      cat: "Economic Continuum", flag:"⚖️",
+      q: "On the economic continuum described in the notes (more government control ↔ more economic freedom), where do Russia, Germany, and the UK fall, from least to most economic freedom?",
+      choices:[
+        "Russia (mostly command) → Germany (mixed) → United Kingdom (more market freedom)",
+        "United Kingdom (mostly command) → Germany (mixed) → Russia (more market freedom)",
+        "All three countries sit at the exact same point on the continuum.",
+        "Germany (mostly command) → Russia (mixed) → United Kingdom (more market freedom)"
+      ], correct:0,
+      explain:"The continuum places Russia closer to the command end (mostly command, less freedom), Germany in the middle (mixed, more market freedom), and the UK closer to the market end (more market, more freedom)."
+    },
+    {
+      cat: "Factors of Production", flag:"🧱",
+      q: "The 4 Factors of Production are natural resources, human capital, physical capital, and...",
+      choices:["Entrepreneurship","Currency","Scarcity","GDP"], correct:0,
+      explain:"The four factors of production are natural resources, human capital (skills/education/labor), physical capital (tools/machines/buildings), and entrepreneurship (taking risks, creating ideas, organizing resources)."
+    },
+    {
+      cat: "Factors of Production", flag:"🌲",
+      q: "Which factor of production do 'renewable' and 'nonrenewable' describe?",
+      choices:["Human capital","Natural resources","Physical capital","Entrepreneurship"], correct:1,
+      explain:"Natural resources are split into renewable (replenished, like water, forests, sunlight) and nonrenewable (limited, like oil, coal, minerals)."
+    },
+    {
+      cat: "Factors of Production", flag:"🎓", multi:true,
+      q: "Select ALL examples that belong under 'Human Capital.'",
+      choices:["A worker's job skills","A worker's education and training","A factory's delivery trucks","A worker's health and experience"], correct:[0,1,3],
+      explain:"Human capital is about the people — their skills, education, training, health, and experience. A factory's delivery trucks are physical capital (a tool used to produce/move goods), not human capital."
+    },
+    {
+      cat: "Vocabulary", flag:"🔧",
+      q: "A 'Capital Good' is...",
+      choices:["A tool, machine, or building used to produce goods and services","Any product a consumer buys for personal use","A type of government bond","Another name for GDP"], correct:0,
+      explain:"Capital goods are tools, machines, or buildings used to produce other goods and services — like a bakery's oven or a factory's assembly line, not something a shopper buys to consume directly."
+    },
+    {
+      cat: "Vocabulary", flag:"💡",
+      q: "An 'Entrepreneur' is best described as someone who...",
+      choices:[
+        "Takes a risk and combines resources to start or run a business.",
+        "Only invests in stocks and never starts a company.",
+        "Works exclusively for the government.",
+        "Refuses to take any financial risk."
+      ], correct:0,
+      explain:"An entrepreneur takes on risk and combines resources — natural, human, and capital — to start or run a business, often creating new ideas along the way."
+    },
+    {
+      cat: "Trade", flag:"🚢",
+      q: "What is the difference between a Tariff and a Quota?",
+      choices:[
+        "A tariff is a tax on imported goods; a quota is a limit on how much of a product may be imported.",
+        "A tariff is a limit on imports; a quota is a tax on imports.",
+        "They are two different names for the exact same policy.",
+        "A tariff applies only to exports; a quota applies only to domestic sales."
+      ], correct:0,
+      explain:"A tariff is a tax placed on goods imported from another country. A quota is a limit on the quantity of a product that may be imported — a tax versus a hard cap, both are trade barriers."
+    },
+    {
+      cat: "Trade", flag:"🚫",
+      q: "How does an Embargo differ from a Tariff or Quota?",
+      choices:[
+        "An embargo completely stops trade with another country, while a tariff and quota only tax or limit trade rather than banning it outright.",
+        "An embargo only limits how much can be imported, exactly like a quota.",
+        "An embargo is a tax on imports, exactly like a tariff.",
+        "There is no meaningful difference between the three terms."
+      ], correct:0,
+      explain:"An embargo is a government order that completely stops trade with another country — a much more extreme trade barrier than a tariff (a tax) or a quota (a quantity limit)."
+    },
+    {
+      cat: "Trade", flag:"🚧", multi:true,
+      q: "Select ALL of the following that count as a 'Trade Barrier' — a government rule or policy that limits international trade.",
+      choices:["Tariff","Quota","Embargo","Specialization"], correct:[0,1,2],
+      explain:"Tariffs, quotas, and embargoes are all trade barriers — government policies that limit or block international trade. Specialization is a production concept (focusing on one job or product) and isn't a trade restriction at all."
+    },
+    {
+      cat: "Vocabulary", flag:"📊",
+      q: "'Scarcity' means...",
+      choices:[
+        "People have unlimited wants, but there are not enough resources or products to satisfy them all.",
+        "A country has more resources than it could ever use.",
+        "A government has completely run out of money.",
+        "A product is available in unlimited quantity."
+      ], correct:0,
+      explain:"Scarcity is the basic economic problem: people's wants are unlimited, but the resources and products available to meet those wants are limited."
+    },
+    {
+      cat: "Vocabulary", flag:"🛠️",
+      q: "'Specialization' refers to...",
+      choices:[
+        "Becoming skilled at one particular job or part of production.",
+        "A government agency that regulates all trade.",
+        "The total value of a country's exports.",
+        "A tax placed only on specialized, high-tech goods."
+      ], correct:0,
+      explain:"Specialization means becoming skilled at one particular job or part of production — like a worker focusing on just one step of building a car — which usually makes production more efficient."
+    },
+    {
+      cat: "Standard of Living", flag:"🏡",
+      q: "Which pair of terms are easiest to confuse, and how are they different: 'Standard of Living' and 'Literacy Rate'?",
+      choices:[
+        "Standard of living is how well people's needs and wants are met overall; literacy rate is specifically the percentage of people who can read and write.",
+        "They mean exactly the same thing and can be used interchangeably.",
+        "Literacy rate measures overall wealth; standard of living measures only reading ability.",
+        "Standard of living applies only to government workers."
+      ], correct:0,
+      explain:"Standard of living is a broad measure of how well people's needs and wants are met. Literacy rate is one specific, narrower statistic — the percentage of people in a country who can read and write — that can influence standard of living but isn't the same thing."
+    },
+    {
+      cat: "Traditional Economies", flag:"🌾",
+      q: "In a traditional economy that relies on bartering, which of these is a correct EXAMPLE of a barter trade?",
+      choices:["Trading fish for vegetables","Paying for vegetables with a credit card","Depositing fish into a savings account","Taxing a shipment of vegetables at the border"], correct:0,
+      explain:"Barter means directly trading goods or services for other goods or services — like fish for vegetables, tools for clothing, or livestock for grain — without using money at all."
+    },
+    {
+      cat: "Compare Systems", flag:"🌍",
+      q: "A country's citizens mostly farm their own food and trade surplus goods directly with neighbors, following long-standing customs. A second country has businesses and consumers freely buying and selling based on supply and demand, with light government involvement. Which economic types does this describe, in order?",
+      choices:[
+        "Traditional economy, then a market-leaning mixed economy.",
+        "Command economy, then a traditional economy.",
+        "Market economy, then a command economy.",
+        "Both countries are described as pure command economies."
+      ], correct:0,
+      explain:"Farming and direct trading based on custom is the hallmark of a traditional economy. Businesses and consumers freely responding to supply and demand, with some government involvement, describes a market-leaning mixed economy."
     }
   ];
 
   const RANKS = [
-    { min: 0.9, title:"Head of State", desc:"Exceptional command of comparative government — you could brief the cabinet yourself." },
-    { min: 0.7, title:"Prime Minister", desc:"Strong grasp of how power moves between citizens, legislatures, and executives." },
-    { min: 0.5, title:"Elected Delegate", desc:"Solid foundation — a few more reps and you'll have every path to power memorized." },
-    { min: 0,   title:"Registered Voter", desc:"You're building the basics. Review the guided notes and try the tour again." }
+    { min: 0.9, title:"Chief Economist", desc:"Exceptional command of economic systems — you could brief a trade summit yourself." },
+    { min: 0.7, title:"Market Analyst", desc:"Strong grasp of production, trade, and how economic systems compare." },
+    { min: 0.5, title:"Apprentice Trader", desc:"Solid foundation — a few more reps and you'll have every term locked in." },
+    { min: 0,   title:"New Recruit", desc:"You're building the basics. Review the vocabulary word bank and try the post again." }
   ];
 
   const TIME_LIMIT = 15; // seconds per question — the clock is part of the challenge
@@ -795,7 +802,7 @@
   const results = [];
 
   const el = id => document.getElementById(id);
-  const best = () => parseInt(localStorage.getItem('wpt_best') || '0', 10);
+  const best = () => parseInt(localStorage.getItem('esq_best') || '0', 10);
   el('statBest').textContent = best();
 
   function shuffle(a){
@@ -950,12 +957,12 @@
     el('rankDesc').textContent = rank.desc;
     el('finalScore').textContent = `${score} / ${QUESTIONS.length}`;
 
-    if(score > best()) localStorage.setItem('wpt_best', String(score));
+    if(score > best()) localStorage.setItem('esq_best', String(score));
     el('statBest').textContent = best();
 
     const stampIcons = el('stampIcons');
     stampIcons.innerHTML = '';
-    const flags = ['🇬🇧','🇩🇪','🇷🇺'];
+    const flags = ['🌾','🏛️','🏪'];
     const thresholds = [0.45, 0.7, 0.9];
     flags.forEach((f, i) => {
       const d = document.createElement('div');
