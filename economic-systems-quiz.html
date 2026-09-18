@@ -14,12 +14,17 @@
     --paper:#fffdf7;
     --gold:#b8863f;
     --gold-bright:#c89b3c;
+    --gold-ink:#8a5f22;
     --stamp-red:#a33b2e;
     --sage:#3f6e56;
     --ink:#2a2620;
     --muted:#6b6357;
     --line: rgba(42,38,32,0.16);
     --shadow: rgba(28,43,74,0.18);
+    /* fixed — the cover panel is a deliberately dark passport-style
+       plate in both themes, so it does not flip with color scheme */
+    --cover-bg-1:#1c2b4a;
+    --cover-bg-2:#12203a;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -29,6 +34,7 @@
       --paper:#1b2438;
       --gold:#d8ab5c;
       --gold-bright:#e6bd75;
+      --gold-ink:#d8ab5c;
       --stamp-red:#e08a78;
       --sage:#7fc4a2;
       --ink:#ece4d2;
@@ -44,6 +50,7 @@
     --paper:#1b2438;
     --gold:#d8ab5c;
     --gold-bright:#e6bd75;
+    --gold-ink:#d8ab5c;
     --stamp-red:#e08a78;
     --sage:#7fc4a2;
     --ink:#ece4d2;
@@ -75,26 +82,21 @@
     text-transform:uppercase;
     letter-spacing:0.14em;
     font-size:0.7rem;
-    color:var(--gold);
+    color:var(--gold-ink);
     font-weight:600;
   }
 
   /* ---------- Header / Passport cover ---------- */
   .cover{
-    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
-    color:var(--parchment);
+    background:linear-gradient(160deg, var(--cover-bg-1) 0%, var(--cover-bg-2) 100%);
+    color:#f3ede0;
     border-radius:18px;
     padding:28px 26px 24px;
     box-shadow:0 18px 40px var(--shadow);
     position:relative;
     overflow:hidden;
   }
-  :root[data-theme="dark"] .cover, :root:not([data-theme="light"]) .cover{
-    color:var(--parchment);
-  }
-  @media (prefers-color-scheme: light){
-    :root:not([data-theme="dark"]) .cover{ color:#f3ede0; }
-  }
+  .cover .eyebrow{ color:var(--gold-bright); }
   .cover::after{
     content:"";
     position:absolute; inset:8px;
@@ -211,41 +213,12 @@
     padding:4px 10px;
     border-radius:999px;
   }
-  .timer{
-    display:flex;
-    align-items:center;
-    gap:8px;
-  }
-  .timer-num{
-    font-family:'IBM Plex Mono', monospace;
-    font-variant-numeric:tabular-nums;
-    font-size:0.85rem;
-    font-weight:600;
-    color:var(--muted);
-    width:2.2em;
-    text-align:right;
-  }
-  .timer-track{
-    width:70px;
-    height:6px;
-    border-radius:999px;
-    background:var(--line);
-    overflow:hidden;
-  }
-  .timer-fill{
-    height:100%;
-    width:100%;
-    background:var(--sage);
-    border-radius:999px;
-    transition:width .18s linear, background .3s ease;
-  }
-  .timer-fill.low{ background:var(--stamp-red); }
   .multi-hint{
     font-family:'IBM Plex Mono', monospace;
     font-size:0.68rem;
     text-transform:uppercase;
     letter-spacing:0.08em;
-    color:var(--gold);
+    color:var(--gold-ink);
     margin:-10px 0 12px;
   }
   .qtext{
@@ -494,10 +467,6 @@
   <div class="card" id="quizCard">
     <div class="card-top">
       <span class="cat-tag" id="catTag">Vocabulary</span>
-      <div class="timer">
-        <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
-        <span class="timer-num" id="timerNum">20s</span>
-      </div>
     </div>
     <p class="qtext" id="qtext">Loading…</p>
     <p class="multi-hint" id="multiHint" style="display:none;">Select ALL that apply</p>
@@ -791,14 +760,11 @@
     { min: 0,   title:"New Recruit", desc:"You're building the basics. Review the vocabulary word bank and try the post again." }
   ];
 
-  const TIME_LIMIT = 15; // seconds per question — the clock is part of the challenge
-
   let order = [...QUESTIONS.keys()];
   shuffle(order);
   let idx = 0, score = 0, streak = 0, answered = false;
   let displayIdx = [];       // shuffled choice order for the current question, as original indices
   let picked = new Set();    // indices (into displayIdx) the player has toggled, for multi-select
-  let timerId = null, timeLeft = TIME_LIMIT;
   const results = [];
 
   const el = id => document.getElementById(id);
@@ -814,31 +780,6 @@
   }
 
   function currentQuestion(){ return QUESTIONS[order[idx]]; }
-
-  function startTimer(){
-    clearInterval(timerId);
-    timeLeft = TIME_LIMIT;
-    updateTimerUI();
-    timerId = setInterval(() => {
-      timeLeft -= 0.1;
-      if(timeLeft <= 0){
-        timeLeft = 0;
-        updateTimerUI();
-        clearInterval(timerId);
-        if(!answered) lockAnswer(-1); // time's up — counts as a miss
-        return;
-      }
-      updateTimerUI();
-    }, 100);
-  }
-
-  function updateTimerUI(){
-    const pct = Math.max(0, timeLeft / TIME_LIMIT * 100);
-    const fill = el('timerFill');
-    fill.style.width = pct + '%';
-    fill.classList.toggle('low', timeLeft <= TIME_LIMIT * 0.3);
-    el('timerNum').textContent = Math.ceil(timeLeft) + 's';
-  }
 
   function render(){
     const q = currentQuestion();
@@ -870,8 +811,6 @@
     el('progressText').textContent = `Question ${idx+1} of ${QUESTIONS.length}`;
     el('progressPct').textContent = Math.round((idx/QUESTIONS.length)*100) + '%';
     el('progressFill').style.width = (idx/QUESTIONS.length*100) + '%';
-
-    startTimer();
   }
 
   function toggleChoice(origI, btn){
@@ -889,16 +828,14 @@
   function lockAnswer(choice){
     if(answered) return;
     answered = true;
-    clearInterval(timerId);
     const q = currentQuestion();
     const buttons = [...el('choices').children];
-    const timedOut = choice === -1;
 
     let correct;
     if(q.multi){
       const chosenSet = new Set(Array.isArray(choice) ? choice : []);
       const correctSet = new Set(q.correct);
-      correct = !timedOut && chosenSet.size === correctSet.size && [...chosenSet].every(c => correctSet.has(c));
+      correct = chosenSet.size === correctSet.size && [...chosenSet].every(c => correctSet.has(c));
       buttons.forEach((b, slot) => {
         const origI = displayIdx[slot];
         b.disabled = true;
@@ -908,7 +845,7 @@
       });
       el('submitRow').style.display = 'none';
     } else {
-      correct = !timedOut && choice === q.correct;
+      correct = choice === q.correct;
       buttons.forEach((b, slot) => {
         const origI = displayIdx[slot];
         b.disabled = true;
@@ -925,14 +862,14 @@
       ? q.correct.map(i => q.choices[i]).join(' / ')
       : q.choices[q.correct];
 
-    results.push({ q: q.q, correct, answer: answerText, timedOut });
+    results.push({ q: q.q, correct, answer: answerText });
 
     el('statScore').textContent = score;
     el('statStreak').textContent = streak;
 
     const fb = el('feedback');
     fb.classList.add('show', correct ? 'right' : 'wrong');
-    el('stampLabel').textContent = timedOut ? "Time's up" : (correct ? 'Correct' : 'Incorrect');
+    el('stampLabel').textContent = correct ? 'Correct' : 'Incorrect';
     el('feedbackText').textContent = q.explain;
 
     el('nextBtn').classList.add('show');
@@ -945,7 +882,6 @@
   });
 
   function showResults(){
-    clearInterval(timerId);
     el('quizCard').style.display = 'none';
     el('progressFill').style.width = '100%';
     el('progressText').textContent = `Question ${QUESTIONS.length} of ${QUESTIONS.length}`;
@@ -975,7 +911,7 @@
     reviewBox.innerHTML = '<h3>Answer review</h3>' + results.map(r => `
       <div class="review-item">
         <span class="mark ${r.correct ? 'ok' : 'no'}">${r.correct ? '✓' : '✗'}</span>
-        <span>${r.q}${r.correct ? '' : `<br><em>${r.timedOut ? 'Time ran out. ' : ''}Correct answer: ${r.answer}</em>`}</span>
+        <span>${r.q}${r.correct ? '' : `<br><em>Correct answer: ${r.answer}</em>`}</span>
       </div>
     `).join('');
 
