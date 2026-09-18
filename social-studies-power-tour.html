@@ -14,12 +14,17 @@
     --paper:#fffdf7;
     --gold:#b8863f;
     --gold-bright:#c89b3c;
+    --gold-ink:#8a5f22;
     --stamp-red:#a33b2e;
     --sage:#3f6e56;
     --ink:#2a2620;
     --muted:#6b6357;
     --line: rgba(42,38,32,0.16);
     --shadow: rgba(28,43,74,0.18);
+    /* fixed — the cover panel is a deliberately dark passport-style
+       plate in both themes, so it does not flip with color scheme */
+    --cover-bg-1:#1c2b4a;
+    --cover-bg-2:#12203a;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -29,6 +34,7 @@
       --paper:#1b2438;
       --gold:#d8ab5c;
       --gold-bright:#e6bd75;
+      --gold-ink:#d8ab5c;
       --stamp-red:#e08a78;
       --sage:#7fc4a2;
       --ink:#ece4d2;
@@ -44,6 +50,7 @@
     --paper:#1b2438;
     --gold:#d8ab5c;
     --gold-bright:#e6bd75;
+    --gold-ink:#d8ab5c;
     --stamp-red:#e08a78;
     --sage:#7fc4a2;
     --ink:#ece4d2;
@@ -75,26 +82,21 @@
     text-transform:uppercase;
     letter-spacing:0.14em;
     font-size:0.7rem;
-    color:var(--gold);
+    color:var(--gold-ink);
     font-weight:600;
   }
 
   /* ---------- Header / Passport cover ---------- */
   .cover{
-    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-deep) 100%);
-    color:var(--parchment);
+    background:linear-gradient(160deg, var(--cover-bg-1) 0%, var(--cover-bg-2) 100%);
+    color:#f3ede0;
     border-radius:18px;
     padding:28px 26px 24px;
     box-shadow:0 18px 40px var(--shadow);
     position:relative;
     overflow:hidden;
   }
-  :root[data-theme="dark"] .cover, :root:not([data-theme="light"]) .cover{
-    color:var(--parchment);
-  }
-  @media (prefers-color-scheme: light){
-    :root:not([data-theme="dark"]) .cover{ color:#f3ede0; }
-  }
+  .cover .eyebrow{ color:var(--gold-bright); }
   .cover::after{
     content:"";
     position:absolute; inset:8px;
@@ -245,7 +247,7 @@
     font-size:0.68rem;
     text-transform:uppercase;
     letter-spacing:0.08em;
-    color:var(--gold);
+    color:var(--gold-ink);
     margin:-10px 0 12px;
   }
   .qtext{
