@@ -1,0 +1,924 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Above and Below</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --navy:#1c2b4a;
+    --navy-deep:#12203a;
+    --parchment:#f3ede0;
+    --paper:#fffdf7;
+    --gold:#b8863f;
+    --gold-bright:#c89b3c;
+    --gold-ink:#8a5f22;
+    --stamp-red:#a33b2e;
+    --sage:#3f6e56;
+    --ink:#2a2620;
+    --muted:#6b6357;
+    --line: rgba(42,38,32,0.16);
+    --shadow: rgba(28,43,74,0.18);
+    /* fixed — the cover plate stays dark in both themes */
+    --cover-bg-1:#1c2b4a;
+    --cover-bg-2:#12203a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --navy:#e8dcc0;
+      --navy-deep:#f3ede0;
+      --parchment:#141b2c;
+      --paper:#1b2438;
+      --gold:#d8ab5c;
+      --gold-bright:#e6bd75;
+      --gold-ink:#d8ab5c;
+      --stamp-red:#e08a78;
+      --sage:#7fc4a2;
+      --ink:#ece4d2;
+      --muted:#a79d87;
+      --line: rgba(236,228,210,0.16);
+      --shadow: rgba(0,0,0,0.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    --navy:#e8dcc0;
+    --navy-deep:#f3ede0;
+    --parchment:#141b2c;
+    --paper:#1b2438;
+    --gold:#d8ab5c;
+    --gold-bright:#e6bd75;
+    --gold-ink:#d8ab5c;
+    --stamp-red:#e08a78;
+    --sage:#7fc4a2;
+    --ink:#ece4d2;
+    --muted:#a79d87;
+    --line: rgba(236,228,210,0.16);
+    --shadow: rgba(0,0,0,0.45);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    padding-block:32px;
+  }
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding-inline:20px;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', Georgia, serif;
+    text-wrap:balance;
+    margin:0;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    font-size:0.7rem;
+    color:var(--gold-ink);
+    font-weight:600;
+  }
+
+  /* ---------- Cover ---------- */
+  .cover{
+    background:linear-gradient(160deg, var(--cover-bg-1) 0%, var(--cover-bg-2) 100%);
+    color:#f3ede0;
+    border-radius:18px;
+    padding:28px 26px 24px;
+    box-shadow:0 18px 40px var(--shadow);
+    position:relative;
+    overflow:hidden;
+  }
+  .cover .eyebrow{ color:var(--gold-bright); }
+  .cover::after{
+    content:"";
+    position:absolute; inset:8px;
+    border:1px solid rgba(200,155,60,0.55);
+    border-radius:12px;
+    pointer-events:none;
+  }
+  .cover h1{
+    font-size:clamp(1.6rem,4.2vw,2.15rem);
+    color:#f3ede0;
+    margin-top:6px;
+  }
+  .cover p.sub{
+    margin:8px 0 0;
+    color:#cdd3e2;
+    font-size:0.95rem;
+    max-width:48ch;
+  }
+  .numline{
+    display:block;
+    width:100%;
+    max-width:340px;
+    height:auto;
+    margin-top:18px;
+  }
+  .badge-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px;}
+  .flag-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.04em;
+    background:rgba(200,155,60,0.14);
+    border:1px solid rgba(200,155,60,0.5);
+    color:#e6d9b8;
+    padding:5px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+
+  /* ---------- Stat strip ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:18px;
+  }
+  .stat{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    text-align:center;
+  }
+  .stat .n{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:1.4rem;
+    font-weight:600;
+    color:var(--navy);
+  }
+  .stat .l{
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  /* ---------- Progress ---------- */
+  .progress-track{
+    height:6px;
+    border-radius:999px;
+    background:var(--line);
+    margin:18px 0 6px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+    border-radius:999px;
+    transition:width .35s ease;
+    width:0%;
+  }
+  .progress-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--muted);
+    display:flex;justify-content:space-between;
+  }
+
+  /* ---------- Question card ---------- */
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:24px 24px 20px;
+    margin-top:18px;
+    box-shadow:0 10px 26px var(--shadow);
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .qnum{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.9rem;
+    font-weight:600;
+    color:var(--navy);
+  }
+  .cat-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.66rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--navy);
+    background:rgba(184,134,63,0.13);
+    border:1px solid rgba(184,134,63,0.35);
+    padding:4px 10px;
+    border-radius:999px;
+  }
+
+  .expr{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:clamp(1.25rem, 5.5vw, 1.8rem);
+    font-weight:500;
+    line-height:1.5;
+    color:var(--ink);
+    margin:0 0 6px;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .word{
+    font-size:1.05rem;
+    line-height:1.55;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .frac{
+    display:inline-flex;
+    flex-direction:column;
+    vertical-align:middle;
+    text-align:center;
+    line-height:1.1;
+    font-size:0.75em;
+    margin:0 .12em;
+  }
+  .frac .num{ border-bottom:1.5px solid currentColor; padding:0 .25em; }
+  .frac .den{ padding:0 .25em; }
+
+  .hint{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:10px 0 0;
+    font-style:italic;
+  }
+
+  .answer-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+  .answer-row label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--muted);
+  }
+  input.answer{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:1.15rem;
+    font-weight:600;
+    color:var(--ink);
+    background:transparent;
+    border:1.5px solid var(--line);
+    border-bottom:2.5px solid var(--gold);
+    border-radius:8px;
+    padding:10px 14px;
+    width:170px;
+    max-width:100%;
+  }
+  input.answer:focus{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+    border-color:var(--gold);
+  }
+
+  .nav-row{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  button{
+    font-family:'IBM Plex Mono', monospace;
+    cursor:pointer;
+  }
+  button.nav{
+    font-size:0.8rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    background:transparent;
+    color:var(--navy);
+    border:1.5px solid var(--navy);
+    padding:10px 16px;
+    border-radius:8px;
+  }
+  button.nav.primary{
+    background:var(--navy);
+    color:var(--parchment);
+  }
+  button.nav:disabled{ opacity:0.35; cursor:default; }
+  button.nav:hover:not(:disabled){ filter:brightness(1.12); }
+  .nav-spacer{ flex:1 1 auto; }
+  button.submit-test{
+    font-size:0.8rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    background:var(--gold);
+    color:#fff;
+    border:none;
+    padding:11px 18px;
+    border-radius:8px;
+  }
+  :root:not([data-theme="light"]) button.submit-test{ color:#1b2438; }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]) button.submit-test{ color:#fff; }
+  }
+  :root[data-theme="dark"] button.submit-test{ color:#1b2438; }
+
+  .confirm-bar{
+    margin-top:14px;
+    padding:12px 14px;
+    border:1px dashed var(--stamp-red);
+    border-radius:10px;
+    font-size:0.9rem;
+    display:none;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .confirm-bar.show{ display:flex; }
+
+  /* ---------- Question palette ---------- */
+  .palette-wrap{
+    margin-top:18px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 18px;
+  }
+  .palette-wrap h3{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--muted);
+    font-weight:600;
+    margin-bottom:12px;
+  }
+  .palette{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  button.pal{
+    font-size:0.72rem;
+    font-weight:500;
+    font-variant-numeric:tabular-nums;
+    width:34px;
+    height:34px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    padding:0;
+  }
+  button.pal.done{
+    border-color:var(--sage);
+    color:var(--sage);
+    background:color-mix(in srgb, var(--sage) 12%, transparent);
+  }
+  button.pal.current{
+    border-color:var(--gold);
+    border-width:2.5px;
+    color:var(--gold-ink);
+    font-weight:600;
+  }
+
+  /* ---------- Results ---------- */
+  .results{ display:none; }
+  .results.show{ display:block; }
+  .scoreboard{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:30px 26px;
+    margin-top:18px;
+    text-align:center;
+    box-shadow:0 10px 26px var(--shadow);
+  }
+  .grade{
+    font-family:'Fraunces', Georgia, serif;
+    font-size:2.6rem;
+    color:var(--navy);
+    margin:8px 0 2px;
+  }
+  .score-big{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:2.6rem;
+    font-weight:600;
+    color:var(--gold-ink);
+    margin:4px 0;
+  }
+  .score-pct{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--muted);
+    font-size:0.95rem;
+  }
+  .focus{
+    text-align:left;
+    margin:22px auto 0;
+    max-width:44ch;
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+  .focus h3{
+    font-size:1rem;
+    margin-bottom:8px;
+  }
+  .focus ul{ margin:0; padding-left:20px; }
+  .focus li{ font-size:0.92rem; margin-bottom:4px; }
+  .actions{ display:flex; gap:10px; justify-content:center; margin-top:22px; flex-wrap:wrap; }
+
+  .review{
+    text-align:left;
+    margin-top:22px;
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+  .review h3{ font-size:1rem; margin-bottom:12px; }
+  .review-item{
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .review-item:last-child{ border-bottom:none; }
+  .review-head{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.9rem;
+    margin-bottom:6px;
+    flex-wrap:wrap;
+  }
+  .review-head .mark{ font-weight:700; flex:none; }
+  .review-head .mark.ok{ color:var(--sage); }
+  .review-head .mark.no{ color:var(--stamp-red); }
+  .review-q{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.95rem;
+    overflow-x:auto;
+  }
+  .review-q.word-q{ font-family:'Source Serif 4', Georgia, serif; font-size:0.92rem; }
+  .review-answers{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    margin-top:6px;
+    color:var(--muted);
+  }
+  .review-answers .yours.no{ color:var(--stamp-red); }
+  .review-answers .right{ color:var(--sage); }
+  .solution{
+    font-size:0.88rem;
+    line-height:1.5;
+    margin-top:6px;
+    color:var(--ink);
+    background:color-mix(in srgb, var(--gold) 9%, transparent);
+    border-left:2.5px solid var(--gold);
+    padding:8px 12px;
+    border-radius:0 6px 6px 0;
+  }
+
+  footer.credit{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    color:var(--muted);
+    letter-spacing:0.05em;
+    margin-top:26px;
+    line-height:1.8;
+  }
+
+  @media (max-width:480px){
+    .stat{ padding:9px 6px; }
+    .stat .n{ font-size:1.15rem; }
+    .cover{ padding:22px 18px 18px; }
+    .card{ padding:20px 16px 18px; }
+    .palette-wrap{ padding:14px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="cover">
+    <div class="eyebrow">Advanced Unit 2 · Practice Test</div>
+    <h1>Above and Below</h1>
+    <p class="sub">Integer operations: order of operations, absolute value, exponents, and word problems. Type each answer — nothing is graded until you submit.</p>
+    <svg class="numline" viewBox="0 0 340 40" role="img" aria-label="A number line from negative five to five">
+      <line x1="10" y1="22" x2="330" y2="22" stroke="rgba(200,155,60,0.75)" stroke-width="1.5" fill="none"/>
+      <g fill="#e6d9b8" font-family="'IBM Plex Mono', monospace" font-size="10" text-anchor="middle">
+        <g stroke="rgba(200,155,60,0.75)" stroke-width="1.5">
+          <line x1="26" y1="16" x2="26" y2="28"/><line x1="56" y1="16" x2="56" y2="28"/>
+          <line x1="86" y1="16" x2="86" y2="28"/><line x1="116" y1="16" x2="116" y2="28"/>
+          <line x1="146" y1="16" x2="146" y2="28"/><line x1="176" y1="13" x2="176" y2="31"/>
+          <line x1="206" y1="16" x2="206" y2="28"/><line x1="236" y1="16" x2="236" y2="28"/>
+          <line x1="266" y1="16" x2="266" y2="28"/><line x1="296" y1="16" x2="296" y2="28"/>
+          <line x1="326" y1="16" x2="326" y2="28"/>
+        </g>
+        <text x="26" y="40">−5</text><text x="86" y="40">−3</text><text x="146" y="40">−1</text>
+        <text x="176" y="40">0</text><text x="206" y="40">1</text><text x="266" y="40">3</text>
+        <text x="326" y="40">5</text>
+      </g>
+    </svg>
+    <div class="badge-row">
+      <span class="flag-chip">34 questions</span>
+      <span class="flag-chip">Type your answer</span>
+      <span class="flag-chip">Scored at the end</span>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="statAnswered">0</div><div class="l">Answered</div></div>
+    <div class="stat"><div class="n" id="statLeft">34</div><div class="l">Left</div></div>
+    <div class="stat"><div class="n" id="statBest">—</div><div class="l">Best score</div></div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label"><span id="progressText">Question 1 of 34</span><span id="progressPct">0%</span></div>
+
+  <div class="card" id="testCard">
+    <div class="card-top">
+      <span class="qnum" id="qnum">Question 1</span>
+      <span class="cat-tag" id="catTag">Add &amp; Subtract</span>
+    </div>
+    <div id="qbody"></div>
+    <p class="hint" id="hint" style="display:none;"></p>
+
+    <div class="answer-row">
+      <label for="answerInput">Your answer</label>
+      <input class="answer" id="answerInput" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. −24">
+    </div>
+
+    <div class="nav-row">
+      <button class="nav" id="prevBtn">← Back</button>
+      <button class="nav primary" id="nextBtn">Next →</button>
+      <span class="nav-spacer"></span>
+      <button class="submit-test" id="submitBtn">Submit test</button>
+    </div>
+
+    <div class="confirm-bar" id="confirmBar">
+      <span id="confirmText"></span>
+      <button class="nav" id="confirmSubmit">Submit anyway</button>
+      <button class="nav" id="cancelSubmit">Keep working</button>
+    </div>
+  </div>
+
+  <div class="palette-wrap" id="paletteWrap">
+    <h3>Jump to a question</h3>
+    <div class="palette" id="palette"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="scoreboard">
+      <div class="eyebrow">Test complete</div>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="score-big" id="finalScore">0 / 34</div>
+      <div class="score-pct" id="finalPct">0%</div>
+      <div class="focus" id="focusBox" style="display:none;">
+        <h3>What to review</h3>
+        <ul id="focusList"></ul>
+      </div>
+      <div class="actions">
+        <button class="nav primary" id="retryBtn">Retake test</button>
+        <button class="nav" id="reviewToggle">Show full solutions</button>
+      </div>
+      <div class="review" id="reviewBox" style="display:none;"></div>
+    </div>
+  </div>
+
+  <footer class="credit">
+    Study Guide — Advanced Unit 2 · Integer Operations<br>
+    Question numbers match the study guide.
+  </footer>
+</div>
+
+<script>
+(function(){
+  // html: the question as shown. word:true renders it as prose instead of an expression.
+  // answer: the numeric answer. solution: the worked steps shown after submitting.
+  const QUESTIONS = [
+    { n:"1",  cat:"Add & Subtract", html:"(20) + (−44) =", answer:-24,
+      solution:"Start at 20 and take away 44: 20 − 44 = −24." },
+    { n:"2",  cat:"Add & Subtract", html:"(−12) − (−26) =", answer:14,
+      solution:"Subtracting a negative adds: −12 + 26 = 14." },
+    { n:"3",  cat:"Order of Operations", html:"(−5) − 19(0) =", answer:-5,
+      solution:"Multiply first: 19(0) = 0. Then −5 − 0 = −5." },
+    { n:"4",  cat:"Order of Operations", html:"(−7)(−4) − 4 =", answer:24,
+      solution:"Multiply first: (−7)(−4) = 28 (negative × negative = positive). Then 28 − 4 = 24." },
+    { n:"5",  cat:"Add & Subtract", html:"(−184) + (−29) =", answer:-213,
+      solution:"Both are negative, so add the amounts and keep the sign: −(184 + 29) = −213." },
+    { n:"6",  cat:"Add & Subtract", html:"90 − (−37) + (−16) =", answer:111,
+      solution:"90 − (−37) = 90 + 37 = 127. Then 127 + (−16) = 111." },
+    { n:"7",  cat:"Absolute Value", html:"(−400) ÷ |(−80) − 20| =", answer:-4,
+      solution:"Inside the bars first: −80 − 20 = −100, and |−100| = 100. Then −400 ÷ 100 = −4." },
+    { n:"8",  cat:"Order of Operations", html:"(−250) ÷ 5 − 100 =", answer:-150,
+      solution:"Divide first: −250 ÷ 5 = −50. Then −50 − 100 = −150." },
+    { n:"9",  cat:"Order of Operations", html:"(−12) + 7(−4) =", answer:-40,
+      solution:"Multiply first: 7(−4) = −28. Then −12 + (−28) = −40." },
+    { n:"10", cat:"Absolute Value", html:"34 − |−73 + 12| =", answer:-27,
+      solution:"Inside the bars first: −73 + 12 = −61, and |−61| = 61. Then 34 − 61 = −27." },
+    { n:"11", cat:"Order of Operations", html:"(−18) + 51 ÷ (−3) =", answer:-35,
+      solution:"Divide first: 51 ÷ (−3) = −17. Then −18 + (−17) = −35." },
+    { n:"12", cat:"Multiply & Divide", html:"(−56)(−10)(−2) =", answer:-1120,
+      solution:"(−56)(−10) = 560 (two negatives make a positive). Then 560 × (−2) = −1120. Three negative factors give a negative answer." },
+    { n:"13", cat:"Order of Operations", html:"(−92) − 36(−2) =", answer:-20,
+      solution:"Multiply first: 36(−2) = −72. Then −92 − (−72) = −92 + 72 = −20." },
+    { n:"14", cat:"Order of Operations", html:"(−165) − (−6 + 90) =", answer:-249,
+      solution:"Parentheses first: −6 + 90 = 84. Then −165 − 84 = −249." },
+    { n:"15", cat:"Order of Operations", html:"−(−9) − 12(−6) =", answer:81,
+      solution:"Multiply first: 12(−6) = −72. And −(−9) = 9. So 9 − (−72) = 9 + 72 = 81." },
+    { n:"16", cat:"Order of Operations", html:"−2 − 8(−5) =", answer:38,
+      solution:"Multiply before subtracting: 8(−5) = −40. Then −2 − (−40) = −2 + 40 = 38." },
+    { n:"17", cat:"Multiply & Divide", html:"(−92) ÷ (−4) =", answer:23,
+      solution:"Negative ÷ negative = positive: 92 ÷ 4 = 23." },
+    { n:"18", cat:"Order of Operations", html:"(−32) + 7 − 10(−2) =", answer:-5,
+      solution:"Multiply first: 10(−2) = −20. Then −32 + 7 = −25, and −25 − (−20) = −25 + 20 = −5." },
+    { n:"19", cat:"Order of Operations", html:"(−24) − (−59 + 5) =", answer:30,
+      solution:"Parentheses first: −59 + 5 = −54. Then −24 − (−54) = −24 + 54 = 30." },
+    { n:"20", cat:"Order of Operations",
+      html:"−4 − <span class=\"frac\"><span class=\"num\">−35</span><span class=\"den\">7</span></span> =", answer:1,
+      solution:"The fraction bar means divide: −35 ÷ 7 = −5. Then −4 − (−5) = −4 + 5 = 1." },
+
+    { n:"21", cat:"Word Problem", word:true,
+      html:"The temperature in Hawaii is 85°F. The temperature in Antarctica is −23°F. What is the difference in the two temperatures?",
+      hint:"Answer in degrees Fahrenheit — just the number.", answer:108,
+      solution:"Difference means subtract: 85 − (−23) = 85 + 23 = 108°F." },
+    { n:"22", cat:"Word Problem", word:true,
+      html:"Carla is on a game show with a score of −10. Maria's score is 22. What is the difference of the two scores?",
+      hint:"Answer in points — just the number.", answer:32,
+      solution:"22 − (−10) = 22 + 10 = 32 points apart." },
+    { n:"23", cat:"Word Problem", word:true,
+      html:"Grant owes his friend $20. If he pays his friend $12, how much does he still owe?",
+      hint:"Answer in dollars — just the number.", answer:8,
+      solution:"He owes 20 and pays back 12: 20 − 12 = 8. He still owes $8." },
+    { n:"24", cat:"Word Problem", word:true,
+      html:"The temperature in Yakutsk, Russia is 5°C. The temperature decreases at a constant rate of 14 degrees every 2 hours. What will the temperature be in 6 hours?",
+      hint:"Answer in degrees Celsius, with a minus sign if it is below zero.", answer:-37,
+      solution:"Careful: it drops 14° every TWO hours, not every hour. In 6 hours there are 6 ÷ 2 = 3 drops, so it falls 3 × 14 = 42 degrees. Then 5 − 42 = −37°C." },
+    { n:"25", cat:"Word Problem", word:true,
+      html:"A diver is 40 feet below sea level. If the diver dives 20 feet deeper, then rises 5 feet, what is his new depth?",
+      hint:"Answer in feet, using a negative number for below sea level.", answer:-55,
+      solution:"Below sea level is negative: −40 + (−20) + 5 = −55 feet." },
+    { n:"26", cat:"Word Problem", word:true,
+      html:"Mark deposits $40 in his bank account each month. He started with $150 in his bank account. <strong>How much will his bank account change by after 6 months?</strong>",
+      hint:"Answer in dollars — the amount of change, just the number.", answer:240,
+      solution:"The change is only the deposits: 40 × 6 = $240. The starting $150 is not part of the change." },
+    { n:"26b", cat:"Word Problem", word:true,
+      html:"Mark started with $150 and deposits $40 each month. <strong>What will the balance of Mark's bank account be after 6 months?</strong>",
+      hint:"Answer in dollars — just the number.", answer:390,
+      solution:"Starting amount plus the change: 150 + 240 = $390." },
+    { n:"26c", cat:"Word Problem", word:true,
+      html:"Mark deposits $40 each month. <strong>If Mark's account changed by $480, how many months did he deposit $40?</strong>",
+      hint:"Answer in months — just the number.", answer:12,
+      solution:"Divide the total change by the monthly deposit: 480 ÷ 40 = 12 months." },
+    { n:"27", cat:"Word Problem", word:true,
+      html:"A construction company is digging a trench to put a pipe under the ground. The company needs to build a hole that is 42 feet deep. It digs 3 feet each day. How many days will it take for the construction company to finish?",
+      hint:"Answer in days — just the number.", answer:14,
+      solution:"42 ÷ 3 = 14 days." },
+    { n:"28", cat:"Word Problem", word:true,
+      html:"A submarine starts at sea level and descends 15 feet every minute. After 8 minutes, what is the location of the submarine relative to sea level?",
+      hint:"Answer in feet, using a negative number for below sea level.", answer:-120,
+      solution:"Descending is negative: (−15)(8) = −120 feet, or 120 feet below sea level." },
+
+    { n:"29", cat:"Exponents", html:"−6<sup>2</sup> =", answer:-36,
+      solution:"With no parentheses, the exponent applies only to the 6: −(6 × 6) = −36. The minus sign stays out front." },
+    { n:"30", cat:"Exponents", html:"(−6)<sup>2</sup> =", answer:36,
+      solution:"The parentheses mean the negative gets squared too: (−6)(−6) = 36." },
+    { n:"31", cat:"Exponents", html:"13<sup>0</sup> =", answer:1,
+      solution:"Any nonzero number raised to the zero power is 1." },
+    { n:"32", cat:"Exponents", html:"−8<sup>2</sup> =", answer:-64,
+      solution:"The exponent applies only to the 8: −(8 × 8) = −64." }
+  ];
+
+  const GRADES = [
+    { min:0.90, letter:"A", note:"Excellent — you have integer operations down cold." },
+    { min:0.80, letter:"B", note:"Strong work. A little cleanup on the misses and you're set." },
+    { min:0.70, letter:"C", note:"Solid start. Focus on the topics listed below." },
+    { min:0.60, letter:"D", note:"Getting there — rework the solutions below, then retake." },
+    { min:0,    letter:"—", note:"Take another pass through the worked solutions, then retake the test." }
+  ];
+
+  const el = id => document.getElementById(id);
+  const answers = new Array(QUESTIONS.length).fill("");
+  let idx = 0;
+
+  const bestKey = 'iot_best';
+  function readBest(){
+    try { return localStorage.getItem(bestKey); } catch(e){ return null; }
+  }
+  function writeBest(v){
+    try { localStorage.setItem(bestKey, String(v)); } catch(e){ /* storage may be blocked */ }
+  }
+  const storedBest = readBest();
+  if(storedBest !== null && storedBest !== '') el('statBest').textContent = storedBest + '/' + QUESTIONS.length;
+
+  // Pull the first signed number out of whatever the student typed, so "$8",
+  // "−37°C" and "120 feet" all grade the same as the bare number.
+  function parseAnswer(raw){
+    if(raw == null) return null;
+    const s = String(raw).replace(/[−–—]/g, '-').replace(/,/g, '').trim();
+    if(s === '') return null;
+    const m = s.match(/-?\d+(?:\.\d+)?/);
+    if(!m) return null;
+    const v = Number(m[0]);
+    return Number.isFinite(v) ? v : null;
+  }
+
+  function answeredCount(){
+    return answers.filter(a => parseAnswer(a) !== null).length;
+  }
+
+  function saveCurrent(){
+    answers[idx] = el('answerInput').value;
+  }
+
+  function render(){
+    const q = QUESTIONS[idx];
+    el('qnum').textContent = 'Question ' + q.n;
+    el('catTag').textContent = q.cat;
+
+    const body = el('qbody');
+    body.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = q.word ? 'word' : 'expr';
+    p.innerHTML = q.html;
+    body.appendChild(p);
+
+    const hint = el('hint');
+    if(q.hint){ hint.textContent = q.hint; hint.style.display = 'block'; }
+    else { hint.style.display = 'none'; }
+
+    const input = el('answerInput');
+    input.value = answers[idx];
+
+    el('prevBtn').disabled = idx === 0;
+    el('nextBtn').disabled = idx === QUESTIONS.length - 1;
+    el('confirmBar').classList.remove('show');
+
+    const done = answeredCount();
+    el('statAnswered').textContent = done;
+    el('statLeft').textContent = QUESTIONS.length - done;
+    el('progressText').textContent = 'Question ' + (idx + 1) + ' of ' + QUESTIONS.length;
+    el('progressPct').textContent = Math.round(done / QUESTIONS.length * 100) + '%';
+    el('progressFill').style.width = (done / QUESTIONS.length * 100) + '%';
+
+    renderPalette();
+  }
+
+  function renderPalette(){
+    const pal = el('palette');
+    pal.innerHTML = '';
+    QUESTIONS.forEach((q, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pal'
+        + (parseAnswer(answers[i]) !== null ? ' done' : '')
+        + (i === idx ? ' current' : '');
+      b.textContent = q.n;
+      b.setAttribute('aria-label', 'Go to question ' + q.n);
+      b.addEventListener('click', () => { saveCurrent(); idx = i; render(); el('answerInput').focus(); });
+      pal.appendChild(b);
+    });
+  }
+
+  function go(delta){
+    saveCurrent();
+    const next = idx + delta;
+    if(next < 0 || next >= QUESTIONS.length) return;
+    idx = next;
+    render();
+    el('answerInput').focus();
+  }
+
+  el('prevBtn').addEventListener('click', () => go(-1));
+  el('nextBtn').addEventListener('click', () => go(1));
+
+  el('answerInput').addEventListener('input', () => {
+    answers[idx] = el('answerInput').value;
+    const done = answeredCount();
+    el('statAnswered').textContent = done;
+    el('statLeft').textContent = QUESTIONS.length - done;
+    el('progressPct').textContent = Math.round(done / QUESTIONS.length * 100) + '%';
+    el('progressFill').style.width = (done / QUESTIONS.length * 100) + '%';
+    renderPalette();
+  });
+
+  el('answerInput').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      if(idx < QUESTIONS.length - 1) go(1);
+      else el('submitBtn').click();
+    }
+  });
+
+  el('submitBtn').addEventListener('click', () => {
+    saveCurrent();
+    const blank = QUESTIONS.length - answeredCount();
+    if(blank > 0){
+      el('confirmText').textContent = blank === 1
+        ? '1 question is still blank.'
+        : blank + ' questions are still blank.';
+      el('confirmBar').classList.add('show');
+      return;
+    }
+    grade();
+  });
+  el('confirmSubmit').addEventListener('click', grade);
+  el('cancelSubmit').addEventListener('click', () => el('confirmBar').classList.remove('show'));
+
+  function grade(){
+    saveCurrent();
+
+    const marked = QUESTIONS.map((q, i) => {
+      const given = parseAnswer(answers[i]);
+      return { q, given, correct: given !== null && given === q.answer };
+    });
+    const score = marked.filter(m => m.correct).length;
+    const pct = score / QUESTIONS.length;
+
+    el('testCard').style.display = 'none';
+    el('paletteWrap').style.display = 'none';
+    el('progressFill').style.width = '100%';
+    el('progressText').textContent = 'Test submitted';
+    el('progressPct').textContent = '100%';
+
+    const band = GRADES.find(g => pct >= g.min);
+    el('gradeLetter').textContent = band.letter;
+    el('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+    el('finalPct').textContent = Math.round(pct * 100) + '% · ' + band.note;
+
+    const prevBest = parseInt(readBest() || '-1', 10);
+    if(score > prevBest) writeBest(score);
+    const nowBest = readBest();
+    if(nowBest !== null && nowBest !== '') el('statBest').textContent = nowBest + '/' + QUESTIONS.length;
+
+    // Which topics did the misses cluster in?
+    const missedByCat = {};
+    marked.forEach(m => {
+      if(!m.correct) missedByCat[m.q.cat] = (missedByCat[m.q.cat] || 0) + 1;
+    });
+    const cats = Object.keys(missedByCat).sort((a,b) => missedByCat[b] - missedByCat[a]);
+    if(cats.length){
+      el('focusList').innerHTML = cats
+        .map(c => '<li>' + c + ' — ' + missedByCat[c] + (missedByCat[c] === 1 ? ' miss' : ' misses') + '</li>')
+        .join('');
+      el('focusBox').style.display = 'block';
+    } else {
+      el('focusBox').style.display = 'none';
+    }
+
+    el('reviewBox').innerHTML = '<h3>Full solutions</h3>' + marked.map(m => {
+      const yours = m.given === null ? 'blank' : m.given;
+      return '<div class="review-item">'
+        + '<div class="review-head"><span class="mark ' + (m.correct ? 'ok' : 'no') + '">'
+        + (m.correct ? '✓' : '✗') + '</span><span>Question ' + m.q.n + '</span><span>· ' + m.q.cat + '</span></div>'
+        + '<div class="review-q' + (m.q.word ? ' word-q' : '') + '">' + m.q.html + '</div>'
+        + '<div class="review-answers">You: <span class="yours ' + (m.correct ? '' : 'no') + '">' + yours + '</span>'
+        + (m.correct ? '' : ' · Correct: <span class="right">' + m.q.answer + '</span>') + '</div>'
+        + (m.correct ? '' : '<div class="solution">' + m.q.solution + '</div>')
+        + '</div>';
+    }).join('');
+
+    el('results').classList.add('show');
+    // Open solutions automatically when there is something to learn from.
+    const anyMissed = marked.some(m => !m.correct);
+    el('reviewBox').style.display = anyMissed ? 'block' : 'none';
+    el('reviewToggle').textContent = anyMissed ? 'Hide full solutions' : 'Show full solutions';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  el('reviewToggle').addEventListener('click', () => {
+    const box = el('reviewBox');
+    const open = box.style.display !== 'none';
+    box.style.display = open ? 'none' : 'block';
+    el('reviewToggle').textContent = open ? 'Show full solutions' : 'Hide full solutions';
+  });
+
+  el('retryBtn').addEventListener('click', () => {
+    answers.fill('');
+    idx = 0;
+    submitted = false;
+    el('results').classList.remove('show');
+    el('reviewBox').style.display = 'none';
+    el('reviewToggle').textContent = 'Show full solutions';
+    el('testCard').style.display = 'block';
+    el('paletteWrap').style.display = 'block';
+    render();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
