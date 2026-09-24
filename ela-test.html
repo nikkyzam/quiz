@@ -8,315 +8,299 @@
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
   :root{
-    --navy:#1c2b4a;
-    --navy-deep:#12203a;
-    --parchment:#f3ede0;
-    --paper:#fffdf7;
-    --gold:#b8863f;
-    --gold-bright:#c89b3c;
-    --gold-ink:#8a5f22;
-    --stamp-red:#a33b2e;
-    --sage:#3f6e56;
-    --ink:#2a2620;
-    --muted:#6b6357;
-    --line: rgba(42,38,32,0.16);
-    --shadow: rgba(28,43,74,0.18);
+    --navy:#1c2b4a; --navy-deep:#12203a; --parchment:#f3ede0; --paper:#fffdf7;
+    --gold:#b8863f; --gold-bright:#c89b3c; --gold-ink:#8a5f22;
+    --stamp-red:#a33b2e; --sage:#3f6e56; --ink:#2a2620; --muted:#6b6357;
+    --line: rgba(42,38,32,0.16); --shadow: rgba(28,43,74,0.18);
     /* fixed — the cover plate stays dark in both themes */
-    --cover-bg-1:#1c2b4a;
-    --cover-bg-2:#12203a;
+    --cover-bg-1:#1c2b4a; --cover-bg-2:#12203a;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --navy:#e8dcc0;
-      --navy-deep:#f3ede0;
-      --parchment:#141b2c;
-      --paper:#1b2438;
-      --gold:#d8ab5c;
-      --gold-bright:#e6bd75;
-      --gold-ink:#d8ab5c;
-      --stamp-red:#e08a78;
-      --sage:#7fc4a2;
-      --ink:#ece4d2;
-      --muted:#a79d87;
-      --line: rgba(236,228,210,0.16);
-      --shadow: rgba(0,0,0,0.45);
+      --navy:#e8dcc0; --navy-deep:#f3ede0; --parchment:#141b2c; --paper:#1b2438;
+      --gold:#d8ab5c; --gold-bright:#e6bd75; --gold-ink:#d8ab5c;
+      --stamp-red:#e08a78; --sage:#7fc4a2; --ink:#ece4d2; --muted:#a79d87;
+      --line: rgba(236,228,210,0.16); --shadow: rgba(0,0,0,0.45);
     }
   }
   :root[data-theme="dark"]{
-    --navy:#e8dcc0;
-    --navy-deep:#f3ede0;
-    --parchment:#141b2c;
-    --paper:#1b2438;
-    --gold:#d8ab5c;
-    --gold-bright:#e6bd75;
-    --gold-ink:#d8ab5c;
-    --stamp-red:#e08a78;
-    --sage:#7fc4a2;
-    --ink:#ece4d2;
-    --muted:#a79d87;
-    --line: rgba(236,228,210,0.16);
-    --shadow: rgba(0,0,0,0.45);
+    --navy:#e8dcc0; --navy-deep:#f3ede0; --parchment:#141b2c; --paper:#1b2438;
+    --gold:#d8ab5c; --gold-bright:#e6bd75; --gold-ink:#d8ab5c;
+    --stamp-red:#e08a78; --sage:#7fc4a2; --ink:#ece4d2; --muted:#a79d87;
+    --line: rgba(236,228,210,0.16); --shadow: rgba(0,0,0,0.45);
   }
 
   *{box-sizing:border-box;}
   body{
-    margin:0;
-    background:var(--parchment);
-    color:var(--ink);
-    font-family:'Source Serif 4', Georgia, serif;
-    padding-block:32px;
+    margin:0; background:var(--parchment); color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif; padding-block:32px;
   }
   .wrap{ max-width:760px; margin:0 auto; padding-inline:20px; }
   h1,h2,h3{ font-family:'Fraunces', Georgia, serif; text-wrap:balance; margin:0; }
   .eyebrow{
-    font-family:'IBM Plex Mono', monospace;
-    text-transform:uppercase;
-    letter-spacing:0.14em;
-    font-size:0.7rem;
-    color:var(--gold-ink);
-    font-weight:600;
+    font-family:'IBM Plex Mono', monospace; text-transform:uppercase;
+    letter-spacing:0.14em; font-size:0.7rem; color:var(--gold-ink); font-weight:600;
   }
 
   /* ---------- Cover ---------- */
   .cover{
     background:linear-gradient(160deg, var(--cover-bg-1) 0%, var(--cover-bg-2) 100%);
-    color:#f3ede0;
-    border-radius:18px;
-    padding:28px 26px 24px;
-    box-shadow:0 18px 40px var(--shadow);
-    position:relative;
-    overflow:hidden;
+    color:#f3ede0; border-radius:18px; padding:28px 26px 24px;
+    box-shadow:0 18px 40px var(--shadow); position:relative; overflow:hidden;
   }
   .cover .eyebrow{ color:var(--gold-bright); }
   .cover::after{
-    content:"";
-    position:absolute; inset:8px;
-    border:1px solid rgba(200,155,60,0.55);
-    border-radius:12px;
-    pointer-events:none;
+    content:""; position:absolute; inset:8px;
+    border:1px solid rgba(200,155,60,0.55); border-radius:12px; pointer-events:none;
   }
-  .cover-inner{ display:flex; gap:18px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
-  .cover-text{ flex:1 1 300px; min-width:0; }
   .cover h1{ font-size:clamp(1.6rem,4.2vw,2.15rem); color:#f3ede0; margin-top:6px; }
-  .cover p.sub{ margin:8px 0 0; color:#cdd3e2; font-size:0.95rem; max-width:48ch; }
-  .starring{ flex:0 0 auto; width:104px; max-width:100%; height:auto; }
+  .cover p.sub{ margin:8px 0 0; color:#cdd3e2; font-size:0.95rem; max-width:50ch; }
   .badge-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px;}
   .flag-chip{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    letter-spacing:0.04em;
-    background:rgba(200,155,60,0.14);
-    border:1px solid rgba(200,155,60,0.5);
-    color:#e6d9b8;
-    padding:5px 10px;
-    border-radius:999px;
-    white-space:nowrap;
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; letter-spacing:0.04em;
+    background:rgba(200,155,60,0.14); border:1px solid rgba(200,155,60,0.5);
+    color:#e6d9b8; padding:5px 10px; border-radius:999px; white-space:nowrap;
   }
 
-  /* ---------- Stats ---------- */
+  /* ---------- Home ---------- */
+  .home{ margin-top:18px; }
+  .home.hide{ display:none; }
+  .home h2{ font-size:1.25rem; margin-bottom:4px; }
+  .home > p.lede{ color:var(--muted); font-size:0.95rem; margin:4px 0 16px; max-width:58ch; }
+  .tests{ display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; }
+  button.test-card{
+    text-align:left; background:var(--paper); border:1.5px solid var(--line);
+    border-radius:14px; padding:18px 18px 16px; cursor:pointer; color:var(--ink);
+    font-family:'Source Serif 4', Georgia, serif;
+    display:flex; flex-direction:column; gap:6px;
+    transition:border-color .15s ease, transform .1s ease;
+  }
+  button.test-card:hover{ border-color:var(--gold); transform:translateY(-2px); }
+  button.test-card:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+  button.test-card.open{ border-color:var(--gold); }
+  .test-card .tc-label{
+    font-family:'IBM Plex Mono', monospace; font-size:0.66rem; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--gold-ink); font-weight:600;
+  }
+  .test-card .tc-name{ font-family:'Fraunces', Georgia, serif; font-size:1.12rem; line-height:1.25; }
+  .test-card .tc-desc{ font-size:0.88rem; color:var(--muted); line-height:1.45; }
+  .test-card .tc-meta{
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:var(--muted);
+    font-variant-numeric:tabular-nums; margin-top:2px;
+  }
+  .subforms{
+    margin-top:12px; background:var(--paper); border:1.5px solid var(--gold);
+    border-radius:14px; padding:16px 18px;
+  }
+  .subforms.hide{ display:none; }
+  .subforms h3{
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--muted); font-weight:600; margin-bottom:12px;
+  }
+  .subform-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:10px; }
+  label.chk{
+    display:flex; align-items:flex-start; gap:10px; margin-top:14px;
+    font-size:0.9rem; color:var(--ink); cursor:pointer; line-height:1.45;
+  }
+  label.chk input{ width:18px; height:18px; margin-top:2px; accent-color:var(--gold); flex:none; cursor:pointer; }
+
+  /* ---------- Stats / progress ---------- */
+  .test-area{ display:none; }
+  .test-area.show{ display:block; }
   .stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:18px; }
   .stat{
-    background:var(--paper);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:12px 14px;
-    text-align:center;
+    background:var(--paper); border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; text-align:center;
   }
   .stat .n{
-    font-family:'IBM Plex Mono', monospace;
-    font-variant-numeric:tabular-nums;
-    font-size:1.4rem;
-    font-weight:600;
-    color:var(--navy);
+    font-family:'IBM Plex Mono', monospace; font-variant-numeric:tabular-nums;
+    font-size:1.4rem; font-weight:600; color:var(--navy);
   }
   .stat .l{
-    font-size:0.68rem;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
-    color:var(--muted);
-    margin-top:2px;
+    font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em;
+    color:var(--muted); margin-top:2px;
   }
-
-  /* ---------- Progress ---------- */
-  .progress-track{
-    height:6px; border-radius:999px; background:var(--line);
-    margin:18px 0 6px; overflow:hidden;
-  }
+  .progress-track{ height:6px; border-radius:999px; background:var(--line); margin:18px 0 6px; overflow:hidden; }
   .progress-fill{
-    height:100%;
-    background:linear-gradient(90deg,var(--gold),var(--gold-bright));
-    border-radius:999px;
-    transition:width .35s ease;
-    width:0%;
+    height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+    border-radius:999px; transition:width .35s ease; width:0%;
   }
   .progress-label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    color:var(--muted);
-    display:flex;justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; color:var(--muted);
+    display:flex; justify-content:space-between; gap:10px;
   }
 
   /* ---------- Question card ---------- */
   .card{
-    background:var(--paper);
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:24px 24px 20px;
-    margin-top:18px;
-    box-shadow:0 10px 26px var(--shadow);
+    background:var(--paper); border:1px solid var(--line); border-radius:16px;
+    padding:24px 24px 20px; margin-top:18px; box-shadow:0 10px 26px var(--shadow);
   }
   .card-top{
     display:flex; justify-content:space-between; align-items:center;
     gap:10px; flex-wrap:wrap; margin-bottom:16px;
   }
-  .qnum{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.9rem; font-weight:600; color:var(--navy);
+  .qnum{ font-family:'IBM Plex Mono', monospace; font-size:0.9rem; font-weight:600; color:var(--navy); }
+  .tag-row{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .cat-tag, .type-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:0.66rem; text-transform:uppercase;
+    letter-spacing:0.1em; padding:4px 10px; border-radius:999px;
   }
-  .cat-tag{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.66rem;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
-    color:var(--navy);
-    background:rgba(184,134,63,0.13);
-    border:1px solid rgba(184,134,63,0.35);
-    padding:4px 10px;
-    border-radius:999px;
-  }
+  .cat-tag{ color:var(--navy); background:rgba(184,134,63,0.13); border:1px solid rgba(184,134,63,0.35); }
+  .type-tag{ color:var(--sage); border:1px solid var(--sage); background:transparent; }
   .qtext{ font-size:1.12rem; line-height:1.5; margin:0 0 4px; color:var(--ink); }
-  .multi-hint, .hint{
-    font-size:0.85rem;
-    color:var(--muted);
-    margin:10px 0 0;
-    font-style:italic;
-  }
-  .multi-hint{
+  .expr{
     font-family:'IBM Plex Mono', monospace;
-    font-style:normal;
-    font-size:0.68rem;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--gold-ink);
+    font-size:clamp(1.25rem, 5.5vw, 1.8rem); font-weight:500; line-height:1.5;
+    color:var(--ink); margin:0 0 6px; overflow-x:auto; padding-bottom:4px;
+  }
+  .frac{
+    display:inline-flex; flex-direction:column; vertical-align:middle;
+    text-align:center; line-height:1.1; font-size:0.75em; margin:0 .12em;
+  }
+  .frac .num{ border-bottom:1.5px solid currentColor; padding:0 .25em; }
+  .frac .den{ padding:0 .25em; }
+  .multi-hint, .hint{ font-size:0.85rem; color:var(--muted); margin:10px 0 0; font-style:italic; }
+  .multi-hint{
+    font-family:'IBM Plex Mono', monospace; font-style:normal; font-size:0.68rem;
+    text-transform:uppercase; letter-spacing:0.08em; color:var(--gold-ink);
   }
 
+  /* choices (multiple choice + select all) */
   .choices{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
   button.choice{
-    text-align:left;
-    font-family:'Source Serif 4', Georgia, serif;
-    font-size:1rem;
-    padding:12px 14px;
-    border:1.5px solid var(--line);
-    border-radius:10px;
-    background:transparent;
-    color:var(--ink);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:10px;
+    text-align:left; font-family:'Source Serif 4', Georgia, serif; font-size:1rem;
+    padding:12px 14px; border:1.5px solid var(--line); border-radius:10px;
+    background:transparent; color:var(--ink); cursor:pointer;
+    display:flex; align-items:center; gap:10px;
     transition:border-color .15s ease, background .15s ease, transform .1s ease;
   }
   button.choice:hover{ border-color:var(--gold); transform:translateY(-1px); }
   button.choice:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
   .choice .letter{
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:600;
-    font-size:0.78rem;
-    width:22px; height:22px;
-    display:flex;align-items:center;justify-content:center;
-    border-radius:50%;
-    border:1.5px solid var(--muted);
-    color:var(--muted);
-    flex:none;
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:0.78rem;
+    width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; border:1.5px solid var(--muted); color:var(--muted); flex:none;
   }
   .choice .letter.box{ border-radius:5px; }
-  button.choice.picked{
-    border-color:var(--gold);
-    background:color-mix(in srgb, var(--gold) 12%, transparent);
-  }
+  button.choice.picked{ border-color:var(--gold); background:color-mix(in srgb, var(--gold) 12%, transparent); }
   button.choice.picked .letter{ border-color:var(--gold); color:var(--gold-ink); }
 
+  /* true / false */
+  .tf-row{ display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+  button.tf{
+    flex:1 1 140px; text-align:center; font-family:'Fraunces', Georgia, serif;
+    font-size:1.05rem; padding:16px 18px; border:1.5px solid var(--line);
+    border-radius:12px; background:transparent; color:var(--ink); cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  button.tf:hover{ border-color:var(--gold); }
+  button.tf:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  button.tf.picked{
+    border-color:var(--gold); border-width:2.5px;
+    background:color-mix(in srgb, var(--gold) 12%, transparent);
+  }
+
+  /* matching */
+  .match-list{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  .match-row{
+    display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+    border:1.5px solid var(--line); border-radius:10px; padding:10px 12px;
+  }
+  .match-row.filled{ border-color:var(--gold); }
+  .match-row .m-left{ flex:1 1 170px; font-size:0.98rem; min-width:0; }
+  .match-row select{
+    flex:1 1 210px; font-family:'Source Serif 4', Georgia, serif; font-size:0.94rem;
+    padding:8px 10px; border-radius:8px; border:1.5px solid var(--line);
+    background:var(--paper); color:var(--ink); max-width:100%; cursor:pointer;
+  }
+  .match-row select:focus{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  /* ordering */
+  .order-list{ display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+  button.order-item{
+    text-align:left; display:flex; align-items:center; gap:12px;
+    font-family:'Source Serif 4', Georgia, serif; font-size:1rem;
+    padding:12px 14px; border:1.5px solid var(--line); border-radius:10px;
+    background:transparent; color:var(--ink); cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  button.order-item:hover{ border-color:var(--gold); }
+  button.order-item:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  button.order-item.placed{ border-color:var(--gold); background:color-mix(in srgb, var(--gold) 10%, transparent); }
+  .order-item .seat{
+    flex:none; width:26px; height:26px; border-radius:50%;
+    border:1.5px solid var(--muted); color:var(--muted);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-size:0.8rem; font-weight:600;
+  }
+  .order-item.placed .seat{ border-color:var(--gold); color:var(--gold-ink); }
+  button.order-reset{
+    margin-top:10px; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em;
+    background:transparent; border:1.5px solid var(--line); color:var(--muted);
+    padding:7px 12px; border-radius:8px;
+  }
+
+  /* written answers */
   .answer-row{ display:flex; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap; }
   .answer-row label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
-    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem;
+    text-transform:uppercase; letter-spacing:0.1em; color:var(--muted);
   }
   input.answer{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:1.05rem;
-    font-weight:600;
-    color:var(--ink);
-    background:transparent;
-    border:1.5px solid var(--line);
-    border-bottom:2.5px solid var(--gold);
-    border-radius:8px;
-    padding:10px 14px;
-    width:260px;
-    max-width:100%;
+    font-family:'IBM Plex Mono', monospace; font-size:1.05rem; font-weight:600;
+    color:var(--ink); background:transparent; border:1.5px solid var(--line);
+    border-bottom:2.5px solid var(--gold); border-radius:8px; padding:10px 14px;
+    width:260px; max-width:100%;
   }
+  input.answer.num{ width:170px; font-variant-numeric:tabular-nums; }
   input.answer:focus{ outline:2px solid var(--gold); outline-offset:2px; border-color:var(--gold); }
 
   .nav-row{ display:flex; gap:10px; margin-top:22px; flex-wrap:wrap; align-items:center; }
   button{ font-family:'IBM Plex Mono', monospace; cursor:pointer; }
   button.nav{
     font-size:0.8rem; letter-spacing:0.05em; text-transform:uppercase;
-    background:transparent; color:var(--navy);
-    border:1.5px solid var(--navy);
+    background:transparent; color:var(--navy); border:1.5px solid var(--navy);
     padding:10px 16px; border-radius:8px;
   }
   button.nav.primary{ background:var(--navy); color:var(--parchment); }
   button.nav:disabled{ opacity:0.35; cursor:default; }
   button.nav:hover:not(:disabled){ filter:brightness(1.12); }
+  button.nav.hide{ display:none; }
   .nav-spacer{ flex:1 1 auto; }
   button.submit-test{
     font-size:0.8rem; letter-spacing:0.05em; text-transform:uppercase;
-    background:var(--gold);
-    color:#2a2620;
-    border:none; padding:11px 18px; border-radius:8px;
+    background:var(--gold); color:#2a2620; border:none; padding:11px 18px; border-radius:8px;
   }
-
   .confirm-bar{
-    margin-top:14px; padding:12px 14px;
-    border:1px dashed var(--stamp-red); border-radius:10px;
-    font-size:0.9rem; display:none; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-top:14px; padding:12px 14px; border:1px dashed var(--stamp-red);
+    border-radius:10px; font-size:0.9rem; display:none; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .confirm-bar.show{ display:flex; }
 
   /* ---------- Palette ---------- */
   .palette-wrap{
-    margin-top:18px; background:var(--paper);
-    border:1px solid var(--line); border-radius:14px; padding:16px 18px;
+    margin-top:18px; background:var(--paper); border:1px solid var(--line);
+    border-radius:14px; padding:16px 18px;
   }
   .palette-wrap h3{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em;
-    color:var(--muted); font-weight:600; margin-bottom:12px;
+    font-family:'IBM Plex Mono', monospace; font-size:0.68rem; text-transform:uppercase;
+    letter-spacing:0.1em; color:var(--muted); font-weight:600; margin-bottom:12px;
   }
   .palette{ display:flex; flex-wrap:wrap; gap:6px; }
   button.pal{
-    font-size:0.72rem; font-weight:500; font-variant-numeric:tabular-nums;
+    font-size:0.7rem; font-weight:500; font-variant-numeric:tabular-nums;
     min-width:34px; height:34px; padding:0 4px; border-radius:8px;
     border:1.5px solid var(--line); background:transparent; color:var(--muted);
   }
-  button.pal.done{
-    border-color:var(--sage); color:var(--sage);
-    background:color-mix(in srgb, var(--sage) 12%, transparent);
-  }
-  button.pal.current{
-    border-color:var(--gold); border-width:2.5px;
-    color:var(--gold-ink); font-weight:600;
-  }
+  button.pal.done{ border-color:var(--sage); color:var(--sage); background:color-mix(in srgb, var(--sage) 12%, transparent); }
+  button.pal.current{ border-color:var(--gold); border-width:2.5px; color:var(--gold-ink); font-weight:600; }
 
   /* ---------- Results ---------- */
   .results{ display:none; }
   .results.show{ display:block; }
   .scoreboard{
     background:var(--paper); border:1px solid var(--line); border-radius:16px;
-    padding:30px 26px; margin-top:18px; text-align:center;
-    box-shadow:0 10px 26px var(--shadow);
+    padding:30px 26px; margin-top:18px; text-align:center; box-shadow:0 10px 26px var(--shadow);
   }
   .grade{ font-family:'Fraunces', Georgia, serif; font-size:2.6rem; color:var(--navy); margin:8px 0 2px; }
   .score-big{
@@ -324,10 +308,7 @@
     font-size:2.6rem; font-weight:600; color:var(--gold-ink); margin:4px 0;
   }
   .score-pct{ font-family:'IBM Plex Mono', monospace; color:var(--muted); font-size:0.95rem; }
-  .focus{
-    text-align:left; margin:22px auto 0; max-width:46ch;
-    border-top:1px solid var(--line); padding-top:16px;
-  }
+  .focus{ text-align:left; margin:22px auto 0; max-width:46ch; border-top:1px solid var(--line); padding-top:16px; }
   .focus h3{ font-size:1rem; margin-bottom:8px; }
   .focus ul{ margin:0; padding-left:20px; }
   .focus li{ font-size:0.92rem; margin-bottom:4px; }
@@ -339,14 +320,14 @@
   .review-item{ padding:14px 0; border-bottom:1px solid var(--line); }
   .review-item:last-child{ border-bottom:none; }
   .review-head{
-    display:flex; gap:10px; align-items:baseline;
-    font-family:'IBM Plex Mono', monospace; font-size:0.9rem;
-    margin-bottom:6px; flex-wrap:wrap;
+    display:flex; gap:10px; align-items:baseline; font-family:'IBM Plex Mono', monospace;
+    font-size:0.9rem; margin-bottom:6px; flex-wrap:wrap;
   }
   .review-head .mark{ font-weight:700; flex:none; }
   .review-head .mark.ok{ color:var(--sage); }
   .review-head .mark.no{ color:var(--stamp-red); }
-  .review-q{ font-size:0.95rem; line-height:1.5; }
+  .review-q{ font-size:0.95rem; line-height:1.5; overflow-x:auto; }
+  .review-q.mono{ font-family:'IBM Plex Mono', monospace; }
   .review-answers{
     font-family:'IBM Plex Mono', monospace; font-size:0.84rem;
     margin-top:6px; color:var(--muted); line-height:1.6;
@@ -355,23 +336,20 @@
   .review-answers .right{ color:var(--sage); }
   .why, .remember{
     font-size:0.88rem; line-height:1.55; margin-top:8px;
-    padding:9px 12px; border-radius:0 6px 6px 0;
-    color:var(--ink);
+    padding:9px 12px; border-radius:0 6px 6px 0; color:var(--ink);
   }
   .why{ background:color-mix(in srgb, var(--gold) 9%, transparent); border-left:2.5px solid var(--gold); }
   .remember{ background:color-mix(in srgb, var(--sage) 11%, transparent); border-left:2.5px solid var(--sage); }
   .why b, .remember b{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem; text-transform:uppercase; letter-spacing:0.09em;
-    display:block; margin-bottom:3px;
+    font-family:'IBM Plex Mono', monospace; font-size:0.72rem; text-transform:uppercase;
+    letter-spacing:0.09em; display:block; margin-bottom:3px;
   }
   .why b{ color:var(--gold-ink); }
   .remember b{ color:var(--sage); }
 
   footer.credit{
-    text-align:center; font-family:'IBM Plex Mono', monospace;
-    font-size:0.68rem; color:var(--muted); letter-spacing:0.05em;
-    margin-top:26px; line-height:1.8;
+    text-align:center; font-family:'IBM Plex Mono', monospace; font-size:0.68rem;
+    color:var(--muted); letter-spacing:0.05em; margin-top:26px; line-height:1.8;
   }
 
   @media (max-width:480px){
@@ -379,8 +357,7 @@
     .stat .n{ font-size:1.15rem; }
     .cover{ padding:22px 18px 18px; }
     .card{ padding:20px 16px 18px; }
-    .palette-wrap{ padding:14px 14px; }
-    .starring{ width:84px; }
+    .palette-wrap, .subforms{ padding:14px 14px; }
   }
 </style>
 </head>
@@ -389,108 +366,132 @@
 <div class="wrap">
 
   <div class="cover">
-    <div class="cover-inner">
-      <div class="cover-text">
-        <div class="eyebrow">6th Grade Language Arts · Unit 1 Summative 2</div>
-        <h1>Between the Lines</h1>
-        <p class="sub">Narrative &amp; poetic techniques: point of view, figurative language, tone and mood, poetic form, and grammar. Nothing is graded until you submit — then every miss explains itself.</p>
+    <div class="eyebrow">6th Grade Language Arts · Unit 1 Summative 2</div>
+    <h1>Between the Lines</h1>
+    <p class="sub">Narrative &amp; poetic techniques: point of view, figurative language, tone and mood, poetic form, and grammar. Nothing is graded until you submit — then every miss explains itself.</p>
+    <div class="badge-row"><span class="flag-chip">56 questions</span>
+      <span class="flag-chip">Six question types</span>
+      <span class="flag-chip">Scored at the end</span></div>
+  </div>
+
+  <div class="home" id="home">
+    <h2>Choose a test</h2>
+    <p class="lede">Nothing is graded until you submit, so you can skip around and come back. Your best score on each test is saved on this device.</p>
+    <div class="tests" id="testCards"></div>
+    <div class="subforms hide" id="subforms">
+      <h3 id="subformTitle">Choose a form</h3>
+      <div class="subform-grid" id="subformGrid"></div>
+      <label class="chk" id="challengeRow">
+        <input type="checkbox" id="addChallenge">
+        <span>Add the 12 challenge problems to the end of Form A or B (cubes, double absolute value, brackets, multi-step word problems).</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="test-area" id="testArea">
+    <div class="stats">
+      <div class="stat"><div class="n" id="statAnswered">0</div><div class="l">Answered</div></div>
+      <div class="stat"><div class="n" id="statLeft">0</div><div class="l">Left</div></div>
+      <div class="stat"><div class="n" id="statBest">—</div><div class="l">Best score</div></div>
+    </div>
+
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label"><span id="progressText">—</span><span id="progressPct">0%</span></div>
+
+    <div class="card" id="testCard">
+      <div class="card-top">
+        <span class="qnum" id="qnum">Question 1</span>
+        <span class="tag-row">
+          <span class="type-tag" id="typeTag" style="display:none;"></span>
+          <span class="cat-tag" id="catTag">—</span>
+        </span>
       </div>
-      <svg class="starring" viewBox="0 0 100 74" role="img" aria-label="Ruled lines of writing with one line highlighted">
-        <g stroke="rgba(200,155,60,0.55)" stroke-width="2.5" stroke-linecap="round" fill="none">
-          <line x1="8" y1="10" x2="92" y2="10"/>
-          <line x1="8" y1="26" x2="76" y2="26"/>
-          <line x1="8" y1="58" x2="84" y2="58"/>
-          <line x1="8" y1="72" x2="62" y2="72"/>
-        </g>
-        <g stroke="#e6bd75" stroke-width="3.5" stroke-linecap="round" fill="none">
-          <line x1="8" y1="42" x2="70" y2="42"/>
-        </g>
-      </svg>
-    </div>
-    <div class="badge-row">
-      <span class="flag-chip">45 questions</span>
-      <span class="flag-chip">Multiple choice + writing</span>
-      <span class="flag-chip">Scored at the end</span>
-    </div>
-  </div>
-  </div>
+      <div id="qbody"></div>
+      <p class="multi-hint" id="multiHint" style="display:none;"></p>
 
-  <div class="stats">
-    <div class="stat"><div class="n" id="statAnswered">0</div><div class="l">Answered</div></div>
-    <div class="stat"><div class="n" id="statLeft">45</div><div class="l">Left</div></div>
-    <div class="stat"><div class="n" id="statBest">—</div><div class="l">Best score</div></div>
-  </div>
+      <div id="inputArea"></div>
 
-  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-label"><span id="progressText">Question 1 of 45</span><span id="progressPct">0%</span></div>
+      <div class="answer-row" id="answerRow" style="display:none;">
+        <label for="answerInput">Your answer</label>
+        <input class="answer" id="answerInput" type="text" autocomplete="off" spellcheck="false">
+      </div>
 
-  <div class="card" id="testCard">
-    <div class="card-top">
-      <span class="qnum" id="qnum">Question 1</span>
-      <span class="cat-tag" id="catTag">—</span>
-    </div>
-    <p class="qtext" id="qtext">Loading…</p>
-    <p class="multi-hint" id="multiHint" style="display:none;">Select ALL that apply</p>
+      <p class="hint" id="hint" style="display:none;"></p>
 
-    <div class="choices" id="choices"></div>
+      <div class="nav-row">
+        <button class="nav" id="prevBtn">← Back</button>
+        <button class="nav primary" id="nextBtn">Next →</button>
+        <span class="nav-spacer"></span>
+        <button class="submit-test" id="submitBtn">Submit test</button>
+      </div>
 
-    <div class="answer-row" id="answerRow" style="display:none;">
-      <label for="answerInput">Your answer</label>
-      <input class="answer" id="answerInput" type="text" autocomplete="off" spellcheck="false">
+      <div class="confirm-bar" id="confirmBar">
+        <span id="confirmText"></span>
+        <button class="nav" id="confirmSubmit">Submit anyway</button>
+        <button class="nav" id="cancelSubmit">Keep working</button>
+      </div>
     </div>
 
-    <p class="hint" id="hint" style="display:none;"></p>
-
-    <div class="nav-row">
-      <button class="nav" id="prevBtn">← Back</button>
-      <button class="nav primary" id="nextBtn">Next →</button>
-      <span class="nav-spacer"></span>
-      <button class="submit-test" id="submitBtn">Submit test</button>
+    <div class="palette-wrap" id="paletteWrap">
+      <h3>Jump to a question</h3>
+      <div class="palette" id="palette"></div>
     </div>
-
-    <div class="confirm-bar" id="confirmBar">
-      <span id="confirmText"></span>
-      <button class="nav" id="confirmSubmit">Submit anyway</button>
-      <button class="nav" id="cancelSubmit">Keep working</button>
-    </div>
-  </div>
-
-  <div class="palette-wrap" id="paletteWrap">
-    <h3>Jump to a question</h3>
-    <div class="palette" id="palette"></div>
   </div>
 
   <div class="results" id="results">
     <div class="scoreboard">
-      <div class="eyebrow">Test complete</div>
+      <div class="eyebrow" id="resultsTitle">Test complete</div>
       <div class="grade" id="gradeLetter">—</div>
-      <div class="score-big" id="finalScore">0 / 45</div>
+      <div class="score-big" id="finalScore">0 / 0</div>
       <div class="score-pct" id="finalPct">0%</div>
       <div class="focus" id="focusBox" style="display:none;">
         <h3>What to review</h3>
         <ul id="focusList"></ul>
       </div>
       <div class="actions">
-        <button class="nav primary" id="retryBtn">Retake test</button>
+        <button class="nav primary" id="retryBtn">Retake this test</button>
+        <button class="nav" id="homeBtn">Choose another test</button>
         <button class="nav" id="reviewToggle">Show all answers</button>
       </div>
       <div class="review" id="reviewBox" style="display:none;"></div>
     </div>
   </div>
 
-  <footer class="credit">
-    Unit 1 Summative 2 · Universal Skills Study Guide<br>
-    <a href="ss-test.html" style="color:inherit;">Social studies &amp; math tests →</a>
-  </footer>
+  <footer class="credit">Unit 1 Summative 2 · Universal Skills Study Guide<br>
+    <a href="ss-test.html" style="color:inherit;">Social studies &amp; math tests →</a></footer>
 </div>
 
 <script>
 (function(){
-  // type: 'mc' (one answer), 'multi' (select all), 'text' (write it in)
-  const QUESTIONS = [{"n": "1", "cat": "Point of View", "type": "mc", "q": "\"I could feel my heart pounding as I reached for the door.\" Which point of view is this?", "choices": ["First-person", "Third-person limited", "Third-person omniscient", "Third-person objective"], "answer": 0, "why": "First-person is narrated directly by a character using \"I\" or \"my,\" giving direct insight into that one character's internal thoughts.", "remember": "Look for I, me, my. If the narrator is IN the story talking about themselves, it's first-person."}, {"n": "2", "cat": "Point of View", "type": "mc", "q": "A narrator outside the story reports the action and tells us what <strong>only one</strong> character is thinking and feeling. Which point of view is this?", "choices": ["Third-person limited", "Third-person omniscient", "Third-person objective", "First-person"], "answer": 0, "why": "Third-person limited uses an outside narrator who knows the internal thoughts and feelings of only one specific character.", "remember": "LIMITED means limited to ONE mind. The narrator can only get inside one character's head."}, {"n": "3", "cat": "Point of View", "type": "mc", "q": "An all-knowing outside narrator reveals the thoughts and feelings of <strong>several</strong> characters in the same scene. Which point of view is this?", "choices": ["Third-person omniscient", "Third-person limited", "Third-person objective", "First-person"], "answer": 0, "why": "Third-person omniscient is an all-knowing outside narrator who reveals the internal thoughts, feelings, and perspectives of multiple characters at once.", "remember": "OMNI means all — think \"omnivore\" eats all foods. An omniscient narrator knows ALL the minds."}, {"n": "4", "cat": "Point of View", "type": "mc", "q": "Which point of view reports <strong>only</strong> what could be seen and heard, never what anyone is thinking?", "choices": ["Third-person objective", "Third-person limited", "Third-person omniscient", "First-person"], "answer": 0, "why": "Third-person objective is a neutral outside narrator who reports only observable actions and dialogue, without revealing any character's internal thoughts.", "remember": "Objective = a security camera. A camera records what happens and what's said, but it can never record a thought."}, {"n": "5", "cat": "Point of View", "type": "mc", "q": "What is the key difference between third-person <strong>limited</strong> and third-person <strong>omniscient</strong>?", "choices": ["Limited reveals one character's inner thoughts; omniscient reveals several characters' inner thoughts.", "Limited is told by a character in the story; omniscient is told from outside it.", "Limited reports no thoughts at all; omniscient reports actions only.", "There is no real difference between them."], "answer": 0, "why": "Both use an outside narrator. The difference is how many minds the narrator can enter: limited gets into one character, omniscient gets into multiple characters.", "remember": "Count the minds. One mind = limited. Many minds = omniscient. No minds = objective."}, {"n": "6", "cat": "Point of View", "type": "mc", "q": "A story shows how the same argument felt to Maya and then how it felt to her brother. Which skill from the study guide is this?", "choices": ["Perspective comparison", "Direct characterization", "Pacing", "Symbolism"], "answer": 0, "why": "Perspective comparison means contrasting how different characters view the same event or situation.", "remember": "Same event, two sets of eyes. When a text shows you both sides of one moment, it's comparing perspectives."}, {"n": "7", "cat": "Figurative Language", "type": "mc", "q": "\"The wind whispered through the trees and tugged at her sleeve.\" Which device is this?", "choices": ["Personification", "Simile", "Hyperbole", "Symbolism"], "answer": 0, "why": "Personification assigns human traits, feelings, or actions to non-human objects or abstract ideas. Wind cannot really whisper or tug.", "remember": "PERSON-ification: a non-human thing is doing something only a PERSON could do."}, {"n": "8", "cat": "Figurative Language", "type": "mc", "q": "\"Her laugh was as bright as a morning bell.\" Which device is this?", "choices": ["Simile", "Metaphor", "Personification", "Imagery"], "answer": 0, "why": "A simile compares two distinct things using \"like\" or \"as.\"", "remember": "SimiLe has an L — look for LIKE. (Or its partner, AS.) If the comparison uses like or as, it's a simile."}, {"n": "9", "cat": "Figurative Language", "type": "mc", "q": "\"On the field, Devon was a lion.\" Which device is this?", "choices": ["Metaphor", "Simile", "Hyperbole", "Personification"], "answer": 0, "why": "A metaphor is a direct comparison between two unlike things WITHOUT using \"like\" or \"as,\" to highlight a shared quality.", "remember": "No \"like,\" no \"as\" — the sentence says one thing IS the other. That's a metaphor."}, {"n": "10", "cat": "Figurative Language", "type": "mc", "q": "What is the difference between a simile and a metaphor?", "choices": ["A simile compares using \"like\" or \"as\"; a metaphor compares directly, without them.", "A metaphor compares using \"like\" or \"as\"; a simile compares directly, without them.", "A simile compares people; a metaphor compares objects.", "They are two names for exactly the same device."], "answer": 0, "why": "Both compare two unlike things. The only difference is the signal words: similes use \"like\" or \"as,\" metaphors make the comparison directly.", "remember": "SimiLe = Like. Everything else about them is the same, so the signal word is the whole test."}, {"n": "11", "cat": "Figurative Language", "type": "mc", "q": "\"I've asked you a million times to close the door!\" Which device is this?", "choices": ["Hyperbole", "Imagery", "Symbolism", "Metaphor"], "answer": 0, "why": "Hyperbole is intentional, extreme exaggeration used for emphasis or effect. Nobody has literally asked a million times.", "remember": "If it's way too big to be literally true and it's meant for emphasis, it's hyperbole."}, {"n": "12", "cat": "Figurative Language", "type": "mc", "q": "Throughout the story, the cracked photograph keeps appearing whenever the family's broken trust comes up. Which device is this?", "choices": ["Symbolism", "Personification", "Hyperbole", "Dialogue"], "answer": 0, "why": "Symbolism is a concrete object, person, or situation used to represent a deeper abstract meaning — here, a cracked photo standing for broken trust.", "remember": "A symbol is a real thing you could touch that stands for a big idea you can't touch."}, {"n": "13", "cat": "Figurative Language", "type": "mc", "q": "\"The sharp scent of pine mixed with damp earth, and gravel crunched under her boots.\" Which device is this?", "choices": ["Imagery", "Metaphor", "Hyperbole", "Direct characterization"], "answer": 0, "why": "Imagery is descriptive language that appeals to the five senses to create a vivid picture or emotional impression — here smell, touch, and sound.", "remember": "IMAGERY makes images in your senses. Ask: can I see, hear, smell, taste, or feel this?"}, {"n": "14", "cat": "Figurative Language", "type": "mc", "q": "Imagery appeals to which of the following?", "choices": ["The five senses", "Only the sense of sight", "The rules of grammar", "The rhyme scheme"], "answer": 0, "why": "Imagery uses descriptive language that appeals to all five senses — not just sight — to create vivid visual or emotional impressions.", "remember": "Five senses, not just eyes. Smell and sound count as imagery too."}, {"n": "15", "cat": "Figurative Language", "type": "text", "q": "What is the term for an intentional, extreme exaggeration used for emphasis?", "hint": "Write the one-word term.", "accept": ["hyperbole"], "display": "Hyperbole", "why": "Hyperbole is deliberate, over-the-top exaggeration used for emphasis or effect.", "remember": "Think of someone saying \"I'm starving to death\" ten minutes before dinner — that's hyperbole."}, {"n": "16", "cat": "Figurative Language", "type": "multi", "q": "Select <strong>ALL</strong> of the sentences below that use figurative language.", "choices": ["The old clock groaned out the hour.", "His backpack weighed a thousand pounds.", "Her voice was silk.", "The bus arrived at 7:45 and the students got on."], "answer": [0, 1, 2], "why": "The first three are figurative: a clock \"groaning\" is personification, \"a thousand pounds\" is hyperbole, and \"her voice was silk\" is a metaphor. The last sentence is plain, literal fact.", "remember": "Ask if the sentence could be literally true. If it can't — and it's meant to create an effect — it's figurative."}, {"n": "17", "cat": "Tone & Mood", "type": "mc", "q": "Which term means the <strong>author's or narrator's attitude</strong> toward the subject or characters?", "choices": ["Tone", "Mood", "Theme", "Imagery"], "answer": 0, "why": "Tone is the author's or narrator's attitude toward the subject, audience, or characters, expressed through diction (word choice) and style.", "remember": "TONE = the Teller's attitude. It's how the writer feels about what they're describing."}, {"n": "18", "cat": "Tone & Mood", "type": "mc", "q": "Which term means the <strong>overall feeling or atmosphere created for the reader</strong>?", "choices": ["Mood", "Tone", "Theme", "Stanza"], "answer": 0, "why": "Mood is the overall emotion, atmosphere, or feeling the text creates for the reader.", "remember": "MOOD = Me. It's the mood YOU are put in while reading."}, {"n": "19", "cat": "Tone & Mood", "type": "mc", "q": "The narrator describes an empty hallway in short, cold sentences, and readers start to feel tense and uneasy. The tense, uneasy feeling in the <strong>reader</strong> is called…", "choices": ["Mood", "Tone", "Theme", "Pacing"], "answer": 0, "why": "The feeling created in the reader is the mood. The narrator's cold, clipped attitude is the tone — the two work together but are not the same thing.", "remember": "If the question asks how the READER feels, answer mood. If it asks how the WRITER feels, answer tone."}, {"n": "20", "cat": "Characterization", "type": "mc", "q": "\"Marcus was a generous and patient boy.\" Which kind of characterization is this?", "choices": ["Direct characterization", "Indirect characterization", "Personification", "Symbolism"], "answer": 0, "why": "Direct characterization is when the author directly states specific personality traits or details about a character.", "remember": "DIRECT = the author just TELLS you the trait, straight out."}, {"n": "21", "cat": "Characterization", "type": "mc", "q": "\"Marcus slid half his sandwich across the table to the new kid without being asked.\" Which kind of characterization is this?", "choices": ["Indirect characterization", "Direct characterization", "Hyperbole", "Free verse"], "answer": 0, "why": "Indirect characterization reveals traits through a character's actions, thoughts, speech, or interactions — you infer that Marcus is generous instead of being told.", "remember": "INDIRECT = you have to INFER it. The author shows the behavior and lets you decide the trait."}, {"n": "22", "cat": "Characterization", "type": "mc", "q": "According to the study guide, what does dialogue do in a story?", "choices": ["Reveals relationships between characters and advances the plot.", "Slows the story down and adds rhyme.", "States the theme outright for the reader.", "Describes the setting using the five senses."], "answer": 0, "why": "Dialogue is spoken conversation between characters, enclosed in quotation marks, used to reveal relationships and advance the plot.", "remember": "Dialogue does two jobs: it shows how people feel about each other, and it pushes the story forward."}, {"n": "23", "cat": "Characterization", "type": "mc", "q": "Tracing how a character's motivations change across a story because of key events is called…", "choices": ["Character development", "Perspective comparison", "Pacing", "Direct characterization"], "answer": 0, "why": "Character motivation and development means tracing how a character's internal perspective or motivations evolve across a story due to key events or interactions.", "remember": "Development = change over time. Ask: is this character different at the end than at the start, and what event changed them?"}, {"n": "24", "cat": "Plot & Conflict", "type": "multi", "q": "Select <strong>ALL</strong> of the things that <strong>speed up</strong> the pacing of a story.", "choices": ["Urgency", "Sudden action", "High emotions", "Long, detailed descriptions"], "answer": [0, 1, 2], "why": "Pacing is accelerated through urgency, high tension, sudden action, or high emotions. Detailed descriptions do the opposite — they slow pacing down.", "remember": "Fast pacing feels like a chase: short, urgent, something happening right now."}, {"n": "25", "cat": "Plot & Conflict", "type": "multi", "q": "Select <strong>ALL</strong> of the things that <strong>slow down</strong> the pacing of a story.", "choices": ["Detailed descriptions", "Sensory imagery", "Internal reflection", "Sudden action"], "answer": [0, 1, 2], "why": "Pacing slows down through detailed descriptions, sensory imagery, and internal reflection. Sudden action speeds it up instead.", "remember": "Slow pacing feels like a pause: describing, noticing, and thinking instead of doing."}, {"n": "26", "cat": "Plot & Conflict", "type": "mc", "q": "\"Jenna knew she should admit she broke it, but part of her wanted to stay silent.\" What kind of conflict is this?", "choices": ["Internal conflict", "External conflict", "Theme", "Mood"], "answer": 0, "why": "Internal conflict is a struggle that happens inside a character — here, Jenna against her own guilt and fear.", "remember": "INTERNAL = INSIDE one person's head. If the fight is between a character and their own feelings, it's internal."}, {"n": "27", "cat": "Plot & Conflict", "type": "mc", "q": "\"Jenna argued with her coach about being benched for the final game.\" What kind of conflict is this?", "choices": ["External conflict", "Internal conflict", "Symbolism", "Pacing"], "answer": 0, "why": "External conflict is a struggle between a character and an outside force — another person, nature, or a situation.", "remember": "EXTERNAL = EXITS the character. If you can point at the other side of the fight, it's external."}, {"n": "28", "cat": "Theme", "type": "mc", "q": "What is a <strong>theme</strong>?", "choices": ["An overarching universal message or central idea about life that a text conveys.", "A one-word subject, like \"friendship\" or \"war.\"", "A summary of everything that happens in the plot.", "The narrator's attitude toward the characters."], "answer": 0, "why": "A theme is an overarching universal message or central idea — for example, that thoughtful actions carry value, or that unaddressed conflict damages relationships.", "remember": "A theme is a full sentence about life, not a one-word topic and not a plot summary."}, {"n": "29", "cat": "Theme", "type": "mc", "q": "Which of these is stated as a <strong>theme</strong> rather than just a topic?", "choices": ["Conflict that goes unaddressed slowly damages relationships.", "Friendship.", "A girl and her brother argue about a broken bike.", "Courage."], "answer": 0, "why": "A theme makes a claim about life in a complete sentence. \"Friendship\" and \"Courage\" are topics, and the bike sentence is a plot detail.", "remember": "If you can't say it as a full sentence that teaches something about life, it's a topic, not a theme."}, {"n": "30", "cat": "Theme", "type": "mc", "q": "A character's careful, quiet kindness toward a stranger changes the ending of the story. Which theme does this best support?", "choices": ["Thoughtful actions carry value.", "Exaggeration makes writing exciting.", "Poems do not need a rhyme scheme.", "Narrators should stay objective."], "answer": 0, "why": "The study guide lists \"how thoughtful actions carry value\" as an example of a universal theme — and a small kindness changing the outcome is exactly that idea.", "remember": "Ask what life lesson the ENDING proves. That lesson is the theme."}, {"n": "31", "cat": "Theme", "type": "mc", "q": "An author writes that a character's shoulders sagged and his voice went flat when he spoke about his old house. What is this revealing?", "choices": ["The character's underlying emotions — his heavy-heartedness.", "The poem's stanza structure.", "The sentence type being used.", "A coordinating conjunction."], "answer": 0, "why": "Sensory and emotional language analysis means looking at how specific word choices, sensory details, and actions reveal a character's underlying emotions — such as heavy-heartedness or reverence.", "remember": "Bodies show feelings. Sagging shoulders and a flat voice are the author's way of saying \"sad\" without the word."}, {"n": "32", "cat": "Poetry", "type": "mc", "q": "What is a <strong>stanza</strong>?", "choices": ["A grouped set of lines in a poem, set off by blank space, used to organize ideas.", "A poem with no rhyme scheme.", "The rhythm pattern of a poem.", "A comparison using \"like\" or \"as.\""], "answer": 0, "why": "A stanza is a grouped set of lines within a poem, set off by blank spaces, used to organize thoughts or ideas.", "remember": "A stanza is to a poem what a paragraph is to an essay — a block of related lines with space around it."}, {"n": "33", "cat": "Poetry", "type": "mc", "q": "A poem has no regular rhyme scheme and no strict rhythm pattern. What kind of poetry is it?", "choices": ["Free verse", "Narrative poetry", "Lyrical poetry", "A stanza"], "answer": 0, "why": "Free verse is poetry that does not follow a fixed rhyme scheme or a strict metrical pattern.", "remember": "FREE = free from the rules of rhyme and meter."}, {"n": "34", "cat": "Poetry", "type": "mc", "q": "A poem expresses the speaker's personal grief and longing, with no story events. What kind of poetry is it?", "choices": ["Lyrical poetry", "Narrative poetry", "Free verse", "Objective poetry"], "answer": 0, "why": "Lyrical poetry expresses personal feelings, emotions, or reflections.", "remember": "LYRICAL is like song LYRICS — it's about feelings, not plot."}, {"n": "35", "cat": "Poetry", "type": "mc", "q": "A poem tells the story of a long journey, with events happening in order. What kind of poetry is it?", "choices": ["Narrative poetry", "Lyrical poetry", "Free verse", "Direct characterization"], "answer": 0, "why": "Narrative poetry tells a story or tracks events over time.", "remember": "NARRATIVE has \"narrate\" in it — it narrates a story, just in poem form."}, {"n": "36", "cat": "Poetry", "type": "mc", "q": "Can a poem be both free verse <strong>and</strong> narrative?", "choices": ["Yes — free verse describes its form, while narrative describes what it does.", "No — a poem can only be one kind at a time.", "No — free verse poems can never tell a story.", "Only if the poem has exactly four stanzas."], "answer": 0, "why": "Free verse is about structure (no fixed rhyme or meter), while lyrical and narrative describe purpose (expressing feelings vs. telling a story). A poem can tell a story without rhyming.", "remember": "Form and purpose are separate questions. Ask \"does it rhyme?\" and \"does it tell a story?\" one at a time."}, {"n": "37", "cat": "Writing & Revision", "type": "mc", "q": "A writer revises \"The room was quiet\" into \"The room held its breath.\" What did the writer do?", "choices": ["Integrated figurative language — personification — to deepen the mood.", "Added a coordinating conjunction to make a compound sentence.", "Changed the point of view from first to third person.", "Turned the sentence into a stanza."], "answer": 0, "why": "Integrating figurative language means enhancing plain prose with similes, metaphors, or personification to evoke deeper mood, imagery, and emphasis. A room \"holding its breath\" gives it a human action.", "remember": "When a revision swaps a plain description for something that can't literally happen, the writer added figurative language."}, {"n": "38", "cat": "Grammar", "type": "mc", "q": "What is an <strong>independent clause</strong>?", "choices": ["A group of words with a subject and verb that expresses a complete thought and can stand alone.", "A group of words that cannot stand alone as a sentence.", "Any group of words that begins with a conjunction.", "A set of lines in a poem."], "answer": 0, "why": "An independent clause has a subject and a verb and expresses a complete thought, so it can stand alone as its own sentence.", "remember": "INDEPENDENT = it can live on its own, like an independent adult. Read it alone: does it sound finished?"}, {"n": "39", "cat": "Grammar", "type": "mc", "q": "Which of these is a <strong>dependent clause</strong>?", "choices": ["While I was brushing my hair", "My mom was making breakfast", "I was brushing my hair", "The breakfast was hot"], "answer": 0, "why": "\"While I was brushing my hair\" has a subject and verb but does not express a complete thought — the word \"while\" leaves you waiting for the rest.", "remember": "DEPENDENT leans on something else. If the words leave you hanging, waiting for more, it's dependent."}, {"n": "40", "cat": "Grammar", "type": "mc", "q": "\"While I was brushing my hair, my mom was making breakfast.\" What type of sentence is this?", "choices": ["Complex", "Compound", "Simple", "Fragment"], "answer": 0, "why": "A subordinating conjunction (\"while\") connects a dependent clause to an independent clause, which makes a complex sentence.", "remember": "Complex = one boss + one helper. A dependent clause hanging off an independent one."}, {"n": "41", "cat": "Grammar", "type": "mc", "q": "\"I was brushing my hair, but my mom was making breakfast.\" What type of sentence is this?", "choices": ["Compound", "Complex", "Simple", "Dependent"], "answer": 0, "why": "A coordinating conjunction (\"but\") joins two independent clauses, which makes a compound sentence.", "remember": "Compound = two equals. Both halves could be their own sentence, joined by a FANBOYS word."}, {"n": "42", "cat": "Grammar", "type": "mc", "q": "\"My mom was making breakfast.\" What type of sentence is this?", "choices": ["Simple", "Compound", "Complex", "Compound-complex"], "answer": 0, "why": "It is one independent clause standing alone, with no other clause attached — that is a simple sentence.", "remember": "One complete thought, all by itself = simple."}, {"n": "43", "cat": "Grammar", "type": "mc", "q": "Subordinating conjunctions (like \"while,\" \"because,\" or \"although\") are used to build which kind of sentence?", "choices": ["Complex", "Compound", "Simple", "Run-on"], "answer": 0, "why": "Subordinating conjunctions connect dependent clauses to independent clauses to make complex sentences.", "remember": "SUB means under. A subordinating conjunction puts one clause UNDER the other — that's complex."}, {"n": "44", "cat": "Grammar", "type": "multi", "q": "Select <strong>ALL</strong> of the words below that are coordinating conjunctions (FANBOYS).", "choices": ["but", "so", "yet", "because"], "answer": [0, 1, 2], "why": "FANBOYS stands for For, And, Nor, But, Or, Yet, So. \"Because\" is a subordinating conjunction — it starts a dependent clause.", "remember": "FANBOYS: For, And, Nor, But, Or, Yet, So. If the word isn't in FANBOYS, it isn't coordinating."}, {"n": "45", "cat": "Grammar", "type": "text", "q": "FANBOYS is a memory trick for the seven coordinating conjunctions. Write any <strong>one</strong> of them.", "hint": "Write one word.", "accept": ["for", "and", "nor", "but", "or", "yet", "so"], "display": "For, And, Nor, But, Or, Yet, or So", "why": "The seven coordinating conjunctions are For, And, Nor, But, Or, Yet, and So — they join two independent clauses into a compound sentence.", "remember": "The letters ARE the words: F-A-N-B-O-Y-S = For, And, Nor, But, Or, Yet, So."}];
+  const BANKS = {"ela":[{"n":"1","cat":"Point of View","type":"mc","q":"\"I could feel my heart pounding as I reached for the door.\" Which point of view is this?","choices":["First-person","Third-person limited","Third-person omniscient","Third-person objective"],"answer":0,"why":"First-person is narrated directly by a character using \"I\" or \"my,\" giving direct insight into that one character's internal thoughts.","remember":"Look for I, me, my. If the narrator is IN the story talking about themselves, it's first-person."},{"n":"2","cat":"Point of View","type":"mc","q":"A narrator outside the story reports the action and tells us what <strong>only one</strong> character is thinking and feeling. Which point of view is this?","choices":["Third-person limited","Third-person omniscient","Third-person objective","First-person"],"answer":0,"why":"Third-person limited uses an outside narrator who knows the internal thoughts and feelings of only one specific character.","remember":"LIMITED means limited to ONE mind. The narrator can only get inside one character's head."},{"n":"3","cat":"Point of View","type":"mc","q":"An all-knowing outside narrator reveals the thoughts and feelings of <strong>several</strong> characters in the same scene. Which point of view is this?","choices":["Third-person omniscient","Third-person limited","Third-person objective","First-person"],"answer":0,"why":"Third-person omniscient is an all-knowing outside narrator who reveals the internal thoughts, feelings, and perspectives of multiple characters at once.","remember":"OMNI means all — think \"omnivore\" eats all foods. An omniscient narrator knows ALL the minds."},{"n":"4","cat":"Point of View","type":"mc","q":"Which point of view reports <strong>only</strong> what could be seen and heard, never what anyone is thinking?","choices":["Third-person objective","Third-person limited","Third-person omniscient","First-person"],"answer":0,"why":"Third-person objective is a neutral outside narrator who reports only observable actions and dialogue, without revealing any character's internal thoughts.","remember":"Objective = a security camera. A camera records what happens and what's said, but it can never record a thought."},{"n":"5","cat":"Point of View","type":"mc","q":"What is the key difference between third-person <strong>limited</strong> and third-person <strong>omniscient</strong>?","choices":["Limited reveals one character's inner thoughts; omniscient reveals several characters' inner thoughts.","Limited is told by a character in the story; omniscient is told from outside it.","Limited reports no thoughts at all; omniscient reports actions only.","There is no real difference between them."],"answer":0,"why":"Both use an outside narrator. The difference is how many minds the narrator can enter: limited gets into one character, omniscient gets into multiple characters.","remember":"Count the minds. One mind = limited. Many minds = omniscient. No minds = objective."},{"n":"6","cat":"Point of View","type":"mc","q":"A story shows how the same argument felt to Maya and then how it felt to her brother. Which skill from the study guide is this?","choices":["Perspective comparison","Direct characterization","Pacing","Symbolism"],"answer":0,"why":"Perspective comparison means contrasting how different characters view the same event or situation.","remember":"Same event, two sets of eyes. When a text shows you both sides of one moment, it's comparing perspectives."},{"n":"7","cat":"Figurative Language","type":"mc","q":"\"The wind whispered through the trees and tugged at her sleeve.\" Which device is this?","choices":["Personification","Simile","Hyperbole","Symbolism"],"answer":0,"why":"Personification assigns human traits, feelings, or actions to non-human objects or abstract ideas. Wind cannot really whisper or tug.","remember":"PERSON-ification: a non-human thing is doing something only a PERSON could do."},{"n":"8","cat":"Figurative Language","type":"mc","q":"\"Her laugh was as bright as a morning bell.\" Which device is this?","choices":["Simile","Metaphor","Personification","Imagery"],"answer":0,"why":"A simile compares two distinct things using \"like\" or \"as.\"","remember":"SimiLe has an L — look for LIKE. (Or its partner, AS.) If the comparison uses like or as, it's a simile."},{"n":"9","cat":"Figurative Language","type":"mc","q":"\"On the field, Devon was a lion.\" Which device is this?","choices":["Metaphor","Simile","Hyperbole","Personification"],"answer":0,"why":"A metaphor is a direct comparison between two unlike things WITHOUT using \"like\" or \"as,\" to highlight a shared quality.","remember":"No \"like,\" no \"as\" — the sentence says one thing IS the other. That's a metaphor."},{"n":"10","cat":"Figurative Language","type":"mc","q":"What is the difference between a simile and a metaphor?","choices":["A simile compares using \"like\" or \"as\"; a metaphor compares directly, without them.","A metaphor compares using \"like\" or \"as\"; a simile compares directly, without them.","A simile compares people; a metaphor compares objects.","They are two names for exactly the same device."],"answer":0,"why":"Both compare two unlike things. The only difference is the signal words: similes use \"like\" or \"as,\" metaphors make the comparison directly.","remember":"SimiLe = Like. Everything else about them is the same, so the signal word is the whole test."},{"n":"11","cat":"Figurative Language","type":"mc","q":"\"I've asked you a million times to close the door!\" Which device is this?","choices":["Hyperbole","Imagery","Symbolism","Metaphor"],"answer":0,"why":"Hyperbole is intentional, extreme exaggeration used for emphasis or effect. Nobody has literally asked a million times.","remember":"If it's way too big to be literally true and it's meant for emphasis, it's hyperbole."},{"n":"12","cat":"Figurative Language","type":"mc","q":"Throughout the story, the cracked photograph keeps appearing whenever the family's broken trust comes up. Which device is this?","choices":["Symbolism","Personification","Hyperbole","Dialogue"],"answer":0,"why":"Symbolism is a concrete object, person, or situation used to represent a deeper abstract meaning — here, a cracked photo standing for broken trust.","remember":"A symbol is a real thing you could touch that stands for a big idea you can't touch."},{"n":"13","cat":"Figurative Language","type":"mc","q":"\"The sharp scent of pine mixed with damp earth, and gravel crunched under her boots.\" Which device is this?","choices":["Imagery","Metaphor","Hyperbole","Direct characterization"],"answer":0,"why":"Imagery is descriptive language that appeals to the five senses to create a vivid picture or emotional impression — here smell, touch, and sound.","remember":"IMAGERY makes images in your senses. Ask: can I see, hear, smell, taste, or feel this?"},{"n":"14","cat":"Figurative Language","type":"mc","q":"Imagery appeals to which of the following?","choices":["The five senses","Only the sense of sight","The rules of grammar","The rhyme scheme"],"answer":0,"why":"Imagery uses descriptive language that appeals to all five senses — not just sight — to create vivid visual or emotional impressions.","remember":"Five senses, not just eyes. Smell and sound count as imagery too."},{"n":"15","cat":"Figurative Language","type":"text","q":"What is the term for an intentional, extreme exaggeration used for emphasis?","hint":"Write the one-word term.","accept":["hyperbole"],"display":"Hyperbole","why":"Hyperbole is deliberate, over-the-top exaggeration used for emphasis or effect.","remember":"Think of someone saying \"I'm starving to death\" ten minutes before dinner — that's hyperbole."},{"n":"16","cat":"Figurative Language","type":"multi","q":"Select <strong>ALL</strong> of the sentences below that use figurative language.","choices":["The old clock groaned out the hour.","His backpack weighed a thousand pounds.","Her voice was silk.","The bus arrived at 7:45 and the students got on."],"answer":[0,1,2],"why":"The first three are figurative: a clock \"groaning\" is personification, \"a thousand pounds\" is hyperbole, and \"her voice was silk\" is a metaphor. The last sentence is plain, literal fact.","remember":"Ask if the sentence could be literally true. If it can't — and it's meant to create an effect — it's figurative."},{"n":"17","cat":"Tone & Mood","type":"mc","q":"Which term means the <strong>author's or narrator's attitude</strong> toward the subject or characters?","choices":["Tone","Mood","Theme","Imagery"],"answer":0,"why":"Tone is the author's or narrator's attitude toward the subject, audience, or characters, expressed through diction (word choice) and style.","remember":"TONE = the Teller's attitude. It's how the writer feels about what they're describing."},{"n":"18","cat":"Tone & Mood","type":"mc","q":"Which term means the <strong>overall feeling or atmosphere created for the reader</strong>?","choices":["Mood","Tone","Theme","Stanza"],"answer":0,"why":"Mood is the overall emotion, atmosphere, or feeling the text creates for the reader.","remember":"MOOD = Me. It's the mood YOU are put in while reading."},{"n":"19","cat":"Tone & Mood","type":"mc","q":"The narrator describes an empty hallway in short, cold sentences, and readers start to feel tense and uneasy. The tense, uneasy feeling in the <strong>reader</strong> is called…","choices":["Mood","Tone","Theme","Pacing"],"answer":0,"why":"The feeling created in the reader is the mood. The narrator's cold, clipped attitude is the tone — the two work together but are not the same thing.","remember":"If the question asks how the READER feels, answer mood. If it asks how the WRITER feels, answer tone."},{"n":"20","cat":"Characterization","type":"mc","q":"\"Marcus was a generous and patient boy.\" Which kind of characterization is this?","choices":["Direct characterization","Indirect characterization","Personification","Symbolism"],"answer":0,"why":"Direct characterization is when the author directly states specific personality traits or details about a character.","remember":"DIRECT = the author just TELLS you the trait, straight out."},{"n":"21","cat":"Characterization","type":"mc","q":"\"Marcus slid half his sandwich across the table to the new kid without being asked.\" Which kind of characterization is this?","choices":["Indirect characterization","Direct characterization","Hyperbole","Free verse"],"answer":0,"why":"Indirect characterization reveals traits through a character's actions, thoughts, speech, or interactions — you infer that Marcus is generous instead of being told.","remember":"INDIRECT = you have to INFER it. The author shows the behavior and lets you decide the trait."},{"n":"22","cat":"Characterization","type":"mc","q":"According to the study guide, what does dialogue do in a story?","choices":["Reveals relationships between characters and advances the plot.","Slows the story down and adds rhyme.","States the theme outright for the reader.","Describes the setting using the five senses."],"answer":0,"why":"Dialogue is spoken conversation between characters, enclosed in quotation marks, used to reveal relationships and advance the plot.","remember":"Dialogue does two jobs: it shows how people feel about each other, and it pushes the story forward."},{"n":"23","cat":"Characterization","type":"mc","q":"Tracing how a character's motivations change across a story because of key events is called…","choices":["Character development","Perspective comparison","Pacing","Direct characterization"],"answer":0,"why":"Character motivation and development means tracing how a character's internal perspective or motivations evolve across a story due to key events or interactions.","remember":"Development = change over time. Ask: is this character different at the end than at the start, and what event changed them?"},{"n":"24","cat":"Plot & Conflict","type":"multi","q":"Select <strong>ALL</strong> of the things that <strong>speed up</strong> the pacing of a story.","choices":["Urgency","Sudden action","High emotions","Long, detailed descriptions"],"answer":[0,1,2],"why":"Pacing is accelerated through urgency, high tension, sudden action, or high emotions. Detailed descriptions do the opposite — they slow pacing down.","remember":"Fast pacing feels like a chase: short, urgent, something happening right now."},{"n":"25","cat":"Plot & Conflict","type":"multi","q":"Select <strong>ALL</strong> of the things that <strong>slow down</strong> the pacing of a story.","choices":["Detailed descriptions","Sensory imagery","Internal reflection","Sudden action"],"answer":[0,1,2],"why":"Pacing slows down through detailed descriptions, sensory imagery, and internal reflection. Sudden action speeds it up instead.","remember":"Slow pacing feels like a pause: describing, noticing, and thinking instead of doing."},{"n":"26","cat":"Plot & Conflict","type":"mc","q":"\"Jenna knew she should admit she broke it, but part of her wanted to stay silent.\" What kind of conflict is this?","choices":["Internal conflict","External conflict","Theme","Mood"],"answer":0,"why":"Internal conflict is a struggle that happens inside a character — here, Jenna against her own guilt and fear.","remember":"INTERNAL = INSIDE one person's head. If the fight is between a character and their own feelings, it's internal."},{"n":"27","cat":"Plot & Conflict","type":"mc","q":"\"Jenna argued with her coach about being benched for the final game.\" What kind of conflict is this?","choices":["External conflict","Internal conflict","Symbolism","Pacing"],"answer":0,"why":"External conflict is a struggle between a character and an outside force — another person, nature, or a situation.","remember":"EXTERNAL = EXITS the character. If you can point at the other side of the fight, it's external."},{"n":"28","cat":"Theme","type":"mc","q":"What is a <strong>theme</strong>?","choices":["An overarching universal message or central idea about life that a text conveys.","A one-word subject, like \"friendship\" or \"war.\"","A summary of everything that happens in the plot.","The narrator's attitude toward the characters."],"answer":0,"why":"A theme is an overarching universal message or central idea — for example, that thoughtful actions carry value, or that unaddressed conflict damages relationships.","remember":"A theme is a full sentence about life, not a one-word topic and not a plot summary."},{"n":"29","cat":"Theme","type":"mc","q":"Which of these is stated as a <strong>theme</strong> rather than just a topic?","choices":["Conflict that goes unaddressed slowly damages relationships.","Friendship.","A girl and her brother argue about a broken bike.","Courage."],"answer":0,"why":"A theme makes a claim about life in a complete sentence. \"Friendship\" and \"Courage\" are topics, and the bike sentence is a plot detail.","remember":"If you can't say it as a full sentence that teaches something about life, it's a topic, not a theme."},{"n":"30","cat":"Theme","type":"mc","q":"A character's careful, quiet kindness toward a stranger changes the ending of the story. Which theme does this best support?","choices":["Thoughtful actions carry value.","Exaggeration makes writing exciting.","Poems do not need a rhyme scheme.","Narrators should stay objective."],"answer":0,"why":"The study guide lists \"how thoughtful actions carry value\" as an example of a universal theme — and a small kindness changing the outcome is exactly that idea.","remember":"Ask what life lesson the ENDING proves. That lesson is the theme."},{"n":"31","cat":"Theme","type":"mc","q":"An author writes that a character's shoulders sagged and his voice went flat when he spoke about his old house. What is this revealing?","choices":["The character's underlying emotions — his heavy-heartedness.","The poem's stanza structure.","The sentence type being used.","A coordinating conjunction."],"answer":0,"why":"Sensory and emotional language analysis means looking at how specific word choices, sensory details, and actions reveal a character's underlying emotions — such as heavy-heartedness or reverence.","remember":"Bodies show feelings. Sagging shoulders and a flat voice are the author's way of saying \"sad\" without the word."},{"n":"32","cat":"Poetry","type":"mc","q":"What is a <strong>stanza</strong>?","choices":["A grouped set of lines in a poem, set off by blank space, used to organize ideas.","A poem with no rhyme scheme.","The rhythm pattern of a poem.","A comparison using \"like\" or \"as.\""],"answer":0,"why":"A stanza is a grouped set of lines within a poem, set off by blank spaces, used to organize thoughts or ideas.","remember":"A stanza is to a poem what a paragraph is to an essay — a block of related lines with space around it."},{"n":"33","cat":"Poetry","type":"mc","q":"A poem has no regular rhyme scheme and no strict rhythm pattern. What kind of poetry is it?","choices":["Free verse","Narrative poetry","Lyrical poetry","A stanza"],"answer":0,"why":"Free verse is poetry that does not follow a fixed rhyme scheme or a strict metrical pattern.","remember":"FREE = free from the rules of rhyme and meter."},{"n":"34","cat":"Poetry","type":"mc","q":"A poem expresses the speaker's personal grief and longing, with no story events. What kind of poetry is it?","choices":["Lyrical poetry","Narrative poetry","Free verse","Objective poetry"],"answer":0,"why":"Lyrical poetry expresses personal feelings, emotions, or reflections.","remember":"LYRICAL is like song LYRICS — it's about feelings, not plot."},{"n":"35","cat":"Poetry","type":"mc","q":"A poem tells the story of a long journey, with events happening in order. What kind of poetry is it?","choices":["Narrative poetry","Lyrical poetry","Free verse","Direct characterization"],"answer":0,"why":"Narrative poetry tells a story or tracks events over time.","remember":"NARRATIVE has \"narrate\" in it — it narrates a story, just in poem form."},{"n":"36","cat":"Poetry","type":"mc","q":"Can a poem be both free verse <strong>and</strong> narrative?","choices":["Yes — free verse describes its form, while narrative describes what it does.","No — a poem can only be one kind at a time.","No — free verse poems can never tell a story.","Only if the poem has exactly four stanzas."],"answer":0,"why":"Free verse is about structure (no fixed rhyme or meter), while lyrical and narrative describe purpose (expressing feelings vs. telling a story). A poem can tell a story without rhyming.","remember":"Form and purpose are separate questions. Ask \"does it rhyme?\" and \"does it tell a story?\" one at a time."},{"n":"37","cat":"Writing & Revision","type":"mc","q":"A writer revises \"The room was quiet\" into \"The room held its breath.\" What did the writer do?","choices":["Integrated figurative language — personification — to deepen the mood.","Added a coordinating conjunction to make a compound sentence.","Changed the point of view from first to third person.","Turned the sentence into a stanza."],"answer":0,"why":"Integrating figurative language means enhancing plain prose with similes, metaphors, or personification to evoke deeper mood, imagery, and emphasis. A room \"holding its breath\" gives it a human action.","remember":"When a revision swaps a plain description for something that can't literally happen, the writer added figurative language."},{"n":"38","cat":"Grammar","type":"mc","q":"What is an <strong>independent clause</strong>?","choices":["A group of words with a subject and verb that expresses a complete thought and can stand alone.","A group of words that cannot stand alone as a sentence.","Any group of words that begins with a conjunction.","A set of lines in a poem."],"answer":0,"why":"An independent clause has a subject and a verb and expresses a complete thought, so it can stand alone as its own sentence.","remember":"INDEPENDENT = it can live on its own, like an independent adult. Read it alone: does it sound finished?"},{"n":"39","cat":"Grammar","type":"mc","q":"Which of these is a <strong>dependent clause</strong>?","choices":["While I was brushing my hair","My mom was making breakfast","I was brushing my hair","The breakfast was hot"],"answer":0,"why":"\"While I was brushing my hair\" has a subject and verb but does not express a complete thought — the word \"while\" leaves you waiting for the rest.","remember":"DEPENDENT leans on something else. If the words leave you hanging, waiting for more, it's dependent."},{"n":"40","cat":"Grammar","type":"mc","q":"\"While I was brushing my hair, my mom was making breakfast.\" What type of sentence is this?","choices":["Complex","Compound","Simple","Fragment"],"answer":0,"why":"A subordinating conjunction (\"while\") connects a dependent clause to an independent clause, which makes a complex sentence.","remember":"Complex = one boss + one helper. A dependent clause hanging off an independent one."},{"n":"41","cat":"Grammar","type":"mc","q":"\"I was brushing my hair, but my mom was making breakfast.\" What type of sentence is this?","choices":["Compound","Complex","Simple","Dependent"],"answer":0,"why":"A coordinating conjunction (\"but\") joins two independent clauses, which makes a compound sentence.","remember":"Compound = two equals. Both halves could be their own sentence, joined by a FANBOYS word."},{"n":"42","cat":"Grammar","type":"mc","q":"\"My mom was making breakfast.\" What type of sentence is this?","choices":["Simple","Compound","Complex","Compound-complex"],"answer":0,"why":"It is one independent clause standing alone, with no other clause attached — that is a simple sentence.","remember":"One complete thought, all by itself = simple."},{"n":"43","cat":"Grammar","type":"mc","q":"Subordinating conjunctions (like \"while,\" \"because,\" or \"although\") are used to build which kind of sentence?","choices":["Complex","Compound","Simple","Run-on"],"answer":0,"why":"Subordinating conjunctions connect dependent clauses to independent clauses to make complex sentences.","remember":"SUB means under. A subordinating conjunction puts one clause UNDER the other — that's complex."},{"n":"44","cat":"Grammar","type":"multi","q":"Select <strong>ALL</strong> of the words below that are coordinating conjunctions (FANBOYS).","choices":["but","so","yet","because"],"answer":[0,1,2],"why":"FANBOYS stands for For, And, Nor, But, Or, Yet, So. \"Because\" is a subordinating conjunction — it starts a dependent clause.","remember":"FANBOYS: For, And, Nor, But, Or, Yet, So. If the word isn't in FANBOYS, it isn't coordinating."},{"n":"45","cat":"Grammar","type":"text","q":"FANBOYS is a memory trick for the seven coordinating conjunctions. Write any <strong>one</strong> of them.","hint":"Write one word.","accept":["for","and","nor","but","or","yet","so"],"display":"For, And, Nor, But, Or, Yet, or So","why":"The seven coordinating conjunctions are For, And, Nor, But, Or, Yet, and So — they join two independent clauses into a compound sentence.","remember":"The letters ARE the words: F-A-N-B-O-Y-S = For, And, Nor, But, Or, Yet, So."},{"n":"46","cat":"Figurative Language","type":"match","q":"Match each device to its definition.","pairs":[["Simile","A comparison using \"like\" or \"as\""],["Metaphor","A direct comparison without \"like\" or \"as\""],["Personification","Giving human traits to something non-human"],["Hyperbole","Extreme exaggeration used for emphasis"]],"why":"Similes compare with like/as, metaphors compare directly, personification hands human traits to non-human things, and hyperbole exaggerates far past the literal truth.","remember":"Two are comparisons (simile, metaphor), one gives life (personification), one goes over the top (hyperbole)."},{"n":"47","cat":"Point of View","type":"match","q":"Match each point of view to what the narrator can tell you.","pairs":[["First-person","A character narrating with \"I\" and \"my\""],["Third-person limited","Outside narrator inside ONE character's head"],["Third-person omniscient","Outside narrator inside MANY characters' heads"],["Third-person objective","Outside narrator inside NO character's head"]],"why":"First-person is told from inside the story. The three third-person modes differ by how many minds the outside narrator can enter: one, many, or none.","remember":"Count the minds: one = limited, many = omniscient, none = objective."},{"n":"48","cat":"Point of View","type":"order","q":"Put these narrators in order, from the one who knows the <strong>least</strong> about characters' thoughts to the one who knows the <strong>most</strong>.","items":["Third-person objective","Third-person limited","Third-person omniscient"],"why":"Objective knows no thoughts at all, limited knows one character's thoughts, and omniscient knows every character's thoughts.","remember":"Zero minds, one mind, all the minds — that's the ladder."},{"n":"49","cat":"Poetry","type":"match","q":"Match each poetry term to its meaning.","pairs":[["Stanza","A group of lines set off by blank space"],["Free verse","Poetry with no fixed rhyme or meter"],["Lyrical poetry","A poem expressing personal feelings"],["Narrative poetry","A poem that tells a story"]],"why":"A stanza is a structural block of lines; free verse describes form; lyrical and narrative describe purpose — expressing feelings versus telling a story.","remember":"Stanza and free verse are about SHAPE. Lyrical and narrative are about JOB."},{"n":"50","cat":"Tone & Mood","type":"tf","q":"Mood is the author's attitude toward the subject, and tone is what the reader feels.","answer":1,"why":"False — it is the other way round. Tone is the author's or narrator's attitude; mood is the feeling the text creates for the reader.","remember":"Tone = the Teller. Mood = Me, the reader."},{"n":"51","cat":"Figurative Language","type":"tf","q":"A metaphor compares two things using the words \"like\" or \"as.\"","answer":1,"why":"False. A simile uses \"like\" or \"as.\" A metaphor makes the comparison directly, without them.","remember":"SimiLe has an L for Like. If those words are missing, it's a metaphor."},{"n":"52","cat":"Grammar","type":"tf","q":"A dependent clause can stand alone as a complete sentence.","answer":1,"why":"False. A dependent clause has a subject and verb but does not express a complete thought, so it cannot stand alone — it leans on an independent clause.","remember":"DEPENDENT leans. Read it by itself: if it leaves you waiting for more, it can't stand alone."},{"n":"53","cat":"Poetry","type":"tf","q":"A free verse poem can still tell a story.","answer":0,"why":"True. Free verse describes the form (no fixed rhyme or meter), while narrative describes the purpose. A poem can tell a story without rhyming.","remember":"Form and job are separate questions. Ask \"does it rhyme?\" and \"does it tell a story?\" one at a time."},{"n":"54","cat":"Poetry","type":"text","q":"Fill in the blank: A ______ is a grouped set of lines in a poem, set off by blank space.","hint":"Write the one-word term.","accept":["stanza"],"display":"Stanza","why":"A stanza is a grouped set of lines within a poem, set off by blank spaces, used to organize thoughts or ideas.","remember":"A stanza is to a poem what a paragraph is to an essay."},{"n":"55","cat":"Characterization","type":"text","q":"Fill in the blank: ______ characterization is when the author comes right out and states a character's traits.","hint":"Write the one word that goes in the blank.","accept":["direct"],"display":"Direct","why":"Direct characterization is when the author directly states specific personality traits or details. Indirect characterization makes you infer traits from actions, thoughts, speech, or interactions.","remember":"DIRECT = the author tells you straight out. INDIRECT = you infer it."},{"n":"56","cat":"Grammar","type":"match","q":"Match each sentence to its type.","pairs":[["My mom was making breakfast.","Simple"],["I was brushing my hair, but my mom was making breakfast.","Compound"],["While I was brushing my hair, my mom was making breakfast.","Complex"]],"why":"One independent clause alone is simple. Two independent clauses joined by a FANBOYS word is compound. A dependent clause attached to an independent clause is complex.","remember":"One thought = simple. Two equal thoughts = compound. A leaning thought + a full one = complex."}]};
+  const CONFIG = {"storagePrefix":"ela_","tests":[{"id":"ela","label":"Language Arts","name":"Narrative &amp; Poetic Techniques","desc":"Point of view, figurative language, tone vs. mood, poetry, and grammar."}]};
+
+  const MATH_FORMS = [
+    { id:"B", name:"Form B — Fresh Test", bank:"B", recommended:true,
+      desc:"The study guide skills with all-new numbers." },
+    { id:"A", name:"Form A — Study Guide", bank:"A",
+      desc:"The problems exactly as they appear on the sheet." },
+    { id:"C", name:"Challenge Round", bank:"C", challengeOnly:true,
+      desc:"12 harder problems a step past the guide." }
+  ];
+
+  const TESTS = CONFIG.tests.map(t => {
+    const out = { id:t.id, label:t.label, name:t.name, desc:t.desc };
+    if(t.id === 'math'){
+      out.forms = MATH_FORMS.map(f => Object.assign({}, f, { questions: BANKS.math[f.bank] }));
+    } else {
+      out.questions = BANKS[t.id];
+    }
+    return out;
+  });
+
+  const TYPE_LABEL = {
+    mc:"Multiple choice", multi:"Select all", text:"Write it in",
+    tf:"True or false", match:"Matching", order:"Put in order"
+  };
 
   const GRADES = [
-    { min:0.90, letter:"A", note:"Excellent — you know the EU inside and out." },
+    { min:0.90, letter:"A", note:"Excellent — you have this unit down cold." },
     { min:0.80, letter:"B", note:"Strong work. Clean up the misses and you're ready." },
     { min:0.70, letter:"C", note:"Solid start. Focus on the topics listed below." },
     { min:0.60, letter:"D", note:"Getting there — read the notes below, then retake." },
@@ -498,15 +499,124 @@
   ];
 
   const el = id => document.getElementById(id);
-  const answers = QUESTIONS.map(q => q.type === 'multi' ? [] : (q.type === 'mc' ? null : ''));
+
+  let test = null, form = null;
+  let questions = [], answers = [], views = [];
   let idx = 0;
+  let openTest = null;
 
-  const BEST_KEY = 'ela_best';
-  function readBest(){ try { return localStorage.getItem(BEST_KEY); } catch(e){ return null; } }
-  function writeBest(v){ try { localStorage.setItem(BEST_KEY, String(v)); } catch(e){ /* storage may be blocked */ } }
-  const storedBest = readBest();
-  if(storedBest !== null && storedBest !== '') el('statBest').textContent = storedBest + '/' + QUESTIONS.length;
+  function readStore(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function writeStore(k,v){ try { localStorage.setItem(k, String(v)); } catch(e){ /* storage may be blocked */ } }
+  function withChallenge(){ return el('addChallenge').checked; }
 
+  function setFor(t, f){
+    if(!t.forms) return t.questions.slice();
+    const base = f.questions.slice();
+    return (withChallenge() && !f.challengeOnly) ? base.concat(BANKS.math.C) : base;
+  }
+  function keyFor(t, f){
+    let k = CONFIG.storagePrefix + t.id;
+    if(f) k += '_' + f.id + ((withChallenge() && !f.challengeOnly) ? 'C' : '');
+    return k;
+  }
+
+  function shuffled(n){
+    const a = Array.from({length:n}, (_,i) => i);
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  /* ---------- home ---------- */
+  function renderHome(){
+    const holder = el('testCards');
+    holder.innerHTML = '';
+    TESTS.forEach(t => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'test-card' + (openTest === t.id ? ' open' : '');
+      let meta;
+      if(t.forms){
+        meta = '3 forms · ' + t.forms[1].questions.length + '–' + t.forms[0].questions.length + ' questions';
+      } else {
+        const best = readStore(keyFor(t, null));
+        meta = t.questions.length + ' questions'
+          + (best !== null && best !== '' ? ' · best ' + best + '/' + t.questions.length : '');
+      }
+      btn.innerHTML = '<span class="tc-label">' + t.label + '</span>'
+        + '<span class="tc-name">' + t.name + '</span>'
+        + '<span class="tc-desc">' + t.desc + '</span>'
+        + '<span class="tc-meta">' + meta + '</span>';
+      btn.addEventListener('click', () => {
+        if(t.forms){ openTest = (openTest === t.id) ? null : t.id; renderHome(); }
+        else { start(t, null); }
+      });
+      holder.appendChild(btn);
+    });
+
+    const t = TESTS.find(x => x.id === openTest);
+    const box = el('subforms');
+    if(!t){ box.classList.add('hide'); return; }
+    box.classList.remove('hide');
+    el('subformTitle').textContent = t.name + ' — choose a form';
+    const grid = el('subformGrid');
+    grid.innerHTML = '';
+    t.forms.forEach(f => {
+      const count = setFor(t, f).length;
+      const best = readStore(keyFor(t, f));
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'test-card' + (f.recommended ? ' open' : '');
+      b.innerHTML = '<span class="tc-label">' + (f.recommended ? 'Recommended' : '&nbsp;') + '</span>'
+        + '<span class="tc-name">' + f.name + '</span>'
+        + '<span class="tc-desc">' + f.desc + '</span>'
+        + '<span class="tc-meta">' + count + ' questions'
+        + (best !== null && best !== '' ? ' · best ' + best + '/' + count : '') + '</span>';
+      b.addEventListener('click', () => start(t, f));
+      grid.appendChild(b);
+    });
+  }
+  el('addChallenge').addEventListener('change', renderHome);
+
+  /* ---------- starting ---------- */
+  function blankAnswer(q){
+    if(q.type === 'multi') return [];
+    if(q.type === 'match') return q.pairs.map(() => null);
+    if(q.type === 'order') return [];
+    if(q.type === 'mc' || q.type === 'tf') return null;
+    return '';
+  }
+
+  function start(t, f){
+    test = t; form = f;
+    questions = setFor(t, f);
+    answers = questions.map(blankAnswer);
+    // matching and ordering get one shuffle per attempt, held steady while you work
+    views = questions.map(q =>
+      q.type === 'match' ? shuffled(q.pairs.length)
+      : q.type === 'order' ? shuffled(q.items.length)
+      : null);
+    idx = 0;
+
+    const home = el('home');            // absent on a single-test page
+    if(home) home.classList.add('hide');
+    el('testArea').classList.add('show');
+    el('results').classList.remove('show');
+    el('testCard').style.display = 'block';
+    el('paletteWrap').style.display = 'block';
+
+    const best = readStore(keyFor(t, f));
+    el('statBest').textContent = (best !== null && best !== '') ? best + '/' + questions.length : '—';
+
+    render();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  function testTitle(){ return test.name + (form ? ' · ' + form.name.replace(/ —.*$/, '') : ''); }
+
+  /* ---------- grading helpers ---------- */
   function normText(s){
     return String(s).toLowerCase()
       .replace(/[−–—]/g, '-')
@@ -514,66 +624,175 @@
       .replace(/\s+/g, ' ')
       .trim();
   }
+  // For number-graded questions, pull the first signed number out of whatever was
+  // typed, so "$8", "-37°C" and "120 feet" all grade the same as the bare number.
+  function parseNumber(raw){
+    const s = String(raw).replace(/[−–—]/g, '-').replace(/,/g, '').trim();
+    if(s === '') return null;
+    const m = s.match(/-?\d+(?:\.\d+)?/);
+    if(!m) return null;
+    const v = Number(m[0]);
+    return Number.isFinite(v) ? v : null;
+  }
 
   function isAnswered(i){
-    const q = QUESTIONS[i], a = answers[i];
+    const q = questions[i], a = answers[i];
     if(q.type === 'multi') return Array.isArray(a) && a.length > 0;
-    if(q.type === 'mc') return a !== null;
+    if(q.type === 'match') return a.every(v => v !== null);
+    if(q.type === 'order') return a.length === q.items.length;
+    if(q.type === 'mc' || q.type === 'tf') return a !== null;
+    if(q.grade === 'number') return parseNumber(a) !== null;
     return String(a).trim() !== '';
   }
-  function answeredCount(){ return QUESTIONS.reduce((n, _, i) => n + (isAnswered(i) ? 1 : 0), 0); }
+  function answeredCount(){ return questions.reduce((n,_,i) => n + (isAnswered(i) ? 1 : 0), 0); }
 
   function isCorrect(i){
-    const q = QUESTIONS[i], a = answers[i];
+    const q = questions[i], a = answers[i];
     if(!isAnswered(i)) return false;
-    if(q.type === 'mc') return a === q.answer;
+    if(q.type === 'mc' || q.type === 'tf') return a === q.answer;
     if(q.type === 'multi'){
       const want = new Set(q.answer), got = new Set(a);
       return want.size === got.size && [...want].every(v => got.has(v));
     }
+    if(q.type === 'match') return a.every((v, row) => v === row);
+    if(q.type === 'order') return a.every((v, pos) => v === pos);
+    if(q.grade === 'number') return parseNumber(a) === q.answer;
     return q.accept.some(ok => normText(ok) === normText(a));
   }
 
   function givenText(i){
-    const q = QUESTIONS[i], a = answers[i];
+    const q = questions[i], a = answers[i];
     if(!isAnswered(i)) return 'blank';
     if(q.type === 'mc') return q.choices[a];
+    if(q.type === 'tf') return a === 0 ? 'True' : 'False';
     if(q.type === 'multi') return a.slice().sort((x,y) => x-y).map(j => q.choices[j]).join('; ');
+    if(q.type === 'match') return q.pairs.map((p, row) => p[0] + ' → ' + q.pairs[a[row]][1]).join(' · ');
+    if(q.type === 'order') return a.map(j => q.items[j]).join(' → ');
     return String(a).trim();
   }
-
   function correctText(i){
-    const q = QUESTIONS[i];
+    const q = questions[i];
     if(q.type === 'mc') return q.choices[q.answer];
+    if(q.type === 'tf') return q.answer === 0 ? 'True' : 'False';
     if(q.type === 'multi') return q.answer.map(j => q.choices[j]).join('; ');
+    if(q.type === 'match') return q.pairs.map(p => p[0] + ' → ' + p[1]).join(' · ');
+    if(q.type === 'order') return q.items.join(' → ');
+    if(q.grade === 'number') return String(q.answer);
     return q.display;
   }
+  function isExpr(q){ return q.grade === 'number' && !q.word; }
 
   function updateCounts(){
     const done = answeredCount();
     el('statAnswered').textContent = done;
-    el('statLeft').textContent = QUESTIONS.length - done;
-    el('progressPct').textContent = Math.round(done / QUESTIONS.length * 100) + '%';
-    el('progressFill').style.width = (done / QUESTIONS.length * 100) + '%';
+    el('statLeft').textContent = questions.length - done;
+    el('progressPct').textContent = Math.round(done / questions.length * 100) + '%';
+    el('progressFill').style.width = (done / questions.length * 100) + '%';
   }
 
+  /* ---------- rendering ---------- */
   function render(){
-    const q = QUESTIONS[idx];
+    const q = questions[idx];
     el('qnum').textContent = 'Question ' + q.n;
     el('catTag').textContent = q.cat;
-    el('qtext').innerHTML = q.q;
-    el('multiHint').style.display = q.type === 'multi' ? 'block' : 'none';
-    el('confirmBar').classList.remove('show');
+    const tt = el('typeTag');
+    if(q.type === 'mc'){ tt.style.display = 'none'; }
+    else { tt.style.display = ''; tt.textContent = TYPE_LABEL[q.type] || q.type; }
 
-    const wrap = el('choices');
-    wrap.innerHTML = '';
+    const body = el('qbody');
+    body.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = isExpr(q) ? 'expr' : 'qtext';
+    p.innerHTML = q.q;
+    body.appendChild(p);
+
+    const mh = el('multiHint');
+    if(q.type === 'multi'){ mh.textContent = 'Select ALL that apply'; mh.style.display = 'block'; }
+    else if(q.type === 'order'){ mh.textContent = 'Click them in order — first click is #1'; mh.style.display = 'block'; }
+    else if(q.type === 'match'){ mh.textContent = 'Pick the match for each one'; mh.style.display = 'block'; }
+    else { mh.style.display = 'none'; }
+
+    el('confirmBar').classList.remove('show');
+    const area = el('inputArea');
+    area.innerHTML = '';
+    el('answerRow').style.display = 'none';
+
     if(q.type === 'text'){
-      wrap.style.display = 'none';
       el('answerRow').style.display = 'flex';
-      el('answerInput').value = answers[idx];
+      const input = el('answerInput');
+      input.value = answers[idx];
+      input.className = 'answer' + (q.grade === 'number' ? ' num' : '');
+      input.placeholder = q.grade === 'number' ? 'e.g. −24' : '';
+    } else if(q.type === 'tf'){
+      const row = document.createElement('div');
+      row.className = 'tf-row';
+      ['True','False'].forEach((label, i) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'tf' + (answers[idx] === i ? ' picked' : '');
+        b.textContent = label;
+        b.addEventListener('click', () => { answers[idx] = i; render(); });
+        row.appendChild(b);
+      });
+      area.appendChild(row);
+    } else if(q.type === 'match'){
+      const list = document.createElement('div');
+      list.className = 'match-list';
+      q.pairs.forEach((pair, row) => {
+        const r = document.createElement('div');
+        r.className = 'match-row' + (answers[idx][row] !== null ? ' filled' : '');
+        const left = document.createElement('span');
+        left.className = 'm-left';
+        left.innerHTML = pair[0];
+        const sel = document.createElement('select');
+        sel.setAttribute('aria-label', 'Match for ' + pair[0].replace(/<[^>]*>/g, ''));
+        const ph = document.createElement('option');
+        ph.value = ''; ph.textContent = 'Choose…';
+        sel.appendChild(ph);
+        views[idx].forEach(optIdx => {
+          const o = document.createElement('option');
+          o.value = String(optIdx);
+          o.textContent = q.pairs[optIdx][1];
+          if(answers[idx][row] === optIdx) o.selected = true;
+          sel.appendChild(o);
+        });
+        sel.addEventListener('change', () => {
+          answers[idx][row] = sel.value === '' ? null : Number(sel.value);
+          updateCounts(); renderPalette();
+          r.className = 'match-row' + (answers[idx][row] !== null ? ' filled' : '');
+        });
+        r.appendChild(left); r.appendChild(sel);
+        list.appendChild(r);
+      });
+      area.appendChild(list);
+    } else if(q.type === 'order'){
+      const list = document.createElement('div');
+      list.className = 'order-list';
+      views[idx].forEach(itemIdx => {
+        const pos = answers[idx].indexOf(itemIdx);
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'order-item' + (pos !== -1 ? ' placed' : '');
+        b.innerHTML = '<span class="seat">' + (pos !== -1 ? (pos + 1) : '·') + '</span>'
+          + '<span>' + q.items[itemIdx] + '</span>';
+        b.addEventListener('click', () => {
+          const at = answers[idx].indexOf(itemIdx);
+          if(at === -1) answers[idx].push(itemIdx);
+          else answers[idx].splice(at, 1);
+          render();
+        });
+        list.appendChild(b);
+      });
+      area.appendChild(list);
+      const reset = document.createElement('button');
+      reset.type = 'button';
+      reset.className = 'nav order-reset';
+      reset.textContent = 'Start over';
+      reset.addEventListener('click', () => { answers[idx] = []; render(); });
+      area.appendChild(reset);
     } else {
-      wrap.style.display = 'flex';
-      el('answerRow').style.display = 'none';
+      const wrap = document.createElement('div');
+      wrap.className = 'choices';
       const letters = ['A','B','C','D','E'];
       q.choices.forEach((choice, i) => {
         const btn = document.createElement('button');
@@ -585,6 +804,7 @@
         btn.addEventListener('click', () => pick(i));
         wrap.appendChild(btn);
       });
+      area.appendChild(wrap);
     }
 
     const hint = el('hint');
@@ -592,15 +812,15 @@
     else { hint.style.display = 'none'; }
 
     el('prevBtn').disabled = idx === 0;
-    el('nextBtn').disabled = idx === QUESTIONS.length - 1;
-    el('progressText').textContent = 'Question ' + (idx + 1) + ' of ' + QUESTIONS.length;
+    el('nextBtn').disabled = idx === questions.length - 1;
+    el('progressText').textContent = testTitle() + ' · question ' + (idx + 1) + ' of ' + questions.length;
 
     updateCounts();
     renderPalette();
   }
 
   function pick(i){
-    const q = QUESTIONS[idx];
+    const q = questions[idx];
     if(q.type === 'multi'){
       const list = answers[idx];
       const at = list.indexOf(i);
@@ -614,7 +834,7 @@
   function renderPalette(){
     const pal = el('palette');
     pal.innerHTML = '';
-    QUESTIONS.forEach((q, i) => {
+    questions.forEach((q, i) => {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'pal' + (isAnswered(i) ? ' done' : '') + (i === idx ? ' current' : '');
@@ -626,16 +846,16 @@
   }
 
   function saveText(){
-    if(QUESTIONS[idx].type === 'text') answers[idx] = el('answerInput').value;
+    if(questions[idx] && questions[idx].type === 'text') answers[idx] = el('answerInput').value;
   }
 
   function go(delta){
     saveText();
     const next = idx + delta;
-    if(next < 0 || next >= QUESTIONS.length) return;
+    if(next < 0 || next >= questions.length) return;
     idx = next;
     render();
-    if(QUESTIONS[idx].type === 'text') el('answerInput').focus();
+    if(questions[idx].type === 'text') el('answerInput').focus();
   }
 
   el('prevBtn').addEventListener('click', () => go(-1));
@@ -649,13 +869,13 @@
   el('answerInput').addEventListener('keydown', (e) => {
     if(e.key === 'Enter'){
       e.preventDefault();
-      if(idx < QUESTIONS.length - 1) go(1); else el('submitBtn').click();
+      if(idx < questions.length - 1) go(1); else el('submitBtn').click();
     }
   });
 
   el('submitBtn').addEventListener('click', () => {
     saveText();
-    const blank = QUESTIONS.length - answeredCount();
+    const blank = questions.length - answeredCount();
     if(blank > 0){
       el('confirmText').textContent = blank === 1
         ? '1 question is still blank.'
@@ -670,25 +890,27 @@
 
   function grade(){
     saveText();
-    const marked = QUESTIONS.map((q, i) => ({ q, i, correct: isCorrect(i) }));
+    const marked = questions.map((q, i) => ({ q, i, correct: isCorrect(i) }));
     const score = marked.filter(m => m.correct).length;
-    const pct = score / QUESTIONS.length;
+    const pct = score / questions.length;
 
     el('testCard').style.display = 'none';
     el('paletteWrap').style.display = 'none';
     el('progressFill').style.width = '100%';
-    el('progressText').textContent = 'Test submitted';
+    el('progressText').textContent = testTitle() + ' submitted';
     el('progressPct').textContent = '100%';
 
     const band = GRADES.find(g => pct >= g.min);
+    el('resultsTitle').textContent = testTitle();
     el('gradeLetter').textContent = band.letter;
-    el('finalScore').textContent = score + ' / ' + QUESTIONS.length;
+    el('finalScore').textContent = score + ' / ' + questions.length;
     el('finalPct').textContent = Math.round(pct * 100) + '% · ' + band.note;
 
-    const prevBest = parseInt(readBest() || '-1', 10);
-    if(score > prevBest) writeBest(score);
-    const nowBest = readBest();
-    if(nowBest !== null && nowBest !== '') el('statBest').textContent = nowBest + '/' + QUESTIONS.length;
+    const k = keyFor(test, form);
+    const prevBest = parseInt(readStore(k) || '-1', 10);
+    if(score > prevBest) writeStore(k, score);
+    const nowBest = readStore(k);
+    if(nowBest !== null && nowBest !== '') el('statBest').textContent = nowBest + '/' + questions.length;
 
     const missedByCat = {};
     marked.forEach(m => { if(!m.correct) missedByCat[m.q.cat] = (missedByCat[m.q.cat] || 0) + 1; });
@@ -705,26 +927,28 @@
     const missedCount = marked.length - score;
     el('reviewBox').innerHTML = '<h3>Answers</h3>'
       + '<p class="review-lede">' + (missedCount
-          ? 'Every question you missed shows the right answer, why it is right, and a way to remember it.'
+          ? 'Every question you missed shows the right answer and why it is right.'
           : 'Nothing missed — the answers are here anyway if you want to look back.') + '</p>'
       + marked.map(m => {
           const i = m.i;
           return '<div class="review-item">'
             + '<div class="review-head"><span class="mark ' + (m.correct ? 'ok' : 'no') + '">'
-            + (m.correct ? '✓' : '✗') + '</span><span>Question ' + m.q.n + '</span><span>· ' + m.q.cat + '</span></div>'
-            + '<div class="review-q">' + m.q.q + '</div>'
-            + '<div class="review-answers">You: <span class="yours ' + (m.correct ? '' : 'no') + '">' + givenText(i) + '</span>'
+            + (m.correct ? '✓' : '✗') + '</span><span>Question ' + m.q.n + '</span>'
+            + '<span>· ' + m.q.cat + '</span></div>'
+            + '<div class="review-q' + (isExpr(m.q) ? ' mono' : '') + '">' + m.q.q + '</div>'
+            + '<div class="review-answers">You: <span class="yours ' + (m.correct ? '' : 'no') + '">'
+            + givenText(i) + '</span>'
             + (m.correct ? '' : '<br>Correct: <span class="right">' + correctText(i) + '</span>') + '</div>'
-            + (m.correct ? '' :
-                '<div class="why"><b>Why</b>' + m.q.why + '</div>'
-              + '<div class="remember"><b>Remember it this way</b>' + m.q.remember + '</div>')
+            + (m.correct ? '' : '<div class="why"><b>Why</b>' + m.q.why + '</div>')
+            + (m.correct || !m.q.remember ? ''
+                : '<div class="remember"><b>Easy way to get it</b>' + m.q.remember + '</div>')
             + '</div>';
         }).join('');
 
     el('results').classList.add('show');
     el('reviewBox').style.display = missedCount ? 'block' : 'none';
     el('reviewToggle').textContent = missedCount ? 'Hide all answers' : 'Show all answers';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top:0, behavior:'smooth' });
   }
 
   el('reviewToggle').addEventListener('click', () => {
@@ -734,21 +958,26 @@
     el('reviewToggle').textContent = open ? 'Show all answers' : 'Hide all answers';
   });
 
-  el('retryBtn').addEventListener('click', () => {
-    QUESTIONS.forEach((q, i) => {
-      answers[i] = q.type === 'multi' ? [] : (q.type === 'mc' ? null : '');
-    });
-    idx = 0;
+  el('retryBtn').addEventListener('click', () => start(test, form));
+
+  el('homeBtn').addEventListener('click', () => {
+    const home = el('home');
+    if(!home) return;
     el('results').classList.remove('show');
-    el('reviewBox').style.display = 'none';
-    el('reviewToggle').textContent = 'Show all answers';
-    el('testCard').style.display = 'block';
-    el('paletteWrap').style.display = 'block';
-    render();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    el('testArea').classList.remove('show');
+    home.classList.remove('hide');
+    renderHome();
+    window.scrollTo({ top:0, behavior:'smooth' });
   });
 
-  render();
+  // A page holding a single test skips the picker entirely.
+  if(TESTS.length === 1 && !TESTS[0].forms){
+    el('home').remove();
+    el('homeBtn').classList.add('hide');
+    start(TESTS[0], null);
+  } else {
+    renderHome();
+  }
 })();
 </script>
 </body>
