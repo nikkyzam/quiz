@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>__TITLE__</title>
+<style>
+__STYLE__
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  __CRUMBS__
+
+  <div class="cover">
+    <div class="eyebrow">__EYEBROW__</div>
+    <h1>__H1__</h1>
+    <p class="sub">__SUB__</p>
+    <div class="badge-row">__CHIPS__</div>
+  </div>
+
+  <div class="home" id="home">
+    <h2 id="homeTitle">Choose a test</h2>
+    <p class="lede" id="homeLede">Nothing is graded until you submit, so you can skip around and come back. Your best score on each test is saved on this device.</p>
+    <div class="tests" id="testCards"></div>
+    <div class="subforms hide" id="subforms">
+      <h3 id="subformTitle">Choose a form</h3>
+      <div class="subform-grid" id="subformGrid"></div>
+      <label class="chk" id="challengeRow">
+        <input type="checkbox" id="addChallenge">
+        <span>Add the 12 challenge problems to the end of Form A or B (cubes, double absolute value, brackets, multi-step word problems).</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="test-area" id="testArea">
+    <div class="stats">
+      <div class="stat"><div class="n" id="statAnswered">0</div><div class="l">Answered</div></div>
+      <div class="stat"><div class="n" id="statLeft">0</div><div class="l">Left</div></div>
+      <div class="stat"><div class="n" id="statBest">—</div><div class="l">Best score</div></div>
+    </div>
+
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label"><span id="progressText">—</span><span id="progressPct">0%</span></div>
+
+    <div class="card" id="testCard">
+      <div class="card-top">
+        <span class="qnum" id="qnum">Question 1</span>
+        <span class="tag-row">
+          <span class="type-tag" id="typeTag" style="display:none;"></span>
+          <span class="cat-tag" id="catTag">—</span>
+        </span>
+      </div>
+      <div id="qbody"></div>
+      <p class="multi-hint" id="multiHint" style="display:none;"></p>
+
+      <div id="inputArea"></div>
+
+      <div class="answer-row" id="answerRow" style="display:none;">
+        <label for="answerInput">Your answer</label>
+        <input class="answer" id="answerInput" type="text" autocomplete="off" spellcheck="false">
+      </div>
+
+      <p class="hint" id="hint" style="display:none;"></p>
+
+      <div class="nav-row">
+        <button class="nav" id="prevBtn">← Back</button>
+        <button class="nav primary" id="nextBtn">Next →</button>
+        <span class="nav-spacer"></span>
+        <button class="submit-test" id="submitBtn">Submit test</button>
+      </div>
+
+      <div class="confirm-bar" id="confirmBar">
+        <span id="confirmText"></span>
+        <button class="nav" id="confirmSubmit">Submit anyway</button>
+        <button class="nav" id="cancelSubmit">Keep working</button>
+      </div>
+    </div>
+
+    <div class="palette-wrap" id="paletteWrap">
+      <h3>Jump to a question</h3>
+      <div class="palette" id="palette"></div>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="scoreboard">
+      <div class="eyebrow" id="resultsTitle">Test complete</div>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="score-big" id="finalScore">0 / 0</div>
+      <div class="score-pct" id="finalPct">0%</div>
+      <div class="focus" id="focusBox" style="display:none;">
+        <h3>What to review</h3>
+        <ul id="focusList"></ul>
+      </div>
+      <div class="actions">
+        <button class="nav primary" id="retryBtn">Retake this test</button>
+        <button class="nav" id="homeBtn">Choose another test</button>
+        <button class="nav" id="reviewToggle">Show all answers</button>
+      </div>
+      <div class="review" id="reviewBox" style="display:none;"></div>
+    </div>
+  </div>
+
+  <footer class="credit">__FOOTER__</footer>
+</div>
+
+<script>window.STUDY = __DATA__;</script>
+<script>
+__ENGINE__
+</script>
+</body>
+</html>

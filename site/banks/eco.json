@@ -1,0 +1,477 @@
+[
+ {
+  "n": "1",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "What is the key difference between 'money' and 'currency'?",
+  "choices": [
+   "Money is anything people agree to use to buy and sell goods and services; currency is the official money a specific country uses, like dollars or euros.",
+   "Currency is a broader idea than money — all money is currency, but not all currency is money.",
+   "Money can only be coins; currency can only be paper bills.",
+   "There is no difference — the two words mean exactly the same thing in every context."
+  ],
+  "answer": 0,
+  "why": "Money is the general concept — anything people agree to use in exchange for goods and services. Currency is the specific, official form of money a country issues, such as the dollar or the euro."
+ },
+ {
+  "n": "2",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "Which pairing correctly matches 'domestic' and 'foreign'?",
+  "choices": [
+   "Domestic means produced inside your own country; foreign means produced in another country.",
+   "Domestic means produced in another country; foreign means produced inside your own country.",
+   "Both words describe goods produced only within your own country.",
+   "Both words describe goods that cross an international border."
+  ],
+  "answer": 0,
+  "why": "Domestic = connected to or produced inside your own country. Foreign = connected to or produced in another country — an easy pair to swap by accident."
+ },
+ {
+  "n": "3",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "An 'economy' is best defined as...",
+  "choices": [
+   "The system a country uses to produce, buy, sell, and trade goods and services.",
+   "Only the total amount of money printed by a government.",
+   "A single company's yearly profit.",
+   "The exchange rate between two currencies."
+  ],
+  "answer": 0,
+  "why": "An economy is the whole system a country uses to produce, distribute, and trade goods and services — much bigger than just money or one business."
+ },
+ {
+  "n": "4",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "A 'Capital Good' is...",
+  "choices": [
+   "A tool, machine, or building used to produce goods and services",
+   "Any product a consumer buys for personal use",
+   "A type of government bond",
+   "Another name for GDP"
+  ],
+  "answer": 0,
+  "why": "Capital goods are tools, machines, or buildings used to produce other goods and services — like a bakery's oven or a factory's assembly line, not something a shopper buys to consume directly."
+ },
+ {
+  "n": "5",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "An 'Entrepreneur' is best described as someone who...",
+  "choices": [
+   "Takes a risk and combines resources to start or run a business.",
+   "Only invests in stocks and never starts a company.",
+   "Works exclusively for the government.",
+   "Refuses to take any financial risk."
+  ],
+  "answer": 0,
+  "why": "An entrepreneur takes on risk and combines resources — natural, human, and capital — to start or run a business, often creating new ideas along the way."
+ },
+ {
+  "n": "6",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "'Scarcity' means...",
+  "choices": [
+   "People have unlimited wants, but there are not enough resources or products to satisfy them all.",
+   "A country has more resources than it could ever use.",
+   "A government has completely run out of money.",
+   "A product is available in unlimited quantity."
+  ],
+  "answer": 0,
+  "why": "Scarcity is the basic economic problem: people's wants are unlimited, but the resources and products available to meet those wants are limited."
+ },
+ {
+  "n": "7",
+  "cat": "Vocabulary",
+  "type": "text",
+  "q": "Fill in the blank: ______ is when people have unlimited wants but there are not enough resources to satisfy them all.",
+  "hint": "Write the one-word term.",
+  "accept": [
+   "scarcity"
+  ],
+  "display": "Scarcity",
+  "why": "Scarcity is the basic economic problem — unlimited wants meeting limited resources.",
+  "remember": "Scarce means \"not enough to go around.\" That gap between wants and resources is scarcity."
+ },
+ {
+  "n": "8",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "'Specialization' refers to...",
+  "choices": [
+   "Becoming skilled at one particular job or part of production.",
+   "A government agency that regulates all trade.",
+   "The total value of a country's exports.",
+   "A tax placed only on specialized, high-tech goods."
+  ],
+  "answer": 0,
+  "why": "Specialization means becoming skilled at one particular job or part of production — like a worker focusing on just one step of building a car — which usually makes production more efficient."
+ },
+ {
+  "n": "9",
+  "cat": "GDP",
+  "type": "mc",
+  "q": "Gross Domestic Product (GDP) measures...",
+  "choices": [
+   "The total value of all final goods and services made inside a country in one year.",
+   "The total value of goods a country imports from other countries.",
+   "The average income of a single household.",
+   "The number of businesses operating in a country."
+  ],
+  "answer": 0,
+  "why": "GDP is the total value of all final goods and services produced inside a country in one year — a measure of the overall size of an economy."
+ },
+ {
+  "n": "10",
+  "cat": "GDP",
+  "type": "order",
+  "q": "Put these in order, from the smallest idea to the biggest.",
+  "items": [
+   "One factory's output",
+   "A country's GDP per capita",
+   "A country's total GDP"
+  ],
+  "why": "One factory is a single piece of production. GDP per capita is the country's total divided across each person. Total GDP is the whole economy's output.",
+  "remember": "Per capita is total GDP split across people, so it is always smaller than the total it came from."
+ },
+ {
+  "n": "11",
+  "cat": "GDP",
+  "type": "mc",
+  "q": "How is GDP per capita calculated, and what does it show that plain GDP does not?",
+  "choices": [
+   "GDP divided by the population, showing an average amount of production/wealth per person rather than the economy's total size.",
+   "GDP multiplied by the population, showing an even bigger total.",
+   "GDP divided by the number of businesses, showing average company profit.",
+   "GDP per capita and GDP measure exactly the same thing."
+  ],
+  "answer": 0,
+  "why": "GDP per capita = total GDP ÷ population. A country can have a huge total GDP but a low GDP per capita if it also has a huge population — per capita shows the average amount per person, not the size of the whole economy."
+ },
+ {
+  "n": "12",
+  "cat": "GDP",
+  "type": "multi",
+  "q": "Select ALL statements that are TRUE about GDP and GDP per capita.",
+  "choices": [
+   "A bigger total GDP means a larger overall economy.",
+   "A higher GDP per capita generally means more wealth per person, on average.",
+   "GDP and GDP per capita will always rank countries in the exact same order.",
+   "GDP per capita can only be calculated for market economies."
+  ],
+  "answer": [
+   0,
+   1
+  ],
+  "why": "Bigger GDP = larger overall economy; higher GDP per capita = more average wealth per person. But the two measures can rank countries differently — a populous country can have a large total GDP and a modest GDP per capita — so the third statement is false, and GDP per capita can be calculated for any economy, not just market ones."
+ },
+ {
+  "n": "13",
+  "cat": "Economic Systems",
+  "type": "mc",
+  "q": "In a Command Economy, who makes most of the economic decisions?",
+  "choices": [
+   "Individual businesses and consumers",
+   "The government",
+   "Family traditions passed down for generations",
+   "No one — decisions are made completely at random"
+  ],
+  "answer": 1,
+  "why": "In a command economy, the government controls most of the economy and makes the big decisions about what, how, and for whom to produce, leaving little freedom for businesses or citizens."
+ },
+ {
+  "n": "14",
+  "cat": "Economic Systems",
+  "type": "mc",
+  "q": "In a Market Economy, economic decisions are mainly driven by...",
+  "choices": [
+   "Government five-year plans",
+   "Individuals and businesses, using supply and demand",
+   "Ancient customs and bartering",
+   "A single ruling monarch"
+  ],
+  "answer": 1,
+  "why": "In a market economy, individuals and businesses make most economic decisions, guided by supply and demand, with more freedom for citizens and businesses than in a command economy."
+ },
+ {
+  "n": "15",
+  "cat": "Economic Systems",
+  "type": "match",
+  "q": "Match each economic system to who makes most of the decisions.",
+  "pairs": [
+   [
+    "Command economy",
+    "The government"
+   ],
+   [
+    "Market economy",
+    "Individuals and businesses"
+   ],
+   [
+    "Traditional economy",
+    "Customs handed down, often using barter"
+   ],
+   [
+    "Mixed economy",
+    "Market choices plus government involvement"
+   ]
+  ],
+  "why": "Command = government decides; market = individuals and businesses decide; traditional = custom and barter decide; mixed = a blend of market choice and government involvement.",
+  "remember": "Ask one question: who decides? Government, people, tradition, or both."
+ },
+ {
+  "n": "16",
+  "cat": "Economic Systems",
+  "type": "mc",
+  "q": "A Traditional Economy is best described as one that is...",
+  "choices": [
+   "Based on customs, farming, and bartering, often trading goods and services instead of using money.",
+   "Entirely run by large corporations using digital currency.",
+   "Controlled completely by an elected legislature.",
+   "Focused only on high-tech manufacturing and exports."
+  ],
+  "answer": 0,
+  "why": "Traditional economies are based on customs and farming, and often rely on bartering — trading goods or services directly — rather than using money."
+ },
+ {
+  "n": "17",
+  "cat": "Economic Systems",
+  "type": "mc",
+  "q": "A Mixed Economy combines which two elements?",
+  "choices": [
+   "Market choices (individuals/businesses deciding) with government involvement.",
+   "Bartering with digital cryptocurrency only.",
+   "Two different traditional economies from neighboring countries.",
+   "Command economy rules with zero government involvement."
+  ],
+  "answer": 0,
+  "why": "A mixed economy blends market choices — individuals and businesses making decisions — with some level of government involvement, landing between a pure market and a pure command economy."
+ },
+ {
+  "n": "18",
+  "cat": "Economic Systems",
+  "type": "multi",
+  "q": "Select ALL economic systems that involve the GOVERNMENT playing at least some active role in economic decisions.",
+  "choices": [
+   "Command Economy",
+   "Mixed Economy",
+   "Pure Market Economy (in theory)",
+   "Traditional Economy"
+  ],
+  "answer": [
+   0,
+   1
+  ],
+  "why": "By definition, a command economy is government-controlled, and a mixed economy includes real government involvement alongside the market. A theoretically pure market economy runs on individual and business choices with no government role, and a traditional economy runs on customs and bartering, not government planning."
+ },
+ {
+  "n": "19",
+  "cat": "Government & Economy",
+  "type": "mc",
+  "q": "According to the notes, which type of economy do democratic governments typically support?",
+  "choices": [
+   "Command-leaning economies with heavy government control",
+   "Market-leaning economies with freedom of choice and private business",
+   "Only traditional, barter-based economies",
+   "No economy at all — democracies avoid economic systems"
+  ],
+  "answer": 1,
+  "why": "Democratic governments typically support market-leaning economies — freedom of choice, private businesses, and citizen participation. Autocratic governments typically lean toward command-style control instead."
+ },
+ {
+  "n": "20",
+  "cat": "Government & Economy",
+  "type": "mc",
+  "q": "Why do autocratic governments typically favor command-leaning economies?",
+  "choices": [
+   "Because concentrating economic decisions in government hands matches how autocracies concentrate political power in one leader or small group.",
+   "Because autocracies are legally required by international law to use command economies.",
+   "Because command economies always produce more citizen freedom than market economies.",
+   "There is no real connection between a country's government type and its economic system."
+  ],
+  "answer": 0,
+  "why": "Government style often shapes economic style: autocracies concentrate power in a leader or small group, and command economies concentrate economic decision-making in that same government — more control, less business and citizen freedom."
+ },
+ {
+  "n": "21",
+  "cat": "Economic Continuum",
+  "type": "mc",
+  "q": "On the economic continuum described in the notes (more government control ↔ more economic freedom), where do Russia, Germany, and the UK fall, from least to most economic freedom?",
+  "choices": [
+   "Russia (mostly command) → Germany (mixed) → United Kingdom (more market freedom)",
+   "United Kingdom (mostly command) → Germany (mixed) → Russia (more market freedom)",
+   "All three countries sit at the exact same point on the continuum.",
+   "Germany (mostly command) → Russia (mixed) → United Kingdom (more market freedom)"
+  ],
+  "answer": 0,
+  "why": "The continuum places Russia closer to the command end (mostly command, less freedom), Germany in the middle (mixed, more market freedom), and the UK closer to the market end (more market, more freedom)."
+ },
+ {
+  "n": "22",
+  "cat": "Factors of Production",
+  "type": "mc",
+  "q": "The 4 Factors of Production are natural resources, human capital, physical capital, and...",
+  "choices": [
+   "Entrepreneurship",
+   "Currency",
+   "Scarcity",
+   "GDP"
+  ],
+  "answer": 0,
+  "why": "The four factors of production are natural resources, human capital (skills/education/labor), physical capital (tools/machines/buildings), and entrepreneurship (taking risks, creating ideas, organizing resources)."
+ },
+ {
+  "n": "23",
+  "cat": "Factors of Production",
+  "type": "mc",
+  "q": "Which factor of production do 'renewable' and 'nonrenewable' describe?",
+  "choices": [
+   "Human capital",
+   "Natural resources",
+   "Physical capital",
+   "Entrepreneurship"
+  ],
+  "answer": 1,
+  "why": "Natural resources are split into renewable (replenished, like water, forests, sunlight) and nonrenewable (limited, like oil, coal, minerals)."
+ },
+ {
+  "n": "24",
+  "cat": "Factors of Production",
+  "type": "multi",
+  "q": "Select ALL examples that belong under 'Human Capital.'",
+  "choices": [
+   "A worker's job skills",
+   "A worker's education and training",
+   "A factory's delivery trucks",
+   "A worker's health and experience"
+  ],
+  "answer": [
+   0,
+   1,
+   3
+  ],
+  "why": "Human capital is about the people — their skills, education, training, health, and experience. A factory's delivery trucks are physical capital (a tool used to produce/move goods), not human capital."
+ },
+ {
+  "n": "25",
+  "cat": "Trade",
+  "type": "mc",
+  "q": "What is the difference between a Tariff and a Quota?",
+  "choices": [
+   "A tariff is a tax on imported goods; a quota is a limit on how much of a product may be imported.",
+   "A tariff is a limit on imports; a quota is a tax on imports.",
+   "They are two different names for the exact same policy.",
+   "A tariff applies only to exports; a quota applies only to domestic sales."
+  ],
+  "answer": 0,
+  "why": "A tariff is a tax placed on goods imported from another country. A quota is a limit on the quantity of a product that may be imported — a tax versus a hard cap, both are trade barriers."
+ },
+ {
+  "n": "26",
+  "cat": "Trade",
+  "type": "match",
+  "q": "Match each trade barrier to what it does.",
+  "pairs": [
+   [
+    "Tariff",
+    "A tax on imported goods"
+   ],
+   [
+    "Quota",
+    "A limit on how much may be imported"
+   ],
+   [
+    "Embargo",
+    "A complete stop to trade with a country"
+   ]
+  ],
+  "why": "A tariff taxes imports, a quota caps the quantity of imports, and an embargo halts trade with a country entirely.",
+  "remember": "Tax, cap, stop — in order from mildest to most extreme."
+ },
+ {
+  "n": "27",
+  "cat": "Trade",
+  "type": "mc",
+  "q": "How does an Embargo differ from a Tariff or Quota?",
+  "choices": [
+   "An embargo completely stops trade with another country, while a tariff and quota only tax or limit trade rather than banning it outright.",
+   "An embargo only limits how much can be imported, exactly like a quota.",
+   "An embargo is a tax on imports, exactly like a tariff.",
+   "There is no meaningful difference between the three terms."
+  ],
+  "answer": 0,
+  "why": "An embargo is a government order that completely stops trade with another country — a much more extreme trade barrier than a tariff (a tax) or a quota (a quantity limit)."
+ },
+ {
+  "n": "28",
+  "cat": "Trade",
+  "type": "multi",
+  "q": "Select ALL of the following that count as a 'Trade Barrier' — a government rule or policy that limits international trade.",
+  "choices": [
+   "Tariff",
+   "Quota",
+   "Embargo",
+   "Specialization"
+  ],
+  "answer": [
+   0,
+   1,
+   2
+  ],
+  "why": "Tariffs, quotas, and embargoes are all trade barriers — government policies that limit or block international trade. Specialization is a production concept (focusing on one job or product) and isn't a trade restriction at all."
+ },
+ {
+  "n": "29",
+  "cat": "Standard of Living",
+  "type": "mc",
+  "q": "Which pair of terms are easiest to confuse, and how are they different: 'Standard of Living' and 'Literacy Rate'?",
+  "choices": [
+   "Standard of living is how well people's needs and wants are met overall; literacy rate is specifically the percentage of people who can read and write.",
+   "They mean exactly the same thing and can be used interchangeably.",
+   "Literacy rate measures overall wealth; standard of living measures only reading ability.",
+   "Standard of living applies only to government workers."
+  ],
+  "answer": 0,
+  "why": "Standard of living is a broad measure of how well people's needs and wants are met. Literacy rate is one specific, narrower statistic — the percentage of people in a country who can read and write — that can influence standard of living but isn't the same thing."
+ },
+ {
+  "n": "30",
+  "cat": "Traditional Economies",
+  "type": "tf",
+  "q": "In a traditional economy, people often trade goods and services directly instead of using money.",
+  "answer": 0,
+  "why": "True. Traditional economies are built on customs and farming and often rely on barter — trading fish for vegetables, tools for clothing, livestock for grain.",
+  "remember": "Barter = swap. No money needed, just two people who each want what the other has."
+ },
+ {
+  "n": "31",
+  "cat": "Traditional Economies",
+  "type": "mc",
+  "q": "In a traditional economy that relies on bartering, which of these is a correct EXAMPLE of a barter trade?",
+  "choices": [
+   "Trading fish for vegetables",
+   "Paying for vegetables with a credit card",
+   "Depositing fish into a savings account",
+   "Taxing a shipment of vegetables at the border"
+  ],
+  "answer": 0,
+  "why": "Barter means directly trading goods or services for other goods or services — like fish for vegetables, tools for clothing, or livestock for grain — without using money at all."
+ },
+ {
+  "n": "32",
+  "cat": "Compare Systems",
+  "type": "mc",
+  "q": "A country's citizens mostly farm their own food and trade surplus goods directly with neighbors, following long-standing customs. A second country has businesses and consumers freely buying and selling based on supply and demand, with light government involvement. Which economic types does this describe, in order?",
+  "choices": [
+   "Traditional economy, then a market-leaning mixed economy.",
+   "Command economy, then a traditional economy.",
+   "Market economy, then a command economy.",
+   "Both countries are described as pure command economies."
+  ],
+  "answer": 0,
+  "why": "Farming and direct trading based on custom is the hallmark of a traditional economy. Businesses and consumers freely responding to supply and demand, with some government involvement, describes a market-leaning mixed economy."
+ }
+]

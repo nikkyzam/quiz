@@ -1,0 +1,577 @@
+[
+ {
+  "n": "1",
+  "cat": "What Is the EU?",
+  "type": "mc",
+  "q": "What does <strong>EU</strong> stand for?",
+  "choices": [
+   "European Union",
+   "Eastern Union",
+   "Europe United",
+   "European Alliance"
+  ],
+  "answer": 0,
+  "why": "EU is simply short for European Union — a group of countries in Europe that work together.",
+  "remember": "The letters are the words: E for European, U for Union."
+ },
+ {
+  "n": "2",
+  "cat": "What Is the EU?",
+  "type": "mc",
+  "q": "Which sentence best describes the European Union?",
+  "choices": [
+   "A group of European countries that cooperate and make some decisions together.",
+   "One single country that replaced all the countries of Europe.",
+   "A club for countries on every continent.",
+   "An army that fights for Europe."
+  ],
+  "answer": 0,
+  "why": "The EU is a group of separate countries that cooperate and make SOME decisions together. It is not one country, it is not worldwide, and it is not an army.",
+  "remember": "Think \"team,\" not \"country.\" The players stay separate — they just agree to play together."
+ },
+ {
+  "n": "3",
+  "cat": "What Is the EU?",
+  "type": "text",
+  "q": "What continent is the European Union in?",
+  "accept": [
+   "europe"
+  ],
+  "display": "Europe",
+  "hint": "Write the continent name.",
+  "why": "Every EU member country is in Europe — that is why it is called the EUROPEAN Union.",
+  "remember": "The answer is hiding in the name: EUROPEan Union."
+ },
+ {
+  "n": "4",
+  "cat": "What Is the EU?",
+  "type": "text",
+  "q": "How many member countries does the EU have today?",
+  "accept": [
+   "27",
+   "27 countries",
+   "twenty seven",
+   "twenty-seven"
+  ],
+  "display": "27",
+  "hint": "Write the number only.",
+  "why": "The EU has 27 member countries today. It had 28 until the United Kingdom left.",
+  "remember": "28 members minus the UK leaves 27."
+ },
+ {
+  "n": "5",
+  "cat": "What Is the EU?",
+  "type": "mc",
+  "q": "Even though EU countries work together, what does each country still keep?",
+  "choices": [
+   "Its own government, culture, and traditions.",
+   "Nothing — the EU controls everything about each country.",
+   "Only its flag, and nothing else.",
+   "Its own continent."
+  ],
+  "answer": 0,
+  "why": "The 27 countries cooperate, but each one still has its own government, culture, and traditions.",
+  "remember": "Joining a team does not erase who you are — every country keeps its own name, food, language, and government."
+ },
+ {
+  "n": "6",
+  "cat": "What Is the EU?",
+  "type": "text",
+  "q": "Fill in the blank: The EU works together for peace, trade, and ______.",
+  "hint": "Write the one-word term from the worksheet.",
+  "accept": [
+   "cooperation"
+  ],
+  "display": "Cooperation",
+  "why": "The worksheet's sentence is \"The EU works together for peace, trade, and cooperation.\"",
+  "remember": "Co-operation = operating together. It's the whole reason the EU exists."
+ },
+ {
+  "n": "7",
+  "cat": "Why It Formed",
+  "type": "mc",
+  "q": "After major wars in Europe, what did many European countries want?",
+  "choices": [
+   "Peace and a better future.",
+   "More fighting to settle old arguments.",
+   "To close their borders forever.",
+   "To stop trading with each other."
+  ],
+  "answer": 0,
+  "why": "After terrible wars, many European countries wanted peace and a better future, so they decided to work together instead of fighting.",
+  "remember": "The EU was born out of war. Countries that had been fighting chose to sit at a table instead."
+ },
+ {
+  "n": "8",
+  "cat": "Why It Formed",
+  "type": "mc",
+  "q": "\"Peace through cooperation\" means that countries decided to…",
+  "choices": [
+   "work together instead of fighting.",
+   "build bigger armies than their neighbors.",
+   "each solve their problems completely alone.",
+   "stop talking to one another."
+  ],
+  "answer": 0,
+  "why": "Countries met together and decided to work together instead of fighting — cooperation was the path to peace.",
+  "remember": "Cooperation = co-operate = operate together. Working together is the opposite of fighting."
+ },
+ {
+  "n": "9",
+  "cat": "Why It Formed",
+  "type": "multi",
+  "q": "Select <strong>ALL</strong> of the reasons countries joined the EU.",
+  "choices": [
+   "Peace — less conflict and a safer future",
+   "Trade — easier to buy and sell goods across countries",
+   "Travel — easier to visit, study, and explore other countries",
+   "To replace every country's own government with one ruler"
+  ],
+  "answer": [
+   0,
+   1,
+   2
+  ],
+  "why": "Countries joined for peace, trade, travel, jobs, and being stronger together. No country gave up its own government — that is the one that does not belong.",
+  "remember": "Five reasons, and all five are things that HELP people: Peace, Trade, Travel, Jobs, Stronger Together."
+ },
+ {
+  "n": "10",
+  "cat": "Why It Formed",
+  "type": "mc",
+  "q": "The EU makes it easier for people — especially young people — to find work in other member countries. Which reason for joining is that?",
+  "choices": [
+   "Jobs",
+   "Peace",
+   "Travel",
+   "Trade"
+  ],
+  "answer": 0,
+  "why": "\"Jobs\" means more opportunities for people, especially young people, because they can work in other member countries.",
+  "remember": "Jobs = opportunities to WORK. Travel = visiting. Trade = goods being bought and sold."
+ },
+ {
+  "n": "11",
+  "cat": "Why It Formed",
+  "type": "mc",
+  "q": "\"Countries can solve big challenges better as a team.\" Which reason for joining does this describe?",
+  "choices": [
+   "Stronger Together",
+   "Travel",
+   "Peace",
+   "Jobs"
+  ],
+  "answer": 0,
+  "why": "\"Stronger Together\" is the idea that big problems are easier to solve as a group than alone.",
+  "remember": "One country pushing a heavy door is slow; 27 pushing together is fast."
+ },
+ {
+  "n": "12",
+  "cat": "Members & Growth",
+  "type": "text",
+  "q": "In what year did the EU start, with just 6 countries?",
+  "accept": [
+   "1957"
+  ],
+  "display": "1957",
+  "hint": "Write the year.",
+  "why": "The EU started in 1957 with 6 countries and grew as more countries joined.",
+  "remember": "Its growth line is 6 → 9 → 27: six in 1957, nine by 1973, twenty-seven today."
+ },
+ {
+  "n": "13",
+  "cat": "Members & Growth",
+  "type": "mc",
+  "q": "How many countries did the EU begin with?",
+  "choices": [
+   "6",
+   "9",
+   "27",
+   "12"
+  ],
+  "answer": 0,
+  "why": "It began with 6 countries: France, Germany, Italy, Belgium, the Netherlands, and Luxembourg.",
+  "remember": "6 to start, 9 by 1973, 27 today. The team kept growing."
+ },
+ {
+  "n": "14",
+  "cat": "Members & Growth",
+  "type": "order",
+  "q": "Put the EU's growth in order, from earliest to most recent.",
+  "items": [
+   "1957 — the EU starts with 6 countries",
+   "1973 — it grows to 9 countries",
+   "1980s–2000s — more countries join",
+   "Today — 27 member countries"
+  ],
+  "why": "The EU began in 1957 with 6 founding countries, reached 9 by 1973, kept growing through the 1980s–2000s, and has 27 members today.",
+  "remember": "The number only goes up: 6, 9, more, 27."
+ },
+ {
+  "n": "15",
+  "cat": "Members & Growth",
+  "type": "multi",
+  "q": "Select <strong>ALL</strong> of the countries that were among the original 6 founding members.",
+  "choices": [
+   "France",
+   "Germany",
+   "Italy",
+   "Poland"
+  ],
+  "answer": [
+   0,
+   1,
+   2
+  ],
+  "why": "The founding six were France, Germany, Italy, Belgium, the Netherlands, and Luxembourg. Poland joined much later, in the 1980s–2000s wave.",
+  "remember": "The first six sit together in the middle of the map: the three big ones (France, Germany, Italy) plus three small neighbors (Belgium, Netherlands, Luxembourg)."
+ },
+ {
+  "n": "16",
+  "cat": "Members & Growth",
+  "type": "mc",
+  "q": "By 1973, the EU had grown from 6 countries to how many?",
+  "choices": [
+   "9",
+   "12",
+   "20",
+   "27"
+  ],
+  "answer": 0,
+  "why": "By 1973 the EU had grown to 9 countries. More joined during the 1980s–2000s, reaching 27 today.",
+  "remember": "6 → 9 → 27. The 1973 step adds three."
+ },
+ {
+  "n": "17",
+  "cat": "Members & Growth",
+  "type": "text",
+  "q": "Name any <strong>ONE</strong> country that is a member of the EU today.",
+  "accept": [
+   "austria",
+   "belgium",
+   "bulgaria",
+   "croatia",
+   "cyprus",
+   "czechia",
+   "czech republic",
+   "denmark",
+   "estonia",
+   "finland",
+   "france",
+   "germany",
+   "greece",
+   "hungary",
+   "ireland",
+   "italy",
+   "latvia",
+   "lithuania",
+   "luxembourg",
+   "malta",
+   "netherlands",
+   "holland",
+   "the netherlands",
+   "poland",
+   "portugal",
+   "romania",
+   "slovakia",
+   "slovenia",
+   "spain",
+   "sweden"
+  ],
+  "display": "Any of the 27 members — for example France, Germany, Italy, Spain, Poland, or Greece",
+  "hint": "Write one country name. Careful — the UK is no longer a member.",
+  "why": "Any of the 27 members counts: France, Germany, Italy, Spain, Poland, Greece, Ireland, Sweden and 19 others. The United Kingdom does NOT count, because it left in 2020.",
+  "remember": "If you are not sure, picture the word bank from the worksheet: France, Germany, Italy, Spain, Poland, Greece — all six are members."
+ },
+ {
+  "n": "18",
+  "cat": "Regions",
+  "type": "mc",
+  "q": "Greece, Italy, Spain, Portugal, Malta and Cyprus are grouped into which region of the EU?",
+  "choices": [
+   "Southern Europe",
+   "Western & Northern Europe",
+   "Central & Eastern Europe",
+   "Northern Africa"
+  ],
+  "answer": 0,
+  "why": "These are the Southern Europe members — the sunny, Mediterranean side of the EU.",
+  "remember": "Southern Europe = the warm coastlines on the Mediterranean Sea. Sun, beaches, and ancient history."
+ },
+ {
+  "n": "19",
+  "cat": "Regions",
+  "type": "mc",
+  "q": "Which of these EU countries is in <strong>Central &amp; Eastern Europe</strong>?",
+  "choices": [
+   "Poland",
+   "France",
+   "Spain",
+   "Ireland"
+  ],
+  "answer": 0,
+  "why": "Poland is in Central & Eastern Europe, along with countries like Czechia, Hungary, Romania, Bulgaria, Croatia and the Baltic states.",
+  "remember": "Central & Eastern Europe is the right-hand side of the EU map — Poland, Czechia, Hungary, Romania."
+ },
+ {
+  "n": "20",
+  "cat": "Regions",
+  "type": "match",
+  "q": "Match each EU country to its region.",
+  "pairs": [
+   [
+    "Sweden",
+    "Western &amp; Northern Europe"
+   ],
+   [
+    "Greece",
+    "Southern Europe"
+   ],
+   [
+    "Poland",
+    "Central &amp; Eastern Europe"
+   ]
+  ],
+  "why": "Sweden sits with the Western & Northern members, Greece with the Southern (Mediterranean) members, and Poland with Central & Eastern Europe.",
+  "remember": "Picture the map: cold north-west, sunny south, and the eastern half of the union."
+ },
+ {
+  "n": "21",
+  "cat": "Regions",
+  "type": "mc",
+  "q": "Which of these EU countries is in <strong>Western &amp; Northern Europe</strong>?",
+  "choices": [
+   "Sweden",
+   "Croatia",
+   "Malta",
+   "Romania"
+  ],
+  "answer": 0,
+  "why": "Sweden is in Western & Northern Europe, with Austria, Belgium, Denmark, Finland, France, Germany, Ireland, Luxembourg and the Netherlands.",
+  "remember": "Western & Northern = the top-left of the map, where it is colder: Sweden, Finland, Denmark, Ireland."
+ },
+ {
+  "n": "22",
+  "cat": "Regions",
+  "type": "text",
+  "q": "Name one EU country in <strong>Southern Europe</strong>.",
+  "accept": [
+   "cyprus",
+   "greece",
+   "italy",
+   "malta",
+   "portugal",
+   "spain"
+  ],
+  "display": "Cyprus, Greece, Italy, Malta, Portugal, or Spain",
+  "hint": "Write one country name.",
+  "why": "The Southern Europe members are Cyprus, Greece, Italy, Malta, Portugal, and Spain.",
+  "remember": "Southern Europe borders the Mediterranean: Italy's boot, Greece's islands, Spain and Portugal, plus the island nations Malta and Cyprus."
+ },
+ {
+  "n": "23",
+  "cat": "Brexit",
+  "type": "mc",
+  "q": "What does the word <strong>\"Brexit\"</strong> come from?",
+  "choices": [
+   "Britain + Exit",
+   "Bigger + Trade",
+   "Europe + Travel",
+   "Brussels + Exit"
+  ],
+  "answer": 0,
+  "why": "\"Brexit\" is a shorter name for the United Kingdom leaving the EU: BRitain + EXIT.",
+  "remember": "Say it slowly — BR-EXIT. The word itself spells out Britain exiting."
+ },
+ {
+  "n": "24",
+  "cat": "Brexit",
+  "type": "text",
+  "q": "In what year did people in the United Kingdom vote on whether to stay in or leave the EU?",
+  "accept": [
+   "2016"
+  ],
+  "display": "2016",
+  "hint": "Write the year.",
+  "why": "The vote took place in 2016. The UK did not actually leave until January 31, 2020.",
+  "remember": "Two dates, four years apart: the VOTE was 2016, the EXIT was 2020."
+ },
+ {
+  "n": "25",
+  "cat": "Brexit",
+  "type": "order",
+  "q": "Put the Brexit events in the order they happened.",
+  "items": [
+   "The UK votes on leaving the EU",
+   "'Leave' wins with 52%",
+   "The UK officially leaves the EU",
+   "The EU is left with 27 members"
+  ],
+  "why": "The 2016 vote came first, 'Leave' won 52% to 48%, the UK officially left on January 31 2020, and the EU dropped from 28 members to 27.",
+  "remember": "Vote, result, exit, new total — cause and effect, in that order."
+ },
+ {
+  "n": "26",
+  "cat": "Brexit",
+  "type": "text",
+  "q": "What percentage voted <strong>'Leave'</strong> in the 2016 vote?",
+  "accept": [
+   "52",
+   "52%",
+   "52 percent"
+  ],
+  "display": "52%",
+  "hint": "Write the number only.",
+  "why": "'Leave' won with 52%, and 'Stay' had 48%. The vote was close — only 4 points apart.",
+  "remember": "52 and 48 add up to 100, and they are only 4 apart. It was nearly a tie."
+ },
+ {
+  "n": "27",
+  "cat": "Brexit",
+  "type": "mc",
+  "q": "What percentage voted to <strong>stay</strong> in the EU?",
+  "choices": [
+   "48%",
+   "52%",
+   "62%",
+   "38%"
+  ],
+  "answer": 0,
+  "why": "'Stay' received 48% of the vote, just behind 'Leave' at 52%.",
+  "remember": "Leave 52, Stay 48. The bigger number won, but barely."
+ },
+ {
+  "n": "28",
+  "cat": "Brexit",
+  "type": "text",
+  "q": "On what date did the United Kingdom officially leave the EU?",
+  "accept": [
+   "january 31 2020",
+   "jan 31 2020",
+   "january 31st 2020",
+   "31 january 2020",
+   "1/31/2020",
+   "01/31/2020",
+   "1-31-2020",
+   "31/1/2020"
+  ],
+  "display": "January 31, 2020",
+  "hint": "Write the full date (month, day, year).",
+  "why": "The UK officially left the EU on January 31, 2020 — about four years after the 2016 vote.",
+  "remember": "The last day of January, 2020. Vote in 2016, leave on 1/31/2020."
+ },
+ {
+  "n": "29",
+  "cat": "Brexit",
+  "type": "tf",
+  "q": "After leaving the EU, the United Kingdom stopped trading with European countries entirely.",
+  "answer": 1,
+  "why": "False. The UK no longer helps make EU rules, but it still trades, travels, and cooperates with European countries.",
+  "remember": "Leaving the team is not leaving the neighborhood. They stopped making the rules, not being neighbors."
+ },
+ {
+  "n": "30",
+  "cat": "Brexit",
+  "type": "mc",
+  "q": "Which statement describes the UK <strong>before</strong> Brexit, when it was still in the EU?",
+  "choices": [
+   "The UK helped make EU rules and had a say in EU decisions.",
+   "The UK had no say in any EU decisions.",
+   "The UK was not allowed to trade with Europe.",
+   "The UK had already left the EU."
+  ],
+  "answer": 0,
+  "why": "Before Brexit, the UK sat at the table — it helped make EU rules and had a say in EU decisions.",
+  "remember": "Before = inside the room where the rules get made. After = outside that room."
+ },
+ {
+  "n": "31",
+  "cat": "Brexit",
+  "type": "mc",
+  "q": "Which statement describes the UK <strong>after</strong> Brexit?",
+  "choices": [
+   "The UK no longer helps make EU rules, but it still trades and works with Europe.",
+   "The UK no longer has any contact with European countries.",
+   "The UK still votes on all EU decisions.",
+   "The UK became part of a different continent."
+  ],
+  "answer": 0,
+  "why": "After leaving, the UK no longer helps make EU rules — but it still trades, travels, and cooperates with European countries.",
+  "remember": "Leaving the team does not mean leaving the neighborhood. They stopped making the rules, not being friends."
+ },
+ {
+  "n": "32",
+  "cat": "Brexit",
+  "type": "mc",
+  "q": "Is the United Kingdom a member of the EU today?",
+  "choices": [
+   "No — it left and is no longer a member.",
+   "Yes, it rejoined in 2020.",
+   "Yes, it never actually left.",
+   "Only for trade decisions."
+  ],
+  "answer": 0,
+  "why": "The UK is no longer a member of the EU. It left on January 31, 2020, which is why the EU now has 27 members instead of 28.",
+  "remember": "If the UK were still in, the EU would have 28. The number 27 is proof that it left."
+ },
+ {
+  "n": "33",
+  "cat": "Why the UK Left",
+  "type": "mc",
+  "q": "<strong>Money:</strong> The UK paid membership fees to the EU. What did supporters of leaving want to happen with that money?",
+  "choices": [
+   "They wanted more of it spent inside the UK.",
+   "They wanted to pay the EU even more.",
+   "They wanted to give it to other EU countries.",
+   "They wanted to stop using money completely."
+  ],
+  "answer": 0,
+  "why": "Supporters of leaving argued the UK paid fees to the EU, and they wanted more of that money spent inside the UK instead.",
+  "remember": "The picture on the sheet was a UK piggy bank next to a fee bill — keep the money at home."
+ },
+ {
+  "n": "34",
+  "cat": "Why the UK Left",
+  "type": "mc",
+  "q": "<strong>Trade:</strong> What did supporters of leaving want the UK to be able to do?",
+  "choices": [
+   "Make its own trade deals with countries around the world.",
+   "Stop trading with every country on Earth.",
+   "Trade only with EU countries and no one else.",
+   "Let the EU choose all of the UK's trade partners forever."
+  ],
+  "answer": 0,
+  "why": "EU membership made trade with EU countries easier, but supporters of leaving wanted the UK to make its own trade deals with countries around the world.",
+  "remember": "The picture showed a UK ship sailing from Europe out toward THE WORLD — trading wider, not stopping trade."
+ },
+ {
+  "n": "35",
+  "cat": "Why the UK Left",
+  "type": "mc",
+  "q": "<strong>Movement of labor:</strong> EU citizens could live and work in other EU countries. What worried some UK citizens about this?",
+  "choices": [
+   "Job competition and lower-cost labor.",
+   "That no one would ever visit the UK.",
+   "That UK citizens could not travel anywhere.",
+   "That there were too few workers in Europe."
+  ],
+  "answer": 0,
+  "why": "Because EU citizens could live and work in any member country, some UK citizens worried about job competition and lower-cost labor.",
+  "remember": "\"Labor\" means work. This argument was about who gets the jobs."
+ },
+ {
+  "n": "36",
+  "cat": "Why the UK Left",
+  "type": "mc",
+  "q": "<strong>Human rights and laws:</strong> What did some UK citizens believe about EU rules?",
+  "choices": [
+   "That EU rules limited the UK's control over its own laws.",
+   "That the UK had too much control over EU laws.",
+   "That the EU had no rules at all.",
+   "That EU rules only applied to trade."
+  ],
+  "answer": 0,
+  "why": "Some UK citizens believed EU rules limited the UK's control over its own laws, including decisions about deporting foreign-born criminals.",
+  "remember": "This argument is about CONTROL — who gets the final say over British law, London or the EU."
+ }
+]
