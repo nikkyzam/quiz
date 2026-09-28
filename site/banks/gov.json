@@ -1,0 +1,451 @@
+[
+ {
+  "n": "1",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "Which statement correctly distinguishes a citizen from a voter?",
+  "choices": [
+   "A citizen is a legal member of a country; a voter is a citizen who is currently exercising the right to vote.",
+   "A voter is any adult, whether or not they hold citizenship in that country.",
+   "Citizens automatically lose voter status once they turn 18.",
+   "A citizen has fewer legal protections than a registered voter."
+  ],
+  "answer": 0,
+  "why": "Every voter is a citizen exercising the right to vote, but not every citizen is voting at a given moment — citizenship is the legal status; voting is the act. Voting rights are tied to citizenship, not the reverse."
+ },
+ {
+  "n": "2",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "Suffrage refers to...",
+  "choices": [
+   "The length of time a leader may serve in office",
+   "The legal right to vote in elections",
+   "A tax citizens pay to register to vote",
+   "The process of drawing voting districts"
+  ],
+  "answer": 1,
+  "why": "Suffrage is the right to vote. It's easy to confuse with 'term limits' (how long a leader can serve) — those are two separate vocabulary words on the worksheet."
+ },
+ {
+  "n": "3",
+  "cat": "Vocabulary",
+  "type": "tf",
+  "q": "In a parliamentary democracy, citizens vote directly for the chief executive.",
+  "answer": 1,
+  "why": "False. In a parliamentary system citizens elect the legislature, and the legislature selects the chief executive — an indirect election.",
+  "remember": "Direct vote for the executive is the PRESIDENTIAL pattern. Parliamentary always goes through the legislature."
+ },
+ {
+  "n": "4",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "Which of these is NOT typically a feature of an autocratic government?",
+  "choices": [
+   "Power concentrated in one leader or small group",
+   "Restricted or controlled voting",
+   "Citizens regularly choosing leaders through free elections",
+   "Limited citizen participation"
+  ],
+  "answer": 2,
+  "why": "Regularly choosing leaders through free elections is a hallmark of democracy, not autocracy. Autocracies restrict voting and concentrate power, giving citizens low participation."
+ },
+ {
+  "n": "5",
+  "cat": "Vocabulary",
+  "type": "mc",
+  "q": "Which term-length pairing is accurate?",
+  "choices": [
+   "UK parliamentary terms last up to 5 years; German Bundestag elections are normally held every 4 years.",
+   "UK parliamentary terms last exactly 6 years, the same as Russia's presidential terms.",
+   "German Bundestag elections happen every 6 years, matching Russia's presidential term length.",
+   "None of the three countries hold elections on any regular cycle."
+  ],
+  "answer": 0,
+  "why": "Watch the numbers closely: UK parliamentary terms can last up to 5 years, German Bundestag elections are held roughly every 4 years, and Russia's presidential terms are 6 years each (up to two consecutive terms) — three different cycles, easy to mix up."
+ },
+ {
+  "n": "6",
+  "cat": "United Kingdom",
+  "type": "mc",
+  "q": "Which pair of labels correctly describes the United Kingdom's system?",
+  "choices": [
+   "Presidential democracy and federal republic",
+   "Parliamentary democracy and constitutional monarchy",
+   "Parliamentary democracy and absolute monarchy",
+   "Presidential democracy and constitutional monarchy"
+  ],
+  "answer": 1,
+  "why": "The UK is a parliamentary democracy (the PM leads government) and a constitutional monarchy (the monarch's power is limited by law and is mostly ceremonial) — not an absolute monarchy, where a monarch would hold unchecked power."
+ },
+ {
+  "n": "7",
+  "cat": "United Kingdom",
+  "type": "mc",
+  "q": "The Monarch and the Prime Minister are best distinguished as...",
+  "choices": [
+   "The Monarch is head of government with real power; the Prime Minister is a ceremonial head of state.",
+   "The Prime Minister is head of government and chief executive; the Monarch is head of state with a ceremonial role.",
+   "Both roles are ceremonial, and Parliament alone holds executive power.",
+   "Both roles hold equal, shared executive power over the government."
+  ],
+  "answer": 1,
+  "why": "It's a common mix-up to swap these two: the Prime Minister runs the government and holds real political power, while the Monarch is head of state in a largely symbolic role."
+ },
+ {
+  "n": "8",
+  "cat": "United Kingdom",
+  "type": "order",
+  "q": "Put the UK's path to power in order, from first step to last.",
+  "items": [
+   "Citizens vote",
+   "House of Commons is elected",
+   "The majority party is decided",
+   "That party's leader becomes Prime Minister"
+  ],
+  "why": "The UK path runs Citizens → House of Commons → Majority party → Prime Minister. It is an indirect election: voters never pick the PM directly.",
+  "remember": "Follow the votes upward. People elect seats, seats make a majority, the majority hands over its leader."
+ },
+ {
+  "n": "9",
+  "cat": "United Kingdom",
+  "type": "mc",
+  "q": "Which is the accurate path showing how the UK's Prime Minister reaches power?",
+  "choices": [
+   "Citizens → Prime Minister (a direct vote, just like Russia's president)",
+   "Citizens → House of Commons → Majority party → Prime Minister",
+   "Citizens → House of Lords → Prime Minister",
+   "Monarch → House of Commons → Prime Minister"
+  ],
+  "answer": 1,
+  "why": "This is an indirect election: Citizens elect the House of Commons; the majority party's leader normally becomes Prime Minister. UK citizens never vote directly for the PM, and the unelected House of Lords plays no role in choosing one."
+ },
+ {
+  "n": "10",
+  "cat": "United Kingdom",
+  "type": "mc",
+  "q": "Which house of the UK Parliament actually helps determine who becomes Prime Minister — the elected House of Commons, or the largely appointed House of Lords?",
+  "choices": [
+   "The House of Lords, because peers have seniority",
+   "The House of Commons, because its elected majority party selects the PM",
+   "Both houses vote jointly on the Prime Minister",
+   "Neither — only the Monarch decides"
+  ],
+  "answer": 1,
+  "why": "The House of Commons is elected and holds the greater lawmaking and political power, including determining the Prime Minister. The House of Lords reviews and can delay bills but does not choose the PM."
+ },
+ {
+  "n": "11",
+  "cat": "Germany",
+  "type": "mc",
+  "q": "Germany's two labels — parliamentary democracy and federal republic — mean, respectively, that...",
+  "choices": [
+   "the legislature chooses the chief executive, AND power is divided between a national government and 16 state governments.",
+   "citizens vote directly for the Chancellor, AND all power is held by one central government.",
+   "a monarch is head of state, AND Germany has no state-level governments.",
+   "the Chancellor is elected for life, AND states have no political role."
+  ],
+  "answer": 0,
+  "why": "Parliamentary means the legislature (Bundestag) selects the chief executive (Chancellor) rather than citizens voting for them directly. Federal republic means power is split between the national government and Germany's 16 Länder (states)."
+ },
+ {
+  "n": "12",
+  "cat": "Germany",
+  "type": "mc",
+  "q": "Which German role is the ceremonial ‘Head of State’ — and which common mix-up should you avoid?",
+  "choices": [
+   "The Chancellor is ceremonial; don't confuse it with the Bundestag, which holds real power.",
+   "The President is ceremonial; don't confuse it with the Chancellor, who holds most political power.",
+   "The Bundesrat is ceremonial; don't confuse it with the President, who runs the government.",
+   "There is no ceremonial role in Germany's government."
+  ],
+  "answer": 1,
+  "why": "The President is head of state with limited, ceremonial power — a role students often mix up with the Chancellor, who is head of government and chief executive with the most real political power."
+ },
+ {
+  "n": "13",
+  "cat": "Germany",
+  "type": "mc",
+  "q": "German citizens vote directly for the Bundestag. From there, what is the correct next step to reach the Chancellor?",
+  "choices": [
+   "The Bundestag directly appoints the Chancellor's cabinet, then citizens ratify it.",
+   "The Bundestag elects the Chancellor.",
+   "The Bundesrat elects the Chancellor after the Bundestag vote is finalized.",
+   "The President selects the Chancellor with no legislative involvement."
+  ],
+  "answer": 1,
+  "why": "This is an indirect election: Citizens → Bundestag → Chancellor. The Bundesrat represents the states in lawmaking but does not elect the Chancellor, and the President's role here is only to formally appoint whoever the Bundestag has already chosen."
+ },
+ {
+  "n": "14",
+  "cat": "Germany",
+  "type": "mc",
+  "q": "What is the key difference between the Bundestag and the Bundesrat?",
+  "choices": [
+   "The Bundestag represents citizens and elects the Chancellor; the Bundesrat represents Germany's 16 states.",
+   "The Bundestag represents the states; the Bundesrat represents citizens and elects the Chancellor.",
+   "They are two names for the exact same elected chamber.",
+   "The Bundesrat is elected directly by citizens for 6-year terms, longer than the Bundestag's term."
+  ],
+  "answer": 0,
+  "why": "The Bundestag is the elected lawmaking body that represents citizens and elects the Chancellor. The Bundesrat represents the state governments (Länder) and helps approve laws affecting the states."
+ },
+ {
+  "n": "15",
+  "cat": "Russia",
+  "type": "mc",
+  "q": "On paper, how does Russia's structure for choosing its executive differ from the UK's or Germany's?",
+  "choices": [
+   "Russia is presidential: citizens vote directly for the President. The UK and Germany are parliamentary: the legislature chooses the chief executive.",
+   "Russia is parliamentary, just like the UK and Germany.",
+   "All three countries let citizens vote directly for their chief executive.",
+   "None of the three countries hold elections for their legislature."
+  ],
+  "answer": 0,
+  "why": "On paper, Russia is a presidential democracy — citizens vote directly for the President (the executive). The UK and Germany are parliamentary — citizens elect a legislature, which then selects the Prime Minister or Chancellor."
+ },
+ {
+  "n": "16",
+  "cat": "Russia",
+  "type": "mc",
+  "q": "Russian citizens aged 18+ cast two separate votes. What are they for?",
+  "choices": [
+   "Only for the State Duma; the President is appointed",
+   "Only for the President; the State Duma is appointed",
+   "One vote directly for the President, and a separate vote for the State Duma (legislature)",
+   "One vote for the President and one for the Prime Minister"
+  ],
+  "answer": 2,
+  "why": "Russian citizens vote directly for the President and, in a separate vote, for the State Duma. Note: Russia has no separately elected Prime Minister position comparable to the UK's."
+ },
+ {
+  "n": "17",
+  "cat": "Russia",
+  "type": "mc",
+  "q": "According to the notes, what are Russia's presidential term rules?",
+  "choices": [
+   "One 6-year term with no re-election allowed",
+   "Up to two consecutive 6-year terms",
+   "Up to two consecutive 4-year terms",
+   "Unlimited 6-year terms"
+  ],
+  "answer": 1,
+  "why": "The notes state the President can serve up to two consecutive 6-year terms — watch out for the term length (6, not 4 years, unlike the Bundestag's 4-year election cycle)."
+ },
+ {
+  "n": "18",
+  "cat": "Russia",
+  "type": "tf",
+  "q": "Russia holds elections, but they are often described as not free or fair.",
+  "answer": 0,
+  "why": "True. Elections and a legislature do exist — that is the democratic structure on paper — but they are often not free or fair, and real power stays concentrated in the President.",
+  "remember": "\"On paper\" vs \"in practice\" is the whole Russia story: the structures are real, the limits on power are not."
+ },
+ {
+  "n": "19",
+  "cat": "Russia",
+  "type": "mc",
+  "q": "Why do analysts say Russia looks democratic 'on paper' but operates more like an autocracy 'in practice'? Choose the explanation that is FULLY accurate.",
+  "choices": [
+   "Because Russia has abolished elections and the State Duma entirely.",
+   "Because elections are held and citizens do vote, but they are often not free or fair, and real power is concentrated in the President over media, courts, and opponents.",
+   "Because only the wealthy are legally allowed to vote in Russia.",
+   "Because Russia's constitution has never granted citizens any rights or freedoms."
+  ],
+  "answer": 1,
+  "why": "Elections and a legislature (State Duma) do exist — that's the 'on paper' democratic structure. In practice, elections are often not free or fair, the government controls much of the media, courts rarely limit the President, and strong opponents may be blocked or punished."
+ },
+ {
+  "n": "20",
+  "cat": "Russia",
+  "type": "mc",
+  "q": "What happened in 1991, and what is still true about Russia's government today?",
+  "choices": [
+   "The Soviet Union collapsed; today Russia has more civil liberties than before, but the system remains complicated.",
+   "The Soviet Union collapsed; today Russia has zero civil liberties, identical to before 1991.",
+   "Russia became a parliamentary democracy identical to Germany's.",
+   "The State Duma was permanently abolished."
+  ],
+  "answer": 0,
+  "why": "Until the 1991 collapse of the Soviet Union, Russia was completely autocratic. Since then Russia has gained more civil liberties — but the system remains complicated, blending democratic structures with autocratic practices."
+ },
+ {
+  "n": "21",
+  "cat": "Russia",
+  "type": "multi",
+  "q": "Select ALL statements that correctly describe Russia's system, according to the notes.",
+  "choices": [
+   "Citizens vote directly for the President.",
+   "Citizens cast a separate vote for the State Duma (legislature).",
+   "The President can serve an unlimited number of 6-year terms.",
+   "International observers generally agree Russia's elections are free and fair."
+  ],
+  "answer": [
+   0,
+   1
+  ],
+  "why": "Citizens vote directly for both the President and, separately, the State Duma. The other two are false: the President is limited to two consecutive 6-year terms, and elections are often described as not free or fair."
+ },
+ {
+  "n": "22",
+  "cat": "Russia",
+  "type": "mc",
+  "q": "The State Duma rarely limits the President's power, and courts rarely check him either. Given that Russia still holds direct elections for both the President and the Duma, which best explains why analysts call Russia 'democratic on paper, autocratic in practice' rather than simply a straightforward autocracy?",
+  "choices": [
+   "Russia has real democratic structures — elections and a legislature — but in practice those structures don't meaningfully constrain the President's power.",
+   "Russia has no legislature or elections of any kind, identical to a pure autocracy.",
+   "The term 'autocracy' legally applies only to monarchies, so Russia cannot be described that way at all.",
+   "Analysts are simply mistaken, and Russia's system works exactly as it appears on paper."
+  ],
+  "answer": 0,
+  "why": "This is the core tension: the structures (elections, a legislature) look democratic, but weak checks on the President — from the courts, the Duma, media, and opponents — mean real power in practice concentrates in one office."
+ },
+ {
+  "n": "23",
+  "cat": "Compare Systems",
+  "type": "mc",
+  "q": "Which statement about the UK and Germany is TRUE for BOTH countries?",
+  "choices": [
+   "Citizens directly elect the legislature, which then elects/selects the chief executive.",
+   "Citizens directly elect the chief executive, exactly as in Russia's presidential system.",
+   "Neither country has a ceremonial head of state.",
+   "Both countries have unicameral (one-house) legislatures."
+  ],
+  "answer": 0,
+  "why": "In both parliamentary systems, citizens elect the legislature (House of Commons / Bundestag), which indirectly selects the chief executive. Both also have bicameral (two-house) legislatures and a separate ceremonial head of state (Monarch / President)."
+ },
+ {
+  "n": "24",
+  "cat": "Compare Systems",
+  "type": "mc",
+  "q": "A classmate says: 'Presidential and parliamentary systems are basically the same because both eventually put one person in charge of the government.' What's the flaw in that claim?",
+  "choices": [
+   "It ignores that the key difference is HOW that person reaches power — direct citizen vote (presidential) vs. indirect selection by the legislature (parliamentary) — which changes how accountable the executive is to voters.",
+   "The claim is completely correct and there is no meaningful difference.",
+   "Presidential systems never have a single chief executive.",
+   "Parliamentary systems never have any elections at all."
+  ],
+  "answer": 0,
+  "why": "Ending up with one chief executive isn't the real distinction — it's the path to power. Presidential systems (Russia, on paper) have direct elections for the executive; parliamentary systems (UK, Germany) have the legislature choose the executive indirectly."
+ },
+ {
+  "n": "25",
+  "cat": "Compare Systems",
+  "type": "match",
+  "q": "Match each country to the way it chooses its chief executive.",
+  "pairs": [
+   [
+    "United Kingdom",
+    "Citizens elect the House of Commons; the majority party's leader becomes PM"
+   ],
+   [
+    "Germany",
+    "Citizens elect the Bundestag; the Bundestag elects the Chancellor"
+   ],
+   [
+    "Russia",
+    "Citizens vote directly for the President"
+   ]
+  ],
+  "why": "The UK and Germany are parliamentary — citizens elect a legislature, which then selects the chief executive. Russia is presidential, so citizens vote for the executive directly.",
+  "remember": "Two of the three go through a legislature. Only Russia lets voters pick the executive themselves."
+ },
+ {
+  "n": "26",
+  "cat": "Compare Systems",
+  "type": "mc",
+  "q": "Which country's citizens vote directly for their nation's chief executive?",
+  "choices": [
+   "The United Kingdom",
+   "Germany",
+   "Russia (on paper)",
+   "All three countries"
+  ],
+  "answer": 2,
+  "why": "Only Russia's system has citizens voting directly for the chief executive (the President), on paper. UK and Germany citizens elect a legislature that indirectly chooses the Prime Minister or Chancellor."
+ },
+ {
+  "n": "27",
+  "cat": "Compare Systems",
+  "type": "mc",
+  "q": "Match the ceremonial 'Head of State' role to its country: which pairing is INCORRECT?",
+  "choices": [
+   "UK — Monarch",
+   "Germany — President",
+   "Russia — President",
+   "Germany — Chancellor is a ceremonial-only role"
+  ],
+  "answer": 3,
+  "why": "The Chancellor is Germany's head of government and chief executive with the most political power — not a ceremonial role. The UK's Monarch and Germany's President are the ceremonial heads of state; Russia's President is unusual because it is both head of state AND the powerful chief executive."
+ },
+ {
+  "n": "28",
+  "cat": "Compare Systems",
+  "type": "match",
+  "q": "Match each role to what it actually does.",
+  "pairs": [
+   [
+    "UK Monarch",
+    "Ceremonial head of state with limited power"
+   ],
+   [
+    "German Chancellor",
+    "Head of government who holds the most political power"
+   ],
+   [
+    "German Bundesrat",
+    "Represents the 16 state governments"
+   ]
+  ],
+  "why": "The Monarch is ceremonial, the Chancellor is the powerful chief executive, and the Bundesrat represents Germany's states (while the Bundestag represents citizens).",
+  "remember": "Ceremonial roles represent the country; head-of-government roles run it."
+ },
+ {
+  "n": "29",
+  "cat": "Compare Systems",
+  "type": "multi",
+  "q": "Select ALL statements that are TRUE of parliamentary democracies like the UK and Germany.",
+  "choices": [
+   "Citizens directly elect the legislature (Parliament / Bundestag).",
+   "The legislature indirectly selects the chief executive (Prime Minister / Chancellor).",
+   "The ceremonial head of state holds the most real political power.",
+   "The legislature is unicameral — it has only one house."
+  ],
+  "answer": [
+   0,
+   1
+  ],
+  "why": "Both are true: citizens elect the legislature, which then selects the chief executive. The other two are false — the ceremonial head of state (Monarch/President) holds limited power, and both countries have bicameral (two-house) legislatures."
+ },
+ {
+  "n": "30",
+  "cat": "Compare Systems",
+  "type": "multi",
+  "q": "Select ALL roles below that are ceremonial 'Head of State' positions with limited real power.",
+  "choices": [
+   "The UK's Monarch",
+   "Germany's President",
+   "Germany's Chancellor",
+   "Russia's President"
+  ],
+  "answer": [
+   0,
+   1
+  ],
+  "why": "The UK Monarch and Germany's President are ceremonial heads of state. Germany's Chancellor is the powerful chief executive, not ceremonial — and Russia's President is unusual, holding both the head-of-state title AND real executive power at once."
+ },
+ {
+  "n": "31",
+  "cat": "Compare Systems",
+  "type": "mc",
+  "q": "A country's citizens cast one ballot to elect a national assembly. That assembly debates and votes to choose the head of government, and can remove that leader if it loses confidence in them. Which system does this describe?",
+  "choices": [
+   "A presidential democracy, like Russia's structure on paper.",
+   "A parliamentary democracy, like the UK's or Germany's structure.",
+   "An absolute monarchy with no elections at all.",
+   "A direct democracy with no elected officials."
+  ],
+  "answer": 1,
+  "why": "Choosing (and being able to remove) the chief executive through the legislature, rather than by direct popular vote, is the defining feature of a parliamentary democracy — matching the UK's and Germany's indirect election paths."
+ }
+]

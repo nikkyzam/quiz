@@ -1,0 +1,78 @@
+{
+  "home": {
+    "title": "Study Hall",
+    "eyebrow": "Practice tests",
+    "h1": "Study Hall",
+    "sub": "Practice tests for every grade and subject. Pick your grade to begin — nothing is graded until you submit, and every miss shows the right answer and an easier way to get it."
+  },
+  "grades": [
+    {
+      "id": "6",
+      "name": "Grade 6",
+      "blurb": "Math, social studies and language arts unit tests.",
+      "subjects": [
+        {
+          "id": "math",
+          "name": "Math",
+          "blurb": "Integer operations: order of operations, absolute value, exponents and word problems.",
+          "prefix": "sshall_",
+          "tests": [
+            { "id": "math", "label": "Math", "name": "Integer Operations",
+              "desc": "Order of operations, absolute value, exponents, and word problems." }
+          ]
+        },
+        {
+          "id": "ss",
+          "name": "Social Studies",
+          "blurb": "Government systems, economic systems, and the European Union.",
+          "prefix": "sshall_",
+          "tests": [
+            { "id": "gov", "label": "Social Studies", "name": "Government Systems",
+              "desc": "Parliamentary vs. presidential democracy across the UK, Germany, and Russia." },
+            { "id": "eco", "label": "Social Studies", "name": "Economic Systems",
+              "desc": "Vocabulary, the factors of production, trade barriers, and GDP." },
+            { "id": "eu", "label": "Social Studies", "name": "European Union",
+              "desc": "Why the EU formed, how it grew, its regions, and Brexit." }
+          ]
+        },
+        {
+          "id": "ela",
+          "name": "Language Arts",
+          "blurb": "Narrative and poetic techniques: point of view, figurative language, tone and mood, poetry and grammar.",
+          "prefix": "ela_",
+          "tests": [
+            { "id": "ela", "label": "Language Arts", "name": "Narrative &amp; Poetic Techniques",
+              "desc": "Point of view, figurative language, tone vs. mood, poetry, and grammar." }
+          ]
+        },
+        {
+          "id": "science",
+          "name": "Science",
+          "blurb": "Coming soon.",
+          "soon": true
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "name": "Grade 5",
+      "blurb": "Math unit prep.",
+      "subjects": [
+        {
+          "id": "math",
+          "name": "Math",
+          "blurb": "Eureka Math, Unit 1 quiz prep.",
+          "href": "../ava-unit1-quiz.html"
+        }
+      ]
+    }
+  ],
+  "redirects": {
+    "ss-test.html": "6/ss/",
+    "social-studies-power-tour.html": "6/ss/",
+    "economic-systems-quiz.html": "6/ss/",
+    "european-union-test.html": "6/ss/",
+    "integer-operations-test.html": "6/math/",
+    "ela-test.html": "6/ela/"
+  }
+}
