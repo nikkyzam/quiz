@@ -2,12 +2,18 @@
   const BANKS = window.STUDY.banks;
   const CONFIG = window.STUDY.config;
 
+  // `standalone` sets are not offered the challenge add-on (they are not a skills test it can extend).
+  // Ids are storage keys for saved best scores — "C" stays the Challenge Round so existing scores survive.
   const MATH_FORMS = [
     { id:"B", name:"Form B — Fresh Test", bank:"B", recommended:true,
       desc:"The study guide skills with all-new numbers." },
+    { id:"D", name:"Form C — Another Fresh Test", bank:"D",
+      desc:"A third set of the same skills with different numbers again." },
     { id:"A", name:"Form A — Study Guide", bank:"A",
-      desc:"The problems exactly as they appear on the sheet." },
-    { id:"C", name:"Challenge Round", bank:"C", challengeOnly:true,
+      desc:"The problems as they appear on the sheet." },
+    { id:"K", name:"Concept Check", bank:"K", standalone:true,
+      desc:"The rules behind the arithmetic — matching, ordering and true/false." },
+    { id:"C", name:"Challenge Round", bank:"C", standalone:true,
       desc:"12 harder problems a step past the guide." }
   ];
 
@@ -49,11 +55,11 @@
   function setFor(t, f){
     if(!t.forms) return t.questions.slice();
     const base = f.questions.slice();
-    return (withChallenge() && !f.challengeOnly) ? base.concat(BANKS.math.C) : base;
+    return (withChallenge() && !f.standalone) ? base.concat(BANKS.math.C) : base;
   }
   function keyFor(t, f){
     let k = CONFIG.storagePrefix + t.id;
-    if(f) k += '_' + f.id + ((withChallenge() && !f.challengeOnly) ? 'C' : '');
+    if(f) k += '_' + f.id + ((withChallenge() && !f.standalone) ? 'C' : '');
     return k;
   }
 
@@ -76,7 +82,8 @@
       btn.className = 'test-card' + (openTest === t.id ? ' open' : '');
       let meta;
       if(t.forms){
-        meta = '3 forms · ' + t.forms[1].questions.length + '–' + t.forms[0].questions.length + ' questions';
+        const sizes = t.forms.map(f => f.questions.length);
+        meta = t.forms.length + ' forms · ' + Math.min(...sizes) + '–' + Math.max(...sizes) + ' questions';
       } else {
         const best = readStore(keyFor(t, null));
         meta = t.questions.length + ' questions'
@@ -516,7 +523,7 @@
     openTest = TESTS[0].id;
     el('testCards').style.display = 'none';
     el('homeTitle').textContent = 'Choose a form';
-    el('homeLede').textContent = 'Form B has different numbers than the study guide, so it tests the skill rather than your memory of the sheet.';
+    el('homeLede').textContent = 'Forms B and C use different numbers than the study guide, so they test the skill rather than your memory of the sheet. Concept Check tests the rules behind the arithmetic.';
     el('homeBtn').textContent = 'Choose another form';
     renderHome();
   } else {
