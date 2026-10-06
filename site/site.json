@@ -14,11 +14,95 @@
         {
           "id": "math",
           "name": "Math",
-          "blurb": "Integer operations: order of operations, absolute value, exponents and word problems.",
+          "blurb": "Integer operations and decimal operations: signs, order of operations, absolute value, exponents, word problems.",
           "prefix": "sshall_",
           "tests": [
-            { "id": "math", "label": "Math", "name": "Integer Operations",
-              "desc": "Order of operations, absolute value, exponents, and word problems." }
+            {
+              "id": "math",
+              "label": "Math",
+              "name": "Integer Operations",
+              "desc": "Order of operations, absolute value, exponents, and word problems.",
+              "forms": [
+                {
+                  "id": "B",
+                  "name": "Form B — Fresh Test",
+                  "bank": "B",
+                  "recommended": true,
+                  "desc": "The study guide skills with all-new numbers."
+                },
+                {
+                  "id": "D",
+                  "name": "Form C — Another Fresh Test",
+                  "bank": "D",
+                  "desc": "A third set of the same skills with different numbers again."
+                },
+                {
+                  "id": "A",
+                  "name": "Form A — Study Guide",
+                  "bank": "A",
+                  "desc": "The problems as they appear on the sheet."
+                },
+                {
+                  "id": "K",
+                  "name": "Concept Check",
+                  "bank": "K",
+                  "standalone": true,
+                  "desc": "The rules behind the arithmetic — matching, ordering and true/false."
+                },
+                {
+                  "id": "C",
+                  "name": "Challenge Round",
+                  "bank": "C",
+                  "standalone": true,
+                  "desc": "12 harder problems a step past the guide."
+                }
+              ],
+              "addOn": {
+                "set": "C",
+                "text": "Add the 12 challenge problems to the end of Form A, B or C (cubes, double absolute value, brackets, multi-step word problems)."
+              },
+              "lede": "Forms B and C use different numbers than the study guide, so they test the skill rather than your memory of the sheet. Concept Check tests the rules behind the arithmetic."
+            },
+            {
+              "id": "dec",
+              "label": "Math",
+              "name": "Decimal Operations",
+              "desc": "Add, subtract, multiply and divide decimals — including negatives and remainders in word problems.",
+              "forms": [
+                {
+                  "id": "T",
+                  "name": "Decimal Test",
+                  "bank": "T",
+                  "recommended": true,
+                  "desc": "A mixed test of all four operations with all-new numbers."
+                },
+                {
+                  "id": "S",
+                  "name": "Add & Subtract",
+                  "bank": "S",
+                  "desc": "Decimal sums, differences and multi-step expressions."
+                },
+                {
+                  "id": "M",
+                  "name": "Multiply & Divide",
+                  "bank": "M",
+                  "desc": "Products and quotients with positive and negative decimals."
+                },
+                {
+                  "id": "P",
+                  "name": "Mixed Practice",
+                  "bank": "P",
+                  "desc": "Order of operations with decimals."
+                },
+                {
+                  "id": "R",
+                  "name": "Interpreting Remainders",
+                  "bank": "R",
+                  "standalone": true,
+                  "desc": "Round up, ignore it, or split it? Story problems about what the remainder means."
+                }
+              ]
+            }
           ]
         },
         {
@@ -27,12 +111,24 @@
           "blurb": "Government systems, economic systems, and the European Union.",
           "prefix": "sshall_",
           "tests": [
-            { "id": "gov", "label": "Social Studies", "name": "Government Systems",
-              "desc": "Parliamentary vs. presidential democracy across the UK, Germany, and Russia." },
-            { "id": "eco", "label": "Social Studies", "name": "Economic Systems",
-              "desc": "Vocabulary, the factors of production, trade barriers, and GDP." },
-            { "id": "eu", "label": "Social Studies", "name": "European Union",
-              "desc": "Why the EU formed, how it grew, its regions, and Brexit." }
+            {
+              "id": "gov",
+              "label": "Social Studies",
+              "name": "Government Systems",
+              "desc": "Parliamentary vs. presidential democracy across the UK, Germany, and Russia."
+            },
+            {
+              "id": "eco",
+              "label": "Social Studies",
+              "name": "Economic Systems",
+              "desc": "Vocabulary, the factors of production, trade barriers, and GDP."
+            },
+            {
+              "id": "eu",
+              "label": "Social Studies",
+              "name": "European Union",
+              "desc": "Why the EU formed, how it grew, its regions, and Brexit."
+            }
           ]
         },
         {
@@ -41,8 +137,12 @@
           "blurb": "Narrative and poetic techniques: point of view, figurative language, tone and mood, poetry and grammar.",
           "prefix": "ela_",
           "tests": [
-            { "id": "ela", "label": "Language Arts", "name": "Narrative &amp; Poetic Techniques",
-              "desc": "Point of view, figurative language, tone vs. mood, poetry, and grammar." }
+            {
+              "id": "ela",
+              "label": "Language Arts",
+              "name": "Narrative &amp; Poetic Techniques",
+              "desc": "Point of view, figurative language, tone vs. mood, poetry, and grammar."
+            }
           ]
         },
         {

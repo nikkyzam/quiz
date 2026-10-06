@@ -104,17 +104,17 @@ const fill = (tpl, vars) => {
 
 const chips = list => list.map(t => `<span class="flag-chip">${t}</span>`).join('\n      ');
 
-// The question count a student actually faces: forms are alternatives, so a math
-// subject is "up to" Form B plus the appended challenge round.
-// Sets that can be taken on their own and have no challenge add-on (see `standalone` in engine.js).
-const STANDALONE_SETS = new Set(['C', 'K']);
+// The question count a student actually faces: forms are alternatives, so a test with forms is
+// "up to" its longest non-standalone form plus the add-on set, if it has one.
+const testDef = id => site.grades.flatMap(g => g.subjects).flatMap(s => s.tests || []).find(t => t.id === id);
 const questionCount = testIds => testIds.reduce((n, id) => {
   const b = banks[id];
   if (!isForms(b)) return n + b.length;
-  const longestBase = Math.max(...Object.entries(b).filter(([k]) => !STANDALONE_SETS.has(k)).map(([, v]) => v.length));
-  return n + longestBase + b.C.length;
+  const t = testDef(id);
+  const longestBase = Math.max(...t.forms.filter(f => !f.standalone).map(f => b[f.bank].length));
+  return n + longestBase + (t.addOn ? b[t.addOn.set].length : 0);
 }, 0);
-const formCount = testIds => testIds.reduce((n, id) => n + (isForms(banks[id]) ? Object.keys(banks[id]).length : 0), 0);
+const formCount = testIds => testIds.reduce((n, id) => n + (isForms(banks[id]) ? testDef(id).forms.length : 0), 0);
 const hasForms = testIds => testIds.some(id => isForms(banks[id]));
 const typeCount = testIds => new Set(testIds.flatMap(id => allQuestions(banks[id]).map(q => q.type))).size;
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
@@ -163,7 +163,7 @@ for (const grade of site.grades) {
       banks: Object.fromEntries(ids.map(id => [id, banks[id]])),
       config: {
         storagePrefix: subject.prefix,
-        tests: subject.tests.map(({ id, label, name, desc }) => ({ id, label, name, desc }))
+        tests: subject.tests.map(({ id, label, name, desc, forms, addOn, lede }) => ({ id, label, name, desc, forms, addOn, lede }))
       }
     };
 
