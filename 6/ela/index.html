@@ -399,7 +399,7 @@
       <div class="subform-grid" id="subformGrid"></div>
       <label class="chk" id="challengeRow">
         <input type="checkbox" id="addChallenge">
-        <span>Add the 12 challenge problems to the end of Form A or B (cubes, double absolute value, brackets, multi-step word problems).</span>
+        <span id="challengeText"></span>
       </label>
     </div>
   </div>
@@ -482,22 +482,15 @@
   const BANKS = window.STUDY.banks;
   const CONFIG = window.STUDY.config;
 
-  const MATH_FORMS = [
-    { id:"B", name:"Form B — Fresh Test", bank:"B", recommended:true,
-      desc:"The study guide skills with all-new numbers." },
-    { id:"A", name:"Form A — Study Guide", bank:"A",
-      desc:"The problems exactly as they appear on the sheet." },
-    { id:"C", name:"Challenge Round", bank:"C", challengeOnly:true,
-      desc:"12 harder problems a step past the guide." }
-  ];
-
+  // A test with `forms` lists them in site.json. `standalone` forms are not offered the add-on set
+  // (they are not a skills test it can extend). Form ids are storage keys for saved best scores.
   const TESTS = CONFIG.tests.map(t => {
-    const out = { id:t.id, label:t.label, name:t.name, desc:t.desc };
+    const out = { id:t.id, label:t.label, name:t.name, desc:t.desc, addOn:t.addOn, lede:t.lede };
     const bank = BANKS[t.id];
     if(Array.isArray(bank)){
       out.questions = bank;
     } else {
-      out.forms = MATH_FORMS.map(f => Object.assign({}, f, { questions: bank[f.bank] }));
+      out.forms = t.forms.map(f => Object.assign({}, f, { questions: bank[f.bank] }));
     }
     return out;
   });
@@ -524,16 +517,16 @@
 
   function readStore(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
   function writeStore(k,v){ try { localStorage.setItem(k, String(v)); } catch(e){ /* storage may be blocked */ } }
-  function withChallenge(){ return el('addChallenge').checked; }
+  function withChallenge(t, f){ return !!(t && t.addOn && f && !f.standalone && el('addChallenge').checked); }
 
   function setFor(t, f){
     if(!t.forms) return t.questions.slice();
     const base = f.questions.slice();
-    return (withChallenge() && !f.challengeOnly) ? base.concat(BANKS.math.C) : base;
+    return withChallenge(t, f) ? base.concat(BANKS[t.id][t.addOn.set]) : base;
   }
   function keyFor(t, f){
     let k = CONFIG.storagePrefix + t.id;
-    if(f) k += '_' + f.id + ((withChallenge() && !f.challengeOnly) ? 'C' : '');
+    if(f) k += '_' + f.id + (withChallenge(t, f) ? 'C' : '');
     return k;
   }
 
@@ -556,7 +549,8 @@
       btn.className = 'test-card' + (openTest === t.id ? ' open' : '');
       let meta;
       if(t.forms){
-        meta = '3 forms · ' + t.forms[1].questions.length + '–' + t.forms[0].questions.length + ' questions';
+        const sizes = t.forms.map(f => f.questions.length);
+        meta = t.forms.length + ' forms · ' + Math.min(...sizes) + '–' + Math.max(...sizes) + ' questions';
       } else {
         const best = readStore(keyFor(t, null));
         meta = t.questions.length + ' questions'
@@ -577,6 +571,8 @@
     const box = el('subforms');
     if(!t){ box.classList.add('hide'); return; }
     box.classList.remove('hide');
+    el('challengeRow').classList.toggle('hide', !t.addOn);
+    if(t.addOn) el('challengeText').textContent = t.addOn.text;
     el('subformTitle').textContent = t.name + ' — choose a form';
     const grid = el('subformGrid');
     grid.innerHTML = '';
@@ -996,7 +992,7 @@
     openTest = TESTS[0].id;
     el('testCards').style.display = 'none';
     el('homeTitle').textContent = 'Choose a form';
-    el('homeLede').textContent = 'Form B has different numbers than the study guide, so it tests the skill rather than your memory of the sheet.';
+    if(TESTS[0].lede) el('homeLede').textContent = TESTS[0].lede;
     el('homeBtn').textContent = 'Choose another form';
     renderHome();
   } else {

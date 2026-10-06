@@ -104,12 +104,17 @@ const fill = (tpl, vars) => {
 
 const chips = list => list.map(t => `<span class="flag-chip">${t}</span>`).join('\n      ');
 
-// The question count a student actually faces: forms are alternatives, so a math
-// subject is "up to" Form B plus the appended challenge round.
+// The question count a student actually faces: forms are alternatives, so a test with forms is
+// "up to" its longest non-standalone form plus the add-on set, if it has one.
+const testDef = id => site.grades.flatMap(g => g.subjects).flatMap(s => s.tests || []).find(t => t.id === id);
 const questionCount = testIds => testIds.reduce((n, id) => {
   const b = banks[id];
-  return n + (isForms(b) ? b.B.length + b.C.length : b.length);
+  if (!isForms(b)) return n + b.length;
+  const t = testDef(id);
+  const longestBase = Math.max(...t.forms.filter(f => !f.standalone).map(f => b[f.bank].length));
+  return n + longestBase + (t.addOn ? b[t.addOn.set].length : 0);
 }, 0);
+const formCount = testIds => testIds.reduce((n, id) => n + (isForms(banks[id]) ? testDef(id).forms.length : 0), 0);
 const hasForms = testIds => testIds.some(id => isForms(banks[id]));
 const typeCount = testIds => new Set(testIds.flatMap(id => allQuestions(banks[id]).map(q => q.type))).size;
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
@@ -118,7 +123,7 @@ const testIdsOf = subject => (subject.tests || []).map(t => t.id);
 
 function subjectMeta(subject) {
   const ids = testIdsOf(subject);
-  if (hasForms(ids)) return `3 forms · up to ${questionCount(ids)} questions`;
+  if (hasForms(ids)) return `${formCount(ids)} forms · up to ${questionCount(ids)} questions`;
   return `${plural(ids.length, 'test')} · ${plural(questionCount(ids), 'question')}`;
 }
 
@@ -158,7 +163,7 @@ for (const grade of site.grades) {
       banks: Object.fromEntries(ids.map(id => [id, banks[id]])),
       config: {
         storagePrefix: subject.prefix,
-        tests: subject.tests.map(({ id, label, name, desc }) => ({ id, label, name, desc }))
+        tests: subject.tests.map(({ id, label, name, desc, forms, addOn, lede }) => ({ id, label, name, desc, forms, addOn, lede }))
       }
     };
 
@@ -174,7 +179,7 @@ for (const grade of site.grades) {
       H1: subject.name,
       SUB: `${subject.blurb} Nothing is graded until you submit — then every miss explains itself.`,
       CHIPS: chips([
-        ...(forms ? ['3 forms'] : ids.length > 1 ? [plural(ids.length, 'test')] : []),
+        ...(forms ? [`${formCount(ids)} forms`] : ids.length > 1 ? [plural(ids.length, 'test')] : []),
         `${forms ? 'up to ' : ''}${plural(questionCount(ids), 'question')}`,
         plural(typeCount(ids), 'question type')
       ]),

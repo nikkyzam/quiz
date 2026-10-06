@@ -964,5 +964,759 @@
    "why": "6 a.m. to noon is 6 hours = 6 ÷ 2 = 3 rises of 4°, so +12: −7 + 12 = 5°C at noon. Noon to 3 p.m. is 3 hours falling 3° each: 5 − 9 = −4°C.",
    "remember": "Find how many chunks of time there are BEFORE you multiply. Divide the total time by the time per change — that's the step that's easy to skip."
   }
+ ],
+ "D": [
+  {
+   "n": "1",
+   "cat": "Add & Subtract",
+   "type": "text",
+   "grade": "number",
+   "q": "(45) + (−63) =",
+   "answer": -18,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Adding a negative is subtracting: 45 − 63 = −18.",
+   "remember": "Adding a negative is just subtracting. Rewrite 20 + (−44) as 20 − 44. Then ask which number is bigger ignoring signs — the answer takes that number's sign."
+  },
+  {
+   "n": "2",
+   "cat": "Add & Subtract",
+   "type": "text",
+   "grade": "number",
+   "q": "(−21) − (−48) =",
+   "answer": 27,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Subtracting a negative adds: −21 + 48 = 27.",
+   "remember": "Keep–Change–Change. Keep the first number, change the minus to a plus, and change the sign of the number behind it. Two minus signs in a row always turn into a plus."
+  },
+  {
+   "n": "3",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−9) − 34(0) =",
+   "answer": -9,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "34(0) = 0, so the problem is just −9 − 0 = −9.",
+   "remember": "Anything times 0 is 0, so that whole chunk vanishes. Cross it out and see what's actually left."
+  },
+  {
+   "n": "4",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−8)(−6) − 5 =",
+   "answer": 43,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Multiply first: (−8)(−6) = 48. Then 48 − 5 = 43.",
+   "remember": "Put a box around the multiplication and do it first — it's one single number. Then the problem is just one easy add or subtract."
+  },
+  {
+   "n": "5",
+   "cat": "Add & Subtract",
+   "type": "text",
+   "grade": "number",
+   "q": "(−318) + (−54) =",
+   "answer": -372,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Both negative, so add and keep the sign: −(318 + 54) = −372.",
+   "remember": "Same signs? Add the two amounts and keep the sign. Think of it as owing money twice: owe 184, then owe 29 more, and you owe 213."
+  },
+  {
+   "n": "6",
+   "cat": "Add & Subtract",
+   "type": "text",
+   "grade": "number",
+   "q": "82 − (−39) + (−27) =",
+   "answer": 94,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "82 − (−39) = 82 + 39 = 121. Then 121 + (−27) = 94.",
+   "remember": "Clean up the double signs before you calculate: − (−n) becomes + n, and + (−n) becomes − n. Once the signs are tidy it's an easy left-to-right problem."
+  },
+  {
+   "n": "7",
+   "cat": "Absolute Value",
+   "type": "text",
+   "grade": "number",
+   "q": "(−630) ÷ |(−55) − 15| =",
+   "answer": -9,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Inside the bars: −55 − 15 = −70, and |−70| = 70. Then −630 ÷ 70 = −9.",
+   "remember": "Absolute value bars act like parentheses: finish everything inside first, then just drop the negative sign. |−100| is simply 100."
+  },
+  {
+   "n": "8",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−480) ÷ 8 − 70 =",
+   "answer": -130,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Divide first: −480 ÷ 8 = −60. Then −60 − 70 = −130.",
+   "remember": "Division happens before adding and subtracting. Do the division by itself first, then deal with the rest."
+  },
+  {
+   "n": "9",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−19) + 8(−5) =",
+   "answer": -59,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Multiply first: 8(−5) = −40. Then −19 + (−40) = −59.",
+   "remember": "Put a box around the multiplication and do it first — it's one single number. Then the problem is just one easy add or subtract."
+  },
+  {
+   "n": "10",
+   "cat": "Absolute Value",
+   "type": "text",
+   "grade": "number",
+   "q": "52 − |−91 + 24| =",
+   "answer": -15,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Inside the bars: −91 + 24 = −67, and |−67| = 67. Then 52 − 67 = −15.",
+   "remember": "Absolute value bars act like parentheses: finish everything inside first, then just drop the negative sign. |−100| is simply 100."
+  },
+  {
+   "n": "11",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−35) + 96 ÷ (−8) =",
+   "answer": -47,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Divide first: 96 ÷ (−8) = −12. Then −35 + (−12) = −47.",
+   "remember": "Division happens before adding and subtracting. Do the division by itself first, then deal with the rest."
+  },
+  {
+   "n": "12",
+   "cat": "Multiply & Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "(−35)(−10)(−4) =",
+   "answer": -1400,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "(−35)(−10) = 350, then 350 × (−4) = −1400. Three negatives, so the answer is negative.",
+   "remember": "Count the negative signs being multiplied. Even number of negatives = positive answer, odd number = negative. Multiply the plain numbers, then stick that sign on."
+  },
+  {
+   "n": "13",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−74) − 29(−4) =",
+   "answer": 42,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Multiply first: 29(−4) = −116. Then −74 − (−116) = −74 + 116 = 42.",
+   "remember": "Put a box around the multiplication and do it first — it's one single number. Then the problem is just one easy add or subtract."
+  },
+  {
+   "n": "14",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−203) − (−8 + 60) =",
+   "answer": -255,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Parentheses first: −8 + 60 = 52. Then −203 − 52 = −255.",
+   "remember": "Parentheses are a package. Squash everything inside down to one single number before you touch anything outside."
+  },
+  {
+   "n": "15",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "−(−12) − 9(−7) =",
+   "answer": 75,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "9(−7) = −63, and −(−12) = 12. So 12 − (−63) = 12 + 63 = 75.",
+   "remember": "Put a box around the multiplication and do it first — it's one single number. Then the problem is just one easy add or subtract."
+  },
+  {
+   "n": "16",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "−5 − 7(−6) =",
+   "answer": 37,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "7(−6) = −42. Then −5 − (−42) = −5 + 42 = 37.",
+   "remember": "Put a box around the multiplication and do it first — it's one single number. Then the problem is just one easy add or subtract."
+  },
+  {
+   "n": "17",
+   "cat": "Multiply & Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "(−144) ÷ (−8) =",
+   "answer": 18,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Negative ÷ negative = positive: 144 ÷ 8 = 18.",
+   "remember": "Decide the sign first, then divide the plain numbers. Same signs make a positive, different signs make a negative."
+  },
+  {
+   "n": "18",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−53) + 12 − 10(−4) =",
+   "answer": -1,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "10(−4) = −40. Then −53 + 12 = −41, and −41 − (−40) = −41 + 40 = −1.",
+   "remember": "Do multiplying and dividing first, then work whatever is left strictly left to right — don't jump around."
+  },
+  {
+   "n": "19",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "(−47) − (−82 + 15) =",
+   "answer": 20,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Parentheses first: −82 + 15 = −67. Then −47 − (−67) = −47 + 67 = 20.",
+   "remember": "Parentheses are a package. Squash everything inside down to one single number before you touch anything outside."
+  },
+  {
+   "n": "20",
+   "cat": "Order of Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "−9 − <span class=\"frac\"><span class=\"num\">−56</span><span class=\"den\">8</span></span> =",
+   "answer": -2,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "The fraction bar means divide: −56 ÷ 8 = −7. Then −9 − (−7) = −9 + 7 = −2.",
+   "remember": "A fraction bar just means divide. Turn the fraction into one number first, then the rest is a normal subtraction."
+  },
+  {
+   "n": "21",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "The temperature in Phoenix is 109°F. The temperature in Fairbanks is −31°F. What is the difference in the two temperatures?",
+   "answer": 140,
+   "hint": "Answer in degrees Fahrenheit — just the number.",
+   "word": true,
+   "why": "109 − (−31) = 109 + 31 = 140°F.",
+   "remember": "Difference means subtract, but the easy check is to walk the number line: count up from the negative number to 0, then from 0 up to the other number, and add those two jumps."
+  },
+  {
+   "n": "22",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "Jaden is on a game show with a score of −18. Tessa's score is 25. What is the difference of the two scores?",
+   "answer": 43,
+   "hint": "Answer in points — just the number.",
+   "word": true,
+   "why": "25 − (−18) = 25 + 18 = 43 points apart.",
+   "remember": "Difference means subtract, but the easy check is to walk the number line: count up from the negative number to 0, then from 0 up to the other number, and add those two jumps."
+  },
+  {
+   "n": "23",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "Marcus owes his cousin $60. If he pays his cousin $37, how much does he still owe?",
+   "answer": 23,
+   "hint": "Answer in dollars — just the number.",
+   "word": true,
+   "why": "60 − 37 = 23. He still owes $23.",
+   "remember": "No negatives needed here — it's plain subtraction. Read it as \"started with this, took that away.\""
+  },
+  {
+   "n": "24",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "The temperature in Reykjavik, Iceland is 6°C. The temperature decreases at a constant rate of 9 degrees every 3 hours. What will the temperature be in 12 hours?",
+   "answer": -30,
+   "hint": "Answer in degrees Celsius, with a minus sign if it is below zero.",
+   "word": true,
+   "why": "It drops 9° every THREE hours. In 12 hours there are 12 ÷ 3 = 4 drops, so it falls 4 × 9 = 36 degrees. Then 6 − 36 = −30°C.",
+   "remember": "Find how many chunks of time there are BEFORE you multiply. Divide the total time by the time per change — that's the step that's easy to skip."
+  },
+  {
+   "n": "25",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "A diver is 30 feet below sea level. If the diver dives 25 feet deeper, then rises 12 feet, what is her new depth?",
+   "answer": -43,
+   "hint": "Answer in feet, using a negative number for below sea level.",
+   "word": true,
+   "why": "−30 + (−25) + 12 = −43 feet.",
+   "remember": "Write every move as a signed number — down/deeper/descends is negative, up/rises is positive — then add them all in one line."
+  },
+  {
+   "n": "26",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "Priya deposits $45 in her bank account each month. She started with $180 in her account. <strong>How much will her bank account change by after 7 months?</strong>",
+   "answer": 315,
+   "hint": "Answer in dollars — the amount of change, just the number.",
+   "word": true,
+   "why": "Only the deposits count as the change: 45 × 7 = $315.",
+   "remember": "\"Change by\" means only the movement, so leave the starting balance out of it. You only add the starting amount when the question asks for the balance."
+  },
+  {
+   "n": "26b",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "Priya started with $180 and deposits $45 each month. <strong>What will the balance of her account be after 7 months?</strong>",
+   "answer": 495,
+   "hint": "Answer in dollars — just the number.",
+   "word": true,
+   "why": "Starting amount plus the change: 180 + 315 = $495.",
+   "remember": "Balance = what you started with + the total change. You already worked out the change, so just add it on."
+  },
+  {
+   "n": "26c",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "Priya deposits $45 each month. <strong>If her account changed by $630, how many months did she deposit $45?</strong>",
+   "answer": 14,
+   "hint": "Answer in months — just the number.",
+   "word": true,
+   "why": "630 ÷ 45 = 14 months.",
+   "remember": "When you know a total and the size of each step, divide: total ÷ size of one step."
+  },
+  {
+   "n": "27",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "A crew is digging a tunnel that needs to be 84 feet long. They dig 7 feet each day. How many days will it take the crew to finish?",
+   "answer": 12,
+   "hint": "Answer in days — just the number.",
+   "word": true,
+   "why": "84 ÷ 7 = 12 days.",
+   "remember": "When you know a total and the size of each step, divide: total ÷ size of one step."
+  },
+  {
+   "n": "28",
+   "cat": "Word Problem",
+   "type": "text",
+   "grade": "number",
+   "q": "A submarine starts at sea level and descends 12 feet every minute. After 9 minutes, what is the location of the submarine relative to sea level?",
+   "answer": -108,
+   "hint": "Answer in feet, using a negative number for below sea level.",
+   "word": true,
+   "why": "Descending is negative: (−12)(9) = −108 feet.",
+   "remember": "Rate × time, with the rate signed. Going down is negative, so the answer comes out negative."
+  },
+  {
+   "n": "29",
+   "cat": "Exponents",
+   "type": "text",
+   "grade": "number",
+   "q": "−11<sup>2</sup> =",
+   "answer": -121,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "No parentheses, so the exponent only applies to the 11: −(11 × 11) = −121.",
+   "remember": "No parentheses means the exponent grabs only the number, not the minus sign. Do the power first, then put the minus back on the front."
+  },
+  {
+   "n": "30",
+   "cat": "Exponents",
+   "type": "text",
+   "grade": "number",
+   "q": "(−11)<sup>2</sup> =",
+   "answer": 121,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "(−11)(−11) = 121. The parentheses mean the negative is squared too.",
+   "remember": "Parentheses around the negative mean the whole negative number gets multiplied by itself, so the two negatives cancel into a positive."
+  },
+  {
+   "n": "31",
+   "cat": "Exponents",
+   "type": "text",
+   "grade": "number",
+   "q": "45<sup>0</sup> =",
+   "answer": 1,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "Any nonzero number to the zero power is 1.",
+   "remember": "Any number except 0 raised to the zero power is 1. There's nothing to calculate — just write 1."
+  },
+  {
+   "n": "32",
+   "cat": "Exponents",
+   "type": "text",
+   "grade": "number",
+   "q": "−12<sup>2</sup> =",
+   "answer": -144,
+   "hint": "Write the number only.",
+   "word": false,
+   "why": "The exponent applies only to the 12: −(12 × 12) = −144.",
+   "remember": "No parentheses means the exponent grabs only the number, not the minus sign. Do the power first, then put the minus back on the front."
+  }
+ ],
+ "K": [
+  {
+   "n": "1",
+   "cat": "Sign Rules",
+   "type": "match",
+   "q": "Match each expression to its value.",
+   "pairs": [
+    [
+     "(−7)(−3)",
+     "21"
+    ],
+    [
+     "(−7)(3)",
+     "−21"
+    ],
+    [
+     "(−21) ÷ (−7)",
+     "3"
+    ],
+    [
+     "21 ÷ (−7)",
+     "−3"
+    ]
+   ],
+   "why": "Same signs multiply or divide to a positive; different signs give a negative. So (−7)(−3) = 21, (−7)(3) = −21, (−21) ÷ (−7) = 3 and 21 ÷ (−7) = −3.",
+   "remember": "Same signs → positive. Different signs → negative. Work out the sign first, then the size."
+  },
+  {
+   "n": "2",
+   "cat": "Sign Rules",
+   "type": "tf",
+   "q": "The sum of two negative integers is always negative.",
+   "answer": 0,
+   "why": "True. Adding two negatives moves you further below zero each time, so the total is always negative — for example −3 + (−4) = −7.",
+   "remember": "Think of debts: owing $3 and then owing $4 more means you owe $7. Debts add up to more debt."
+  },
+  {
+   "n": "3",
+   "cat": "Sign Rules",
+   "type": "tf",
+   "q": "Subtracting a negative number gives the same result as adding its opposite.",
+   "answer": 0,
+   "why": "True. 8 − (−5) = 8 + 5 = 13. Subtracting −5 is the same as adding the opposite of −5, which is 5.",
+   "remember": "Two minus signs in a row turn into a plus. Keep – Change – Change."
+  },
+  {
+   "n": "4",
+   "cat": "Sign Rules",
+   "type": "tf",
+   "q": "The product of three negative integers is positive.",
+   "answer": 1,
+   "why": "False. Each pair of negatives cancels into a positive, but the third negative is left over, so the answer is negative: (−2)(−3)(−4) = −24.",
+   "remember": "Count the negative signs. Even number → positive. Odd number → negative."
+  },
+  {
+   "n": "5",
+   "cat": "Sign Rules",
+   "type": "mc",
+   "q": "Which expression has a <strong>negative</strong> answer?",
+   "choices": [
+    "(−4)(−9)",
+    "(−36) ÷ (−6)",
+    "(−8) − (−15)",
+    "(−8)(5)"
+   ],
+   "answer": 3,
+   "why": "(−8)(5) = −40 because the signs are different. The others work out to 36, 6 and 7 — all positive.",
+   "remember": "You only need the sign here, not the number. Different signs multiplied → negative."
+  },
+  {
+   "n": "6",
+   "cat": "Sign Rules",
+   "type": "multi",
+   "q": "Select <strong>ALL</strong> the expressions that equal 12.",
+   "choices": [
+    "(−3)(−4)",
+    "(−48) ÷ (−4)",
+    "−3 − (−15)",
+    "(−6) + (−6)"
+   ],
+   "answer": [
+    0,
+    1,
+    2
+   ],
+   "why": "(−3)(−4) = 12, (−48) ÷ (−4) = 12 and −3 − (−15) = −3 + 15 = 12. But (−6) + (−6) = −12, which is the opposite.",
+   "remember": "Check each one on its own. The last one adds two negatives, so it can never come out positive."
+  },
+  {
+   "n": "7",
+   "cat": "Absolute Value",
+   "type": "text",
+   "grade": "number",
+   "q": "|−23| =",
+   "answer": 23,
+   "hint": "Write the number only.",
+   "why": "Absolute value is the distance from zero, and distance is never negative. −23 is 23 units from zero, so |−23| = 23.",
+   "remember": "Absolute value bars just strip off the negative sign — the size stays the same."
+  },
+  {
+   "n": "8",
+   "cat": "Absolute Value",
+   "type": "tf",
+   "q": "|−7| = −7",
+   "answer": 1,
+   "why": "False. |−7| = 7. Absolute value measures distance from zero, and a distance cannot be negative.",
+   "remember": "If an answer in absolute value bars comes out negative, something went wrong."
+  },
+  {
+   "n": "9",
+   "cat": "Absolute Value",
+   "type": "order",
+   "q": "Put these in order from <strong>least to greatest</strong>.",
+   "items": [
+    "|−2|",
+    "|5|",
+    "|−8|",
+    "|−11|"
+   ],
+   "why": "Work each one out first: |−2| = 2, |5| = 5, |−8| = 8, |−11| = 11. In order: 2, 5, 8, 11.",
+   "remember": "Strip the signs first, then compare. A big negative number has a big absolute value."
+  },
+  {
+   "n": "10",
+   "cat": "Absolute Value",
+   "type": "mc",
+   "q": "Which pair of numbers has the <strong>same</strong> absolute value?",
+   "choices": [
+    "−9 and 9",
+    "−9 and −8",
+    "9 and 0",
+    "−9 and 18"
+   ],
+   "answer": 0,
+   "why": "−9 and 9 are both 9 units from zero, just on opposite sides, so their absolute values match.",
+   "remember": "Opposites always share an absolute value — they sit the same distance from zero."
+  },
+  {
+   "n": "11",
+   "cat": "Absolute Value",
+   "type": "text",
+   "grade": "number",
+   "q": "|−15 + 6| =",
+   "answer": 9,
+   "hint": "Write the number only.",
+   "why": "Work inside the bars first: −15 + 6 = −9. Then |−9| = 9.",
+   "remember": "Bars act like parentheses: finish the inside, then drop the negative sign."
+  },
+  {
+   "n": "12",
+   "cat": "Comparing Integers",
+   "type": "order",
+   "q": "Put these integers in order from <strong>least to greatest</strong>.",
+   "items": [
+    "−12",
+    "−5",
+    "0",
+    "3",
+    "8"
+   ],
+   "why": "Negatives are below zero, and the further below zero, the smaller the number: −12 < −5 < 0 < 3 < 8.",
+   "remember": "On a number line, left is less. −12 is further left than −5, so it is smaller even though 12 looks bigger."
+  },
+  {
+   "n": "13",
+   "cat": "Comparing Integers",
+   "type": "mc",
+   "q": "Which temperature is the <strong>coldest</strong>?",
+   "choices": [
+    "−3°F",
+    "−18°F",
+    "0°F",
+    "−9°F"
+   ],
+   "answer": 1,
+   "why": "The coldest is the smallest number. −18 is furthest below zero, so −18°F is coldest.",
+   "remember": "With negatives, the bigger the number after the minus sign, the colder (smaller) it is."
+  },
+  {
+   "n": "14",
+   "cat": "Comparing Integers",
+   "type": "tf",
+   "q": "−15 is greater than −2.",
+   "answer": 1,
+   "why": "False. −15 is further below zero than −2, so −15 < −2.",
+   "remember": "Picture the number line: −2 sits to the right of −15, and right means greater."
+  },
+  {
+   "n": "15",
+   "cat": "Exponents",
+   "type": "match",
+   "q": "Match each expression to its value.",
+   "pairs": [
+    [
+     "−5<sup>2</sup>",
+     "−25"
+    ],
+    [
+     "(−5)<sup>2</sup>",
+     "25"
+    ],
+    [
+     "(−2)<sup>3</sup>",
+     "−8"
+    ],
+    [
+     "(−2)<sup>4</sup>",
+     "16"
+    ]
+   ],
+   "why": "−5² has no parentheses, so only the 5 is squared: −25. (−5)² squares the whole −5: 25. (−2)³ = −8 (three negatives), and (−2)⁴ = 16 (four negatives pair off).",
+   "remember": "Parentheses around the negative → the negative is part of the base. No parentheses → the minus waits until the end."
+  },
+  {
+   "n": "16",
+   "cat": "Exponents",
+   "type": "multi",
+   "q": "Select <strong>ALL</strong> the expressions that equal 16.",
+   "choices": [
+    "4<sup>2</sup>",
+    "(−4)<sup>2</sup>",
+    "−4<sup>2</sup>",
+    "2<sup>4</sup>"
+   ],
+   "answer": [
+    0,
+    1,
+    3
+   ],
+   "why": "4² = 16, (−4)² = 16 and 2⁴ = 16. But −4² = −16, because the exponent only applies to the 4 and the minus stays out front.",
+   "remember": "The trap is the minus with no parentheses: −4² means −(4 × 4), not (−4)(−4)."
+  },
+  {
+   "n": "17",
+   "cat": "Exponents",
+   "type": "text",
+   "grade": "number",
+   "q": "29<sup>0</sup> =",
+   "answer": 1,
+   "hint": "Write the number only.",
+   "why": "Any nonzero number raised to the zero power equals 1.",
+   "remember": "Nothing to calculate — just write 1."
+  },
+  {
+   "n": "18",
+   "cat": "Exponents",
+   "type": "tf",
+   "q": "(−3)<sup>3</sup> is a positive number.",
+   "answer": 1,
+   "why": "False. (−3)(−3)(−3) = −27. An odd number of negative factors gives a negative answer.",
+   "remember": "Odd power of a negative → negative. Even power of a negative → positive."
+  },
+  {
+   "n": "19",
+   "cat": "Order of Operations",
+   "type": "order",
+   "q": "Put the order of operations in order, <strong>first to last</strong>.",
+   "items": [
+    "Parentheses and absolute value bars",
+    "Exponents",
+    "Multiplication and division, left to right",
+    "Addition and subtraction, left to right"
+   ],
+   "why": "Work parentheses (and absolute value bars) first, then exponents, then multiply and divide left to right, then add and subtract left to right.",
+   "remember": "PEMDAS: Parentheses, Exponents, Multiply/Divide, Add/Subtract — with bars counting as parentheses."
+  },
+  {
+   "n": "20",
+   "cat": "Order of Operations",
+   "type": "mc",
+   "q": "In −3 + 4(−2), what should you do <strong>first</strong>?",
+   "choices": [
+    "Multiply 4 by −2",
+    "Add −3 and 4",
+    "Subtract 2",
+    "Square −2"
+   ],
+   "answer": 0,
+   "why": "Multiplication comes before addition. 4(−2) = −8, and then −3 + (−8) = −11.",
+   "remember": "Box the multiplication first. Adding left to right is the mistake — it gives 1 × (−2) = −2."
+  },
+  {
+   "n": "21",
+   "cat": "Order of Operations",
+   "type": "mc",
+   "q": "A student works out 10 − 3² and gets 49. What is the <strong>correct</strong> answer?",
+   "choices": [
+    "1",
+    "49",
+    "−1",
+    "−59"
+   ],
+   "answer": 0,
+   "why": "Exponents come before subtraction: 3² = 9, then 10 − 9 = 1. The student subtracted first (10 − 3 = 7) and then squared (7² = 49).",
+   "remember": "Exponents beat subtraction. Do the power first, then the minus."
+  },
+  {
+   "n": "22",
+   "cat": "Vocabulary",
+   "type": "match",
+   "q": "Match each term to its meaning.",
+   "pairs": [
+    [
+     "Integer",
+     "A whole number or its opposite (…, −2, −1, 0, 1, 2, …)"
+    ],
+    [
+     "Opposite",
+     "The number the same distance from 0 on the other side"
+    ],
+    [
+     "Absolute value",
+     "A number's distance from 0 on the number line"
+    ],
+    [
+     "Exponent",
+     "Tells how many times to use the base as a factor"
+    ]
+   ],
+   "why": "Integers are the whole numbers and their opposites; opposites sit the same distance from zero on either side; absolute value is that distance; and an exponent counts how many times a base is multiplied by itself.",
+   "remember": "Opposites and absolute value are linked: opposites always share the same absolute value."
+  },
+  {
+   "n": "23",
+   "cat": "Vocabulary",
+   "type": "text",
+   "grade": "number",
+   "q": "The opposite of −14 is ______.",
+   "answer": 14,
+   "word": true,
+   "hint": "Write the number only.",
+   "why": "Opposites are the same distance from zero on opposite sides, so the opposite of −14 is 14.",
+   "remember": "To find an opposite, just flip the sign."
+  },
+  {
+   "n": "24",
+   "cat": "Vocabulary",
+   "type": "tf",
+   "q": "0 is neither positive nor negative.",
+   "answer": 0,
+   "why": "True. Zero sits right between the positive and negative integers, so it is neither one.",
+   "remember": "Zero is the dividing line of the number line — it belongs to neither side."
+  }
  ]
 }
