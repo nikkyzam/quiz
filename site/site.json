@@ -89,6 +89,12 @@
                   "desc": "Products and quotients with positive and negative decimals."
                 },
                 {
+                  "id": "V",
+                  "name": "Division Only",
+                  "bank": "V",
+                  "desc": "10 decimal division problems — dividing by decimals, negatives and two word problems."
+                },
+                {
                   "id": "P",
                   "name": "Mixed Practice",
                   "bank": "P",

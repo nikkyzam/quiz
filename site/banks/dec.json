@@ -1321,6 +1321,128 @@
    "remember": "Below zero is negative; going deeper makes the number more negative."
   }
  ],
+ "V": [
+  {
+   "n": "1",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">−8.4</span><span class=\"den\">−0.7</span></span> =",
+   "answer": 12,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "(−8.4) ÷ (−0.7) = 12.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "2",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">15.6</span><span class=\"den\">−1.2</span></span> =",
+   "answer": -13,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "15.6 ÷ (−1.2) = −13.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "3",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">−9.18</span><span class=\"den\">3</span></span> =",
+   "answer": -3.06,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "(−9.18) ÷ 3 = −3.06.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "4",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">4.5</span><span class=\"den\">0.09</span></span> =",
+   "answer": 50,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "4.5 ÷ 0.09 = 50.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "5",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">−0.84</span><span class=\"den\">0.12</span></span> =",
+   "answer": -7,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "(−0.84) ÷ 0.12 = −7.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "6",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">−22.5</span><span class=\"den\">−4.5</span></span> =",
+   "answer": 5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "(−22.5) ÷ (−4.5) = 5.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "7",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">7.14</span><span class=\"den\">−2.1</span></span> =",
+   "answer": -3.4,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "7.14 ÷ (−2.1) = −3.4.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "8",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "<span class=\"frac\"><span class=\"num\">−31.2</span><span class=\"den\">−0.8</span></span> =",
+   "answer": 39,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "(−31.2) ÷ (−0.8) = 39.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "9",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "A 14.4-meter ribbon is cut into pieces that are each 0.6 meter long. How many pieces are there?",
+   "answer": 24,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "14.4 ÷ 0.6 = 144 ÷ 6 = 24 pieces.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  },
+  {
+   "n": "10",
+   "cat": "Divide",
+   "type": "text",
+   "grade": "number",
+   "q": "Five friends share a $47.50 bill equally. How much does each friend pay (in dollars)?",
+   "answer": 9.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "47.5 ÷ 5 = 9.5, so each pays $9.50.",
+   "remember": "Slide the decimal point in the divisor right until it is a whole number, and slide the dividend the same number of places. Then divide as usual. Same signs → positive, different → negative."
+  }
+ ],
  "R": [
   {
    "n": "1",
