@@ -101,6 +101,12 @@
                   "desc": "Order of operations with decimals."
                 },
                 {
+                  "id": "X",
+                  "name": "Tricky Decimals",
+                  "bank": "X",
+                  "desc": "40 trickier problems — zero placement, dividing by decimals, estimating, and story problems."
+                },
+                {
                   "id": "R",
                   "name": "Interpreting Remainders",
                   "bank": "R",
