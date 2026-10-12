@@ -88,26 +88,22 @@ export const TEMPLATES = {
       const op = pick(r, 0, 3);
       if (op === 0) {
         const a = pick(r, 100, 999) / 100, b = pick(r, 10, 99) / 10;
-        return { type: "in", q: `${fmt(a)} + ${fmt(b)} = ?`, ans: Math.round((a + b) * 100) / 100,
-          hint: "Line up the decimal points.", expl: `${fmt(a)} + ${fmt(b)} = ${fmt(a + b)}.` };
+        return { type: "in", q: `${fmt(a)} + ${fmt(b)} = ?`, ans: Math.round((a + b) * 100) / 100, expl: `${fmt(a)} + ${fmt(b)} = ${fmt(a + b)}.` };
       }
       if (op === 1) {
         const b = pick(r, 100, 499) / 100, a = b + pick(r, 100, 800) / 100;
-        return { type: "in", q: `${fmt(a)} − ${fmt(b)} = ?`, ans: Math.round((a - b) * 100) / 100,
-          hint: "Line up the decimal points.", expl: `${fmt(a)} − ${fmt(b)} = ${fmt(a - b)}.` };
+        return { type: "in", q: `${fmt(a)} − ${fmt(b)} = ?`, ans: Math.round((a - b) * 100) / 100, expl: `${fmt(a)} − ${fmt(b)} = ${fmt(a - b)}.` };
       }
       if (op === 2) {
         const t = () => (pick(r, 1, 9) * 10 + pick(r, 1, 9)) / 10;
         const a = t(), b = t();
         const ans = Math.round(a * 10 * b * 10) / 100;
         return { type: "in", q: `${fmt(a)} × ${fmt(b)} = ?`, ans,
-          hint: "Multiply as whole numbers, then count the decimal places.",
           expl: `${Math.round(a * 10)} × ${Math.round(b * 10)} = ${Math.round(a * 10) * Math.round(b * 10)}, with 2 decimal places: ${fmt(ans)}.` };
       }
       const d = pick(r, 2, 9) / 10, k = pick(r, 3, 12);
       const total = Math.round(d * 10 * k) / 10;
       return { type: "in", q: `${fmt(total)} ÷ ${fmt(d)} = ?`, ans: k,
-        hint: "Slide the point one place in both numbers.",
         expl: `Multiply both by 10: ${Math.round(total * 10)} ÷ ${Math.round(d * 10)} = ${k}.` };
     }
   },
