@@ -49,6 +49,26 @@ export const LESSONS = {
     ]
   },
 
+  "g6-decimals": {
+    id: "les-decimals", topicId: "g6-decimals", title: "Decimal Operations",
+    blurb: "Line up the points to add, count the places to multiply.",
+    panels: [
+      { speaker: "pip", text: "To add or subtract decimals, line up the decimal points. Tenths under tenths, hundredths under hundredths." },
+      { speaker: "pip", text: "Missing digits are just zeros. 4.75 + 3.6 is really 4.75 + 3.60." },
+      { check: { q: "4.75 + 3.6 = ?", type: "in", ans: 8.35,
+                 expl: "4.75 + 3.60 = 8.35." } },
+      { speaker: "nim", text: "To multiply, ignore the points and multiply as whole numbers. Then count how many digits sit after the point in BOTH numbers combined." },
+      { speaker: "nim", text: "2.5 × 1.4: first 25 × 14 = 350. There are 2 decimal places in total, so put the point back: 3.50." },
+      { check: { q: "0.6 × 0.3 = ?", type: "in", ans: 0.18,
+                 expl: "6 × 3 = 18, and there are 2 decimal places in total, so the answer is 0.18." } },
+      { speaker: "vex", text: "To divide by a decimal, slide the point the same number of places in BOTH numbers until the divisor is whole." },
+      { speaker: "vex", text: "9.6 ÷ 1.2 becomes 96 ÷ 12 = 8. Multiplying both by 10 changes nothing about the answer." },
+      { check: { q: "7.2 ÷ 0.9 = ?", type: "in", ans: 8,
+                 expl: "Multiply both by 10: 72 ÷ 9 = 8." } },
+      { speaker: "vex", text: "Always sanity-check: 7.2 ÷ 0.9 is about 7 ÷ 1, so an answer near 8 makes sense." }
+    ]
+  },
+
   "g6-ratios": {
     id: "les-ratios", topicId: "g6-ratios", title: "Ratios and the Unit Rate",
     blurb: "Getting to 'per one' is almost always the move.",

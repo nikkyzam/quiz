@@ -33,7 +33,24 @@ export const G6_BANKS = {
 {lvl:2,sec:"D",type:"in",q:"A stack of 5 boards is 12.5 cm thick. How thick is ONE board, in cm?",
  ans:2.5,expl:"12.5 ÷ 5 = 2.5 cm."},
 {lvl:3,sec:"D",type:"in",q:"A runner's average pace is 6.4 minutes per mile. How many minutes for 3.5 miles?",
- ans:22.4,expl:"6.4 × 3.5 = 22.4 minutes."}
+ ans:22.4,expl:"6.4 × 3.5 = 22.4 minutes."},
+{sec:"D",type:"in",q:"0.6 × 0.3 = ?",ans:0.18,hint:"6 × 3 = 18, then count the decimal places.",
+ expl:"6 × 3 = 18, with 2 decimal places in total: 0.18."},
+{sec:"D",type:"mc",q:"Which is the best estimate of 7.9 × 3.1?",opts:["24","21","32","240"],a:0,
+ expl:"7.9 is about 8 and 3.1 is about 3, so the product is about 24."},
+{lvl:2,sec:"D",type:"in",q:"7.2 ÷ 0.9 = ?",ans:8,hint:"Multiply both numbers by 10 first.",
+ expl:"72 ÷ 9 = 8."},
+{lvl:2,sec:"D",type:"in",q:"15 − 6.38 = ?",ans:8.62,hint:"Write 15 as 15.00 and line up the points.",
+ expl:"15.00 − 6.38 = 8.62."},
+{lvl:2,sec:"D",type:"in",q:"4.2 ÷ 0.07 = ?",ans:60,hint:"Move the point two places in both numbers.",
+ expl:"Multiply both by 100: 420 ÷ 7 = 60."},
+{lvl:2,sec:"D",type:"mc",q:"Maya says 0.4 × 0.5 = 2. What is her mistake?",
+ opts:["The point is misplaced; it is 0.20","She should have added","The product is really 0.02","The answer is already right"],a:0,
+ expl:"4 × 5 = 20, and with 2 decimal places the answer is 0.20 (= 0.2)."},
+{lvl:3,sec:"D",type:"in",q:"Juice costs $2.40 per liter. How much do 4.5 liters cost, in dollars?",
+ ans:10.8,hint:"Multiply 2.4 × 4.5.",expl:"2.4 × 4.5 = 10.8, so the juice costs $10.80."},
+{lvl:3,sec:"D",type:"in",q:"A ribbon 12.6 m long is cut into pieces 0.18 m long. How many pieces?",
+ ans:70,hint:"Multiply both numbers by 100.",expl:"1260 ÷ 18 = 70 pieces."}
 ],
 
 "g6-exprexp": [
