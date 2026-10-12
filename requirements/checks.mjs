@@ -1790,7 +1790,8 @@ export const CHECKS = {
       const a = generate(t, 4242), b = generate(t, 4242);
       assert(a && b, `${t} generated nothing`);
       assert(a.q === b.q && a.ans === b.ans, `${t} is not reproducible from its seed`);
-      assert(a.expl && a.hint, `${t} generated no explanation or hint`);
+      /* g6-decimals is deliberately hint-free (owner's call): it still must explain. */
+      assert(a.expl && (a.hint || t === "g6-decimals"), `${t} generated no explanation or hint`);
     }
 
     /* Varied: different seeds must give genuinely different problems. */
