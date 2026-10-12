@@ -1615,512 +1615,504 @@
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "0.05 × 0.4 = ?",
-   "answer": 0.02,
+   "q": "0.007 × 0.08 =",
+   "answer": 0.00056,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "5 × 4 = 20, and there are 3 decimal places in total, so the product is 0.020 = 0.02.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "7 × 8 = 56. There are 3 + 2 = 5 decimal places in total, so the product is 0.00056.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "2",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "6.04 × 2.5 = ?",
-   "answer": 15.1,
+   "q": "4.8 ÷ 0.012 =",
+   "answer": 400,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "604 × 25 = 15100, with 3 decimal places: 15.100 = 15.1.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "Multiply both numbers by 1000: 4800 ÷ 12 = 400.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "3",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "0.36 ÷ 0.06 = ?",
-   "answer": 6,
+   "q": "0.0036 ÷ 0.09 =",
+   "answer": 0.04,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "Multiply both by 100: 36 ÷ 6 = 6.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "Multiply both by 10000: 36 ÷ 900 = 0.04.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "4",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "8 ÷ 0.25 = ?",
-   "answer": 32,
+   "q": "3 ÷ 0.375 =",
+   "answer": 8,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "Multiply both by 100: 800 ÷ 25 = 32. Dividing by a number less than 1 makes the answer bigger.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "Multiply both by 1000: 3000 ÷ 375 = 8.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "5",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "12.3 − 0.89 = ?",
-   "answer": 11.41,
+   "q": "25.2 × 0.15 =",
+   "answer": 3.78,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "12.30 − 0.89 = 11.41.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "252 × 15 = 3780, with 3 decimal places: 3.780 = 3.78.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "6",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "100 − 3.07 = ?",
-   "answer": 96.93,
+   "q": "5 − 0.6 × 2.5 =",
+   "answer": 3.5,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "100.00 − 3.07 = 96.93.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "Multiply first: 0.6 × 2.5 = 1.5. Then 5 − 1.5 = 3.5.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "7",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "45.6 ÷ 0.8 = ?",
-   "answer": 57,
+   "q": "(7.5 − 2.1) ÷ 0.06 =",
+   "answer": 90,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "Multiply both by 10: 456 ÷ 8 = 57.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "Brackets first: 7.5 − 2.1 = 5.4. Then 5.4 ÷ 0.06 = 540 ÷ 6 = 90.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "8",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "3.5 × 0.12 = ?",
-   "answer": 0.42,
+   "q": "0.84 ÷ 0.7 + 0.25 × 4 =",
+   "answer": 2.2,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "35 × 12 = 420, with 3 decimal places: 0.420 = 0.42.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "Divide and multiply first: 0.84 ÷ 0.7 = 1.2 and 0.25 × 4 = 1. Then 1.2 + 1 = 2.2.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "9",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "7.07 + 12.9 + 0.003 = ?",
-   "answer": 19.973,
+   "q": "0.9 × 0.9 − 0.8 × 0.8 =",
+   "answer": 0.17,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "Line up the points: 7.070 + 12.900 + 0.003 = 19.973.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "0.81 − 0.64 = 0.17.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "10",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "0.9 ÷ 0.03 = ?",
-   "answer": 30,
+   "q": "0.3² + 0.4² =",
+   "answer": 0.25,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "Multiply both by 100: 90 ÷ 3 = 30.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "0.3² = 0.09 and 0.4² = 0.16, so the sum is 0.25. (Careful: 0.3² is not 0.9.)",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "11",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "2.04 ÷ 0.6 = ?",
-   "answer": 3.4,
+   "q": "36 ÷ 0.045 =",
+   "answer": 800,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "Multiply both by 10: 20.4 ÷ 6 = 3.4.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "Multiply both by 1000: 36000 ÷ 45 = 800.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "12",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "0.5 ÷ 4 = ?",
-   "answer": 0.125,
+   "q": "12.5 × 0.16 =",
+   "answer": 2,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": false,
-   "why": "0.50 ÷ 4 = 0.125.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "why": "125 × 16 = 2000, with 3 decimal places: 2.000 = 2.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "13",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "15.75 ÷ 2.5 = ?",
-   "answer": 6.3,
+   "q": "What number multiplied by 0.04 gives 3.6?",
+   "answer": 90,
    "hint": "Write the number only. Include the minus sign if it is negative.",
-   "word": false,
-   "why": "Multiply both by 10: 157.5 ÷ 25 = 6.3.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "word": true,
+   "why": "3.6 ÷ 0.04 = 360 ÷ 4 = 90.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "14",
    "cat": "Tricky Computation",
    "type": "text",
    "grade": "number",
-   "q": "Ben says 5 ÷ 0.1 = 0.5. What is the correct quotient?",
-   "answer": 50,
+   "q": "? ÷ 0.5 = 18.4. What is ?",
+   "answer": 9.2,
    "hint": "Write the number only. Include the minus sign if it is negative.",
-   "word": false,
-   "why": "Dividing by 0.1 is the same as multiplying by 10, so 5 ÷ 0.1 = 50.",
-   "remember": "Watch the zeros: multiply as whole numbers, then count the decimal places in BOTH factors. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole."
+   "word": true,
+   "why": "Undo the division by multiplying: 18.4 × 0.5 = 9.2.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "15",
-   "cat": "Reasoning",
-   "type": "mc",
-   "q": "Which of these is the largest?",
-   "choices": [
-    "0.5",
-    "0.45",
-    "0.099",
-    "0.4999"
-   ],
-   "why": "Compare place by place: 0.5000 is greater than 0.4999, 0.4500 and 0.0990.",
-   "answer": 0,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "cat": "Tricky Computation",
+   "type": "text",
+   "grade": "number",
+   "q": "12.6 − ? = 4.875. What is ?",
+   "answer": 7.725,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "12.600 − 4.875 = 7.725.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "16",
-   "cat": "Reasoning",
-   "type": "mc",
-   "q": "Without calculating, 0.9 × 4.2 is…",
-   "choices": [
-    "greater than 4.2",
-    "less than 4.2",
-    "equal to 4.2",
-    "impossible to tell"
-   ],
-   "why": "Multiplying by a number less than 1 makes the result smaller than 4.2.",
-   "answer": 1,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "cat": "Tricky Computation",
+   "type": "text",
+   "grade": "number",
+   "q": "0.6 × ? = 0.0042. What is ?",
+   "answer": 0.007,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.0042 ÷ 0.6 = 0.042 ÷ 6 = 0.007.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "17",
-   "cat": "Reasoning",
-   "type": "mc",
-   "q": "Which is the best estimate of 19.8 ÷ 4.1?",
-   "choices": [
-    "50",
-    "0.5",
-    "5",
-    "80"
-   ],
-   "why": "19.8 is about 20 and 4.1 is about 4, and 20 ÷ 4 = 5.",
-   "answer": 2,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "cat": "Tricky Computation",
+   "type": "text",
+   "grade": "number",
+   "q": "A number is multiplied by 0.01 and the result is 0.037. What was the number?",
+   "answer": 3.7,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "Multiplying by 0.01 divides by 100, so undo it by multiplying by 100: 0.037 × 100 = 3.7.",
+   "remember": "Count the decimal places in BOTH factors when you multiply. To divide, slide the point the same number of places in both numbers until the divisor is whole. Do multiplication and division before addition and subtraction."
   },
   {
    "n": "18",
    "cat": "Reasoning",
    "type": "mc",
-   "q": "Which expression equals 2.4 × 0.35?",
+   "q": "Which quotient is the greatest?",
    "choices": [
-    "24 × 35 ÷ 100",
-    "24 × 35 ÷ 10",
-    "24 × 35",
-    "24 × 35 ÷ 1000"
+    "6 ÷ 0.002",
+    "6 ÷ 0.02",
+    "6 ÷ 0.2",
+    "6 ÷ 2"
    ],
-   "why": "2.4 has 1 decimal place and 0.35 has 2, so divide 24 × 35 = 840 by 1000 to get 0.84.",
-   "answer": 3,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "answer": 0,
+   "word": false,
+   "why": "The smaller the divisor, the larger the quotient: 6 ÷ 0.002 = 3000.",
+   "remember": "Estimate first. Dividing by a number less than 1 makes the answer bigger; multiplying by one makes it smaller. Each extra zero after the point changes the size by a factor of 10."
   },
   {
    "n": "19",
    "cat": "Reasoning",
    "type": "mc",
-   "q": "Which division has the same quotient as 4.5 ÷ 0.15?",
+   "q": "Kai worked out 4.5 ÷ 0.09 as 45 ÷ 9 = 5. What is the correct quotient?",
    "choices": [
-    "450 ÷ 15",
-    "45 ÷ 15",
-    "4.5 ÷ 15",
-    "450 ÷ 1.5"
+    "5",
+    "50",
+    "0.5",
+    "500"
    ],
-   "why": "Multiplying both numbers by 100 keeps the quotient the same: 450 ÷ 15 = 30.",
-   "answer": 0,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "answer": 1,
+   "word": false,
+   "why": "Move the point 2 places in BOTH numbers: 4.5 ÷ 0.09 = 450 ÷ 9 = 50. Kai only moved the 4.5 one place.",
+   "remember": "Estimate first. Dividing by a number less than 1 makes the answer bigger; multiplying by one makes it smaller. Each extra zero after the point changes the size by a factor of 10."
   },
   {
    "n": "20",
    "cat": "Reasoning",
    "type": "mc",
-   "q": "Which quotient is less than 1?",
+   "q": "Which expression has the greatest value?",
    "choices": [
-    "3.2 ÷ 0.4",
-    "3.2 ÷ 4",
-    "3.2 ÷ 0.8",
-    "4 ÷ 0.5"
+    "0.9 × 0.8",
+    "0.9 − 0.8",
+    "0.9 ÷ 0.8",
+    "0.9 × 0.08"
    ],
-   "why": "3.2 ÷ 4 = 0.8. The others are 8, 4 and 8.",
-   "answer": 1,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "answer": 2,
+   "word": false,
+   "why": "0.9 ÷ 0.8 = 1.125, which is more than 1. The others are 0.72, 0.1 and 0.072.",
+   "remember": "Estimate first. Dividing by a number less than 1 makes the answer bigger; multiplying by one makes it smaller. Each extra zero after the point changes the size by a factor of 10."
   },
   {
    "n": "21",
    "cat": "Reasoning",
    "type": "mc",
-   "q": "Juice A is 1.5 L for $4.20. Juice B is 2 L for $5.40. Which is the better buy?",
+   "q": "Which two expressions have the same value?",
    "choices": [
-    "Juice A, at $2.80 per liter",
-    "They cost the same",
-    "Juice B, at $2.70 per liter",
-    "It cannot be known"
+    "0.6 × 0.5 and 0.6 × 0.05",
+    "0.6 × 0.5 and 0.06 × 0.5",
+    "0.6 × 0.5 and 6 × 0.5",
+    "0.6 × 0.5 and 0.06 × 5"
    ],
-   "why": "A costs 4.20 ÷ 1.5 = $2.80 per liter, B costs 5.40 ÷ 2 = $2.70 per liter, so B is cheaper.",
-   "answer": 2,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "answer": 3,
+   "word": false,
+   "why": "0.6 × 0.5 = 0.3 and 0.06 × 5 = 0.3. The other pairs give 0.3 vs 0.03, 0.3 vs 0.03, and 0.3 vs 3.",
+   "remember": "Estimate first. Dividing by a number less than 1 makes the answer bigger; multiplying by one makes it smaller. Each extra zero after the point changes the size by a factor of 10."
   },
   {
    "n": "22",
    "cat": "Reasoning",
    "type": "mc",
-   "q": "Lena says 3.2 × 0.5 = 16. Which statement is right?",
+   "q": "About how many pieces 0.48 m long can be cut from a 20 m rope?",
    "choices": [
-    "The product is 0.16",
-    "The product is 160",
-    "She is correct",
-    "The product is 1.6"
+    "About 40",
+    "About 10",
+    "About 400",
+    "About 4"
    ],
-   "why": "32 × 5 = 160, and with 2 decimal places in total the product is 1.60 = 1.6.",
-   "answer": 3,
-   "remember": "Estimate first. Multiplying by a number less than 1 makes things smaller; dividing by a number less than 1 makes things bigger.",
-   "word": false
+   "answer": 0,
+   "word": false,
+   "why": "0.48 is about 0.5, and 20 ÷ 0.5 = 40.",
+   "remember": "Estimate first. Dividing by a number less than 1 makes the answer bigger; multiplying by one makes it smaller. Each extra zero after the point changes the size by a factor of 10."
   },
   {
    "n": "23",
-   "cat": "Story Problems",
-   "type": "text",
-   "grade": "number",
-   "q": "A taxi charges $3.50 plus $1.75 per mile. How much does a 6.4-mile trip cost, in dollars?",
-   "answer": 14.7,
-   "hint": "Write the number only. Include the minus sign if it is negative.",
-   "word": true,
-   "why": "6.4 × 1.75 = 11.2, and 11.2 + 3.5 = $14.70.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "cat": "Reasoning",
+   "type": "mc",
+   "q": "How does 5.6 ÷ 0.08 compare with 5.6 ÷ 8?",
+   "choices": [
+    "It is 10 times as large",
+    "It is 100 times as large",
+    "It is the same",
+    "It is 100 times as small"
+   ],
+   "answer": 1,
+   "word": false,
+   "why": "0.08 is 8 divided by 100, so dividing by 0.08 gives a result 100 times larger: 70 vs 0.7.",
+   "remember": "Estimate first. Dividing by a number less than 1 makes the answer bigger; multiplying by one makes it smaller. Each extra zero after the point changes the size by a factor of 10."
   },
   {
    "n": "24",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Maria buys 3 notebooks at $2.85 each and pays with a $10 bill. How much change does she get, in dollars?",
-   "answer": 1.45,
+   "q": "A phone plan costs $29.95 a month and includes 2.5 GB. Each extra 0.5 GB (or part of it) costs $4.50. Sam uses 4.5 GB. What is his bill, in dollars?",
+   "answer": 47.95,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "3 × 2.85 = 8.55, and 10 − 8.55 = $1.45.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "He uses 4.5 − 2.5 = 2 extra GB, which is 4 blocks of 0.5 GB. 4 × 4.50 = 18, and 29.95 + 18 = $47.95.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "25",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "A recipe uses 0.75 cup of sugar per batch. Sam has 6 cups of sugar. How many batches can he make?",
-   "answer": 8,
+   "q": "A car travels 12.5 km on each liter of fuel, and fuel costs $1.60 per liter. How much does fuel cost for a 250 km trip, in dollars?",
+   "answer": 32,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "6 ÷ 0.75 = 600 ÷ 75 = 8 batches.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "250 ÷ 12.5 = 20 liters, and 20 × 1.60 = $32.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "26",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "A ribbon 8.4 m long is cut into pieces 0.35 m long. How many pieces are there?",
-   "answer": 24,
+   "q": "A swimmer completes 4 laps in 3.6 minutes. At the same pace, how many minutes will 7.5 laps take?",
+   "answer": 6.75,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "Multiply both by 100: 840 ÷ 35 = 24 pieces.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "One lap takes 3.6 ÷ 4 = 0.9 minute, and 7.5 × 0.9 = 6.75 minutes.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "27",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "A phone plan costs $24.99 per month. How much does 12 months cost, in dollars?",
-   "answer": 299.88,
+   "q": "A recipe makes 2.4 L of punch using 0.3 L of syrup. How many liters of syrup are needed to make 10.8 L of punch?",
+   "answer": 1.35,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "24.99 × 12 = 299.88, so the plan costs $299.88.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "10.8 ÷ 2.4 = 4.5 times as much, so 4.5 × 0.3 = 1.35 L of syrup.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "28",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Three friends split a $47.55 bill equally. How much does each friend pay, in dollars?",
-   "answer": 15.85,
+   "q": "A jar holds 25 quarters ($0.25 each), 40 dimes ($0.10 each) and 63 nickels ($0.05 each). What is the total value, in dollars?",
+   "answer": 13.4,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "47.55 ÷ 3 = $15.85 each.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "25 × 0.25 = 6.25, 40 × 0.10 = 4.00 and 63 × 0.05 = 3.15. The total is 6.25 + 4 + 3.15 = $13.40.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "29",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "A sprinter runs 100 m in 12.5 s at a steady speed. How many meters does the sprinter cover each second?",
-   "answer": 8,
+   "q": "Ava buys 2.5 kg of apples at $3.20 per kg and 1.75 kg of grapes at $4.80 per kg. She pays with a $20 bill. How much change does she get, in dollars?",
+   "answer": 3.6,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "100 ÷ 12.5 = 1000 ÷ 125 = 8 meters per second.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "Apples: 2.5 × 3.20 = 8. Grapes: 1.75 × 4.80 = 8.40. Total 16.40, so change is 20 − 16.40 = $3.60.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "30",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "A bag of rice has a mass of 2.4 kg. One serving is 0.15 kg. How many servings are in the bag?",
-   "answer": 16,
+   "q": "A 10 m ribbon is cut into as many 0.35 m pieces as possible. How many meters of ribbon are left over?",
+   "answer": 0.2,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "Multiply both by 100: 240 ÷ 15 = 16 servings.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "10 ÷ 0.35 = 28.57…, so 28 full pieces. They use 28 × 0.35 = 9.8 m, leaving 10 − 9.8 = 0.2 m.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "31",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Elena ran 3.25 km on Monday, 4.8 km on Wednesday and 2.95 km on Friday. How many kilometers did she run in all?",
-   "answer": 11,
+   "q": "A 45.6 L tank is empty. A tap adds 1.2 L every minute, but a leak loses 0.4 L every minute. How many minutes until the tank is full?",
+   "answer": 57,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "3.25 + 4.80 + 2.95 = 11.00, so 11 km.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "The tank gains 1.2 − 0.4 = 0.8 L per minute, and 45.6 ÷ 0.8 = 57 minutes.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "32",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Paint costs $18.75 per can. Jo has $100. How many whole cans can she buy?",
-   "answer": 5.0,
+   "q": "Train A travels 2.4 hours at 87.5 km/h. Train B travels 3.5 hours at 64.8 km/h. How many kilometers farther does Train B go?",
+   "answer": 16.8,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "100 ÷ 18.75 = 5.33…, but she cannot buy part of a can, so she can buy 5 cans.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "A goes 2.4 × 87.5 = 210 km. B goes 3.5 × 64.8 = 226.8 km. The difference is 226.8 − 210 = 16.8 km.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "33",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Movie tickets cost $7.50 each. A group of 14 gets $0.75 off every ticket. What is the total cost for the group, in dollars?",
-   "answer": 94.5,
+   "q": "Leo earns $14.50 per hour. What is the smallest whole number of hours he must work to earn at least $200?",
+   "answer": 13,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "Each ticket costs 7.50 − 0.75 = 6.75, and 14 × 6.75 = $94.50.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "200 ÷ 14.5 = 13.79…, and 13 hours is not enough (13 × 14.50 = 188.50), so he needs 14 hours.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "34",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "At 6 a.m. the temperature was 14.6°C. It fell 0.4°C every hour for 7 hours. What was the temperature then, in °C?",
-   "answer": 11.8,
+   "q": "Four friends share equally a $63.80 dinner bill plus a $9.40 tip. How much does each friend pay, in dollars?",
+   "answer": 18.3,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "It fell 7 × 0.4 = 2.8 degrees, and 14.6 − 2.8 = 11.8°C.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "63.80 + 9.40 = 73.20, and 73.20 ÷ 4 = $18.30.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "35",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "A pack of 12 pencils costs $3.60. One pencil sold alone costs $0.35. How many dollars cheaper is each pencil in the pack?",
-   "answer": 0.05,
+   "q": "A student's five quiz scores are 8.5, 9.25, 7.75, 10 and 9.5. What is the mean score?",
+   "answer": 9,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "In the pack each pencil costs 3.60 ÷ 12 = $0.30, so each is 0.35 − 0.30 = $0.05 cheaper.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "The sum is 45, and 45 ÷ 5 = 9.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "36",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Tom cycles for 4.5 hours at 12.6 km per hour. How many kilometers does he travel?",
-   "answer": 56.7,
+   "q": "A pack of 6 batteries costs $8.70 and a pack of 10 costs $13.90. How many dollars cheaper is each battery in the pack of 10?",
+   "answer": 0.06,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "45 × 126 = 5670, with 2 decimal places: 56.7 km.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "8.70 ÷ 6 = 1.45 and 13.90 ÷ 10 = 1.39, so each is 1.45 − 1.39 = $0.06 cheaper.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "37",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "A 5-liter jug is full. Anna pours out 6 cups, each holding 0.25 liter. How many liters are left?",
-   "answer": 3.5,
+   "q": "A bottle holds 0.75 L. How many milliliters are in 6.4 bottles? (1 L = 1000 mL)",
+   "answer": 4800,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "6 × 0.25 = 1.5 liters poured, and 5 − 1.5 = 3.5 liters left.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "0.75 × 6.4 = 4.8 L, and 4.8 × 1000 = 4800 mL.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "38",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Jada earns $11.50 per hour and works 6.5 hours. She then spends $29.50. How many dollars does she have left from that pay?",
-   "answer": 45.25,
+   "q": "A rectangle is 12.5 cm long, and its width is 0.4 times its length. What is its area, in square centimeters?",
+   "answer": 62.5,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "11.5 × 6.5 = 74.75, and 74.75 − 29.50 = $45.25.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "Width = 0.4 × 12.5 = 5 cm. Area = 12.5 × 5 = 62.5 cm².",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "39",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "One coin has a mass of 2.5 g. A roll holds 40 coins in a wrapper of mass 12.75 g. What is the mass of the full roll, in grams?",
-   "answer": 112.75,
+   "q": "A garden is 8.4 m by 5.5 m. Fencing costs $6.25 per meter. How much does it cost to fence all four sides, in dollars?",
+   "answer": 173.75,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "40 × 2.5 = 100, and 100 + 12.75 = 112.75 g.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "Perimeter = 2 × (8.4 + 5.5) = 27.8 m, and 27.8 × 6.25 = $173.75.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   },
   {
    "n": "40",
    "cat": "Story Problems",
    "type": "text",
    "grade": "number",
-   "q": "Ana ran 100 m in 13.42 s and Bea ran it in 12.9 s. By how many seconds did Bea beat Ana?",
-   "answer": 0.52,
+   "q": "A seedling grows 0.35 cm per day for 12 days, then 0.2 cm per day for 9 days. How many centimeters did it grow in all?",
+   "answer": 6,
    "hint": "Write the number only. Include the minus sign if it is negative.",
    "word": true,
-   "why": "13.42 − 12.90 = 0.52 seconds.",
-   "remember": "Decide what is happening — joining, taking away, equal groups or sharing — write the one expression that matches, then solve. Check that the answer makes sense for the story."
+   "why": "12 × 0.35 = 4.2 and 9 × 0.2 = 1.8, so it grew 4.2 + 1.8 = 6 cm.",
+   "remember": "Break it into steps. Decide what is happening in each step, solve it, then check the final answer makes sense for the story (and whether you need a whole number)."
   }
  ]
 }
