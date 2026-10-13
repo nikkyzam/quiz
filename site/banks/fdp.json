@@ -1,0 +1,1164 @@
+{
+ "F": [
+  {
+   "n": "1",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 3/8 as a decimal.",
+   "answer": 0.375,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "3 ÷ 8 = 0.375.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "2",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 7/25 as a decimal.",
+   "answer": 0.28,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "7 ÷ 25 = 0.28.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "3",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 13/16 as a decimal.",
+   "answer": 0.8125,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "13 ÷ 16 = 0.8125.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "4",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 2/3 as a decimal, rounded to the nearest hundredth.",
+   "answer": 0.67,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "2 ÷ 3 = 0.6667…, which rounds to 0.67.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "5",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.6 as a percent. (Enter the number only.)",
+   "answer": 60,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.6 × 100 = 60%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "6",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.325 as a percent. (Enter the number only.)",
+   "answer": 32.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.325 × 100 = 32.5%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "7",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.0045 as a percent. (Enter the number only.)",
+   "answer": 0.45,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.0045 × 100 = 0.45%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "8",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 2.4 as a percent. (Enter the number only.)",
+   "answer": 240,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "2.4 × 100 = 240%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "9",
+   "cat": "Percents to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 4.5% as a decimal.",
+   "answer": 0.045,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "4.5 ÷ 100 = 0.045.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "10",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 45% as a fraction in simplest form.",
+   "choices": [
+    "45/10",
+    "4/5",
+    "9/20",
+    "9/10"
+   ],
+   "answer": 2,
+   "word": false,
+   "why": "45% = 45/100. Divide top and bottom by 5: 9/20.",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "11",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 120% as a fraction in simplest form.",
+   "choices": [
+    "1/20",
+    "12/100",
+    "3/5",
+    "6/5"
+   ],
+   "answer": 3,
+   "word": false,
+   "why": "120% = 120/100. Divide top and bottom by 20: 6/5 (a fraction bigger than 1).",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "12",
+   "cat": "Match It",
+   "type": "match",
+   "q": "Match each fraction to its decimal.",
+   "pairs": [
+    [
+     "3/4",
+     "0.75"
+    ],
+    [
+     "1/8",
+     "0.125"
+    ],
+    [
+     "2/5",
+     "0.4"
+    ],
+    [
+     "7/20",
+     "0.35"
+    ]
+   ],
+   "why": "3 ÷ 4 = 0.75, 1 ÷ 8 = 0.125, 2 ÷ 5 = 0.4 and 7 ÷ 20 = 0.35.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "13",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−9.6) ÷ (−16) =",
+   "answer": 0.6,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 9.6 ÷ 16 = 0.6, so the quotient is 0.6.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "14",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "5.2 ÷ (−0.4) =",
+   "answer": -13,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 5.2 ÷ 0.4 = 13, so the quotient is -13.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "15",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "17.5 ÷ (−7) =",
+   "answer": -2.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 17.5 ÷ 7 = 2.5, so the quotient is -2.5.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "16",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−0.84) ÷ 0.12 =",
+   "answer": -7,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 0.84 ÷ 0.12 = 7, so the quotient is -7.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "17",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−0.096) ÷ 0.8 =",
+   "answer": -0.12,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 0.096 ÷ 0.8 = 0.12, so the quotient is -0.12.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "18",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−2.4) ÷ (−0.06) =",
+   "answer": 40,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 2.4 ÷ 0.06 = 40, so the quotient is 40.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "19",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−19.2) ÷ (−4) =",
+   "answer": 4.8,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 19.2 ÷ 4 = 4.8, so the quotient is 4.8.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "20",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide 100 ÷ 7 and round to the nearest hundredth.",
+   "answer": 14.29,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "100 ÷ 7 = 14.2857…, which rounds to 14.29. The sign is positive, so the answer is 14.29.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "21",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide (−59.3) ÷ 11 and round to the nearest hundredth.",
+   "answer": -5.39,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "59.3 ÷ 11 = 5.3909…, which rounds to 5.39. The sign is negative, so the answer is -5.39.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "22",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide 8 ÷ 0.3 and round to the nearest hundredth.",
+   "answer": 26.67,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "8 ÷ 0.3 = 26.6667…, which rounds to 26.67. The sign is positive, so the answer is 26.67.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "23",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide 45.9 ÷ 7 and round to the nearest hundredth.",
+   "answer": 6.56,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "45.9 ÷ 7 = 6.5571…, which rounds to 6.56. The sign is positive, so the answer is 6.56.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "24",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Maya buys 7 muffins at $2.35 each and pays with a $20 bill. How much change does she get, in dollars?",
+   "answer": 3.55,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "7 × 2.35 = 16.45, and 20 − 16.45 = $3.55.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "25",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "An account is at −$38.40. A deposit of $120.00 is made, then a $45.75 bill is paid. What is the new balance, in dollars?",
+   "answer": 35.85,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "−38.40 + 120.00 = 81.60. Then 81.60 − 45.75 = $35.85.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "26",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "A car drives 289.5 miles in 4.5 hours. What is its average speed in miles per hour, rounded to the nearest hundredth?",
+   "answer": 64.33,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "289.5 ÷ 4.5 = 64.333…, which rounds to 64.33 mph.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "27",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Kai runs 2.4 km a day, 5 days a week. Lena runs 3.15 km a day, 4 days a week. How many kilometers farther does the one who runs farther go?",
+   "answer": 0.6,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "Kai: 2.4 × 5 = 12 km. Lena: 3.15 × 4 = 12.6 km. Lena runs 12.6 − 12 = 0.6 km farther.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "28",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Five friends share a debt of −$236.75 equally. What is each friend's share, as a signed number in dollars?",
+   "answer": -47.35,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "236.75 ÷ 5 = 47.35, and a debt is negative, so each share is −$47.35.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "29",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Elena has $85.20. She spends $27.35 on shoes and $18.90 on lunch, then her aunt gives her $12.50. How much does she have now, in dollars?",
+   "answer": 51.45,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "27.35 + 18.90 = 46.25 spent. 85.20 − 46.25 = 38.95. Then 38.95 + 12.50 = $51.45.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "30",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "A hiker starts 120.5 m above sea level and descends 7.25 m every minute for 20 minutes. What is her new elevation, as a signed number in meters?",
+   "answer": -24.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "She descends 20 × 7.25 = 145 m. Then 120.5 − 145 = −24.5 m (below sea level).",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "31",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Three friends each buy a $8.75 movie ticket, a $4.60 popcorn and a $3.25 drink. What is the total cost, in dollars?",
+   "answer": 49.8,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "One friend: 8.75 + 4.60 + 3.25 = 16.60. Three friends: 3 × 16.60 = $49.80.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  }
+ ],
+ "C": [
+  {
+   "n": "1",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 3/8 as a decimal.",
+   "answer": 0.375,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "3 ÷ 8 = 0.375.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "2",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 9/20 as a decimal.",
+   "answer": 0.45,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "9 ÷ 20 = 0.45.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "3",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 7/25 as a decimal.",
+   "answer": 0.28,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "7 ÷ 25 = 0.28.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "4",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 11/40 as a decimal.",
+   "answer": 0.275,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "11 ÷ 40 = 0.275.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "5",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 13/16 as a decimal.",
+   "answer": 0.8125,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "13 ÷ 16 = 0.8125.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "6",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 17/50 as a decimal.",
+   "answer": 0.34,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "17 ÷ 50 = 0.34.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "7",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 2/3 as a decimal, rounded to the nearest hundredth.",
+   "answer": 0.67,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "2 ÷ 3 = 0.6667…, which rounds to 0.67.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "8",
+   "cat": "Fractions to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 7/9 as a decimal, rounded to the nearest hundredth.",
+   "answer": 0.78,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "7 ÷ 9 = 0.7778…, which rounds to 0.78.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "9",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.6 as a percent. (Enter the number only.)",
+   "answer": 60,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.6 × 100 = 60%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "10",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.07 as a percent. (Enter the number only.)",
+   "answer": 7,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.07 × 100 = 7%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "11",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.325 as a percent. (Enter the number only.)",
+   "answer": 32.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.325 × 100 = 32.5%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "12",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 1.25 as a percent. (Enter the number only.)",
+   "answer": 125,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "1.25 × 100 = 125%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "13",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.0045 as a percent. (Enter the number only.)",
+   "answer": 0.45,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.0045 × 100 = 0.45%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "14",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.19 as a percent. (Enter the number only.)",
+   "answer": 19,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.19 × 100 = 19%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "15",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 2.4 as a percent. (Enter the number only.)",
+   "answer": 240,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "2.4 × 100 = 240%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "16",
+   "cat": "Decimals to Percents",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 0.5 as a percent. (Enter the number only.)",
+   "answer": 50,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "0.5 × 100 = 50%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "17",
+   "cat": "Percents to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 4.5% as a decimal.",
+   "answer": 0.045,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "4.5 ÷ 100 = 0.045.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "18",
+   "cat": "Percents to Decimals",
+   "type": "text",
+   "grade": "number",
+   "q": "Write 130% as a decimal.",
+   "answer": 1.3,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "130 ÷ 100 = 1.3.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  },
+  {
+   "n": "19",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 45% as a fraction in simplest form.",
+   "choices": [
+    "45/10",
+    "4/5",
+    "9/10",
+    "9/20"
+   ],
+   "answer": 3,
+   "word": false,
+   "why": "45% = 45/100. Divide top and bottom by 5: 9/20.",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "20",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 8% as a fraction in simplest form.",
+   "choices": [
+    "2/25",
+    "8/10",
+    "4/5",
+    "1/8"
+   ],
+   "answer": 0,
+   "word": false,
+   "why": "8% = 8/100. Divide top and bottom by 4: 2/25.",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "21",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 62.5% as a fraction in simplest form.",
+   "choices": [
+    "62/5",
+    "5/8",
+    "3/5",
+    "625/10"
+   ],
+   "answer": 1,
+   "word": false,
+   "why": "62.5% = 62.5/100 = 625/1000. Divide top and bottom by 125: 5/8.",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "22",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 120% as a fraction in simplest form.",
+   "choices": [
+    "1/20",
+    "12/100",
+    "6/5",
+    "3/5"
+   ],
+   "answer": 2,
+   "word": false,
+   "why": "120% = 120/100. Divide top and bottom by 20: 6/5 (a fraction bigger than 1).",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "23",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 15% as a fraction in simplest form.",
+   "choices": [
+    "15/10",
+    "1/5",
+    "3/4",
+    "3/20"
+   ],
+   "answer": 3,
+   "word": false,
+   "why": "15% = 15/100. Divide top and bottom by 5: 3/20.",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "24",
+   "cat": "Percents to Fractions",
+   "type": "mc",
+   "q": "Write 72% as a fraction in simplest form.",
+   "choices": [
+    "18/25",
+    "72/10",
+    "7/20",
+    "36/50"
+   ],
+   "answer": 0,
+   "word": false,
+   "why": "72% = 72/100. Divide top and bottom by 4: 18/25. (36/50 is not in simplest form.)",
+   "remember": "Percent → fraction: put the percent over 100, then simplify by dividing top and bottom by the same number."
+  },
+  {
+   "n": "25",
+   "cat": "Match It",
+   "type": "match",
+   "q": "Match each fraction to its decimal.",
+   "pairs": [
+    [
+     "3/4",
+     "0.75"
+    ],
+    [
+     "1/8",
+     "0.125"
+    ],
+    [
+     "2/5",
+     "0.4"
+    ],
+    [
+     "7/20",
+     "0.35"
+    ]
+   ],
+   "why": "3 ÷ 4 = 0.75, 1 ÷ 8 = 0.125, 2 ÷ 5 = 0.4 and 7 ÷ 20 = 0.35.",
+   "remember": "Fraction → decimal: divide the numerator by the denominator. If it repeats, round as asked."
+  },
+  {
+   "n": "26",
+   "cat": "Match It",
+   "type": "match",
+   "q": "Match each decimal to its percent.",
+   "pairs": [
+    [
+     "0.6",
+     "60%"
+    ],
+    [
+     "0.06",
+     "6%"
+    ],
+    [
+     "0.006",
+     "0.6%"
+    ],
+    [
+     "6",
+     "600%"
+    ]
+   ],
+   "why": "Multiply each by 100: 0.6 → 60%, 0.06 → 6%, 0.006 → 0.6%, 6 → 600%.",
+   "remember": "Decimal → percent: multiply by 100 (move the point two places right). Percent → decimal: divide by 100 (two places left)."
+  }
+ ],
+ "Q": [
+  {
+   "n": "1",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−9.6) ÷ (−16) =",
+   "answer": 0.6,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 9.6 ÷ 16 = 0.6, so the quotient is 0.6.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "2",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−21.6) ÷ 0.9 =",
+   "answer": -24,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 21.6 ÷ 0.9 = 24, so the quotient is -24.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "3",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "5.2 ÷ (−0.4) =",
+   "answer": -13,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 5.2 ÷ 0.4 = 13, so the quotient is -13.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "4",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−3.75) ÷ (−2.5) =",
+   "answer": 1.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 3.75 ÷ 2.5 = 1.5, so the quotient is 1.5.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "5",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "17.5 ÷ (−7) =",
+   "answer": -2.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 17.5 ÷ 7 = 2.5, so the quotient is -2.5.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "6",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−0.84) ÷ 0.12 =",
+   "answer": -7,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 0.84 ÷ 0.12 = 7, so the quotient is -7.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "7",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−45.6) ÷ (−12) =",
+   "answer": 3.8,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 45.6 ÷ 12 = 3.8, so the quotient is 3.8.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "8",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−0.096) ÷ 0.8 =",
+   "answer": -0.12,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 0.096 ÷ 0.8 = 0.12, so the quotient is -0.12.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "9",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "11.7 ÷ (−1.3) =",
+   "answer": -9,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 11.7 ÷ 1.3 = 9, so the quotient is -9.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "10",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−2.4) ÷ (−0.06) =",
+   "answer": 40,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 2.4 ÷ 0.06 = 40, so the quotient is 40.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "11",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "8.25 ÷ (−3) =",
+   "answer": -2.75,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 8.25 ÷ 3 = 2.75, so the quotient is -2.75.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "12",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−19.2) ÷ (−4) =",
+   "answer": 4.8,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 19.2 ÷ 4 = 4.8, so the quotient is 4.8.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "13",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−1.8) ÷ (−0.15) =",
+   "answer": 12,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Same signs → positive. 1.8 ÷ 0.15 = 12, so the quotient is 12.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "14",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "(−27.3) ÷ 2.1 =",
+   "answer": -13,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 27.3 ÷ 2.1 = 13, so the quotient is -13.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "15",
+   "cat": "Find Each Quotient",
+   "type": "text",
+   "grade": "number",
+   "q": "0.45 ÷ (−0.9) =",
+   "answer": -0.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": false,
+   "why": "Different signs → negative. 0.45 ÷ 0.9 = 0.5, so the quotient is -0.5.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "16",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide 100 ÷ 7 and round to the nearest hundredth.",
+   "answer": 14.29,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "100 ÷ 7 = 14.2857…, which rounds to 14.29. The sign is positive, so the answer is 14.29.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "17",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide (−59.3) ÷ 11 and round to the nearest hundredth.",
+   "answer": -5.39,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "59.3 ÷ 11 = 5.3909…, which rounds to 5.39. The sign is negative, so the answer is -5.39.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "18",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide 8 ÷ 0.3 and round to the nearest hundredth.",
+   "answer": 26.67,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "8 ÷ 0.3 = 26.6667…, which rounds to 26.67. The sign is positive, so the answer is 26.67.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "19",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide (−71) ÷ (−12) and round to the nearest hundredth.",
+   "answer": 5.92,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "71 ÷ 12 = 5.9167…, which rounds to 5.92. The sign is positive, so the answer is 5.92.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "20",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide 45.9 ÷ 7 and round to the nearest hundredth.",
+   "answer": 6.56,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "45.9 ÷ 7 = 6.5571…, which rounds to 6.56. The sign is positive, so the answer is 6.56.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  },
+  {
+   "n": "21",
+   "cat": "Divide and Round",
+   "type": "text",
+   "grade": "number",
+   "q": "Divide (−12.5) ÷ 9 and round to the nearest hundredth.",
+   "answer": -1.39,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "12.5 ÷ 9 = 1.3889…, which rounds to 1.39. The sign is negative, so the answer is -1.39.",
+   "remember": "Same signs → positive, different signs → negative. To divide by a decimal, slide the point the same number of places in both numbers until the divisor is whole. When rounding, divide through the thousandths and look at that digit."
+  }
+ ],
+ "W": [
+  {
+   "n": "1",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "A 18.6-foot rope is cut into pieces that are each 4.5 feet long. How many full pieces can be cut?",
+   "answer": 4,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "18.6 ÷ 4.5 = 4.13…, but only whole pieces count, so 4 full pieces.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "2",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Maya buys 7 muffins at $2.35 each and pays with a $20 bill. How much change does she get, in dollars?",
+   "answer": 3.55,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "7 × 2.35 = 16.45, and 20 − 16.45 = $3.55.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "3",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "An account is at −$38.40. A deposit of $120.00 is made, then a $45.75 bill is paid. What is the new balance, in dollars?",
+   "answer": 35.85,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "−38.40 + 120.00 = 81.60. Then 81.60 − 45.75 = $35.85.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "4",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "A car drives 289.5 miles in 4.5 hours. What is its average speed in miles per hour, rounded to the nearest hundredth?",
+   "answer": 64.33,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "289.5 ÷ 4.5 = 64.333…, which rounds to 64.33 mph.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "5",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Kai runs 2.4 km a day, 5 days a week. Lena runs 3.15 km a day, 4 days a week. How many kilometers farther does the one who runs farther go?",
+   "answer": 0.6,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "Kai: 2.4 × 5 = 12 km. Lena: 3.15 × 4 = 12.6 km. Lena runs 12.6 − 12 = 0.6 km farther.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "6",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "A pack of 8 pens costs $9.52. What does one pen cost, in dollars?",
+   "answer": 1.19,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "9.52 ÷ 8 = $1.19 per pen.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "7",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Five friends share a debt of −$236.75 equally. What is each friend's share, as a signed number in dollars?",
+   "answer": -47.35,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "236.75 ÷ 5 = 47.35, and a debt is negative, so each share is −$47.35.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "8",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Gas costs $3.49 per gallon and a tank holds 12.4 gallons. How much does it cost to fill the tank, rounded to the nearest cent, in dollars?",
+   "answer": 43.28,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "3.49 × 12.4 = 43.276, which rounds to $43.28.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "9",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Elena has $85.20. She spends $27.35 on shoes and $18.90 on lunch, then her aunt gives her $12.50. How much does she have now, in dollars?",
+   "answer": 51.45,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "27.35 + 18.90 = 46.25 spent. 85.20 − 46.25 = 38.95. Then 38.95 + 12.50 = $51.45.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "10",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "A recipe uses 0.375 kg of flour per loaf. How many loaves can be made from 6 kg of flour?",
+   "answer": 16,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "6 ÷ 0.375 = 6000 ÷ 375 = 16 loaves.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "11",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "A hiker starts 120.5 m above sea level and descends 7.25 m every minute for 20 minutes. What is her new elevation, as a signed number in meters?",
+   "answer": -24.5,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "She descends 20 × 7.25 = 145 m. Then 120.5 − 145 = −24.5 m (below sea level).",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  },
+  {
+   "n": "12",
+   "cat": "Applying Decimal Operations",
+   "type": "text",
+   "grade": "number",
+   "q": "Three friends each buy a $8.75 movie ticket, a $4.60 popcorn and a $3.25 drink. What is the total cost, in dollars?",
+   "answer": 49.8,
+   "hint": "Write the number only. Include the minus sign if it is negative.",
+   "word": true,
+   "why": "One friend: 8.75 + 4.60 + 3.25 = 16.60. Three friends: 3 × 16.60 = $49.80.",
+   "remember": "Decide what is happening in each step — equal groups, sharing, joining, taking away — and solve one step at a time. Debts are negative. Check whether the answer should be a whole number or rounded."
+  }
+ ]
+}
