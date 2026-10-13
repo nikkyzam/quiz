@@ -14,7 +14,7 @@
         {
           "id": "math",
           "name": "Math",
-          "blurb": "Integer operations and decimal operations: signs, order of operations, absolute value, exponents, word problems.",
+          "blurb": "Integer operations, decimal operations, and converting between fractions, decimals and percents.",
           "prefix": "sshall_",
           "tests": [
             {
@@ -114,6 +114,40 @@
                   "desc": "Round up, ignore it, or split it? Story problems about what the remainder means."
                 }
               ]
+            },
+            {
+              "id": "fdp",
+              "label": "Math",
+              "name": "Fractions, Decimals & Percents",
+              "desc": "Convert between fractions, decimals and percents, divide with negatives and rounding, and solve money word problems.",
+              "forms": [
+                {
+                  "id": "F",
+                  "name": "Full Quiz",
+                  "bank": "F",
+                  "recommended": true,
+                  "desc": "A mix of everything: conversions, quotients and word problems."
+                },
+                {
+                  "id": "C",
+                  "name": "Convert It",
+                  "bank": "C",
+                  "desc": "Fractions, decimals and percents — the conversion tables."
+                },
+                {
+                  "id": "Q",
+                  "name": "Find Each Quotient",
+                  "bank": "Q",
+                  "desc": "Dividing decimals, including negatives and rounding to the hundredths."
+                },
+                {
+                  "id": "W",
+                  "name": "Applying Decimal Operations",
+                  "bank": "W",
+                  "desc": "Money, distance and rate word problems."
+                }
+              ],
+              "lede": "Every typed answer is the number only. For percents, type the number without the % sign."
             }
           ]
         },
