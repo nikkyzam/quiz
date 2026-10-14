@@ -209,6 +209,20 @@
           "name": "Math",
           "blurb": "Eureka Math, Unit 1 quiz prep.",
           "href": "../ava-unit1-quiz.html"
+        },
+        {
+          "id": "fractions",
+          "name": "Math — Fractions",
+          "blurb": "Eureka Math² Topic C: adding and subtracting fractions, whole numbers and mixed numbers (Lessons 10–14).",
+          "prefix": "g5frac_",
+          "tests": [
+            {
+              "id": "g5c",
+              "label": "Math",
+              "name": "Topic C — Add and Subtract Mixed Numbers",
+              "desc": "Add and subtract whole numbers and mixed numbers with related and unrelated units."
+            }
+          ]
         }
       ]
     }
