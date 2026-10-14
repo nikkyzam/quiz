@@ -1,0 +1,528 @@
+[
+ {
+  "n": "1",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "4 + 2<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">8</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 3/8"
+  ],
+  "display": "6 3/8",
+  "why": "Add the wholes and keep the fraction: 4 + 2 = 6, and the fraction is 3/8. Total: 6 3/8.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "2",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "5<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span> + 7 =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "12 2/3"
+  ],
+  "display": "12 2/3",
+  "why": "Add the wholes and keep the fraction: 5 + 7 = 12, and the fraction is 2/3. Total: 12 2/3.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "3",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "3<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> + 2<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 1/4"
+  ],
+  "display": "6 1/4",
+  "why": "Rename to the same unit (4ths): 1/2 = 2/4. Add the wholes: 3 + 2 = 5. Add the fractions: 2/4 + 3/4 = 5/4, which is 1 1/4. Total: 6 1/4.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "4",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "1<span class=\"frac\"><span class=\"num\">5</span><span class=\"den\">6</span></span> + 4<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 1/6"
+  ],
+  "display": "6 1/6",
+  "why": "Rename to the same unit (6ths): 1/3 = 2/6. Add the wholes: 1 + 4 = 5. Add the fractions: 5/6 + 2/6 = 7/6, which is 1 1/6. Total: 6 1/6.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "5",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "2<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">8</span></span> + 3<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 3/8"
+  ],
+  "display": "6 3/8",
+  "why": "Rename to the same unit (8ths): 1/2 = 4/8. Add the wholes: 2 + 3 = 5. Add the fractions: 7/8 + 4/8 = 11/8, which is 1 3/8. Total: 6 3/8.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "6",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "6<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">5</span></span> + 2<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">10</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "9 3/10"
+  ],
+  "display": "9 3/10",
+  "why": "Rename to the same unit (10ths): 3/5 = 6/10. Add the wholes: 6 + 2 = 8. Add the fractions: 6/10 + 7/10 = 13/10, which is 1 3/10. Total: 9 3/10.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "7",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "A recipe uses 2<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span> cups of flour for bread and 1<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> cups for rolls. How many cups of flour is that in all?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "3 3/4"
+  ],
+  "display": "3 3/4",
+  "why": "Rename to the same unit (4ths): 1/2 = 2/4. Add the wholes: 2 + 1 = 3. Add the fractions: 1/4 + 2/4 = 3/4. Total: 3 3/4.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "8",
+  "cat": "Add: Whole & Related Units",
+  "type": "text",
+  "q": "Mia walked 1<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> miles to the park and then 2<span class=\"frac\"><span class=\"num\">5</span><span class=\"den\">12</span></span> miles to the library. How many miles did she walk in all?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 1/6"
+  ],
+  "display": "4 1/6",
+  "why": "Rename to the same unit (12ths): 3/4 = 9/12. Add the wholes: 1 + 2 = 3. Add the fractions: 9/12 + 5/12 = 14/12, which is 1 2/12. Total: 4 1/6.",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "9",
+  "cat": "Add: Whole & Related Units",
+  "type": "mc",
+  "q": "Which is the best estimate of 3 7/8 + 2 1/10?",
+  "choices": [
+   "5",
+   "6",
+   "7",
+   "8"
+  ],
+  "answer": 1,
+  "why": "3 7/8 is a little less than 4, and 2 1/10 is a little more than 2, so the sum is about 4 + 2 = 6. (Exactly, 3 35/40 + 2 4/40 = 5 39/40.)",
+  "remember": "Add the whole numbers, then add the fractions. If the units are related (like halves and fourths), rename one fraction so both have the same unit. If the fractions make more than 1 whole, rename it as a whole and add it on."
+ },
+ {
+  "n": "10",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "2<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span> + 1<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "3 7/12"
+  ],
+  "display": "3 7/12",
+  "why": "Rename to the same unit (12ths): 1/3 = 4/12 and 1/4 = 3/12. Add the wholes: 2 + 1 = 3. Add the fractions: 4/12 + 3/12 = 7/12. Total: 3 7/12.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "11",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "3<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">5</span></span> + 2<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "5 9/10"
+  ],
+  "display": "5 9/10",
+  "why": "Rename to the same unit (10ths): 2/5 = 4/10 and 1/2 = 5/10. Add the wholes: 3 + 2 = 5. Add the fractions: 4/10 + 5/10 = 9/10. Total: 5 9/10.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "12",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "4<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> + 2<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "7 5/12"
+  ],
+  "display": "7 5/12",
+  "why": "Rename to the same unit (12ths): 3/4 = 9/12 and 2/3 = 8/12. Add the wholes: 4 + 2 = 6. Add the fractions: 9/12 + 8/12 = 17/12, which is 1 5/12. Total: 7 5/12.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "13",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "1<span class=\"frac\"><span class=\"num\">5</span><span class=\"den\">6</span></span> + 3<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "5 7/12"
+  ],
+  "display": "5 7/12",
+  "why": "Rename to the same unit (12ths): 5/6 = 10/12 and 3/4 = 9/12. Add the wholes: 1 + 3 = 4. Add the fractions: 10/12 + 9/12 = 19/12, which is 1 7/12. Total: 5 7/12.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "14",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "5<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">5</span></span> + 1<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "7 7/20"
+  ],
+  "display": "7 7/20",
+  "why": "Rename to the same unit (20ths): 3/5 = 12/20 and 3/4 = 15/20. Add the wholes: 5 + 1 = 6. Add the fractions: 12/20 + 15/20 = 27/20, which is 1 7/20. Total: 7 7/20.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "15",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "6<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span> + 2<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">5</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "9 7/15"
+  ],
+  "display": "9 7/15",
+  "why": "Rename to the same unit (15ths): 2/3 = 10/15 and 4/5 = 12/15. Add the wholes: 6 + 2 = 8. Add the fractions: 10/15 + 12/15 = 22/15, which is 1 7/15. Total: 9 7/15.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "16",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "Jake ran 2<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span> miles on Saturday and 3<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> miles on Sunday. How many miles did he run in all?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 1/12"
+  ],
+  "display": "6 1/12",
+  "why": "Rename to the same unit (12ths): 1/3 = 4/12 and 3/4 = 9/12. Add the wholes: 2 + 3 = 5. Add the fractions: 4/12 + 9/12 = 13/12, which is 1 1/12. Total: 6 1/12.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "17",
+  "cat": "Add: Unrelated Units",
+  "type": "text",
+  "q": "A board that is 4<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> feet long is joined to a board that is 3<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span> feet long. How long are the two boards together, in feet?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "8 1/6"
+  ],
+  "display": "8 1/6",
+  "why": "Rename to the same unit (6ths): 1/2 = 3/6 and 2/3 = 4/6. Add the wholes: 4 + 3 = 7. Add the fractions: 3/6 + 4/6 = 7/6, which is 1 1/6. Total: 8 1/6.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "18",
+  "cat": "Add: Unrelated Units",
+  "type": "mc",
+  "q": "A student wrote 2 1/3 + 1 1/4 = 3 2/7. What was the mistake?",
+  "choices": [
+   "The student forgot to add the whole numbers",
+   "The student should have subtracted",
+   "The student added the numerators and the denominators instead of renaming to a common unit",
+   "There is no mistake"
+  ],
+  "answer": 2,
+  "why": "Thirds and fourths are different units, so you must rename them as twelfths first: 4/12 + 3/12 = 7/12. The correct sum is 3 7/12.",
+  "remember": "Unrelated units (like thirds and fourths) need a common unit first: find a common multiple of the denominators, rename both fractions, then add the wholes and the fractions. Rename any extra wholes at the end."
+ },
+ {
+  "n": "19",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "6<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">8</span></span> − 2 =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 3/8"
+  ],
+  "display": "4 3/8",
+  "why": "Subtract the wholes and keep the fraction: 6 − 2 = 4, so the answer is 4 3/8.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "20",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "9<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">5</span></span> − 4 =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "5 2/5"
+  ],
+  "display": "5 2/5",
+  "why": "Subtract the wholes and keep the fraction: 9 − 4 = 5, so the answer is 5 2/5.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "21",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "5 − 2<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">8</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "2 5/8"
+  ],
+  "display": "2 5/8",
+  "why": "Rename 1 whole from 5 as 8/8: 5 = 4 and 8/8. Subtract the fractions: 8/8 − 3/8 = 5/8, and the wholes: 4 − 2 = 2. The difference is 2 5/8.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "22",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "8 − 3<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">6</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 5/6"
+  ],
+  "display": "4 5/6",
+  "why": "Rename 1 whole from 8 as 6/6: 8 = 7 and 6/6. Subtract the fractions: 6/6 − 1/6 = 5/6, and the wholes: 7 − 3 = 4. The difference is 4 5/6.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "23",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "4 − 1<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">10</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "2 3/10"
+  ],
+  "display": "2 3/10",
+  "why": "Rename 1 whole from 4 as 10/10: 4 = 3 and 10/10. Subtract the fractions: 10/10 − 7/10 = 3/10, and the wholes: 3 − 1 = 2. The difference is 2 3/10.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "24",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "12 − 5<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">9</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 7/9"
+  ],
+  "display": "6 7/9",
+  "why": "Rename 1 whole from 12 as 9/9: 12 = 11 and 9/9. Subtract the fractions: 9/9 − 2/9 = 7/9, and the wholes: 11 − 5 = 6. The difference is 6 7/9.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "25",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "A ribbon is 7 yards long. Ana cuts off 2<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> yards. How many yards of ribbon are left?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 1/4"
+  ],
+  "display": "4 1/4",
+  "why": "Rename 1 whole from 7 as 4/4: 7 = 6 and 4/4. Subtract the fractions: 4/4 − 3/4 = 1/4, and the wholes: 6 − 2 = 4. The difference is 4 1/4.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "26",
+  "cat": "Subtract: Whole Numbers",
+  "type": "text",
+  "q": "A baker had 10 pounds of flour and used 4<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">8</span></span> pounds. How many pounds of flour are left?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "5 5/8"
+  ],
+  "display": "5 5/8",
+  "why": "Rename 1 whole from 10 as 8/8: 10 = 9 and 8/8. Subtract the fractions: 8/8 − 3/8 = 5/8, and the wholes: 9 − 4 = 5. The difference is 5 5/8.",
+  "remember": "To subtract a mixed number from a whole number, rename 1 whole as a fraction (like 5 = 4 and 3/3). To subtract a whole number from a mixed number, just subtract the wholes and keep the fraction."
+ },
+ {
+  "n": "27",
+  "cat": "Subtract: Related Units",
+  "type": "text",
+  "q": "5<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> − 2<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "3 1/2"
+  ],
+  "display": "3 1/2",
+  "why": "Subtract the wholes: 5 − 2 = 3. Subtract the fractions: 3/4 − 1/4 = 2/4. The difference is 3 1/2.",
+  "remember": "Related units: rename one fraction so the units match. If the fraction you are subtracting is bigger, rename 1 whole from the whole-number part as a fraction first, then subtract wholes and fractions."
+ },
+ {
+  "n": "28",
+  "cat": "Subtract: Related Units",
+  "type": "text",
+  "q": "6<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> − 2<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 1/4"
+  ],
+  "display": "4 1/4",
+  "why": "Rename to the same unit (4ths): 1/2 = 2/4. Subtract the wholes: 6 − 2 = 4. Subtract the fractions: 2/4 − 1/4 = 1/4. The difference is 4 1/4.",
+  "remember": "Related units: rename one fraction so the units match. If the fraction you are subtracting is bigger, rename 1 whole from the whole-number part as a fraction first, then subtract wholes and fractions."
+ },
+ {
+  "n": "29",
+  "cat": "Subtract: Related Units",
+  "type": "text",
+  "q": "7<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span> − 3<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "3 3/4"
+  ],
+  "display": "3 3/4",
+  "why": "Rename to the same unit (4ths): 1/2 = 2/4. 1/4 is less than 2/4, so rename 1 whole from 7 as 4/4: 7 1/4 = 6 5/4. Subtract the wholes: 6 − 3 = 3. Subtract the fractions: 5/4 − 2/4 = 3/4. The difference is 3 3/4.",
+  "remember": "Related units: rename one fraction so the units match. If the fraction you are subtracting is bigger, rename 1 whole from the whole-number part as a fraction first, then subtract wholes and fractions."
+ },
+ {
+  "n": "30",
+  "cat": "Subtract: Related Units",
+  "type": "text",
+  "q": "8<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span> − 4<span class=\"frac\"><span class=\"num\">5</span><span class=\"den\">6</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "3 1/2"
+  ],
+  "display": "3 1/2",
+  "why": "Rename to the same unit (6ths): 1/3 = 2/6. 2/6 is less than 5/6, so rename 1 whole from 8 as 6/6: 8 2/6 = 7 8/6. Subtract the wholes: 7 − 4 = 3. Subtract the fractions: 8/6 − 5/6 = 3/6. The difference is 3 1/2.",
+  "remember": "Related units: rename one fraction so the units match. If the fraction you are subtracting is bigger, rename 1 whole from the whole-number part as a fraction first, then subtract wholes and fractions."
+ },
+ {
+  "n": "31",
+  "cat": "Subtract: Related Units",
+  "type": "text",
+  "q": "9<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">5</span></span> − 3<span class=\"frac\"><span class=\"num\">7</span><span class=\"den\">10</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "5 1/2"
+  ],
+  "display": "5 1/2",
+  "why": "Rename to the same unit (10ths): 1/5 = 2/10. 2/10 is less than 7/10, so rename 1 whole from 9 as 10/10: 9 2/10 = 8 12/10. Subtract the wholes: 8 − 3 = 5. Subtract the fractions: 12/10 − 7/10 = 5/10. The difference is 5 1/2.",
+  "remember": "Related units: rename one fraction so the units match. If the fraction you are subtracting is bigger, rename 1 whole from the whole-number part as a fraction first, then subtract wholes and fractions."
+ },
+ {
+  "n": "32",
+  "cat": "Subtract: Related Units",
+  "type": "text",
+  "q": "6<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">8</span></span> − 1<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 5/8"
+  ],
+  "display": "4 5/8",
+  "why": "Rename to the same unit (8ths): 3/4 = 6/8. 3/8 is less than 6/8, so rename 1 whole from 6 as 8/8: 6 3/8 = 5 11/8. Subtract the wholes: 5 − 1 = 4. Subtract the fractions: 11/8 − 6/8 = 5/8. The difference is 4 5/8.",
+  "remember": "Related units: rename one fraction so the units match. If the fraction you are subtracting is bigger, rename 1 whole from the whole-number part as a fraction first, then subtract wholes and fractions."
+ },
+ {
+  "n": "33",
+  "cat": "Subtract: Related Units",
+  "type": "text",
+  "q": "A tank held 12<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> gallons of water. After watering the garden, 5<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> gallons had been used. How many gallons are left?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 3/4"
+  ],
+  "display": "6 3/4",
+  "why": "Rename to the same unit (4ths): 1/2 = 2/4. 2/4 is less than 3/4, so rename 1 whole from 12 as 4/4: 12 2/4 = 11 6/4. Subtract the wholes: 11 − 5 = 6. Subtract the fractions: 6/4 − 3/4 = 3/4. The difference is 6 3/4.",
+  "remember": "Related units: rename one fraction so the units match. If the fraction you are subtracting is bigger, rename 1 whole from the whole-number part as a fraction first, then subtract wholes and fractions."
+ },
+ {
+  "n": "34",
+  "cat": "Subtract: Unrelated Units",
+  "type": "text",
+  "q": "5<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span> − 2<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "3 5/12"
+  ],
+  "display": "3 5/12",
+  "why": "Rename to the same unit (12ths): 2/3 = 8/12 and 1/4 = 3/12. Subtract the wholes: 5 − 2 = 3. Subtract the fractions: 8/12 − 3/12 = 5/12. The difference is 3 5/12.",
+  "remember": "Unrelated units: rename both fractions with a common unit first. If you cannot subtract the fractions, rename 1 whole as a fraction with that unit. Always simplify at the end."
+ },
+ {
+  "n": "35",
+  "cat": "Subtract: Unrelated Units",
+  "type": "text",
+  "q": "7<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> − 3<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">3</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 1/6"
+  ],
+  "display": "4 1/6",
+  "why": "Rename to the same unit (6ths): 1/2 = 3/6 and 1/3 = 2/6. Subtract the wholes: 7 − 3 = 4. Subtract the fractions: 3/6 − 2/6 = 1/6. The difference is 4 1/6.",
+  "remember": "Unrelated units: rename both fractions with a common unit first. If you cannot subtract the fractions, rename 1 whole as a fraction with that unit. Always simplify at the end."
+ },
+ {
+  "n": "36",
+  "cat": "Subtract: Unrelated Units",
+  "type": "text",
+  "q": "6<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">4</span></span> − 2<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">3</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "3 7/12"
+  ],
+  "display": "3 7/12",
+  "why": "Rename to the same unit (12ths): 1/4 = 3/12 and 2/3 = 8/12. 3/12 is less than 8/12, so rename 1 whole from 6 as 12/12: 6 3/12 = 5 15/12. Subtract the wholes: 5 − 2 = 3. Subtract the fractions: 15/12 − 8/12 = 7/12. The difference is 3 7/12.",
+  "remember": "Unrelated units: rename both fractions with a common unit first. If you cannot subtract the fractions, rename 1 whole as a fraction with that unit. Always simplify at the end."
+ },
+ {
+  "n": "37",
+  "cat": "Subtract: Unrelated Units",
+  "type": "text",
+  "q": "9<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">5</span></span> − 4<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "4 9/20"
+  ],
+  "display": "4 9/20",
+  "why": "Rename to the same unit (20ths): 1/5 = 4/20 and 3/4 = 15/20. 4/20 is less than 15/20, so rename 1 whole from 9 as 20/20: 9 4/20 = 8 24/20. Subtract the wholes: 8 − 4 = 4. Subtract the fractions: 24/20 − 15/20 = 9/20. The difference is 4 9/20.",
+  "remember": "Unrelated units: rename both fractions with a common unit first. If you cannot subtract the fractions, rename 1 whole as a fraction with that unit. Always simplify at the end."
+ },
+ {
+  "n": "38",
+  "cat": "Subtract: Unrelated Units",
+  "type": "text",
+  "q": "8<span class=\"frac\"><span class=\"num\">3</span><span class=\"den\">4</span></span> − 5<span class=\"frac\"><span class=\"num\">4</span><span class=\"den\">5</span></span> =",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "2 19/20"
+  ],
+  "display": "2 19/20",
+  "why": "Rename to the same unit (20ths): 3/4 = 15/20 and 4/5 = 16/20. 15/20 is less than 16/20, so rename 1 whole from 8 as 20/20: 8 15/20 = 7 35/20. Subtract the wholes: 7 − 5 = 2. Subtract the fractions: 35/20 − 16/20 = 19/20. The difference is 2 19/20.",
+  "remember": "Unrelated units: rename both fractions with a common unit first. If you cannot subtract the fractions, rename 1 whole as a fraction with that unit. Always simplify at the end."
+ },
+ {
+  "n": "39",
+  "cat": "Subtract: Unrelated Units",
+  "type": "text",
+  "q": "A rope is 10<span class=\"frac\"><span class=\"num\">2</span><span class=\"den\">5</span></span> meters long. Sam cuts off 3<span class=\"frac\"><span class=\"num\">1</span><span class=\"den\">2</span></span> meters. How many meters of rope are left?",
+  "hint": "Write a mixed number like 3 1/4 (whole number, a space, then the fraction), in simplest form.",
+  "accept": [
+   "6 9/10"
+  ],
+  "display": "6 9/10",
+  "why": "Rename to the same unit (10ths): 2/5 = 4/10 and 1/2 = 5/10. 4/10 is less than 5/10, so rename 1 whole from 10 as 10/10: 10 4/10 = 9 14/10. Subtract the wholes: 9 − 3 = 6. Subtract the fractions: 14/10 − 5/10 = 9/10. The difference is 6 9/10.",
+  "remember": "Unrelated units: rename both fractions with a common unit first. If you cannot subtract the fractions, rename 1 whole as a fraction with that unit. Always simplify at the end."
+ },
+ {
+  "n": "40",
+  "cat": "Subtract: Unrelated Units",
+  "type": "mc",
+  "q": "What is the best first step to solve 6 1/4 − 2 2/3?",
+  "choices": [
+   "Rename both fractions as twelfths",
+   "Subtract 6 − 2 and ignore the fractions",
+   "Subtract 1 − 2 for the numerators",
+   "Add 1/4 and 2/3"
+  ],
+  "answer": 0,
+  "why": "Fourths and thirds are unrelated units, so first rename both as twelfths: 3/12 and 8/12. Then, since 3/12 is less than 8/12, rename 1 whole to subtract. The answer is 3 7/12.",
+  "remember": "Unrelated units: rename both fractions with a common unit first. If you cannot subtract the fractions, rename 1 whole as a fraction with that unit. Always simplify at the end."
+ }
+]
